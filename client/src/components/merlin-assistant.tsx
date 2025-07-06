@@ -168,7 +168,7 @@ export function MerlinAssistant({ userMood, hasJournalToday, recentEntry }: Merl
                 Merlin
               </CardTitle>
               <p className="text-center text-sm text-amber-600 dark:text-amber-400 italic">
-                "Welcome, {userName || 'friend'}. How may I guide your journey today?"
+                "What wisdom do you seek today?"
               </p>
             </CardHeader>
 
