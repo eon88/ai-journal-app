@@ -47,7 +47,7 @@ export function GrowthDashboard() {
   if (!metrics) return null;
 
   return (
-    <div className="bg-gray-100 rounded-lg shadow-sm border p-6">
+    <div className="bg-gray-100/80 rounded-lg shadow-sm border p-6">
       <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
         <TrendingUp className="w-5 h-5 text-green-500" />
         Growth Map
