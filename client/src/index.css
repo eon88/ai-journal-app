@@ -140,6 +140,18 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
   }
   
+  /* More transparent glass effect for journal entry form */
+  .glass-card-transparent {
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+  
+  .dark .glass-card-transparent {
+    background: rgba(0, 0, 0, 0.51);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
   .glass-overlay {
     background: rgba(255, 255, 255, 0.96);
     backdrop-filter: blur(8px);

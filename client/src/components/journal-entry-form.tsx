@@ -111,10 +111,10 @@ export function JournalEntryForm({ onAnalysisResult }: JournalEntryFormProps) {
   };
 
   return (
-    <div className="glass-card rounded-xl shadow-sm p-8 mb-8">
+    <div className="glass-card-transparent rounded-xl shadow-sm p-8 mb-8">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-journal-text">Today's Entry</h2>
-        <div className="flex items-center space-x-2 text-sm text-gray-500">
+        <h2 className="text-xl font-semibold text-white">Today's Entry</h2>
+        <div className="flex items-center space-x-2 text-sm text-white">
           <Clock className="w-4 h-4" />
           <span>{formatTime()}</span>
         </div>
@@ -122,7 +122,7 @@ export function JournalEntryForm({ onAnalysisResult }: JournalEntryFormProps) {
       
       <div className="space-y-4">
         <div className="relative">
-          <label htmlFor="entry" className="block text-sm font-medium text-journal-text mb-2">
+          <label htmlFor="entry" className="block text-sm font-medium text-white mb-2">
             What's on your mind today?
           </label>
           <Textarea 
