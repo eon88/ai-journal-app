@@ -65,8 +65,9 @@ The application uses a simple but effective schema:
 10. **Streak & Scoreboard System**: Gamification with current streak, total entries, longest streak, and XP points
 11. **Growth Map Dashboard**: Visual analytics showing mood trends, writing frequency, and common themes
 12. **Insights Vault**: Personal library for saving and organizing meaningful insights, lessons, and goals
-13. **Entry History**: View and browse previous journal entries with mood and tag filtering
-14. **Responsive Design**: Mobile-first design with adaptive layouts that work across all devices
+13. **Merlin AI Assistant**: Narrative-based AI mentor providing daily prophecies, reflection guidance, and goal alignment with mystical, fantasy-themed interface
+14. **Entry History**: View and browse previous journal entries with mood and tag filtering
+15. **Responsive Design**: Mobile-first design with adaptive layouts that work across all devices
 
 ## Data Flow
 
@@ -124,6 +125,7 @@ Changelog:
 - July 06, 2025. Enhanced periodic reflections - Added directional insights, emerging goals, and achievement suggestions
 - July 06, 2025. Gamification system - Added streak tracking, XP points, growth dashboard, and insights vault for complete life path companion experience
 - July 06, 2025. Advanced gamification - Implemented leveling system, achievement badges, daily challenges, and enhanced user progression based on Alex's friend's suggestions
+- July 06, 2025. Merlin AI Assistant - Added narrative-based AI mentor "Merlin the Wise" with fantasy-themed UI, daily prophecies, reflection guidance, and goal alignment consultation using GPT-4o
 ```
 
 ## User Preferences

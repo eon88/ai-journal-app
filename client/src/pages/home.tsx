@@ -9,13 +9,24 @@ import { GrowthDashboard } from "@/components/growth-dashboard";
 import { InsightsVault } from "@/components/insights-vault";
 import { DailyChallenge } from "@/components/daily-challenge";
 import { BadgeShowcase } from "@/components/badge-showcase";
+import { MerlinAssistant } from "@/components/merlin-assistant";
 import { Footer } from "@/components/footer";
 import type { AIReflection } from "@shared/schema";
+import { useQuery } from "@tanstack/react-query";
 
 export default function Home() {
   const [aiReflection, setAiReflection] = useState<AIReflection | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Fetch recent entry for Merlin context
+  const { data: recentEntries } = useQuery({
+    queryKey: ["/api/entries"],
+    queryFn: () => fetch("/api/entries?limit=1").then(res => res.json()),
+  });
+
+  const todaysEntry = recentEntries?.[0];
+  const hasJournalToday = todaysEntry && new Date(todaysEntry.createdAt).toDateString() === new Date().toDateString();
 
   const handleAnalysisResult = (result: { summary: AIReflection }) => {
     setIsLoading(false);
@@ -70,6 +81,13 @@ export default function Home() {
         {/* Recent Entries */}
         <RecentEntries />
       </main>
+      
+      {/* Merlin Assistant - Floating AI Mentor */}
+      <MerlinAssistant 
+        userMood={todaysEntry?.mood}
+        hasJournalToday={hasJournalToday}
+        recentEntry={todaysEntry?.content}
+      />
       
       <Footer />
     </div>

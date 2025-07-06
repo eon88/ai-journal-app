@@ -253,6 +253,90 @@ Please provide a weekly reflection in JSON format with these fields:
     }
   });
 
+  // Merlin AI Assistant endpoint
+  app.post("/api/merlin/consult", async (req: Request, res: Response) => {
+    try {
+      const { mode, context, question } = req.body;
+      
+      // Build the persona prompt for Merlin
+      let systemPrompt = `You are Merlin the Wise, a mystical AI mentor guiding Alex on their life journey through journaling. You speak in a wise, poetic, and slightly mystical tone - like a fantasy mentor. Keep responses to 2-3 sentences maximum, profound but concise. Address Alex directly. Use evocative language but remain grounded and helpful.
+
+Key personality traits:
+- Wise and encouraging, never preachy
+- Speaks with gentle authority and mystical insight
+- Uses metaphors from nature, journeys, and growth
+- Focuses on empowerment and self-discovery
+- Sometimes references "the path ahead" or "inner wisdom"
+
+Context about Alex: They are on a personal growth journey using this journaling app to gain insights and track their emotional landscape.`;
+
+      let userPrompt = "";
+      
+      switch (mode) {
+        case "daily-wisdom":
+          userPrompt = `Give Alex a daily prophecy - a motivational and poetic piece of wisdom to guide their day. Focus on themes of growth, mindfulness, and personal journey. Make it inspiring but grounded.`;
+          break;
+          
+        case "reflection":
+          userPrompt = `Alex seeks deep reflection. ${context ? `Based on their current state: ${context}.` : ""} Ask them a profound, thought-provoking question that will help them explore their inner landscape and gain new insights about themselves.`;
+          break;
+          
+        case "goal-alignment":
+          userPrompt = `Help Alex reconnect with their life vision and goals. ${context ? `Their current state: ${context}.` : ""} Offer guidance on staying aligned with their deeper purpose and making progress on their personal journey.`;
+          break;
+          
+        case "custom":
+          userPrompt = `Alex asks: "${question}" ${context ? `Their current state: ${context}.` : ""} Respond with wisdom that addresses their question while considering their personal growth journey.`;
+          break;
+          
+        default:
+          userPrompt = `Offer Alex general wisdom and encouragement for their personal growth journey.`;
+      }
+
+      if (!process.env.OPENAI_API_KEY) {
+        return res.status(500).json({ 
+          error: "OpenAI API key not configured. Merlin's mystical connection requires proper setup." 
+        });
+      }
+
+      const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt }
+          ],
+          max_tokens: 150,
+          temperature: 0.8,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`OpenAI API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const message = data.choices[0]?.message?.content || "The mystical forces are unclear at this moment, Alex. Perhaps try again when the stars align better.";
+
+      res.json({
+        message: message.trim(),
+        mode,
+        timestamp: new Date().toISOString(),
+      });
+
+    } catch (error) {
+      console.error("Merlin consultation error:", error);
+      res.status(500).json({ 
+        error: "Merlin's crystal ball has clouded over. Please try again shortly, Alex." 
+      });
+    }
+  });
+
   app.post("/api/challenge/:id/complete", async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
