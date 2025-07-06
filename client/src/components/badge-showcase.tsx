@@ -21,15 +21,15 @@ export function BadgeShowcase() {
 
   if (isLoading) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+      <div className="glass-card-transparent rounded-xl shadow-sm p-6">
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-white flex items-center gap-2">
             <Trophy className="h-5 w-5" />
             Achievement Badges
-          </CardTitle>
-          <CardDescription>Loading your achievements...</CardDescription>
-        </CardHeader>
-      </Card>
+          </h3>
+          <p className="text-sm text-white/80">Loading your achievements...</p>
+        </div>
+      </div>
     );
   }
 
@@ -37,21 +37,21 @@ export function BadgeShowcase() {
   const lockedBadges = badges.filter(badge => !badge.unlockedAt);
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+    <div className="glass-card-transparent rounded-xl shadow-sm p-6">
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold text-white flex items-center gap-2">
           <Trophy className="h-5 w-5" />
           Achievement Badges
-        </CardTitle>
-        <CardDescription>
+        </h3>
+        <p className="text-sm text-white/80">
           {unlockedBadges.length} of {badges.length} badges unlocked
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+        </p>
+      </div>
+      <div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Unlocked Badges */}
           <div>
-            <h4 className="font-medium text-sm text-muted-foreground mb-3 flex items-center gap-2">
+            <h4 className="font-medium text-sm text-white/80 mb-3 flex items-center gap-2">
               <Star className="h-4 w-4" />
               Unlocked ({unlockedBadges.length})
             </h4>
@@ -85,7 +85,7 @@ export function BadgeShowcase() {
 
           {/* Locked Badges */}
           <div>
-            <h4 className="font-medium text-sm text-muted-foreground mb-3 flex items-center gap-2">
+            <h4 className="font-medium text-sm text-white/80 mb-3 flex items-center gap-2">
               <Lock className="h-4 w-4" />
               Locked ({lockedBadges.length})
             </h4>
@@ -110,7 +110,7 @@ export function BadgeShowcase() {
             </div>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
