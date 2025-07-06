@@ -1,4 +1,4 @@
-import { pgTable, text, serial, timestamp, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, timestamp, jsonb, integer } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -52,4 +52,41 @@ export interface MonthlyReflection {
   emergingGoals: string[];
   goalAchievementSuggestions: string[];
   processingTime: number;
+}
+
+export const userStats = pgTable("user_stats", {
+  id: serial("id").primaryKey(),
+  totalEntries: integer("total_entries").default(0).notNull(),
+  currentStreak: integer("current_streak").default(0).notNull(),
+  longestStreak: integer("longest_streak").default(0).notNull(),
+  xpPoints: integer("xp_points").default(0).notNull(),
+  lastEntryDate: timestamp("last_entry_date"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const savedInsights = pgTable("saved_insights", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  content: text("content").notNull(),
+  category: text("category").notNull(), // 'insight', 'lesson', 'goal'
+  source: text("source").notNull(), // 'daily', 'weekly', 'monthly'
+  entryId: integer("entry_id").references(() => journalEntries.id),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type UserStats = typeof userStats.$inferSelect;
+export type InsertUserStats = typeof userStats.$inferInsert;
+
+export type SavedInsight = typeof savedInsights.$inferSelect;
+export type InsertSavedInsight = typeof savedInsights.$inferInsert;
+
+export interface GrowthMetrics {
+  totalEntries: number;
+  currentStreak: number;
+  longestStreak: number;
+  xpPoints: number;
+  moodTrends: Array<{ mood: string; count: number; percentage: number }>;
+  commonThemes: Array<{ theme: string; frequency: number }>;
+  writingFrequency: Array<{ date: string; count: number }>;
 }

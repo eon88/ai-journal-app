@@ -46,6 +46,11 @@ The application uses a simple but effective schema:
 - `POST /api/analyze` - Analyze journal entry and generate AI reflection
 - `GET /api/reflect/weekly?weekStart=YYYY-MM-DD` - Generate weekly reflection for specified week
 - `GET /api/reflect/monthly?month=MonthName&year=YYYY` - Generate monthly reflection with goal suggestions
+- `GET /api/stats` - Fetch user statistics (streak, total entries, XP points)
+- `GET /api/growth-metrics` - Comprehensive growth analytics and trends
+- `GET /api/insights` - Fetch saved insights from personal vault
+- `POST /api/insights` - Save new insight to personal vault
+- `DELETE /api/insights/:id` - Remove insight from vault
 
 ### Core Features
 1. **Journal Entry Creation**: Users can write journal entries with rich text formatting
@@ -54,8 +59,11 @@ The application uses a simple but effective schema:
 4. **AI-Powered Reflections**: Integration with OpenAI GPT-4o to generate insights, growth patterns, and reflection questions
 5. **Weekly Reflections**: AI analysis of week's entries providing direction, momentum, emerging goals, and growth patterns
 6. **Monthly Reflections**: Comprehensive AI insights including life direction, emerging goals, and concrete achievement suggestions
-7. **Entry History**: View and browse previous journal entries with mood and tag filtering
-8. **Responsive Design**: Mobile-first design with adaptive layouts that work across all devices
+7. **Streak & Scoreboard System**: Gamification with current streak, total entries, longest streak, and XP points
+8. **Growth Map Dashboard**: Visual analytics showing mood trends, writing frequency, and common themes
+9. **Insights Vault**: Personal library for saving and organizing meaningful insights, lessons, and goals
+10. **Entry History**: View and browse previous journal entries with mood and tag filtering
+11. **Responsive Design**: Mobile-first design with adaptive layouts that work across all devices
 
 ## Data Flow
 
@@ -110,7 +118,8 @@ Changelog:
 - July 06, 2025. Initial setup - Created AI-powered journaling app with React frontend and Express backend
 - July 06, 2025. Added PostgreSQL database - Replaced in-memory storage with persistent PostgreSQL database using Drizzle ORM
 - July 06, 2025. Added mood and tags functionality - Users can now select moods and add custom tags to journal entries
-- July 06, 2025. Production ready - Resolved frontend caching issues and completed all core features
+- July 06, 2025. Enhanced periodic reflections - Added directional insights, emerging goals, and achievement suggestions
+- July 06, 2025. Gamification system - Added streak tracking, XP points, growth dashboard, and insights vault for complete life path companion experience
 ```
 
 ## User Preferences

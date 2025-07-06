@@ -4,6 +4,9 @@ import { JournalEntryForm } from "@/components/journal-entry-form";
 import { AIReflectionComponent } from "@/components/ai-reflection";
 import { RecentEntries } from "@/components/recent-entries";
 import { PeriodicReflections } from "@/components/periodic-reflections";
+import { StreakScoreboard } from "@/components/streak-scoreboard";
+import { GrowthDashboard } from "@/components/growth-dashboard";
+import { InsightsVault } from "@/components/insights-vault";
 import { Footer } from "@/components/footer";
 import type { AIReflection } from "@shared/schema";
 
@@ -29,18 +32,35 @@ export default function Home() {
     <div className="min-h-screen bg-journal-secondary font-inter">
       <Header />
       
-      <main className="max-w-4xl mx-auto px-4 py-8">
-        <JournalEntryForm onAnalysisResult={handleAnalysisResult} />
+      <main className="max-w-6xl mx-auto px-4 py-8 space-y-8">
+        {/* Streak and Progress Overview */}
+        <StreakScoreboard />
         
-        <AIReflectionComponent 
-          reflection={aiReflection}
-          isLoading={isLoading}
-          error={error}
-          onRegenerate={handleRegenerate}
-        />
+        {/* Journal Entry and AI Reflection */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="space-y-6">
+            <JournalEntryForm onAnalysisResult={handleAnalysisResult} />
+            <AIReflectionComponent 
+              reflection={aiReflection}
+              isLoading={isLoading}
+              error={error}
+              onRegenerate={handleRegenerate}
+            />
+          </div>
+          
+          {/* Growth Dashboard */}
+          <div>
+            <GrowthDashboard />
+          </div>
+        </div>
         
+        {/* Periodic Reflections */}
         <PeriodicReflections />
         
+        {/* Insights Vault */}
+        <InsightsVault />
+        
+        {/* Recent Entries */}
         <RecentEntries />
       </main>
       

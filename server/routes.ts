@@ -171,6 +171,66 @@ Please provide a weekly reflection in JSON format with these fields:
     }
   });
 
+  // Get user stats and growth metrics
+  app.get("/api/stats", async (req: Request, res: Response) => {
+    try {
+      const stats = await storage.getUserStats();
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching user stats:", error);
+      res.status(500).json({ error: "Failed to fetch user stats" });
+    }
+  });
+
+  app.get("/api/growth-metrics", async (req: Request, res: Response) => {
+    try {
+      const metrics = await storage.getGrowthMetrics();
+      res.json(metrics);
+    } catch (error) {
+      console.error("Error fetching growth metrics:", error);
+      res.status(500).json({ error: "Failed to fetch growth metrics" });
+    }
+  });
+
+  // Saved insights management
+  app.get("/api/insights", async (req: Request, res: Response) => {
+    try {
+      const insights = await storage.getSavedInsights();
+      res.json(insights);
+    } catch (error) {
+      console.error("Error fetching saved insights:", error);
+      res.status(500).json({ error: "Failed to fetch saved insights" });
+    }
+  });
+
+  app.post("/api/insights", async (req: Request, res: Response) => {
+    try {
+      const { title, content, category, source, entryId } = req.body;
+      const insight = await storage.saveInsight({
+        title,
+        content,
+        category,
+        source,
+        entryId: entryId || null,
+      });
+      res.json(insight);
+    } catch (error) {
+      console.error("Error saving insight:", error);
+      res.status(500).json({ error: "Failed to save insight" });
+    }
+  });
+
+  app.delete("/api/insights/:id", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteSavedInsight(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting insight:", error);
+      res.status(500).json({ error: "Failed to delete insight" });
+    }
+  });
+
   // Get monthly reflection
   app.get("/api/reflect/monthly", async (req, res) => {
     try {
