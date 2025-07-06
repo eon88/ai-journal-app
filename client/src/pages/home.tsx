@@ -48,9 +48,6 @@ export default function Home() {
       <Header />
       
       <main className="max-w-6xl mx-auto px-4 py-8 space-y-8">
-        {/* Streak and Progress Overview */}
-        <StreakScoreboard />
-        
         {/* Main Content with Sidebar */}
         <div className="flex gap-8">
           {/* Left Sidebar - Level Category */}
