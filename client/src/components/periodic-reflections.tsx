@@ -86,20 +86,20 @@ export function PeriodicReflections() {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-2xl font-semibold text-journal-text mb-2">Periodic Reflections</h2>
-        <p className="text-gray-600">Get AI-powered insights about your journaling patterns over time</p>
+        <h2 className="text-2xl font-semibold text-white mb-2">Periodic Reflections</h2>
+        <p className="text-white/80">Get AI-powered insights about your journaling patterns over time</p>
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
         {/* Weekly Reflection */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+        <div className="glass-card-transparent rounded-xl shadow-sm p-6">
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold text-white flex items-center gap-2">
               <Calendar className="w-5 h-5" />
               Weekly Reflection
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+            </h3>
+          </div>
+          <div className="space-y-4">
             <Button 
               onClick={handleWeeklyReflection}
               disabled={weeklyMutation.isPending}
@@ -114,13 +114,13 @@ export function PeriodicReflections() {
             {weeklyReflection && (
               <div className="space-y-4 pt-4 border-t">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-medium">Week of {weeklyReflection.weekStart}</h3>
+                  <h3 className="font-medium text-white">Week of {weeklyReflection.weekStart}</h3>
                   <Badge variant="secondary">{weeklyReflection.entryCount} entries</Badge>
                 </div>
 
                 <div className="space-y-3">
                   <div>
-                    <h4 className="font-medium flex items-center gap-2 text-sm">
+                    <h4 className="font-medium flex items-center gap-2 text-sm text-white/80">
                       <TrendingUp className="w-4 h-4" />
                       Dominant Moods
                     </h4>
@@ -138,7 +138,7 @@ export function PeriodicReflections() {
                       <BarChart3 className="w-4 h-4" />
                       Common Themes
                     </h4>
-                    <p className="text-sm text-gray-600 mt-1">{weeklyReflection.commonThemes}</p>
+                    <p className="text-sm text-white/70 mt-1">{weeklyReflection.commonThemes}</p>
                   </div>
 
                   <div>
@@ -186,18 +186,18 @@ export function PeriodicReflections() {
                 </div>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* Monthly Reflection */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+        <div className="glass-card-transparent rounded-xl shadow-sm p-6">
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold text-white flex items-center gap-2">
               <BarChart3 className="w-5 h-5" />
               Monthly Reflection
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+            </h3>
+          </div>
+          <div className="space-y-4">
             <Button 
               onClick={handleMonthlyReflection}
               disabled={monthlyMutation.isPending}
@@ -294,8 +294,8 @@ export function PeriodicReflections() {
                 </div>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );
