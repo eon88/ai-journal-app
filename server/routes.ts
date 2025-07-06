@@ -256,11 +256,15 @@ Please provide a weekly reflection in JSON format with these fields:
   // Life Path Analysis endpoint
   app.post("/api/life-path-analysis", async (req: Request, res: Response) => {
     try {
+      console.log("Life path analysis request received:", req.body);
       const { answers } = req.body;
       
       if (!answers || !Array.isArray(answers) || answers.length !== 16) {
+        console.log("Invalid answers format:", answers);
         return res.status(400).json({ error: "Invalid answers format" });
       }
+
+      console.log("Valid answers received, starting OpenAI analysis...");
 
       const prompt = `You are a wise and intuitive AI guide that helps users discover their unique life path. You have received responses to a 16-question life path discovery questionnaire.
 
@@ -325,12 +329,15 @@ Respond in JSON format with these exact keys: currentTension, futureCalling, str
         temperature: 0.8,
       });
 
+      console.log("OpenAI response received:", response.choices[0]?.message?.content);
       const analysis = JSON.parse(response.choices[0].message.content || '{}');
+      console.log("Parsed analysis:", analysis);
       
       res.json({
         answers,
         ikigaiAnalysis: analysis
       });
+      console.log("Response sent successfully");
       
     } catch (error) {
       console.error("Life path analysis error:", error);
@@ -447,7 +454,7 @@ Wrap these practical steps with mystical language, but the actions must be concr
     } catch (error) {
       console.error("Merlin consultation error:", error);
       res.status(500).json({ 
-        error: `Merlin's crystal ball has clouded over. Please try again shortly, ${userName}.` 
+        error: `Merlin's crystal ball has clouded over. Please try again shortly, ${userName || "friend"}.` 
       });
     }
   });

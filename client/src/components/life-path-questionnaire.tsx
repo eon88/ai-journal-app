@@ -94,6 +94,7 @@ export function LifePathQuestionnaire({ onComplete, onSkip }: LifePathQuestionna
 
   const analyzeResponsesMutation = useMutation({
     mutationFn: async (responses: string[]): Promise<QuestionnaireResponse> => {
+      console.log("Sending analysis request with answers:", responses);
       const response = await fetch("/api/life-path-analysis", {
         method: "POST",
         headers: {
@@ -103,10 +104,14 @@ export function LifePathQuestionnaire({ onComplete, onSkip }: LifePathQuestionna
       });
       
       if (!response.ok) {
-        throw new Error("Failed to analyze responses");
+        const errorText = await response.text();
+        console.error("Analysis request failed:", response.status, errorText);
+        throw new Error(`Failed to analyze responses: ${response.status}`);
       }
       
-      return response.json();
+      const result = await response.json();
+      console.log("Analysis result received:", result);
+      return result;
     },
     onSuccess: (data) => {
       setIkigaiResults(data.ikigaiAnalysis);
@@ -114,7 +119,8 @@ export function LifePathQuestionnaire({ onComplete, onSkip }: LifePathQuestionna
       // Invalidate relevant queries to refresh data
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
     },
-    onError: () => {
+    onError: (error) => {
+      console.error("Analysis error:", error);
       toast({
         title: "Analysis Error",
         description: "Unable to analyze your responses. Please try again.",
