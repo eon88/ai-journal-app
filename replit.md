@@ -44,14 +44,18 @@ The application uses a simple but effective schema:
 - `GET /api/entries/:id` - Fetch specific journal entry by ID
 - `POST /api/entries` - Create new journal entry
 - `POST /api/analyze` - Analyze journal entry and generate AI reflection
+- `GET /api/reflect/weekly?weekStart=YYYY-MM-DD` - Generate weekly reflection for specified week
+- `GET /api/reflect/monthly?month=MonthName&year=YYYY` - Generate monthly reflection with goal suggestions
 
 ### Core Features
 1. **Journal Entry Creation**: Users can write journal entries with rich text formatting
 2. **Mood Selection**: Choose from 10 different mood options with emoji indicators (excited, happy, content, neutral, thoughtful, sad, anxious, frustrated, calm, energetic)
 3. **Custom Tags**: Add and manage custom tags for categorizing journal entries
 4. **AI-Powered Reflections**: Integration with OpenAI GPT-4o to generate insights, growth patterns, and reflection questions
-5. **Entry History**: View and browse previous journal entries with mood and tag filtering
-6. **Responsive Design**: Mobile-first design with adaptive layouts that work across all devices
+5. **Weekly Reflections**: AI analysis of week's entries providing direction, momentum, emerging goals, and growth patterns
+6. **Monthly Reflections**: Comprehensive AI insights including life direction, emerging goals, and concrete achievement suggestions
+7. **Entry History**: View and browse previous journal entries with mood and tag filtering
+8. **Responsive Design**: Mobile-first design with adaptive layouts that work across all devices
 
 ## Data Flow
 

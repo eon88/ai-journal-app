@@ -3,7 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Calendar, TrendingUp, Lightbulb, BarChart3 } from "lucide-react";
+import { Loader2, Calendar, TrendingUp, Lightbulb, BarChart3, Target, ArrowRight, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { WeeklyReflection, MonthlyReflection } from "@shared/schema";
@@ -151,6 +151,29 @@ export function PeriodicReflections() {
                     <p className="text-sm text-gray-600 mt-1">{weeklyReflection.growthObservations}</p>
                   </div>
 
+                  <div>
+                    <h4 className="font-medium flex items-center gap-2 text-sm">
+                      <ArrowRight className="w-4 h-4" />
+                      Direction & Momentum
+                    </h4>
+                    <p className="text-sm text-gray-600 mt-1">{weeklyReflection.directionAndMomentum}</p>
+                  </div>
+
+                  <div>
+                    <h4 className="font-medium flex items-center gap-2 text-sm">
+                      <Target className="w-4 h-4" />
+                      Emerging Goals
+                    </h4>
+                    <div className="mt-1 space-y-1">
+                      {weeklyReflection.emergingGoals.map((goal, index) => (
+                        <div key={index} className="flex items-start gap-2">
+                          <CheckCircle className="w-3 h-3 mt-0.5 text-green-600" />
+                          <p className="text-sm text-gray-600">{goal}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
                   <div className="bg-blue-50 p-3 rounded-lg">
                     <h4 className="font-medium flex items-center gap-2 text-sm text-blue-800">
                       <Lightbulb className="w-4 h-4" />
@@ -219,6 +242,44 @@ export function PeriodicReflections() {
                       Growth Journey
                     </h4>
                     <p className="text-sm text-gray-600 mt-1">{monthlyReflection.growthJourney}</p>
+                  </div>
+
+                  <div>
+                    <h4 className="font-medium flex items-center gap-2 text-sm">
+                      <ArrowRight className="w-4 h-4" />
+                      Life Direction
+                    </h4>
+                    <p className="text-sm text-gray-600 mt-1">{monthlyReflection.lifeDirection}</p>
+                  </div>
+
+                  <div>
+                    <h4 className="font-medium flex items-center gap-2 text-sm">
+                      <Target className="w-4 h-4" />
+                      Emerging Goals
+                    </h4>
+                    <div className="mt-1 space-y-1">
+                      {monthlyReflection.emergingGoals.map((goal, index) => (
+                        <div key={index} className="flex items-start gap-2">
+                          <CheckCircle className="w-3 h-3 mt-0.5 text-green-600" />
+                          <p className="text-sm text-gray-600">{goal}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="bg-green-50 p-3 rounded-lg">
+                    <h4 className="font-medium flex items-center gap-2 text-sm text-green-800">
+                      <CheckCircle className="w-4 h-4" />
+                      Goal Achievement Suggestions
+                    </h4>
+                    <div className="mt-2 space-y-1">
+                      {monthlyReflection.goalAchievementSuggestions.map((suggestion, index) => (
+                        <div key={index} className="flex items-start gap-2">
+                          <ArrowRight className="w-3 h-3 mt-0.5 text-green-700" />
+                          <p className="text-sm text-green-700">{suggestion}</p>
+                        </div>
+                      ))}
+                    </div>
                   </div>
 
                   <div className="bg-purple-50 p-3 rounded-lg">

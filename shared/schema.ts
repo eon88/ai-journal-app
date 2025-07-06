@@ -35,6 +35,8 @@ export interface WeeklyReflection {
   commonThemes: string;
   growthObservations: string;
   weeklyInsight: string;
+  directionAndMomentum: string;
+  emergingGoals: string[];
   processingTime: number;
 }
 
@@ -46,5 +48,8 @@ export interface MonthlyReflection {
   keyThemes: string;
   growthJourney: string;
   monthlyWisdom: string;
+  lifeDirection: string;
+  emergingGoals: string[];
+  goalAchievementSuggestions: string[];
   processingTime: number;
 }

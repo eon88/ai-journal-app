@@ -140,7 +140,9 @@ Please provide a weekly reflection in JSON format with these fields:
 - commonThemes: Main themes and topics that emerged this week
 - growthObservations: What growth, changes, or patterns do you notice?
 - weeklyInsight: One key insight or wisdom from this week
-- dominantMoods: The 2-3 most common moods this week`
+- dominantMoods: The 2-3 most common moods this week
+- directionAndMomentum: Based on these entries, what direction is this person's life/mindset/goals heading? What momentum do you see building?
+- emergingGoals: Array of 2-3 potential goals or aspirations that seem to be emerging from these entries`
           }
         ],
         response_format: { type: "json_object" },
@@ -157,6 +159,8 @@ Please provide a weekly reflection in JSON format with these fields:
         commonThemes: aiResponse.commonThemes || "Various personal reflections and daily experiences.",
         growthObservations: aiResponse.growthObservations || "Continued personal development through journaling.",
         weeklyInsight: aiResponse.weeklyInsight || "Regular reflection helps build self-awareness.",
+        directionAndMomentum: aiResponse.directionAndMomentum || "Moving toward greater self-awareness through consistent reflection.",
+        emergingGoals: aiResponse.emergingGoals || ["Continue journaling practice", "Develop deeper self-reflection"],
         processingTime
       };
 
@@ -212,7 +216,10 @@ Please provide a monthly reflection in JSON format with these fields:
 - moodTrends: How did moods evolve and change throughout the month?
 - keyThemes: The main life themes, challenges, and focuses this month
 - growthJourney: What personal growth and development occurred?
-- monthlyWisdom: One profound insight or lesson from this month`
+- monthlyWisdom: One profound insight or lesson from this month
+- lifeDirection: Based on this month's entries, what overall direction is this person's life heading? What major themes and intentions are emerging?
+- emergingGoals: Array of 3-5 specific goals or aspirations that have emerged from this month's reflections
+- goalAchievementSuggestions: Array of 3-5 concrete, actionable suggestions for achieving the goals identified above`
           }
         ],
         response_format: { type: "json_object" },
@@ -229,6 +236,9 @@ Please provide a monthly reflection in JSON format with these fields:
         keyThemes: aiResponse.keyThemes || "Personal growth and daily life experiences.",
         growthJourney: aiResponse.growthJourney || "Continued development through regular journaling practice.",
         monthlyWisdom: aiResponse.monthlyWisdom || "Consistent reflection builds deeper self-understanding.",
+        lifeDirection: aiResponse.lifeDirection || "Moving toward greater self-awareness and personal development.",
+        emergingGoals: aiResponse.emergingGoals || ["Continue personal growth", "Maintain consistent journaling", "Develop deeper self-reflection skills"],
+        goalAchievementSuggestions: aiResponse.goalAchievementSuggestions || ["Set aside dedicated time for daily reflection", "Create specific goals with measurable outcomes", "Track progress weekly"],
         processingTime
       };
 
