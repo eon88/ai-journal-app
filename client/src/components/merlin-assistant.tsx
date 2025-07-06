@@ -130,7 +130,7 @@ export function MerlinAssistant({ userMood, hasJournalToday, recentEntry }: Merl
           <div className="relative w-full h-full">
             <img 
               src={merlinWizardImage} 
-              alt="Merlin the Wise" 
+              alt="Merlin" 
               className="w-full h-full object-cover rounded-full"
             />
             {!dailyWisdomUsed && (
@@ -161,7 +161,7 @@ export function MerlinAssistant({ userMood, hasJournalToday, recentEntry }: Merl
               </div>
               <CardTitle className="text-center text-xl font-serif text-amber-800 dark:text-amber-200 flex items-center justify-center gap-2">
                 <Gem className="w-6 h-6 text-purple-600" />
-                Merlin the Wise
+                Merlin
               </CardTitle>
               <p className="text-center text-sm text-amber-600 dark:text-amber-400 italic">
                 "Welcome, {userName || 'friend'}. How may I guide your journey today?"
@@ -172,45 +172,13 @@ export function MerlinAssistant({ userMood, hasJournalToday, recentEntry }: Merl
               {!selectedMode && !merlinMutation.data && (
                 <div className="space-y-3">
                   <Button
-                    onClick={() => handleModeSelect("daily-wisdom")}
-                    disabled={dailyWisdomUsed || merlinMutation.isPending}
-                    className="w-full justify-start bg-purple-100 hover:bg-purple-200 dark:bg-purple-900 dark:hover:bg-purple-800 text-purple-800 dark:text-purple-200"
-                  >
-                    {getModeIcon("daily-wisdom")}
-                    Daily Prophecy
-                    {dailyWisdomUsed && (
-                      <Badge variant="secondary" className="ml-auto text-xs">
-                        Used Today
-                      </Badge>
-                    )}
-                  </Button>
-
-                  <Button
-                    onClick={() => handleModeSelect("reflection")}
-                    disabled={merlinMutation.isPending}
-                    className="w-full justify-start bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:hover:bg-blue-800 text-blue-800 dark:text-blue-200"
-                  >
-                    {getModeIcon("reflection")}
-                    Deep Reflection
-                  </Button>
-
-                  <Button
-                    onClick={() => handleModeSelect("goal-alignment")}
-                    disabled={merlinMutation.isPending}
-                    className="w-full justify-start bg-green-100 hover:bg-green-200 dark:bg-green-900 dark:hover:bg-green-800 text-green-800 dark:text-green-200"
-                  >
-                    {getModeIcon("goal-alignment")}
-                    Path Alignment
-                  </Button>
-
-                  <Button
                     onClick={() => setShowCustomInput(true)}
                     disabled={merlinMutation.isPending}
                     variant="outline"
                     className="w-full justify-start border-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900"
                   >
                     <Send className="w-4 h-4 mr-2" />
-                    Ask Merlin Anything
+                    Ask Anything
                   </Button>
                 </div>
               )}
