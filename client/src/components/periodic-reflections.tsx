@@ -31,10 +31,9 @@ export function PeriodicReflections() {
 
   const weeklyMutation = useMutation({
     mutationFn: async (weekStart: string) => {
-      return apiRequest({
-        method: "GET",
-        path: `/api/reflect/weekly?weekStart=${weekStart}`,
-      });
+      const response = await fetch(`/api/reflect/weekly?weekStart=${weekStart}`);
+      if (!response.ok) throw new Error('Failed to fetch weekly reflection');
+      return await response.json();
     },
     onSuccess: (result) => {
       setWeeklyReflection(result.summary);
@@ -54,10 +53,9 @@ export function PeriodicReflections() {
 
   const monthlyMutation = useMutation({
     mutationFn: async ({ month, year }: { month: string; year: number }) => {
-      return apiRequest({
-        method: "GET",
-        path: `/api/reflect/monthly?month=${month}&year=${year}`,
-      });
+      const response = await fetch(`/api/reflect/monthly?month=${month}&year=${year}`);
+      if (!response.ok) throw new Error('Failed to fetch monthly reflection');
+      return await response.json();
     },
     onSuccess: (result) => {
       setMonthlyReflection(result.summary);

@@ -28,9 +28,8 @@ export function DailyChallenge() {
 
   const completeMutation = useMutation({
     mutationFn: async (challengeId: number) => {
-      return await apiRequest(`/api/challenge/${challengeId}/complete`, {
-        method: "POST",
-      });
+      const response = await apiRequest("POST", `/api/challenge/${challengeId}/complete`);
+      return await response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/challenge/today"] });

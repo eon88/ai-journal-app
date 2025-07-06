@@ -38,10 +38,11 @@ export function MerlinAssistant({ userMood, hasJournalToday, recentEntry }: Merl
 
   const merlinMutation = useMutation({
     mutationFn: async (data: { mode: string; context?: string; question?: string }) => {
-      return apiRequest("/api/merlin/consult", "POST", {
+      const response = await apiRequest("POST", "/api/merlin/consult", {
         ...data,
         userName: userName || "friend"
       });
+      return await response.json();
     },
   });
 
@@ -158,7 +159,7 @@ export function MerlinAssistant({ userMood, hasJournalToday, recentEntry }: Merl
                 Merlin the Wise
               </CardTitle>
               <p className="text-center text-sm text-amber-600 dark:text-amber-400 italic">
-                "Welcome, Alex. How may I guide your journey today?"
+                "Welcome, {userName || 'friend'}. How may I guide your journey today?"
               </p>
             </CardHeader>
 
@@ -277,7 +278,7 @@ export function MerlinAssistant({ userMood, hasJournalToday, recentEntry }: Merl
               {merlinMutation.error && (
                 <div className="bg-red-50 dark:bg-red-950 p-3 rounded-lg border border-red-200 dark:border-red-800">
                   <p className="text-red-700 dark:text-red-300 text-sm">
-                    "The mystical connection falters... Please try again, Alex."
+                    "The mystical connection falters... Please try again, {userName || 'friend'}."
                   </p>
                 </div>
               )}

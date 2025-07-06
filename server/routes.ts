@@ -321,7 +321,7 @@ Context about ${userName}: They are on a personal growth journey using this jour
       }
 
       const data = await response.json();
-      const message = data.choices[0]?.message?.content || "The mystical forces are unclear at this moment, Alex. Perhaps try again when the stars align better.";
+      const message = data.choices[0]?.message?.content || `The mystical forces are unclear at this moment, ${userName}. Perhaps try again when the stars align better.`;
 
       res.json({
         message: message.trim(),
@@ -332,7 +332,7 @@ Context about ${userName}: They are on a personal growth journey using this jour
     } catch (error) {
       console.error("Merlin consultation error:", error);
       res.status(500).json({ 
-        error: "Merlin's crystal ball has clouded over. Please try again shortly, Alex." 
+        error: `Merlin's crystal ball has clouded over. Please try again shortly, ${userName}.` 
       });
     }
   });

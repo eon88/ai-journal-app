@@ -43,11 +43,10 @@ export function InsightsVault() {
   });
 
   const addInsightMutation = useMutation({
-    mutationFn: (insight: Omit<SavedInsight, 'id' | 'createdAt' | 'entryId'>) =>
-      apiRequest("/api/insights", {
-        method: "POST",
-        body: JSON.stringify(insight),
-      }),
+    mutationFn: async (insight: Omit<SavedInsight, 'id' | 'createdAt' | 'entryId'>) => {
+      const response = await apiRequest("POST", "/api/insights", insight);
+      return await response.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/insights"] });
       setNewInsight({ title: '', content: '', category: 'insight', source: 'daily' });
@@ -67,8 +66,10 @@ export function InsightsVault() {
   });
 
   const deleteInsightMutation = useMutation({
-    mutationFn: (id: number) =>
-      apiRequest(`/api/insights/${id}`, { method: "DELETE" }),
+    mutationFn: async (id: number) => {
+      const response = await apiRequest("DELETE", `/api/insights/${id}`);
+      return await response.json();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/insights"] });
       toast({
