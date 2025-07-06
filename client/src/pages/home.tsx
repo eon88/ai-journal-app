@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Header } from "@/components/header";
-import { SimpleForm } from "@/components/simple-form";
+import { JournalEntryForm } from "@/components/journal-entry-form";
 import { AIReflectionComponent } from "@/components/ai-reflection";
 import { RecentEntries } from "@/components/recent-entries";
 import { Footer } from "@/components/footer";
@@ -29,7 +29,7 @@ export default function Home() {
       <Header />
       
       <main className="max-w-4xl mx-auto px-4 py-8">
-        <SimpleForm />
+        <JournalEntryForm onAnalysisResult={handleAnalysisResult} />
         
         <AIReflectionComponent 
           reflection={aiReflection}

@@ -160,8 +160,8 @@ export function JournalEntryForm({ onAnalysisResult }: JournalEntryFormProps) {
           ))}
         </div>
 
-        {/* Mood and Tags Controls - Updated Interface */}
-        <div className="flex flex-col gap-3 mb-4">
+        {/* Mood and Tags Controls */}
+        <div className="bg-gray-50 rounded-lg p-4 space-y-3 mb-4">
           <div className="flex items-center gap-3">
             <Smile className="w-4 h-4 text-gray-500" />
             <select 
