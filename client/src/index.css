@@ -29,6 +29,9 @@
   --journal-text: hsl(210, 11%, 15%);
   --journal-light: hsl(210, 17%, 98%);
   --journal-border: hsl(210, 16%, 93%);
+  
+  /* Background pattern */
+  --bg-pattern-light: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23e5e7eb' fill-opacity='0.3'%3E%3Cpath d='M30 60C46.569 60 60 46.569 60 30C60 13.431 46.569 0 30 0C13.431 0 0 13.431 0 30C0 46.569 13.431 60 30 60Z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 }
 
 .dark {
@@ -48,6 +51,9 @@
   --secondary-foreground: hsl(0, 0%, 98%);
   --accent: hsl(240, 3.7%, 15.9%);
   --accent-foreground: hsl(0, 0%, 98%);
+  
+  /* Dark mode background pattern */
+  --bg-pattern-dark: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23374151' fill-opacity='0.15'%3E%3Cpath d='M30 60C46.569 60 60 46.569 60 30C60 13.431 46.569 0 30 0C13.431 0 0 13.431 0 30C0 46.569 13.431 60 30 60Z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
   --destructive: hsl(0, 62.8%, 30.6%);
   --destructive-foreground: hsl(0, 0%, 98%);
   --ring: hsl(240, 4.9%, 83.9%);
@@ -60,8 +66,44 @@
   }
 
   body {
-    @apply font-sans antialiased bg-background text-foreground;
+    @apply font-sans antialiased text-foreground;
     font-family: 'Inter', system-ui, sans-serif;
+    background: var(--background);
+    background-image: var(--bg-pattern-light);
+    background-size: 60px 60px;
+    background-repeat: repeat;
+    position: relative;
+  }
+  
+  .dark body {
+    background-image: var(--bg-pattern-dark);
+  }
+  
+  /* Main background gradient overlay for depth */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, 
+      rgba(99, 102, 241, 0.02) 0%, 
+      rgba(139, 92, 246, 0.03) 25%,
+      rgba(59, 130, 246, 0.02) 50%,
+      rgba(16, 185, 129, 0.02) 75%,
+      rgba(245, 158, 11, 0.02) 100%);
+    pointer-events: none;
+    z-index: -1;
+  }
+  
+  .dark body::before {
+    background: linear-gradient(135deg, 
+      rgba(99, 102, 241, 0.05) 0%, 
+      rgba(139, 92, 246, 0.08) 25%,
+      rgba(59, 130, 246, 0.05) 50%,
+      rgba(16, 185, 129, 0.05) 75%,
+      rgba(245, 158, 11, 0.05) 100%);
   }
 }
 
