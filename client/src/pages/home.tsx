@@ -10,6 +10,7 @@ import { InsightsVault } from "@/components/insights-vault";
 import { DailyChallenge } from "@/components/daily-challenge";
 import { BadgeShowcase } from "@/components/badge-showcase";
 import { MerlinAssistant } from "@/components/merlin-assistant";
+import { UserNameSetup } from "@/components/user-name-setup";
 import { Footer } from "@/components/footer";
 import type { AIReflection } from "@shared/schema";
 import { useQuery } from "@tanstack/react-query";
@@ -90,6 +91,9 @@ export default function Home() {
       />
       
       <Footer />
+      
+      {/* User Name Setup Modal */}
+      <UserNameSetup />
     </div>
   );
 }

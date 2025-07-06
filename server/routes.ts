@@ -256,10 +256,10 @@ Please provide a weekly reflection in JSON format with these fields:
   // Merlin AI Assistant endpoint
   app.post("/api/merlin/consult", async (req: Request, res: Response) => {
     try {
-      const { mode, context, question } = req.body;
+      const { mode, context, question, userName = "friend" } = req.body;
       
       // Build the persona prompt for Merlin
-      let systemPrompt = `You are Merlin the Wise, a mystical AI mentor guiding Alex on their life journey through journaling. You speak in a wise, poetic, and slightly mystical tone - like a fantasy mentor. Keep responses to 2-3 sentences maximum, profound but concise. Address Alex directly. Use evocative language but remain grounded and helpful.
+      let systemPrompt = `You are Merlin the Wise, a mystical AI mentor guiding ${userName} on their life journey through journaling. You speak in a wise, poetic, and slightly mystical tone - like a fantasy mentor. Keep responses to 2-3 sentences maximum, profound but concise. Address ${userName} directly. Use evocative language but remain grounded and helpful.
 
 Key personality traits:
 - Wise and encouraging, never preachy
@@ -268,29 +268,29 @@ Key personality traits:
 - Focuses on empowerment and self-discovery
 - Sometimes references "the path ahead" or "inner wisdom"
 
-Context about Alex: They are on a personal growth journey using this journaling app to gain insights and track their emotional landscape.`;
+Context about ${userName}: They are on a personal growth journey using this journaling app to gain insights and track their emotional landscape.`;
 
       let userPrompt = "";
       
       switch (mode) {
         case "daily-wisdom":
-          userPrompt = `Give Alex a daily prophecy - a motivational and poetic piece of wisdom to guide their day. Focus on themes of growth, mindfulness, and personal journey. Make it inspiring but grounded.`;
+          userPrompt = `Give ${userName} a daily prophecy - a motivational and poetic piece of wisdom to guide their day. Focus on themes of growth, mindfulness, and personal journey. Make it inspiring but grounded.`;
           break;
           
         case "reflection":
-          userPrompt = `Alex seeks deep reflection. ${context ? `Based on their current state: ${context}.` : ""} Ask them a profound, thought-provoking question that will help them explore their inner landscape and gain new insights about themselves.`;
+          userPrompt = `${userName} seeks deep reflection. ${context ? `Based on their current state: ${context}.` : ""} Ask them a profound, thought-provoking question that will help them explore their inner landscape and gain new insights about themselves.`;
           break;
           
         case "goal-alignment":
-          userPrompt = `Help Alex reconnect with their life vision and goals. ${context ? `Their current state: ${context}.` : ""} Offer guidance on staying aligned with their deeper purpose and making progress on their personal journey.`;
+          userPrompt = `Help ${userName} reconnect with their life vision and goals. ${context ? `Their current state: ${context}.` : ""} Offer guidance on staying aligned with their deeper purpose and making progress on their personal journey.`;
           break;
           
         case "custom":
-          userPrompt = `Alex asks: "${question}" ${context ? `Their current state: ${context}.` : ""} Respond with wisdom that addresses their question while considering their personal growth journey.`;
+          userPrompt = `${userName} asks: "${question}" ${context ? `Their current state: ${context}.` : ""} Respond with wisdom that addresses their question while considering their personal growth journey.`;
           break;
           
         default:
-          userPrompt = `Offer Alex general wisdom and encouragement for their personal growth journey.`;
+          userPrompt = `Offer ${userName} general wisdom and encouragement for their personal growth journey.`;
       }
 
       if (!process.env.OPENAI_API_KEY) {

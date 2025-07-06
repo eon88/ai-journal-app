@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Sparkles, Send, X, Scroll, Gem, Compass } from "lucide-react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { useUser } from "@/components/user-provider";
 
 interface MerlinResponse {
   message: string;
@@ -20,6 +21,7 @@ interface MerlinProps {
 }
 
 export function MerlinAssistant({ userMood, hasJournalToday, recentEntry }: MerlinProps) {
+  const { userName } = useUser();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedMode, setSelectedMode] = useState<string | null>(null);
   const [customQuestion, setCustomQuestion] = useState("");
@@ -36,7 +38,10 @@ export function MerlinAssistant({ userMood, hasJournalToday, recentEntry }: Merl
 
   const merlinMutation = useMutation({
     mutationFn: async (data: { mode: string; context?: string; question?: string }) => {
-      return apiRequest("/api/merlin/consult", "POST", data);
+      return apiRequest("/api/merlin/consult", "POST", {
+        ...data,
+        userName: userName || "friend"
+      });
     },
   });
 
