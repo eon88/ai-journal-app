@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertJournalEntrySchema, type AIReflection, type WeeklyReflection, type MonthlyReflection, type JournalEntry } from "@shared/schema";
@@ -453,6 +453,58 @@ Please provide a monthly reflection in JSON format with these fields:
     } catch (error) {
       console.error("Monthly reflection error:", error);
       res.status(500).json({ message: "Failed to generate monthly reflection" });
+    }
+  });
+
+  // Export journal entries
+  app.get("/api/entries/export", async (req, res) => {
+    try {
+      const format = req.query.format as string || 'json';
+      const entries = await storage.getAllJournalEntries();
+      
+      if (format === 'json') {
+        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Content-Disposition', 'attachment; filename="journal-entries.json"');
+        res.json(entries);
+      } else if (format === 'csv') {
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', 'attachment; filename="journal-entries.csv"');
+        
+        // Create CSV content
+        const headers = ['Date', 'Content', 'Mood', 'Tags', 'AI Insights'];
+        const csvContent = [
+          headers.join(','),
+          ...entries.map(entry => [
+            new Date(entry.createdAt).toLocaleDateString(),
+            `"${entry.content.replace(/"/g, '""')}"`,
+            entry.mood || '',
+            entry.tags ? entry.tags.join('; ') : '',
+            entry.aiReflection && typeof entry.aiReflection === 'object' && 'insights' in entry.aiReflection ? `"${(entry.aiReflection as any).insights.replace(/"/g, '""')}"` : ''
+          ].join(','))
+        ].join('\n');
+        
+        res.send(csvContent);
+      } else if (format === 'txt') {
+        res.setHeader('Content-Type', 'text/plain');
+        res.setHeader('Content-Disposition', 'attachment; filename="journal-entries.txt"');
+        
+        // Create text content
+        const textContent = entries.map(entry => {
+          const date = new Date(entry.createdAt).toLocaleDateString();
+          const mood = entry.mood ? `Mood: ${entry.mood}` : '';
+          const tags = entry.tags && entry.tags.length > 0 ? `Tags: ${entry.tags.join(', ')}` : '';
+          const insights = entry.aiReflection && typeof entry.aiReflection === 'object' && 'insights' in entry.aiReflection ? `\nAI Insights: ${(entry.aiReflection as any).insights}` : '';
+          
+          return `Date: ${date}\n${mood ? mood + '\n' : ''}${tags ? tags + '\n' : ''}\n${entry.content}${insights}\n\n---\n\n`;
+        }).join('');
+        
+        res.send(textContent);
+      } else {
+        res.status(400).json({ message: "Unsupported format. Use 'json', 'csv', or 'txt'" });
+      }
+    } catch (error) {
+      console.error("Export error:", error);
+      res.status(500).json({ message: "Failed to export entries" });
     }
   });
 

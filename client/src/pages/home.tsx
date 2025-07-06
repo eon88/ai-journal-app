@@ -13,6 +13,7 @@ import { MerlinAssistant } from "@/components/merlin-assistant";
 import { UserNameSetup } from "@/components/user-name-setup";
 import { Footer } from "@/components/footer";
 import { LevelSidebar } from "@/components/level-sidebar";
+import { ExportJournal } from "@/components/export-journal";
 import type { AIReflection } from "@shared/schema";
 import { useQuery } from "@tanstack/react-query";
 
@@ -84,6 +85,9 @@ export default function Home() {
         
         {/* Insights Vault */}
         <InsightsVault />
+        
+        {/* Export Journal */}
+        <ExportJournal />
         
         {/* Recent Entries */}
         <RecentEntries />
