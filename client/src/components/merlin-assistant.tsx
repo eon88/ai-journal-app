@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles, Send, X, Scroll, Gem, Compass } from "lucide-react";
+import merlinWizardImage from "@assets/ChatGPT Image Jul 6, 2025, 01_31_56 PM_1751805312463.png";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useUser } from "@/components/user-provider";
@@ -120,14 +121,18 @@ export function MerlinAssistant({ userMood, hasJournalToday, recentEntry }: Merl
   return (
     <>
       {/* Floating Merlin Avatar */}
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className="fixed top-6 right-6 z-50">
         <Button
           onClick={() => setIsOpen(true)}
-          className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg transition-all duration-300 hover:scale-110 border-2 border-purple-300/50"
+          className="w-20 h-20 rounded-full p-1 bg-gradient-to-br from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg transition-all duration-300 hover:scale-110 border-2 border-purple-300/50 overflow-hidden"
           title={getRandomHoverTip()}
         >
-          <div className="relative">
-            <Gem className="w-8 h-8 text-white animate-pulse" />
+          <div className="relative w-full h-full">
+            <img 
+              src={merlinWizardImage} 
+              alt="Merlin the Wise" 
+              className="w-full h-full object-cover rounded-full"
+            />
             {!dailyWisdomUsed && (
               <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-bounce" />
             )}
