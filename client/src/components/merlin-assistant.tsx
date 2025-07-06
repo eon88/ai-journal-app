@@ -190,7 +190,7 @@ export function MerlinAssistant({ userMood, hasJournalToday, recentEntry }: Merl
               {showCustomInput && !selectedMode && (
                 <div className="space-y-3">
                   <Textarea
-                    placeholder={`What wisdom do you seek, ${userName || 'friend'}?`}
+                    placeholder="What wisdom do you seek today?"
                     value={customQuestion}
                     onChange={(e) => setCustomQuestion(e.target.value)}
                     className="bg-white/50 dark:bg-black/20 border-amber-300"
