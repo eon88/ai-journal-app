@@ -123,7 +123,7 @@ export function JournalEntryForm({ onAnalysisResult }: JournalEntryFormProps) {
       <div className="space-y-4">
         <div className="relative">
           <label htmlFor="entry" className="block text-sm font-medium text-journal-text mb-2">
-            What's on your mind today?
+            🚨 TESTING - What's on your mind today? 🚨
           </label>
           <Textarea 
             id="entry"
