@@ -76,11 +76,11 @@ export default function Home() {
           </div>
         </div>
         
-        {/* Growth Dashboard */}
-        <GrowthDashboard />
-        
         {/* Periodic Reflections */}
         <PeriodicReflections />
+        
+        {/* Growth Dashboard */}
+        <GrowthDashboard />
         
         {/* Insights Vault */}
         <InsightsVault />
