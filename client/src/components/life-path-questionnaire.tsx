@@ -7,6 +7,7 @@ import { ChevronRight, ChevronLeft, Compass, Map, Target, Frame } from "lucide-r
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 interface LifePathQuestionnaireProps {
   onComplete: () => void;
@@ -165,45 +166,48 @@ export function LifePathQuestionnaire({ onComplete, onSkip }: LifePathQuestionna
 
   if (showResults && ikigaiResults) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-4">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-purple-900 dark:to-blue-900 p-4">
+        <div className="fixed top-4 right-4 z-50">
+          <ThemeToggle />
+        </div>
         <div className="max-w-4xl mx-auto">
           <Card className="glass-card p-8">
             <div className="text-center mb-8">
               <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Compass className="text-white text-2xl" />
               </div>
-              <h1 className="text-3xl font-bold text-gray-800 mb-2">Your Life Path Discovery</h1>
-              <p className="text-gray-600">A personalized guide based on your responses</p>
+              <h1 className="text-3xl font-bold text-gray-800 dark:text-white-strong mb-2">Your Life Path Discovery</h1>
+              <p className="text-gray-600 dark:text-white-strong dark:opacity-90">A personalized guide based on your responses</p>
             </div>
 
             <div className="space-y-8">
-              <div className="bg-white rounded-lg p-6 border-l-4 border-red-400">
-                <h3 className="text-xl font-semibold text-gray-800 mb-3">🧩 Your Current Tension</h3>
-                <p className="text-gray-700 leading-relaxed">{ikigaiResults.currentTension}</p>
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border-l-4 border-red-400">
+                <h3 className="text-xl font-semibold text-gray-800 dark:text-white-strong mb-3">🧩 Your Current Tension</h3>
+                <p className="text-gray-700 dark:text-white-strong dark:opacity-90 leading-relaxed">{ikigaiResults.currentTension}</p>
               </div>
 
-              <div className="bg-white rounded-lg p-6 border-l-4 border-blue-400">
-                <h3 className="text-xl font-semibold text-gray-800 mb-3">🌅 Your Future Calling</h3>
-                <p className="text-gray-700 leading-relaxed">{ikigaiResults.futureCalling}</p>
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border-l-4 border-blue-400">
+                <h3 className="text-xl font-semibold text-gray-800 dark:text-white-strong mb-3">🌅 Your Future Calling</h3>
+                <p className="text-gray-700 dark:text-white-strong dark:opacity-90 leading-relaxed">{ikigaiResults.futureCalling}</p>
               </div>
 
-              <div className="bg-white rounded-lg p-6 border-l-4 border-green-400">
-                <h3 className="text-xl font-semibold text-gray-800 mb-3">🛤 Your Strengths & Map</h3>
-                <p className="text-gray-700 leading-relaxed">{ikigaiResults.strengthsAndMap}</p>
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border-l-4 border-green-400">
+                <h3 className="text-xl font-semibold text-gray-800 dark:text-white-strong mb-3">🛤 Your Strengths & Map</h3>
+                <p className="text-gray-700 dark:text-white-strong dark:opacity-90 leading-relaxed">{ikigaiResults.strengthsAndMap}</p>
               </div>
 
-              <div className="bg-white rounded-lg p-6 border-l-4 border-purple-400">
-                <h3 className="text-xl font-semibold text-gray-800 mb-3">🧭 Your Life Compass</h3>
-                <p className="text-gray-700 leading-relaxed">{ikigaiResults.lifeCompass}</p>
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border-l-4 border-purple-400">
+                <h3 className="text-xl font-semibold text-gray-800 dark:text-white-strong mb-3">🧭 Your Life Compass</h3>
+                <p className="text-gray-700 dark:text-white-strong dark:opacity-90 leading-relaxed">{ikigaiResults.lifeCompass}</p>
               </div>
 
-              <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-6 border border-purple-200">
-                <h3 className="text-xl font-semibold text-gray-800 mb-3">🔵 Your Ikigai Pathway</h3>
-                <p className="text-gray-700 leading-relaxed mb-4">{ikigaiResults.ikigaiPathway}</p>
+              <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/30 dark:to-blue-900/30 rounded-lg p-6 border border-purple-200 dark:border-purple-700">
+                <h3 className="text-xl font-semibold text-gray-800 dark:text-white-strong mb-3">🔵 Your Ikigai Pathway</h3>
+                <p className="text-gray-700 dark:text-white-strong dark:opacity-90 leading-relaxed mb-4">{ikigaiResults.ikigaiPathway}</p>
                 
-                <div className="bg-white rounded-lg p-4 border-l-4 border-orange-400">
-                  <h4 className="font-semibold text-gray-800 mb-2">Your Next Step:</h4>
-                  <p className="text-gray-700">{ikigaiResults.nextStep}</p>
+                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border-l-4 border-orange-400">
+                  <h4 className="font-semibold text-gray-800 dark:text-white-strong mb-2">Your Next Step:</h4>
+                  <p className="text-gray-700 dark:text-white-strong dark:opacity-90">{ikigaiResults.nextStep}</p>
                 </div>
               </div>
             </div>
@@ -223,7 +227,10 @@ export function LifePathQuestionnaire({ onComplete, onSkip }: LifePathQuestionna
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-purple-900 dark:to-blue-900 p-4">
+      <div className="fixed top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
       <div className="max-w-2xl mx-auto">
         <Card className="glass-card p-8">
           <div className="mb-8">
@@ -231,11 +238,11 @@ export function LifePathQuestionnaire({ onComplete, onSkip }: LifePathQuestionna
               <Button 
                 variant="ghost" 
                 onClick={onSkip}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-gray-500 hover:text-gray-700 dark:text-white-strong dark:hover:text-white dark:hover:bg-white/10"
               >
                 Skip for now
               </Button>
-              <div className="text-sm text-gray-500">
+              <div className="text-sm text-gray-500 dark:text-white-strong dark:opacity-70">
                 {currentQuestionIndex + 1} of {totalQuestions}
               </div>
             </div>
@@ -246,15 +253,15 @@ export function LifePathQuestionnaire({ onComplete, onSkip }: LifePathQuestionna
               <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-3">
                 {IconComponent && <IconComponent className="text-white text-lg" />}
               </div>
-              <h2 className="text-xl font-semibold text-gray-800 mb-1">
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-white-strong mb-1">
                 {currentSectionData?.title}
               </h2>
-              <p className="text-gray-600 text-sm">{currentSectionData?.description}</p>
+              <p className="text-gray-600 dark:text-white-strong text-sm dark:opacity-90">{currentSectionData?.description}</p>
             </div>
           </div>
 
           <div className="mb-8">
-            <h3 className="text-lg font-medium text-gray-800 mb-4 leading-relaxed">
+            <h3 className="text-lg font-medium text-gray-800 dark:text-white-strong mb-4 leading-relaxed">
               {currentQuestionText}
             </h3>
             
@@ -262,11 +269,11 @@ export function LifePathQuestionnaire({ onComplete, onSkip }: LifePathQuestionna
               value={currentAnswer}
               onChange={(e) => setCurrentAnswer(e.target.value)}
               placeholder="Take your time to reflect and share your thoughts..."
-              className="min-h-32 resize-none"
+              className="min-h-32 resize-none bg-white/90 border-gray-300 text-gray-800 placeholder:text-gray-500 dark:bg-white/10 dark:border-white/20 dark:text-white dark:placeholder:text-white/60 backdrop-blur-sm"
               maxLength={1000}
             />
             
-            <div className="text-right text-xs text-gray-400 mt-1">
+            <div className="text-right text-xs text-gray-500 dark:text-white-strong dark:opacity-70 mt-1">
               {currentAnswer.length}/1000
             </div>
           </div>
