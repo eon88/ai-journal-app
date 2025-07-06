@@ -164,36 +164,34 @@ export function JournalEntryForm({ onAnalysisResult }: JournalEntryFormProps) {
         <div className="flex flex-col gap-3 mb-4">
           <div className="flex items-center gap-3">
             <Smile className="w-4 h-4 text-gray-500" />
-            <Select value={selectedMood || ""} onValueChange={setSelectedMood}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Select mood..." />
-              </SelectTrigger>
-              <SelectContent>
-                {moodOptions.map((mood) => (
-                  <SelectItem key={mood.value} value={mood.value}>
-                    {mood.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <select 
+              value={selectedMood || ""} 
+              onChange={(e) => setSelectedMood(e.target.value || null)}
+              className="w-48 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-journal-primary"
+            >
+              <option value="">Select mood...</option>
+              {moodOptions.map((mood) => (
+                <option key={mood.value} value={mood.value}>
+                  {mood.label}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="flex items-center gap-3">
             <Tags className="w-4 h-4 text-gray-500" />
             {!showTagInput ? (
-              <Button
+              <button
                 type="button"
-                variant="outline"
-                size="sm"
                 onClick={() => setShowTagInput(true)}
-                className="flex items-center gap-2"
+                className="px-3 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50 flex items-center gap-2"
               >
                 <Plus className="w-4 h-4" />
                 Add Tag
-              </Button>
+              </button>
             ) : (
               <div className="flex gap-2">
-                <Input
+                <input
                   type="text"
                   value={newTag}
                   onChange={(e) => setNewTag(e.target.value)}
@@ -203,27 +201,26 @@ export function JournalEntryForm({ onAnalysisResult }: JournalEntryFormProps) {
                     }
                   }}
                   placeholder="Enter tag..."
-                  className="w-32"
+                  className="w-32 px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-journal-primary"
                 />
-                <Button 
+                <button 
                   type="button" 
-                  size="sm" 
                   onClick={addTag}
                   disabled={!newTag.trim()}
+                  className="px-3 py-1 text-sm bg-journal-primary text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
                 >
                   Add
-                </Button>
-                <Button
+                </button>
+                <button
                   type="button"
-                  variant="outline"
-                  size="sm"
                   onClick={() => {
                     setShowTagInput(false);
                     setNewTag("");
                   }}
+                  className="px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
                 >
                   Cancel
-                </Button>
+                </button>
               </div>
             )}
           </div>
