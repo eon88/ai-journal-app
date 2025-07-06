@@ -43,7 +43,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-journal-secondary font-inter">
+    <div className="min-h-screen font-inter">
       <Header />
       
       <main className="max-w-6xl mx-auto px-4 py-8 space-y-8">
