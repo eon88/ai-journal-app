@@ -253,6 +253,91 @@ Please provide a weekly reflection in JSON format with these fields:
     }
   });
 
+  // Life Path Analysis endpoint
+  app.post("/api/life-path-analysis", async (req: Request, res: Response) => {
+    try {
+      const { answers } = req.body;
+      
+      if (!answers || !Array.isArray(answers) || answers.length !== 16) {
+        return res.status(400).json({ error: "Invalid answers format" });
+      }
+
+      const prompt = `You are a wise and intuitive AI guide that helps users discover their unique life path. You have received responses to a 16-question life path discovery questionnaire.
+
+The questionnaire follows this structure:
+- Questions 1-4: FRAME (Current State)
+- Questions 5-8: DESTINATION (Future Vision)  
+- Questions 9-12: MAP (Tools & Starting Point)
+- Questions 13-16: COMPASS (Values & Navigation)
+
+Here are the user's responses:
+
+FRAME - Current State:
+1. What feels off or misaligned: ${answers[0]}
+2. Where they feel stuck: ${answers[1]}
+3. Life story chapter/conflict: ${answers[2]}
+4. Secret fear to want: ${answers[3]}
+
+DESTINATION - Future Vision:
+5. How they'd spend days with freedom: ${answers[4]}
+6. Kind of person they want to become: ${answers[5]}
+7. Ideal life 3-5 years from now: ${answers[6]}
+8. Who they admire and why: ${answers[7]}
+
+MAP - Tools & Starting Point:
+9. Natural strengths others struggle with: ${answers[8]}
+10. What drains them most: ${answers[9]}
+11. Difficult experience that shaped them: ${answers[10]}
+12. Small action toward vision: ${answers[11]}
+
+COMPASS - Values & Navigation:
+13. Values to live by: ${answers[12]}
+14. When they feel most alive: ${answers[13]}
+15. Problem they feel drawn to fix: ${answers[14]}
+16. Truth they've been avoiding: ${answers[15]}
+
+Please analyze these responses and provide:
+
+1. **Current Tension** - From FRAME responses, identify their emotional tension and inner conflict. Add a poetic metaphor.
+
+2. **Future Calling** - From DESTINATION responses, extract what they love and hints of what the world needs. Start with "You are becoming the kind of person who..."
+
+3. **Strengths & Map** - From MAP responses, identify their assets, friction points, and first action step.
+
+4. **Life Compass** - From COMPASS responses, identify 3 core values, sources of joy, and build their inner navigation system.
+
+5. **Ikigai Pathway** - Synthesize all responses through the Ikigai framework:
+   - What they LOVE (from DESTINATION + COMPASS)
+   - What they are GOOD AT (from MAP)
+   - What the WORLD NEEDS (from DESTINATION + COMPASS) 
+   - What they can be PAID FOR (from MAP)
+   
+6. **Next Step** - One bold but small action that aligns with their path and values.
+
+Use poetic, encouraging language. Speak like a wise mentor guiding a young seeker on the start of their quest. Be specific and actionable while maintaining an inspiring tone.
+
+Respond in JSON format with these exact keys: currentTension, futureCalling, strengthsAndMap, lifeCompass, ikigaiPathway, nextStep`;
+
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+        messages: [{ role: "user", content: prompt }],
+        response_format: { type: "json_object" },
+        temperature: 0.8,
+      });
+
+      const analysis = JSON.parse(response.choices[0].message.content || '{}');
+      
+      res.json({
+        answers,
+        ikigaiAnalysis: analysis
+      });
+      
+    } catch (error) {
+      console.error("Life path analysis error:", error);
+      res.status(500).json({ error: "Failed to analyze life path responses" });
+    }
+  });
+
   // Merlin AI Assistant endpoint
   app.post("/api/merlin/consult", async (req: Request, res: Response) => {
     try {

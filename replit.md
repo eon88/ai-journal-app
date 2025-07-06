@@ -51,6 +51,7 @@ The application uses a simple but effective schema:
 - `GET /api/insights` - Fetch saved insights from personal vault
 - `POST /api/insights` - Save new insight to personal vault
 - `DELETE /api/insights/:id` - Remove insight from vault
+- `POST /api/life-path-analysis` - Analyze 16 questionnaire responses and generate comprehensive Ikigai-based life path insights
 
 ### Core Features
 1. **Journal Entry Creation**: Users can write journal entries with rich text formatting
@@ -66,8 +67,9 @@ The application uses a simple but effective schema:
 11. **Growth Map Dashboard**: Visual analytics showing mood trends, writing frequency, and common themes
 12. **Insights Vault**: Personal library for saving and organizing meaningful insights, lessons, and goals
 13. **Merlin AI Assistant**: Narrative-based AI mentor providing daily prophecies, reflection guidance, and goal alignment with mystical, fantasy-themed interface, personalized with user names
-14. **Entry History**: View and browse previous journal entries with mood and tag filtering
-15. **Responsive Design**: Mobile-first design with adaptive layouts that work across all devices
+14. **Life Path Discovery Questionnaire**: Comprehensive 16-question onboarding flow that guides users through self-discovery using the FRAME → DESTINATION → MAP → COMPASS methodology, with AI-powered Ikigai analysis providing personalized life path insights before journaling begins
+15. **Entry History**: View and browse previous journal entries with mood and tag filtering
+16. **Responsive Design**: Mobile-first design with adaptive layouts that work across all devices
 
 ## Data Flow
 
@@ -129,6 +131,7 @@ Changelog:
 - July 06, 2025. User Name System - Implemented dynamic user names with persistent storage, welcome modal for new users, and personalized AI interactions replacing hardcoded "Alex"
 - July 06, 2025. Enhanced Merlin Practicality - Updated Merlin AI assistant to provide concrete, actionable advice while maintaining mystical personality. Now gives specific techniques, time frames, and practical steps instead of purely metaphorical responses
 - July 06, 2025. Dark Mode Accessibility Fix - Fixed visibility issues in mood selection dropdown and tag input fields for dark mode, ensuring proper text contrast and readability across all interactive elements
+- July 06, 2025. Life Path Discovery System - Implemented comprehensive 16-question onboarding questionnaire with FRAME→DESTINATION→MAP→COMPASS methodology, AI-powered Ikigai analysis, and beautiful progress-tracked UI that guides users through self-discovery before journaling begins
 ```
 
 ## User Preferences

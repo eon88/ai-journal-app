@@ -3,6 +3,8 @@ import { createContext, useContext, useEffect, useState } from "react";
 type UserContextType = {
   userName: string;
   setUserName: (name: string) => void;
+  hasCompletedQuestionnaire: boolean;
+  setHasCompletedQuestionnaire: (completed: boolean) => void;
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -13,6 +15,11 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     return localStorage.getItem("userName") || "";
   });
 
+  const [hasCompletedQuestionnaire, setHasCompletedQuestionnaire] = useState(() => {
+    // Check localStorage for questionnaire completion
+    return localStorage.getItem("hasCompletedQuestionnaire") === "true";
+  });
+
   useEffect(() => {
     // Save to localStorage whenever userName changes
     if (userName) {
@@ -20,9 +27,16 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     }
   }, [userName]);
 
+  useEffect(() => {
+    // Save questionnaire completion status
+    localStorage.setItem("hasCompletedQuestionnaire", hasCompletedQuestionnaire.toString());
+  }, [hasCompletedQuestionnaire]);
+
   const value = {
     userName,
     setUserName,
+    hasCompletedQuestionnaire,
+    setHasCompletedQuestionnaire,
   };
 
   return (

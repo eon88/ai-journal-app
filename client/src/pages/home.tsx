@@ -11,8 +11,10 @@ import { DailyChallenge } from "@/components/daily-challenge";
 import { BadgeShowcase } from "@/components/badge-showcase";
 import { MerlinAssistant } from "@/components/merlin-assistant";
 import { UserNameSetup } from "@/components/user-name-setup";
+import { LifePathQuestionnaire } from "@/components/life-path-questionnaire";
 import { Footer } from "@/components/footer";
 import { LevelSidebar } from "@/components/level-sidebar";
+import { useUser } from "@/components/user-provider";
 import type { AIReflection } from "@shared/schema";
 import { useQuery } from "@tanstack/react-query";
 
@@ -20,6 +22,7 @@ export default function Home() {
   const [aiReflection, setAiReflection] = useState<AIReflection | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { hasCompletedQuestionnaire, setHasCompletedQuestionnaire } = useUser();
 
   // Fetch recent entry for Merlin context
   const { data: recentEntries } = useQuery({
@@ -42,6 +45,24 @@ export default function Home() {
     setAiReflection(null);
     setError(null);
   };
+
+  const handleQuestionnaireComplete = () => {
+    setHasCompletedQuestionnaire(true);
+  };
+
+  const handleQuestionnaireSkip = () => {
+    setHasCompletedQuestionnaire(true);
+  };
+
+  // Show questionnaire if user hasn't completed it yet
+  if (!hasCompletedQuestionnaire) {
+    return (
+      <LifePathQuestionnaire
+        onComplete={handleQuestionnaireComplete}
+        onSkip={handleQuestionnaireSkip}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen font-inter">
