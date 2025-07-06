@@ -7,6 +7,8 @@ import { PeriodicReflections } from "@/components/periodic-reflections";
 import { StreakScoreboard } from "@/components/streak-scoreboard";
 import { GrowthDashboard } from "@/components/growth-dashboard";
 import { InsightsVault } from "@/components/insights-vault";
+import { DailyChallenge } from "@/components/daily-challenge";
+import { BadgeShowcase } from "@/components/badge-showcase";
 import { Footer } from "@/components/footer";
 import type { AIReflection } from "@shared/schema";
 
@@ -36,9 +38,10 @@ export default function Home() {
         {/* Streak and Progress Overview */}
         <StreakScoreboard />
         
-        {/* Journal Entry and AI Reflection */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="space-y-6">
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Column - Journal Entry */}
+          <div className="lg:col-span-2 space-y-6">
             <JournalEntryForm onAnalysisResult={handleAnalysisResult} />
             <AIReflectionComponent 
               reflection={aiReflection}
@@ -48,11 +51,15 @@ export default function Home() {
             />
           </div>
           
-          {/* Growth Dashboard */}
-          <div>
-            <GrowthDashboard />
+          {/* Right Column - Gamification Features */}
+          <div className="space-y-6">
+            <DailyChallenge />
+            <BadgeShowcase />
           </div>
         </div>
+        
+        {/* Growth Dashboard */}
+        <GrowthDashboard />
         
         {/* Periodic Reflections */}
         <PeriodicReflections />

@@ -6,6 +6,8 @@ interface UserStats {
   currentStreak: number;
   longestStreak: number;
   xpPoints: number;
+  level: number;
+  title: string;
 }
 
 export function StreakScoreboard() {
@@ -35,10 +37,15 @@ export function StreakScoreboard() {
 
   return (
     <div className="bg-white rounded-lg shadow-sm border p-6">
-      <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
-        <Trophy className="w-5 h-5 text-yellow-500" />
-        Your Journey
-      </h2>
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold text-gray-900 mb-2 flex items-center gap-2">
+          <Trophy className="w-5 h-5 text-yellow-500" />
+          Level {stats.level}
+        </h2>
+        <div className="text-sm text-purple-600 font-medium bg-purple-50 px-3 py-1 rounded-full inline-block">
+          {stats.title}
+        </div>
+      </div>
       
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="text-center">

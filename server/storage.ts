@@ -2,12 +2,18 @@ import {
   journalEntries, 
   userStats, 
   savedInsights,
+  badges,
+  dailyChallenges,
   type JournalEntry, 
   type InsertJournalEntry,
   type UserStats,
   type InsertUserStats,
   type SavedInsight,
   type InsertSavedInsight,
+  type Badge,
+  type InsertBadge,
+  type DailyChallenge,
+  type InsertDailyChallenge,
   type AIReflection,
   type GrowthMetrics
 } from "@shared/schema";
@@ -32,6 +38,20 @@ export interface IStorage {
   saveInsight(insight: InsertSavedInsight): Promise<SavedInsight>;
   getSavedInsights(): Promise<SavedInsight[]>;
   deleteSavedInsight(id: number): Promise<void>;
+  
+  // Badges and achievements
+  getBadges(): Promise<Badge[]>;
+  unlockBadge(badgeId: number): Promise<Badge>;
+  checkAndUnlockBadges(): Promise<Badge[]>;
+  
+  // Daily challenges
+  getTodaysChallenge(): Promise<DailyChallenge | null>;
+  generateDailyChallenge(date: string): Promise<DailyChallenge>;
+  completeChallenge(challengeId: number): Promise<DailyChallenge>;
+  
+  // Leveling system
+  calculateLevel(xp: number): number;
+  calculateLevelTitle(level: number): string;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -60,13 +80,22 @@ export class DatabaseStorage implements IStorage {
     const streakBonus = streakData.currentStreak > 1 ? streakData.currentStreak * 2 : 0;
     const newXP = stats.xpPoints + baseXP + streakBonus;
     
+    // Calculate new level and title
+    const newLevel = this.calculateLevel(newXP);
+    const newTitle = this.calculateLevelTitle(newLevel);
+    
     await this.updateUserStats({
       totalEntries: stats.totalEntries + 1,
       currentStreak: streakData.currentStreak,
       longestStreak: Math.max(stats.longestStreak, streakData.longestStreak),
       xpPoints: newXP,
+      level: newLevel,
+      title: newTitle,
       lastEntryDate: new Date(),
     });
+    
+    // Check for new badges to unlock
+    await this.checkAndUnlockBadges();
   }
 
   async getJournalEntry(id: number): Promise<JournalEntry | undefined> {
@@ -248,6 +277,166 @@ export class DatabaseStorage implements IStorage {
 
   async deleteSavedInsight(id: number): Promise<void> {
     await db.delete(savedInsights).where(eq(savedInsights.id, id));
+  }
+
+  // Badges and achievements
+  async getBadges(): Promise<Badge[]> {
+    return await db.select().from(badges).orderBy(badges.createdAt);
+  }
+
+  async unlockBadge(badgeId: number): Promise<Badge> {
+    const [badge] = await db
+      .update(badges)
+      .set({ unlockedAt: new Date() })
+      .where(eq(badges.id, badgeId))
+      .returning();
+    return badge;
+  }
+
+  async checkAndUnlockBadges(): Promise<Badge[]> {
+    const stats = await this.getUserStats();
+    const unlockedBadges: Badge[] = [];
+    
+    // Define badge requirements
+    const badgeRules = [
+      { name: "First Steps", requirement: "1 entry", check: stats.totalEntries >= 1 },
+      { name: "Week Warrior", requirement: "7-day streak", check: stats.currentStreak >= 7 },
+      { name: "Consistency King", requirement: "30 entries", check: stats.totalEntries >= 30 },
+      { name: "Reflection Master", requirement: "100 XP", check: stats.xpPoints >= 100 },
+      { name: "Streak Legend", requirement: "30-day streak", check: stats.longestStreak >= 30 },
+    ];
+
+    // Check each badge rule
+    for (const rule of badgeRules) {
+      if (rule.check) {
+        const existingBadges = await db.select().from(badges).where(eq(badges.name, rule.name));
+        if (existingBadges.length === 0) {
+          // Create and unlock new badge
+          const [newBadge] = await db
+            .insert(badges)
+            .values({
+              name: rule.name,
+              description: `Unlocked for ${rule.requirement}`,
+              icon: this.getBadgeIcon(rule.name),
+              requirement: rule.requirement,
+              xpReward: 25,
+              unlockedAt: new Date(),
+            })
+            .returning();
+          unlockedBadges.push(newBadge);
+        }
+      }
+    }
+
+    return unlockedBadges;
+  }
+
+  private getBadgeIcon(badgeName: string): string {
+    const icons: { [key: string]: string } = {
+      "First Steps": "🏆",
+      "Week Warrior": "🔥",
+      "Consistency King": "👑",
+      "Reflection Master": "🧠",
+      "Streak Legend": "⚡",
+    };
+    return icons[badgeName] || "🎖️";
+  }
+
+  // Daily challenges
+  async getTodaysChallenge(): Promise<DailyChallenge | null> {
+    const today = new Date().toISOString().split('T')[0];
+    const [challenge] = await db
+      .select()
+      .from(dailyChallenges)
+      .where(eq(dailyChallenges.date, today))
+      .limit(1);
+    
+    if (!challenge) {
+      return await this.generateDailyChallenge(today);
+    }
+    
+    return challenge;
+  }
+
+  async generateDailyChallenge(date: string): Promise<DailyChallenge> {
+    const challenges = [
+      {
+        title: "Fear Explorer",
+        description: "Write about a fear you're facing",
+        prompt: "What's one thing that's been worrying you lately? How might you approach it differently?",
+      },
+      {
+        title: "Gratitude Seeker",
+        description: "Reflect on three things you're grateful for",
+        prompt: "List three things that brought you joy today, no matter how small.",
+      },
+      {
+        title: "Growth Spotter", 
+        description: "Identify one lesson learned recently",
+        prompt: "What's one thing you learned about yourself this week?",
+      },
+      {
+        title: "Future Visionary",
+        description: "Describe your ideal day next month",
+        prompt: "If everything went perfectly, what would a typical day look like for you in 30 days?",
+      },
+      {
+        title: "Connection Builder",
+        description: "Write about a meaningful relationship",
+        prompt: "Think about someone important to you. What do you appreciate most about them?",
+      },
+    ];
+
+    const randomChallenge = challenges[Math.floor(Math.random() * challenges.length)];
+    
+    const [challenge] = await db
+      .insert(dailyChallenges)
+      .values({
+        date,
+        title: randomChallenge.title,
+        description: randomChallenge.description,
+        prompt: randomChallenge.prompt,
+        xpReward: 15,
+      })
+      .returning();
+
+    return challenge;
+  }
+
+  async completeChallenge(challengeId: number): Promise<DailyChallenge> {
+    const [challenge] = await db
+      .update(dailyChallenges)
+      .set({ completed: true, completedAt: new Date() })
+      .where(eq(dailyChallenges.id, challengeId))
+      .returning();
+
+    // Award XP for completing challenge
+    const stats = await this.getUserStats();
+    await this.updateUserStats({
+      xpPoints: stats.xpPoints + challenge.xpReward,
+    });
+
+    return challenge;
+  }
+
+  // Leveling system
+  calculateLevel(xp: number): number {
+    // Level formula: every 100 XP = 1 level
+    return Math.floor(xp / 100) + 1;
+  }
+
+  calculateLevelTitle(level: number): string {
+    const titles = [
+      "Reflective Wanderer",    // Level 1
+      "Clarity Seeker",         // Level 2
+      "Inner Explorer",         // Level 3
+      "Wisdom Gatherer",        // Level 4
+      "Growth Navigator",       // Level 5
+      "Inner Architect",        // Level 6+
+    ];
+    
+    const titleIndex = Math.min(level - 1, titles.length - 1);
+    return titles[titleIndex] || "Inner Architect";
   }
 }
 

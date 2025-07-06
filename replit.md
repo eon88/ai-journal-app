@@ -59,11 +59,14 @@ The application uses a simple but effective schema:
 4. **AI-Powered Reflections**: Integration with OpenAI GPT-4o to generate insights, growth patterns, and reflection questions
 5. **Weekly Reflections**: AI analysis of week's entries providing direction, momentum, emerging goals, and growth patterns
 6. **Monthly Reflections**: Comprehensive AI insights including life direction, emerging goals, and concrete achievement suggestions
-7. **Streak & Scoreboard System**: Gamification with current streak, total entries, longest streak, and XP points
-8. **Growth Map Dashboard**: Visual analytics showing mood trends, writing frequency, and common themes
-9. **Insights Vault**: Personal library for saving and organizing meaningful insights, lessons, and goals
-10. **Entry History**: View and browse previous journal entries with mood and tag filtering
-11. **Responsive Design**: Mobile-first design with adaptive layouts that work across all devices
+7. **Advanced Leveling System**: XP progression with titles from "Reflective Wanderer" to "Inner Architect" 
+8. **Achievement Badges**: Unlock badges like "First Steps", "Week Warrior", "Consistency King", and "Streak Legend"
+9. **Daily Challenges**: AI-generated micro-quests with prompts for fear exploration, gratitude, growth spotting, and future visioning
+10. **Streak & Scoreboard System**: Gamification with current streak, total entries, longest streak, and XP points
+11. **Growth Map Dashboard**: Visual analytics showing mood trends, writing frequency, and common themes
+12. **Insights Vault**: Personal library for saving and organizing meaningful insights, lessons, and goals
+13. **Entry History**: View and browse previous journal entries with mood and tag filtering
+14. **Responsive Design**: Mobile-first design with adaptive layouts that work across all devices
 
 ## Data Flow
 
@@ -120,10 +123,12 @@ Changelog:
 - July 06, 2025. Added mood and tags functionality - Users can now select moods and add custom tags to journal entries
 - July 06, 2025. Enhanced periodic reflections - Added directional insights, emerging goals, and achievement suggestions
 - July 06, 2025. Gamification system - Added streak tracking, XP points, growth dashboard, and insights vault for complete life path companion experience
+- July 06, 2025. Advanced gamification - Implemented leveling system, achievement badges, daily challenges, and enhanced user progression based on Alex's friend's suggestions
 ```
 
 ## User Preferences
 
 ```
 Preferred communication style: Simple, everyday language.
+User name: Alex
 ```

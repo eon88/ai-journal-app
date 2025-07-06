@@ -231,6 +231,39 @@ Please provide a weekly reflection in JSON format with these fields:
     }
   });
 
+  // Badge routes
+  app.get("/api/badges", async (req: Request, res: Response) => {
+    try {
+      const badges = await storage.getBadges();
+      res.json(badges);
+    } catch (error) {
+      console.error("Error fetching badges:", error);
+      res.status(500).json({ error: "Failed to fetch badges" });
+    }
+  });
+
+  // Daily challenge routes
+  app.get("/api/challenge/today", async (req: Request, res: Response) => {
+    try {
+      const challenge = await storage.getTodaysChallenge();
+      res.json(challenge);
+    } catch (error) {
+      console.error("Error fetching today's challenge:", error);
+      res.status(500).json({ error: "Failed to fetch challenge" });
+    }
+  });
+
+  app.post("/api/challenge/:id/complete", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      const challenge = await storage.completeChallenge(id);
+      res.json(challenge);
+    } catch (error) {
+      console.error("Error completing challenge:", error);
+      res.status(500).json({ error: "Failed to complete challenge" });
+    }
+  });
+
   // Get monthly reflection
   app.get("/api/reflect/monthly", async (req, res) => {
     try {

@@ -1,4 +1,4 @@
-import { pgTable, text, serial, timestamp, jsonb, integer } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, timestamp, jsonb, integer, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -60,9 +60,35 @@ export const userStats = pgTable("user_stats", {
   currentStreak: integer("current_streak").default(0).notNull(),
   longestStreak: integer("longest_streak").default(0).notNull(),
   xpPoints: integer("xp_points").default(0).notNull(),
+  level: integer("level").default(1).notNull(),
+  title: text("title").default("Reflective Wanderer").notNull(),
+  moodMasteryScore: integer("mood_mastery_score").default(0).notNull(),
   lastEntryDate: timestamp("last_entry_date"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const badges = pgTable("badges", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  icon: text("icon").notNull(),
+  requirement: text("requirement").notNull(),
+  xpReward: integer("xp_reward").default(0).notNull(),
+  unlockedAt: timestamp("unlocked_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const dailyChallenges = pgTable("daily_challenges", {
+  id: serial("id").primaryKey(),
+  date: text("date").notNull(), // YYYY-MM-DD format
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  prompt: text("prompt").notNull(),
+  xpReward: integer("xp_reward").default(15).notNull(),
+  completed: boolean("completed").default(false).notNull(),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export const savedInsights = pgTable("saved_insights", {
@@ -80,6 +106,12 @@ export type InsertUserStats = typeof userStats.$inferInsert;
 
 export type SavedInsight = typeof savedInsights.$inferSelect;
 export type InsertSavedInsight = typeof savedInsights.$inferInsert;
+
+export type Badge = typeof badges.$inferSelect;
+export type InsertBadge = typeof badges.$inferInsert;
+
+export type DailyChallenge = typeof dailyChallenges.$inferSelect;
+export type InsertDailyChallenge = typeof dailyChallenges.$inferInsert;
 
 export interface GrowthMetrics {
   totalEntries: number;
