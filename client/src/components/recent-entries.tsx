@@ -49,7 +49,7 @@ export function RecentEntries() {
     return (
       <div className="mt-8">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-white">Recent Entries</h2>
+          <h2 className="text-xl font-semibold text-mobile-enhanced">Recent Entries</h2>
         </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {[...Array(3)].map((_, i) => (
@@ -73,7 +73,7 @@ export function RecentEntries() {
     return (
       <div className="mt-8">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-white">Recent Entries</h2>
+          <h2 className="text-xl font-semibold text-mobile-enhanced">Recent Entries</h2>
         </div>
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <p className="text-red-700 text-sm">
@@ -87,10 +87,10 @@ export function RecentEntries() {
   return (
     <div className="mt-8">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-white">Recent Entries</h2>
+        <h2 className="text-xl font-semibold text-mobile-enhanced">Recent Entries</h2>
         <Button 
           variant="ghost"
-          className="text-sm text-white hover:text-blue-200 font-medium"
+          className="text-sm text-mobile-enhanced hover:text-blue-200 font-medium"
         >
           View All
         </Button>
