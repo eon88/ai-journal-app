@@ -87,7 +87,7 @@ export function PeriodicReflections() {
     <div className="space-y-6">
       <div className="text-center">
         <h2 className="text-2xl font-semibold text-white mb-2">Periodic Reflections</h2>
-        <p className="text-white/80">Get AI-powered insights about your journaling patterns over time</p>
+        <p className="text-white">Get AI-powered insights about your journaling patterns over time</p>
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
