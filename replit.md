@@ -128,6 +128,7 @@ Changelog:
 - July 06, 2025. Merlin AI Assistant - Added narrative-based AI mentor "Merlin the Wise" with fantasy-themed UI, daily prophecies, reflection guidance, and goal alignment consultation using GPT-4o
 - July 06, 2025. User Name System - Implemented dynamic user names with persistent storage, welcome modal for new users, and personalized AI interactions replacing hardcoded "Alex"
 - July 06, 2025. Enhanced Merlin Practicality - Updated Merlin AI assistant to provide concrete, actionable advice while maintaining mystical personality. Now gives specific techniques, time frames, and practical steps instead of purely metaphorical responses
+- July 06, 2025. Dark Mode Accessibility Fix - Fixed visibility issues in mood selection dropdown and tag input fields for dark mode, ensuring proper text contrast and readability across all interactive elements
 ```
 
 ## User Preferences
