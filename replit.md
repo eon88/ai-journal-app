@@ -46,10 +46,12 @@ The application uses a simple but effective schema:
 - `POST /api/analyze` - Analyze journal entry and generate AI reflection
 
 ### Core Features
-1. **Journal Entry Creation**: Users can write journal entries with optional mood and tags
-2. **AI-Powered Reflections**: Integration with OpenAI to generate insights, growth patterns, and reflection questions
-3. **Entry History**: View and browse previous journal entries
-4. **Responsive Design**: Mobile-first design with adaptive layouts
+1. **Journal Entry Creation**: Users can write journal entries with rich text formatting
+2. **Mood Selection**: Choose from 10 different mood options with emoji indicators (excited, happy, content, neutral, thoughtful, sad, anxious, frustrated, calm, energetic)
+3. **Custom Tags**: Add and manage custom tags for categorizing journal entries
+4. **AI-Powered Reflections**: Integration with OpenAI GPT-4o to generate insights, growth patterns, and reflection questions
+5. **Entry History**: View and browse previous journal entries with mood and tag filtering
+6. **Responsive Design**: Mobile-first design with adaptive layouts that work across all devices
 
 ## Data Flow
 
@@ -103,6 +105,8 @@ The application uses a simple but effective schema:
 Changelog:
 - July 06, 2025. Initial setup - Created AI-powered journaling app with React frontend and Express backend
 - July 06, 2025. Added PostgreSQL database - Replaced in-memory storage with persistent PostgreSQL database using Drizzle ORM
+- July 06, 2025. Added mood and tags functionality - Users can now select moods and add custom tags to journal entries
+- July 06, 2025. Production ready - Resolved frontend caching issues and completed all core features
 ```
 
 ## User Preferences
