@@ -308,19 +308,21 @@ Please analyze these responses and provide:
 
 3. **Strengths & Map** - From MAP responses, identify their assets, friction points, and first action step.
 
-4. **Life Compass** - From COMPASS responses, identify 3 core values, sources of joy, and build their inner navigation system.
+4. **Life Compass** - From COMPASS responses, write a single paragraph identifying their core values, sources of joy, and inner navigation system.
 
-5. **Ikigai Pathway** - Synthesize all responses through the Ikigai framework:
-   - What they LOVE (from DESTINATION + COMPASS)
-   - What they are GOOD AT (from MAP)
-   - What the WORLD NEEDS (from DESTINATION + COMPASS) 
-   - What they can be PAID FOR (from MAP)
+5. **Ikigai Pathway** - Synthesize all responses into a single unified paragraph describing their life purpose intersection
    
 6. **Next Step** - One bold but small action that aligns with their path and values.
 
 Use poetic, encouraging language. Speak like a wise mentor guiding a young seeker on the start of their quest. Be specific and actionable while maintaining an inspiring tone.
 
-Respond in JSON format with these exact keys: currentTension, futureCalling, strengthsAndMap, lifeCompass, ikigaiPathway, nextStep`;
+IMPORTANT: All values must be strings only. No nested objects or arrays allowed. Respond in JSON format with these exact keys:
+- currentTension: string
+- futureCalling: string  
+- strengthsAndMap: string
+- lifeCompass: string (single paragraph)
+- ikigaiPathway: string (single paragraph)
+- nextStep: string`;
 
       const response = await openai.chat.completions.create({
         model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user

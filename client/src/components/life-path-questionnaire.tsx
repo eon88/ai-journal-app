@@ -20,8 +20,17 @@ interface QuestionnaireResponse {
     currentTension: string;
     futureCalling: string;
     strengthsAndMap: string;
-    lifeCompass: string;
-    ikigaiPathway: string;
+    lifeCompass: string | {
+      coreValues?: string[];
+      sourcesOfJoy?: string;
+      innerNavigation?: string;
+    };
+    ikigaiPathway: string | {
+      whatTheyLove?: string | string[];
+      whatTheyAreGoodAt?: string | string[];
+      whatTheWorldNeeds?: string | string[];
+      whatTheyCanBePaidFor?: string | string[];
+    };
     nextStep: string;
   };
 }
@@ -204,12 +213,64 @@ export function LifePathQuestionnaire({ onComplete, onSkip }: LifePathQuestionna
 
               <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border-l-4 border-purple-400">
                 <h3 className="text-xl font-semibold text-gray-800 dark:text-white-strong mb-3">🧭 Your Life Compass</h3>
-                <p className="text-gray-700 dark:text-white-strong dark:opacity-90 leading-relaxed">{ikigaiResults.lifeCompass}</p>
+                {typeof ikigaiResults.lifeCompass === 'string' ? (
+                  <p className="text-gray-700 dark:text-white-strong dark:opacity-90 leading-relaxed">{ikigaiResults.lifeCompass}</p>
+                ) : (
+                  <div className="space-y-3">
+                    {(ikigaiResults.lifeCompass as any)?.coreValues && (
+                      <div>
+                        <h4 className="font-semibold text-gray-800 dark:text-white-strong mb-1">Core Values:</h4>
+                        <p className="text-gray-700 dark:text-white-strong dark:opacity-90">{Array.isArray((ikigaiResults.lifeCompass as any).coreValues) ? (ikigaiResults.lifeCompass as any).coreValues.join(', ') : (ikigaiResults.lifeCompass as any).coreValues}</p>
+                      </div>
+                    )}
+                    {(ikigaiResults.lifeCompass as any)?.sourcesOfJoy && (
+                      <div>
+                        <h4 className="font-semibold text-gray-800 dark:text-white-strong mb-1">Sources of Joy:</h4>
+                        <p className="text-gray-700 dark:text-white-strong dark:opacity-90">{(ikigaiResults.lifeCompass as any).sourcesOfJoy}</p>
+                      </div>
+                    )}
+                    {(ikigaiResults.lifeCompass as any)?.innerNavigation && (
+                      <div>
+                        <h4 className="font-semibold text-gray-800 dark:text-white-strong mb-1">Inner Navigation:</h4>
+                        <p className="text-gray-700 dark:text-white-strong dark:opacity-90">{(ikigaiResults.lifeCompass as any).innerNavigation}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/30 dark:to-blue-900/30 rounded-lg p-6 border border-purple-200 dark:border-purple-700">
                 <h3 className="text-xl font-semibold text-gray-800 dark:text-white-strong mb-3">🔵 Your Ikigai Pathway</h3>
-                <p className="text-gray-700 dark:text-white-strong dark:opacity-90 leading-relaxed mb-4">{ikigaiResults.ikigaiPathway}</p>
+                {typeof ikigaiResults.ikigaiPathway === 'string' ? (
+                  <p className="text-gray-700 dark:text-white-strong dark:opacity-90 leading-relaxed mb-4">{ikigaiResults.ikigaiPathway}</p>
+                ) : (
+                  <div className="space-y-3 mb-4">
+                    {(ikigaiResults.ikigaiPathway as any)?.whatTheyLove && (
+                      <div>
+                        <h4 className="font-semibold text-gray-800 dark:text-white-strong mb-1">💖 What You Love:</h4>
+                        <p className="text-gray-700 dark:text-white-strong dark:opacity-90">{Array.isArray((ikigaiResults.ikigaiPathway as any).whatTheyLove) ? (ikigaiResults.ikigaiPathway as any).whatTheyLove.join(', ') : (ikigaiResults.ikigaiPathway as any).whatTheyLove}</p>
+                      </div>
+                    )}
+                    {(ikigaiResults.ikigaiPathway as any)?.whatTheyAreGoodAt && (
+                      <div>
+                        <h4 className="font-semibold text-gray-800 dark:text-white-strong mb-1">🎯 What You're Good At:</h4>
+                        <p className="text-gray-700 dark:text-white-strong dark:opacity-90">{Array.isArray((ikigaiResults.ikigaiPathway as any).whatTheyAreGoodAt) ? (ikigaiResults.ikigaiPathway as any).whatTheyAreGoodAt.join(', ') : (ikigaiResults.ikigaiPathway as any).whatTheyAreGoodAt}</p>
+                      </div>
+                    )}
+                    {(ikigaiResults.ikigaiPathway as any)?.whatTheWorldNeeds && (
+                      <div>
+                        <h4 className="font-semibold text-gray-800 dark:text-white-strong mb-1">🌍 What the World Needs:</h4>
+                        <p className="text-gray-700 dark:text-white-strong dark:opacity-90">{Array.isArray((ikigaiResults.ikigaiPathway as any).whatTheWorldNeeds) ? (ikigaiResults.ikigaiPathway as any).whatTheWorldNeeds.join(', ') : (ikigaiResults.ikigaiPathway as any).whatTheWorldNeeds}</p>
+                      </div>
+                    )}
+                    {(ikigaiResults.ikigaiPathway as any)?.whatTheyCanBePaidFor && (
+                      <div>
+                        <h4 className="font-semibold text-gray-800 dark:text-white-strong mb-1">💰 What You Can Be Paid For:</h4>
+                        <p className="text-gray-700 dark:text-white-strong dark:opacity-90">{Array.isArray((ikigaiResults.ikigaiPathway as any).whatTheyCanBePaidFor) ? (ikigaiResults.ikigaiPathway as any).whatTheyCanBePaidFor.join(', ') : (ikigaiResults.ikigaiPathway as any).whatTheyCanBePaidFor}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
                 
                 <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border-l-4 border-orange-400">
                   <h4 className="font-semibold text-gray-800 dark:text-white-strong mb-2">Your Next Step:</h4>
