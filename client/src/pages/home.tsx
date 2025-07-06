@@ -3,6 +3,7 @@ import { Header } from "@/components/header";
 import { JournalEntryForm } from "@/components/journal-entry-form";
 import { AIReflectionComponent } from "@/components/ai-reflection";
 import { RecentEntries } from "@/components/recent-entries";
+import { PeriodicReflections } from "@/components/periodic-reflections";
 import { Footer } from "@/components/footer";
 import type { AIReflection } from "@shared/schema";
 
@@ -37,6 +38,8 @@ export default function Home() {
           error={error}
           onRegenerate={handleRegenerate}
         />
+        
+        <PeriodicReflections />
         
         <RecentEntries />
       </main>

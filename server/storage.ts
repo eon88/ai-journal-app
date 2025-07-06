@@ -1,12 +1,13 @@
 import { journalEntries, type JournalEntry, type InsertJournalEntry, type AIReflection } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, gte, lte, and } from "drizzle-orm";
 
 export interface IStorage {
   createJournalEntry(entry: InsertJournalEntry): Promise<JournalEntry>;
   getJournalEntry(id: number): Promise<JournalEntry | undefined>;
   getAllJournalEntries(): Promise<JournalEntry[]>;
   getRecentJournalEntries(limit: number): Promise<JournalEntry[]>;
+  getEntriesByDateRange(startDate: Date, endDate: Date): Promise<JournalEntry[]>;
   updateJournalEntryReflection(id: number, reflection: AIReflection): Promise<JournalEntry | undefined>;
 }
 
@@ -36,6 +37,15 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(journalEntries)
       .orderBy(desc(journalEntries.createdAt))
       .limit(limit);
+  }
+
+  async getEntriesByDateRange(startDate: Date, endDate: Date): Promise<JournalEntry[]> {
+    return await db.select().from(journalEntries)
+      .where(and(
+        gte(journalEntries.createdAt, startDate),
+        lte(journalEntries.createdAt, endDate)
+      ))
+      .orderBy(desc(journalEntries.createdAt));
   }
 
   async updateJournalEntryReflection(id: number, reflection: AIReflection): Promise<JournalEntry | undefined> {

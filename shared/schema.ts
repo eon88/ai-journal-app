@@ -26,3 +26,25 @@ export interface AIReflection {
   growthPattern: string;
   processingTime: number;
 }
+
+export interface WeeklyReflection {
+  weekStart: string;
+  weekEnd: string;
+  entryCount: number;
+  dominantMoods: string[];
+  commonThemes: string;
+  growthObservations: string;
+  weeklyInsight: string;
+  processingTime: number;
+}
+
+export interface MonthlyReflection {
+  month: string;
+  year: number;
+  entryCount: number;
+  moodTrends: string;
+  keyThemes: string;
+  growthJourney: string;
+  monthlyWisdom: string;
+  processingTime: number;
+}

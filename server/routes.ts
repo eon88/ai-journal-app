@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertJournalEntrySchema, type AIReflection } from "@shared/schema";
+import { insertJournalEntrySchema, type AIReflection, type WeeklyReflection, type MonthlyReflection, type JournalEntry } from "@shared/schema";
 import { z } from "zod";
 import OpenAI from "openai";
 
@@ -93,6 +93,149 @@ export async function registerRoutes(app: Express): Promise<Server> {
         message: "Failed to analyze entry with AI. Please check your API key and try again.",
         error: error instanceof Error ? error.message : "Unknown error"
       });
+    }
+  });
+
+  // Get weekly reflection
+  app.get("/api/reflect/weekly", async (req, res) => {
+    try {
+      const weekStart = req.query.weekStart as string;
+      if (!weekStart) {
+        return res.status(400).json({ message: "weekStart parameter is required (YYYY-MM-DD format)" });
+      }
+
+      const startDate = new Date(weekStart);
+      const endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + 6);
+
+      const entries = await storage.getEntriesByDateRange(startDate, endDate);
+      
+      if (entries.length === 0) {
+        return res.status(404).json({ message: "No entries found for this week" });
+      }
+
+      const startTime = Date.now();
+      
+      const entryTexts = entries.map(e => `${e.mood ? `Mood: ${e.mood}. ` : ""}${e.content}`).join("\n\n");
+      const moods = entries.filter(e => e.mood).map(e => e.mood);
+      const tags = entries.flatMap(e => e.tags || []);
+
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+        messages: [
+          {
+            role: "system",
+            content: "You are a thoughtful journaling coach analyzing a week's worth of journal entries. Provide insights, patterns, and gentle guidance for personal growth. Respond in JSON format."
+          },
+          {
+            role: "user",
+            content: `Analyze these journal entries from ${weekStart} to ${endDate.toISOString().split('T')[0]}:
+
+${entryTexts}
+
+Moods recorded: ${moods.join(', ')}
+Tags used: ${tags.join(', ')}
+
+Please provide a weekly reflection in JSON format with these fields:
+- commonThemes: Main themes and topics that emerged this week
+- growthObservations: What growth, changes, or patterns do you notice?
+- weeklyInsight: One key insight or wisdom from this week
+- dominantMoods: The 2-3 most common moods this week`
+          }
+        ],
+        response_format: { type: "json_object" },
+      });
+
+      const aiResponse = JSON.parse(response.choices[0].message.content || "{}");
+      const processingTime = Date.now() - startTime;
+
+      const weeklyReflection: WeeklyReflection = {
+        weekStart: weekStart,
+        weekEnd: endDate.toISOString().split('T')[0],
+        entryCount: entries.length,
+        dominantMoods: aiResponse.dominantMoods || moods.slice(0, 3),
+        commonThemes: aiResponse.commonThemes || "Various personal reflections and daily experiences.",
+        growthObservations: aiResponse.growthObservations || "Continued personal development through journaling.",
+        weeklyInsight: aiResponse.weeklyInsight || "Regular reflection helps build self-awareness.",
+        processingTime
+      };
+
+      res.json({ summary: weeklyReflection });
+    } catch (error) {
+      console.error("Weekly reflection error:", error);
+      res.status(500).json({ message: "Failed to generate weekly reflection" });
+    }
+  });
+
+  // Get monthly reflection
+  app.get("/api/reflect/monthly", async (req, res) => {
+    try {
+      const month = req.query.month as string;
+      const year = parseInt(req.query.year as string);
+      
+      if (!month || !year) {
+        return res.status(400).json({ message: "month and year parameters are required" });
+      }
+
+      const startDate = new Date(year, new Date(`${month} 1, ${year}`).getMonth(), 1);
+      const endDate = new Date(year, startDate.getMonth() + 1, 0);
+
+      const entries = await storage.getEntriesByDateRange(startDate, endDate);
+      
+      if (entries.length === 0) {
+        return res.status(404).json({ message: "No entries found for this month" });
+      }
+
+      const startTime = Date.now();
+      
+      const entryTexts = entries.map(e => `${e.mood ? `Mood: ${e.mood}. ` : ""}${e.content}`).join("\n\n");
+      const moods = entries.filter(e => e.mood).map(e => e.mood);
+      const tags = entries.flatMap(e => e.tags || []);
+
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+        messages: [
+          {
+            role: "system",
+            content: "You are a wise journaling mentor analyzing a month's worth of personal journal entries. Focus on long-term patterns, growth, and meaningful insights. Respond in JSON format."
+          },
+          {
+            role: "user",
+            content: `Analyze these journal entries from ${month} ${year}:
+
+${entryTexts}
+
+Moods recorded: ${moods.join(', ')}
+Tags used: ${tags.join(', ')}
+
+Please provide a monthly reflection in JSON format with these fields:
+- moodTrends: How did moods evolve and change throughout the month?
+- keyThemes: The main life themes, challenges, and focuses this month
+- growthJourney: What personal growth and development occurred?
+- monthlyWisdom: One profound insight or lesson from this month`
+          }
+        ],
+        response_format: { type: "json_object" },
+      });
+
+      const aiResponse = JSON.parse(response.choices[0].message.content || "{}");
+      const processingTime = Date.now() - startTime;
+
+      const monthlyReflection: MonthlyReflection = {
+        month,
+        year,
+        entryCount: entries.length,
+        moodTrends: aiResponse.moodTrends || "Various mood patterns observed throughout the month.",
+        keyThemes: aiResponse.keyThemes || "Personal growth and daily life experiences.",
+        growthJourney: aiResponse.growthJourney || "Continued development through regular journaling practice.",
+        monthlyWisdom: aiResponse.monthlyWisdom || "Consistent reflection builds deeper self-understanding.",
+        processingTime
+      };
+
+      res.json({ summary: monthlyReflection });
+    } catch (error) {
+      console.error("Monthly reflection error:", error);
+      res.status(500).json({ message: "Failed to generate monthly reflection" });
     }
   });
 
