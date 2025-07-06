@@ -25,6 +25,7 @@ This is a full-stack web application for an AI-powered bullet journal system. Th
 - **Database**: PostgreSQL (configured via DATABASE_URL)
 - **ORM**: Drizzle ORM with migrations support
 - **Schema**: Single table design for journal entries with JSONB for AI reflections
+- **Storage**: DatabaseStorage class replaces MemStorage for persistent data
 
 ## Key Components
 
@@ -100,7 +101,8 @@ The application uses a simple but effective schema:
 
 ```
 Changelog:
-- July 06, 2025. Initial setup
+- July 06, 2025. Initial setup - Created AI-powered journaling app with React frontend and Express backend
+- July 06, 2025. Added PostgreSQL database - Replaced in-memory storage with persistent PostgreSQL database using Drizzle ORM
 ```
 
 ## User Preferences

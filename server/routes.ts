@@ -77,7 +77,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       const processingTime = (Date.now() - startTime) / 1000;
-      const aiResponse = JSON.parse(response.choices[0].message.content);
+      const aiResponse = JSON.parse(response.choices[0].message.content || "{}");
       
       const reflection: AIReflection = {
         insights: aiResponse.insights || "No insights generated",

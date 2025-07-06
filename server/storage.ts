@@ -1,4 +1,6 @@
 import { journalEntries, type JournalEntry, type InsertJournalEntry, type AIReflection } from "@shared/schema";
+import { db } from "./db";
+import { eq, desc } from "drizzle-orm";
 
 export interface IStorage {
   createJournalEntry(entry: InsertJournalEntry): Promise<JournalEntry>;
@@ -8,50 +10,42 @@ export interface IStorage {
   updateJournalEntryReflection(id: number, reflection: AIReflection): Promise<JournalEntry | undefined>;
 }
 
-export class MemStorage implements IStorage {
-  private entries: Map<number, JournalEntry>;
-  private currentId: number;
-
-  constructor() {
-    this.entries = new Map();
-    this.currentId = 1;
-  }
-
+export class DatabaseStorage implements IStorage {
   async createJournalEntry(insertEntry: InsertJournalEntry): Promise<JournalEntry> {
-    const id = this.currentId++;
-    const entry: JournalEntry = {
-      ...insertEntry,
-      id,
-      aiReflection: null,
-      createdAt: new Date(),
-    };
-    this.entries.set(id, entry);
+    const [entry] = await db
+      .insert(journalEntries)
+      .values({
+        content: insertEntry.content,
+        mood: insertEntry.mood || null,
+        tags: insertEntry.tags || null,
+      })
+      .returning();
     return entry;
   }
 
   async getJournalEntry(id: number): Promise<JournalEntry | undefined> {
-    return this.entries.get(id);
+    const [entry] = await db.select().from(journalEntries).where(eq(journalEntries.id, id));
+    return entry || undefined;
   }
 
   async getAllJournalEntries(): Promise<JournalEntry[]> {
-    return Array.from(this.entries.values()).sort((a, b) => 
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
+    return await db.select().from(journalEntries).orderBy(desc(journalEntries.createdAt));
   }
 
   async getRecentJournalEntries(limit: number): Promise<JournalEntry[]> {
-    const allEntries = await this.getAllJournalEntries();
-    return allEntries.slice(0, limit);
+    return await db.select().from(journalEntries)
+      .orderBy(desc(journalEntries.createdAt))
+      .limit(limit);
   }
 
   async updateJournalEntryReflection(id: number, reflection: AIReflection): Promise<JournalEntry | undefined> {
-    const entry = this.entries.get(id);
-    if (!entry) return undefined;
-    
-    const updatedEntry = { ...entry, aiReflection: reflection };
-    this.entries.set(id, updatedEntry);
-    return updatedEntry;
+    const [updatedEntry] = await db
+      .update(journalEntries)
+      .set({ aiReflection: reflection })
+      .where(eq(journalEntries.id, id))
+      .returning();
+    return updatedEntry || undefined;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
