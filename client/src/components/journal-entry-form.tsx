@@ -161,13 +161,13 @@ export function JournalEntryForm({ onAnalysisResult }: JournalEntryFormProps) {
         </div>
 
         {/* Mood and Tags Controls */}
-        <div className="bg-gray-50 rounded-lg p-4 space-y-3 mb-4">
+        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 space-y-3 mb-4">
           <div className="flex items-center gap-3">
-            <Smile className="w-4 h-4 text-gray-500" />
+            <Smile className="w-4 h-4 text-gray-500 dark:text-gray-400" />
             <select 
               value={selectedMood || ""} 
               onChange={(e) => setSelectedMood(e.target.value || null)}
-              className="w-48 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-journal-primary"
+              className="w-48 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-journal-primary bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             >
               <option value="">Select mood...</option>
               {moodOptions.map((mood) => (
@@ -179,12 +179,12 @@ export function JournalEntryForm({ onAnalysisResult }: JournalEntryFormProps) {
           </div>
 
           <div className="flex items-center gap-3">
-            <Tags className="w-4 h-4 text-gray-500" />
+            <Tags className="w-4 h-4 text-gray-500 dark:text-gray-400" />
             {!showTagInput ? (
               <button
                 type="button"
                 onClick={() => setShowTagInput(true)}
-                className="px-3 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50 flex items-center gap-2"
+                className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700"
               >
                 <Plus className="w-4 h-4" />
                 Add Tag
@@ -201,7 +201,7 @@ export function JournalEntryForm({ onAnalysisResult }: JournalEntryFormProps) {
                     }
                   }}
                   placeholder="Enter tag..."
-                  className="w-32 px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-journal-primary"
+                  className="w-32 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-journal-primary bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
                 />
                 <button 
                   type="button" 
@@ -217,7 +217,7 @@ export function JournalEntryForm({ onAnalysisResult }: JournalEntryFormProps) {
                     setShowTagInput(false);
                     setNewTag("");
                   }}
-                  className="px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
+                  className="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700"
                 >
                   Cancel
                 </button>
