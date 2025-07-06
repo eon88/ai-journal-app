@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Smile, Tags, Sparkles, X } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Clock, Smile, Tags, Sparkles, X, Plus } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -17,20 +18,21 @@ export function JournalEntryForm({ onAnalysisResult }: JournalEntryFormProps) {
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [tags, setTags] = useState<string[]>([]);
   const [newTag, setNewTag] = useState("");
+  const [showTagInput, setShowTagInput] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const moodOptions = [
-    { value: "happy", label: "Happy", emoji: "😊" },
-    { value: "sad", label: "Sad", emoji: "😢" },
-    { value: "excited", label: "Excited", emoji: "🎉" },
-    { value: "anxious", label: "Anxious", emoji: "😰" },
-    { value: "calm", label: "Calm", emoji: "😌" },
-    { value: "frustrated", label: "Frustrated", emoji: "😤" },
-    { value: "grateful", label: "Grateful", emoji: "🙏" },
-    { value: "determined", label: "Determined", emoji: "💪" },
-    { value: "neutral", label: "Neutral", emoji: "😐" },
-    { value: "reflective", label: "Reflective", emoji: "🤔" },
+    { value: "happy", label: "😊 Happy" },
+    { value: "sad", label: "😢 Sad" },
+    { value: "excited", label: "🎉 Excited" },
+    { value: "anxious", label: "😰 Anxious" },
+    { value: "calm", label: "😌 Calm" },
+    { value: "frustrated", label: "😤 Frustrated" },
+    { value: "grateful", label: "🙏 Grateful" },
+    { value: "determined", label: "💪 Determined" },
+    { value: "neutral", label: "😐 Neutral" },
+    { value: "reflective", label: "🤔 Reflective" },
   ];
 
   const analyzeMutation = useMutation({
@@ -140,7 +142,6 @@ export function JournalEntryForm({ onAnalysisResult }: JournalEntryFormProps) {
         <div className="flex flex-wrap gap-2 mb-4">
           {selectedMood && (
             <Badge variant="secondary" className="flex items-center gap-1">
-              {moodOptions.find(m => m.value === selectedMood)?.emoji}
               {moodOptions.find(m => m.value === selectedMood)?.label}
               <X 
                 className="h-3 w-3 cursor-pointer" 
@@ -159,53 +160,77 @@ export function JournalEntryForm({ onAnalysisResult }: JournalEntryFormProps) {
           ))}
         </div>
 
-        <div className="flex items-center justify-between pt-4">
-          <div className="flex items-center space-x-4">
-            <Popover>
-              <PopoverTrigger asChild>
-                <button className="text-sm text-gray-500 hover:text-journal-primary flex items-center space-x-1">
-                  <Smile className="w-4 h-4" />
-                  <span>Add Mood</span>
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="w-64 p-3">
-                <div className="grid grid-cols-2 gap-2">
-                  {moodOptions.map((mood) => (
-                    <button
-                      key={mood.value}
-                      onClick={() => setSelectedMood(mood.value)}
-                      className="flex items-center space-x-2 p-2 rounded-md hover:bg-gray-100 text-left text-sm"
-                    >
-                      <span>{mood.emoji}</span>
-                      <span>{mood.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </PopoverContent>
-            </Popover>
-
-            <Popover>
-              <PopoverTrigger asChild>
-                <button className="text-sm text-gray-500 hover:text-journal-primary flex items-center space-x-1">
-                  <Tags className="w-4 h-4" />
-                  <span>Add Tags</span>
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="w-64 p-3">
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={newTag}
-                    onChange={(e) => setNewTag(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && addTag()}
-                    placeholder="Enter tag..."
-                    className="flex-1 px-2 py-1 text-sm border rounded focus:outline-none focus:ring-1 focus:ring-journal-primary"
-                  />
-                  <Button size="sm" onClick={addTag}>Add</Button>
-                </div>
-              </PopoverContent>
-            </Popover>
+        {/* Mood and Tags Controls */}
+        <div className="flex flex-col gap-3 mb-4">
+          <div className="flex items-center gap-3">
+            <Smile className="w-4 h-4 text-gray-500" />
+            <Select value={selectedMood || ""} onValueChange={setSelectedMood}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Select mood..." />
+              </SelectTrigger>
+              <SelectContent>
+                {moodOptions.map((mood) => (
+                  <SelectItem key={mood.value} value={mood.value}>
+                    {mood.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
+
+          <div className="flex items-center gap-3">
+            <Tags className="w-4 h-4 text-gray-500" />
+            {!showTagInput ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setShowTagInput(true)}
+                className="flex items-center gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                Add Tag
+              </Button>
+            ) : (
+              <div className="flex gap-2">
+                <Input
+                  type="text"
+                  value={newTag}
+                  onChange={(e) => setNewTag(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      addTag();
+                    }
+                  }}
+                  placeholder="Enter tag..."
+                  className="w-32"
+                />
+                <Button 
+                  type="button" 
+                  size="sm" 
+                  onClick={addTag}
+                  disabled={!newTag.trim()}
+                >
+                  Add
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setShowTagInput(false);
+                    setNewTag("");
+                  }}
+                >
+                  Cancel
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between pt-4">
+          <div></div>
           
           <Button 
             onClick={handleSubmit}
