@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Header } from "@/components/header";
-import { JournalEntryForm } from "@/components/journal-entry-form";
+import { JournalEntryForm } from "@/components/journal-entry-form-new";
 import { AIReflectionComponent } from "@/components/ai-reflection";
 import { RecentEntries } from "@/components/recent-entries";
 import { Footer } from "@/components/footer";
