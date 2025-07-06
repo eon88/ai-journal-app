@@ -12,6 +12,7 @@ import { BadgeShowcase } from "@/components/badge-showcase";
 import { MerlinAssistant } from "@/components/merlin-assistant";
 import { UserNameSetup } from "@/components/user-name-setup";
 import { Footer } from "@/components/footer";
+import { LevelSidebar } from "@/components/level-sidebar";
 import type { AIReflection } from "@shared/schema";
 import { useQuery } from "@tanstack/react-query";
 
@@ -50,23 +51,31 @@ export default function Home() {
         {/* Streak and Progress Overview */}
         <StreakScoreboard />
         
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column - Journal Entry */}
-          <div className="lg:col-span-2 space-y-6">
-            <JournalEntryForm onAnalysisResult={handleAnalysisResult} />
-            <AIReflectionComponent 
-              reflection={aiReflection}
-              isLoading={isLoading}
-              error={error}
-              onRegenerate={handleRegenerate}
-            />
+        {/* Main Content with Sidebar */}
+        <div className="flex gap-8">
+          {/* Left Sidebar - Level Category */}
+          <div className="hidden lg:block">
+            <LevelSidebar />
           </div>
           
-          {/* Right Column - Gamification Features */}
-          <div className="space-y-6">
-            <DailyChallenge />
-            <BadgeShowcase />
+          {/* Main Content Grid */}
+          <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Left Column - Journal Entry */}
+            <div className="lg:col-span-2 space-y-6">
+              <JournalEntryForm onAnalysisResult={handleAnalysisResult} />
+              <AIReflectionComponent 
+                reflection={aiReflection}
+                isLoading={isLoading}
+                error={error}
+                onRegenerate={handleRegenerate}
+              />
+            </div>
+            
+            {/* Right Column - Gamification Features */}
+            <div className="space-y-6">
+              <DailyChallenge />
+              <BadgeShowcase />
+            </div>
           </div>
         </div>
         

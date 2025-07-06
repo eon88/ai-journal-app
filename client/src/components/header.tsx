@@ -15,18 +15,16 @@ export function Header() {
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString('en-US', { 
-      weekday: 'long',
-      month: 'long', 
-      day: 'numeric',
-      year: 'numeric'
+      month: '2-digit', 
+      day: '2-digit'
     });
   };
 
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString('en-US', { 
-      hour: 'numeric', 
+      hour: '2-digit', 
       minute: '2-digit',
-      hour12: true 
+      hour12: false 
     });
   };
 
