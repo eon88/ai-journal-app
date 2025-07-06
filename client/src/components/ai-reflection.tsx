@@ -43,7 +43,7 @@ export function AIReflectionComponent({
           <div className="w-8 h-8 bg-journal-accent rounded-full flex items-center justify-center">
             <Bot className="text-white text-sm" />
           </div>
-          <h2 className="text-xl font-semibold text-journal-text">AI Reflection</h2>
+          <h2 className="text-xl font-semibold text-white">AI Reflection</h2>
         </div>
 
         <div className="flex items-center justify-center py-12">
@@ -63,7 +63,7 @@ export function AIReflectionComponent({
           <div className="w-8 h-8 bg-journal-accent rounded-full flex items-center justify-center">
             <Bot className="text-white text-sm" />
           </div>
-          <h2 className="text-xl font-semibold text-journal-text">AI Reflection</h2>
+          <h2 className="text-xl font-semibold text-white">AI Reflection</h2>
         </div>
 
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
@@ -93,10 +93,10 @@ export function AIReflectionComponent({
           <div className="w-8 h-8 bg-journal-accent rounded-full flex items-center justify-center">
             <Bot className="text-white text-sm" />
           </div>
-          <h2 className="text-xl font-semibold text-journal-text">AI Reflection</h2>
+          <h2 className="text-xl font-semibold text-white">AI Reflection</h2>
         </div>
         
-        <div className="text-center py-12 text-gray-500">
+        <div className="text-center py-12 text-white">
           <p>Write a journal entry above to get AI-powered insights and reflections.</p>
         </div>
       </div>
@@ -109,7 +109,7 @@ export function AIReflectionComponent({
         <div className="w-8 h-8 bg-journal-accent rounded-full flex items-center justify-center">
           <Bot className="text-white text-sm" />
         </div>
-        <h2 className="text-xl font-semibold text-journal-text">AI Reflection</h2>
+        <h2 className="text-xl font-semibold text-white">AI Reflection</h2>
         <div className="flex-1"></div>
         <Button 
           variant="ghost"
