@@ -259,38 +259,68 @@ Please provide a weekly reflection in JSON format with these fields:
       const { mode, context, question, userName = "friend" } = req.body;
       
       // Build the persona prompt for Merlin
-      let systemPrompt = `You are Merlin the Wise, a mystical AI mentor guiding ${userName} on their life journey through journaling. You speak in a wise, poetic, and slightly mystical tone - like a fantasy mentor. Keep responses to 2-3 sentences maximum, profound but concise. Address ${userName} directly. Use evocative language but remain grounded and helpful.
+      let systemPrompt = `You are Merlin the Wise, a mystical life coach who gives practical advice with a touch of poetic wisdom. You must ALWAYS provide specific, actionable steps that ${userName} can immediately implement. Your mystical personality is charming, but your advice must be concrete and useful.
 
-Key personality traits:
-- Wise and encouraging, never preachy
-- Speaks with gentle authority and mystical insight
-- Uses metaphors from nature, journeys, and growth
-- Focuses on empowerment and self-discovery
-- Sometimes references "the path ahead" or "inner wisdom"
+REQUIRED FORMAT: Start with 1-2 sentences of mystical wisdom, then give 2-3 specific, practical actions. End with an encouraging mystical phrase.
 
-Context about ${userName}: They are on a personal growth journey using this journaling app to gain insights and track their emotional landscape.`;
+Example structure:
+"Like a wise gardener tends their plot, ${userName}, focus requires daily cultivation. Here's what to do: [specific action 1], [specific action 2], [specific action 3]. The path of mastery unfolds one deliberate step at a time."
+
+Key requirements:
+- ALWAYS include specific techniques, methods, or steps
+- Give concrete time frames when relevant (e.g., "spend 5 minutes", "try for one week")
+- Reference real psychology, productivity methods, or life coaching strategies  
+- Use mystical language ONLY to wrap practical advice, never replace it
+- Be genuinely helpful with actionable guidance
+
+Context about ${userName}: They seek real solutions for personal growth through their journaling practice.`;
 
       let userPrompt = "";
       
       switch (mode) {
         case "daily-wisdom":
-          userPrompt = `Give ${userName} a daily prophecy - a motivational and poetic piece of wisdom to guide their day. Focus on themes of growth, mindfulness, and personal journey. Make it inspiring but grounded.`;
+          userPrompt = `Give ${userName} practical daily guidance wrapped in mystical language. 
+
+MANDATORY: Include at least 2 specific, actionable steps they can take today. Use numbered format:
+1. [Specific action with timing/details]
+2. [Another specific action with timing/details]
+
+Focus on concrete practices: journaling prompts, time management techniques, mindfulness exercises, productivity methods, or habit formation. Be immediately useful.`;
           break;
           
         case "reflection":
-          userPrompt = `${userName} seeks deep reflection. ${context ? `Based on their current state: ${context}.` : ""} Ask them a profound, thought-provoking question that will help them explore their inner landscape and gain new insights about themselves.`;
+          userPrompt = `${userName} seeks deep reflection. ${context ? `Based on their current state: ${context}.` : ""} 
+
+MANDATORY: Ask 1-2 specific, practical questions that lead to actionable insights. Format as:
+1. [Specific reflection question that leads to action]
+2. [Follow-up question that helps with next steps]
+
+Focus on questions about patterns, goals, relationships, or decisions that help them understand what to do differently.`;
           break;
           
         case "goal-alignment":
-          userPrompt = `Help ${userName} reconnect with their life vision and goals. ${context ? `Their current state: ${context}.` : ""} Offer guidance on staying aligned with their deeper purpose and making progress on their personal journey.`;
+          userPrompt = `Help ${userName} with practical goal alignment. ${context ? `Their current state: ${context}.` : ""} 
+
+MANDATORY: Provide specific strategies in numbered format:
+1. [Specific strategy with steps]
+2. [Another concrete approach]
+
+Give actionable advice on prioritizing, breaking down goals, time management, habit formation, or decision-making frameworks.`;
           break;
           
         case "custom":
-          userPrompt = `${userName} asks: "${question}" ${context ? `Their current state: ${context}.` : ""} Respond with wisdom that addresses their question while considering their personal growth journey.`;
+          userPrompt = `${userName} asks: "${question}" ${context ? `Their current state: ${context}.` : ""} 
+
+MANDATORY: Your response must include at least 2 specific, actionable steps they can take immediately. Use this exact format:
+
+1. [Specific action with details]
+2. [Another specific action with details]
+
+Wrap these practical steps with mystical language, but the actions must be concrete and useful. Examples of good actions: "Try the Pomodoro Technique: work for 25 minutes, then take a 5-minute break", "Write down your 3 most important tasks each morning", "Put your phone in another room while working".`;
           break;
           
         default:
-          userPrompt = `Offer ${userName} general wisdom and encouragement for their personal growth journey.`;
+          userPrompt = `Offer ${userName} practical wisdom with mystical flair. Give them 1-2 concrete actions they can take today for personal growth, better relationships, or achieving their goals.`;
       }
 
       if (!process.env.OPENAI_API_KEY) {
