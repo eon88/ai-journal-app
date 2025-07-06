@@ -160,7 +160,11 @@ export function MerlinAssistant({ userMood, hasJournalToday, recentEntry }: Merl
                 </Button>
               </div>
               <CardTitle className="text-center text-xl font-serif text-amber-800 dark:text-amber-200 flex items-center justify-center gap-2">
-                <Gem className="w-6 h-6 text-purple-600" />
+                <img 
+                  src={merlinWizardImage} 
+                  alt="Merlin" 
+                  className="w-6 h-6 object-cover rounded-full border border-purple-300"
+                />
                 Merlin
               </CardTitle>
               <p className="text-center text-sm text-amber-600 dark:text-amber-400 italic">
