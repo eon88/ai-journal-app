@@ -10,6 +10,7 @@ import Home from "@/pages/home";
 import About from "@/pages/about";
 import Contact from "@/pages/contact";
 import UserProfile from "@/pages/user-profile";
+import Forum from "@/pages/forum";
 
 
 function Router() {
@@ -19,6 +20,7 @@ function Router() {
       <Route path="/about" component={About} />
       <Route path="/contact" component={Contact} />
       <Route path="/profile" component={UserProfile} />
+      <Route path="/forum" component={Forum} />
       <Route component={NotFound} />
     </Switch>
   );

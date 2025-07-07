@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Mail, MessageSquare, Heart, Clock, Send, CheckCircle } from "lucide-react";
+import { Mail, MessageSquare, Heart, Clock, Send, CheckCircle, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Contact() {
@@ -260,9 +260,13 @@ export default function Contact() {
               dedicated to personal growth and self-discovery.
             </p>
             <div className="flex justify-center gap-4">
-              <Badge variant="outline" className="border-journal-primary text-journal-primary">
-                Coming Soon: Community Features
-              </Badge>
+              <Button 
+                onClick={() => window.location.href = '/forum'}
+                className="bg-journal-primary hover:bg-indigo-700"
+              >
+                <Users className="w-4 h-4 mr-2" />
+                Visit Community Forum
+              </Button>
             </div>
           </CardContent>
         </Card>
