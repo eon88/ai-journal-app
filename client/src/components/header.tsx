@@ -1,6 +1,7 @@
 import { Calendar, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Link } from "wouter";
 
 export function Header() {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -49,9 +50,11 @@ export function Header() {
               {formatTime(currentTime)}
             </span>
             <ThemeToggle />
-            <div className="w-8 h-8 bg-accent rounded-full flex items-center justify-center">
-              <User className="text-accent-foreground text-sm" />
-            </div>
+            <Link href="/">
+              <div className="w-8 h-8 bg-accent rounded-full flex items-center justify-center cursor-pointer hover:bg-accent/80 transition-colors">
+                <User className="text-accent-foreground text-sm" />
+              </div>
+            </Link>
           </div>
         </div>
       </div>
