@@ -36,7 +36,7 @@ export function JournalEntryForm() {
 
   const createEntryMutation = useMutation({
     mutationFn: async (data: { content: string; mood?: string | null; tags?: string[] | null }) => {
-      const response = await apiRequest("POST", "/api/entries", data);
+      const response = await apiRequest("/api/entries", "POST", data);
       return response.json();
     },
     onSuccess: () => {

@@ -64,7 +64,7 @@ export function GoalsManager() {
 
   const createGoalMutation = useMutation({
     mutationFn: async (data: GoalFormData) => {
-      const response = await apiRequest("POST", "/api/goals", data);
+      const response = await apiRequest("/api/goals", "POST", data);
       return response.json();
     },
     onSuccess: () => {
@@ -111,7 +111,7 @@ export function GoalsManager() {
 
   const deleteGoalMutation = useMutation({
     mutationFn: async (id: number) => {
-      const response = await apiRequest("DELETE", `/api/goals/${id}`);
+      const response = await apiRequest(`/api/goals/${id}`, "DELETE");
       return response.json();
     },
     onSuccess: () => {

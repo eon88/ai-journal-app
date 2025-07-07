@@ -32,7 +32,7 @@ export default function Pricing() {
 
   const createCheckoutMutation = useMutation({
     mutationFn: async (planId: number) => {
-      const response = await apiRequest("POST", "/api/subscription/create-checkout", { planId });
+      const response = await apiRequest("/api/subscription/create-checkout", "POST", { planId });
       return response.json();
     },
     onSuccess: (data) => {

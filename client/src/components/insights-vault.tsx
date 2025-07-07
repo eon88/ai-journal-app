@@ -44,7 +44,7 @@ export function InsightsVault() {
 
   const addInsightMutation = useMutation({
     mutationFn: async (insight: Omit<SavedInsight, 'id' | 'createdAt' | 'entryId'>) => {
-      const response = await apiRequest("POST", "/api/insights", insight);
+      const response = await apiRequest("/api/insights", "POST", insight);
       return await response.json();
     },
     onSuccess: () => {
@@ -67,7 +67,7 @@ export function InsightsVault() {
 
   const deleteInsightMutation = useMutation({
     mutationFn: async (id: number) => {
-      const response = await apiRequest("DELETE", `/api/insights/${id}`);
+      const response = await apiRequest(`/api/insights/${id}`, "DELETE");
       return await response.json();
     },
     onSuccess: () => {

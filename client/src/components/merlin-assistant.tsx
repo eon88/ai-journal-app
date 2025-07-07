@@ -46,7 +46,7 @@ export function MerlinAssistant({ userMood, hasJournalToday, recentEntry, isOpen
 
   const merlinMutation = useMutation({
     mutationFn: async (data: { mode: string; context?: string; question?: string }) => {
-      const response = await apiRequest("POST", "/api/merlin/consult", {
+      const response = await apiRequest("/api/merlin/consult", "POST", {
         ...data,
         userName: userName || "friend"
       });
