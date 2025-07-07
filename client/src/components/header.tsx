@@ -90,12 +90,25 @@ export function Header() {
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   className="cursor-pointer text-red-600 focus:text-red-600"
-                  onClick={() => {
-                    // Clear any stored user data
-                    localStorage.removeItem('premium_user');
-                    localStorage.removeItem('user_name');
-                    // Redirect to logout endpoint or home page
-                    window.location.href = '/api/logout';
+                  onClick={async () => {
+                    try {
+                      // Call logout API
+                      await fetch('/api/logout', {
+                        method: 'POST',
+                        credentials: 'include'
+                      });
+                      // Clear any stored user data
+                      localStorage.removeItem('premium_user');
+                      localStorage.removeItem('user_name');
+                      // Refresh the page to update auth state
+                      window.location.href = '/';
+                    } catch (error) {
+                      console.error('Logout error:', error);
+                      // Even if logout fails, clear local data and redirect
+                      localStorage.removeItem('premium_user');
+                      localStorage.removeItem('user_name');
+                      window.location.href = '/';
+                    }
                   }}
                 >
                   <LogOut className="mr-2 h-4 w-4" />
