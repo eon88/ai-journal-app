@@ -774,40 +774,39 @@ Please provide a monthly reflection in JSON format with these fields:
       const plans = [
         {
           id: 1,
-          name: "Life Path Premium",
-          description: "Full access to all premium features and unlimited AI insights",
-          price: 997, // $9.97/month
+          name: "Life Path Light",
+          description: "Essential features for your journaling journey",
+          price: 299, // $2.99/month
           currency: "usd",
           interval: "month",
           features: [
             "Unlimited journal entries",
-            "Advanced AI insights & analysis",
-            "Weekly & monthly reflections",
-            "Priority customer support",
-            "Export & backup features",
-            "Advanced analytics dashboard",
+            "AI-powered reflections",
+            "Weekly & monthly insights",
+            "Growth dashboard",
+            "Daily challenges",
             "Community forum access",
-            "Daily challenges & goals",
-            "Merlin AI assistant"
+            "Merlin AI assistant",
+            "Streak tracking & XP system"
           ],
           isActive: true,
-          popular: true
+          popular: false
         },
         {
           id: 2,
-          name: "Life Path Premium Annual",
+          name: "Life Path Light Annual",
           description: "Full yearly access with 2 months free",
-          price: 9970, // $99.70/year (2 months free)
+          price: 2999, // $29.99/year (2 months free)
           currency: "usd",
           interval: "year",
           features: [
-            "All Premium features",
-            "2 months free",
+            "All Light features",
+            "2 months free (save $5.98)",
             "Priority support",
             "Early access to new features"
           ],
           isActive: true,
-          popular: false
+          popular: true
         }
       ];
       

@@ -80,7 +80,7 @@ The application uses a simple but effective schema:
 
 ### Subscription Features
 16. **Free Beta Accounts**: Users start with full access during beta period with all premium features unlocked at no cost
-17. **Premium Subscription Plans**: Monthly ($9.97) and yearly ($99.70 with 2 months free) premium plans with Stripe integration
+17. **Light Subscription Plans**: Monthly ($2.99) and yearly ($29.99 with 2 months free) affordable plans with Stripe integration
 18. **Stripe Payment Processing**: Secure subscription management with automatic billing, webhooks, and checkout sessions
 19. **Account Type Management**: Dynamic account status tracking with beta access flags and subscription states
 20. **Pricing Page**: Comprehensive pricing showcase with plan comparisons, features, and upgrade flows
