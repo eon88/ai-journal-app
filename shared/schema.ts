@@ -4,6 +4,7 @@ import { z } from "zod";
 
 export const journalEntries = pgTable("journal_entries", {
   id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
   content: text("content").notNull(),
   aiReflection: jsonb("ai_reflection"),
   mood: text("mood"),

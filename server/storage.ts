@@ -1,66 +1,66 @@
-import { 
-  journalEntries, 
-  userStats, 
-  savedInsights,
-  badges,
-  dailyChallenges,
-  userGoals,
-  type JournalEntry, 
+import {
+  journalEntries,
+  type JournalEntry,
   type InsertJournalEntry,
+  userStats,
   type UserStats,
   type InsertUserStats,
+  savedInsights,
   type SavedInsight,
   type InsertSavedInsight,
+  badges,
   type Badge,
   type InsertBadge,
+  dailyChallenges,
   type DailyChallenge,
   type InsertDailyChallenge,
+  userGoals,
   type UserGoal,
   type InsertUserGoal,
-  type AIReflection,
-  type GrowthMetrics,
   users,
   type User,
   type InsertUser,
+  type AIReflection,
+  type GrowthMetrics,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, sql, and, gte, lte, count } from "drizzle-orm";
 
 export interface IStorage {
-  createJournalEntry(entry: InsertJournalEntry): Promise<JournalEntry>;
-  getJournalEntry(id: number): Promise<JournalEntry | undefined>;
-  getAllJournalEntries(): Promise<JournalEntry[]>;
-  getRecentJournalEntries(limit: number): Promise<JournalEntry[]>;
-  getEntriesByDateRange(startDate: Date, endDate: Date): Promise<JournalEntry[]>;
-  updateJournalEntryReflection(id: number, reflection: AIReflection): Promise<JournalEntry | undefined>;
+  createJournalEntry(userId: number, entry: InsertJournalEntry): Promise<JournalEntry>;
+  getJournalEntry(userId: number, id: number): Promise<JournalEntry | undefined>;
+  getAllJournalEntries(userId: number): Promise<JournalEntry[]>;
+  getRecentJournalEntries(userId: number, limit: number): Promise<JournalEntry[]>;
+  getEntriesByDateRange(userId: number, startDate: Date, endDate: Date): Promise<JournalEntry[]>;
+  updateJournalEntryReflection(userId: number, id: number, reflection: AIReflection): Promise<JournalEntry | undefined>;
   
   // Stats and gamification
-  getUserStats(): Promise<UserStats>;
-  updateUserStats(stats: Partial<UserStats>): Promise<UserStats>;
-  calculateStreak(): Promise<{ currentStreak: number; longestStreak: number }>;
-  getGrowthMetrics(): Promise<GrowthMetrics>;
+  getUserStats(userId: number): Promise<UserStats>;
+  updateUserStats(userId: number, stats: Partial<UserStats>): Promise<UserStats>;
+  calculateStreak(userId: number): Promise<{ currentStreak: number; longestStreak: number }>;
+  getGrowthMetrics(userId: number): Promise<GrowthMetrics>;
   
   // Saved insights
-  saveInsight(insight: InsertSavedInsight): Promise<SavedInsight>;
-  getSavedInsights(): Promise<SavedInsight[]>;
-  deleteSavedInsight(id: number): Promise<void>;
+  saveInsight(userId: number, insight: InsertSavedInsight): Promise<SavedInsight>;
+  getSavedInsights(userId: number): Promise<SavedInsight[]>;
+  deleteSavedInsight(userId: number, id: number): Promise<void>;
   
   // Badges and achievements
-  getBadges(): Promise<Badge[]>;
-  unlockBadge(badgeId: number): Promise<Badge>;
-  checkAndUnlockBadges(): Promise<Badge[]>;
+  getBadges(userId: number): Promise<Badge[]>;
+  unlockBadge(userId: number, badgeId: number): Promise<Badge>;
+  checkAndUnlockBadges(userId: number): Promise<Badge[]>;
   
   // Daily challenges
-  getTodaysChallenge(): Promise<DailyChallenge | null>;
-  generateDailyChallenge(date: string): Promise<DailyChallenge>;
-  completeChallenge(challengeId: number): Promise<DailyChallenge>;
+  getTodaysChallenge(userId: number): Promise<DailyChallenge | null>;
+  generateDailyChallenge(userId: number, date: string): Promise<DailyChallenge>;
+  completeChallenge(userId: number, challengeId: number): Promise<DailyChallenge>;
   
   // Goals management (Premium feature)
-  createGoal(goal: InsertUserGoal): Promise<UserGoal>;
-  getGoals(): Promise<UserGoal[]>;
-  getGoal(id: number): Promise<UserGoal | undefined>;
-  updateGoal(id: number, updates: Partial<InsertUserGoal>): Promise<UserGoal | undefined>;
-  deleteGoal(id: number): Promise<void>;
+  createGoal(userId: number, goal: InsertUserGoal): Promise<UserGoal>;
+  getGoals(userId: number): Promise<UserGoal[]>;
+  getGoal(userId: number, id: number): Promise<UserGoal | undefined>;
+  updateGoal(userId: number, id: number, updates: Partial<InsertUserGoal>): Promise<UserGoal | undefined>;
+  deleteGoal(userId: number, id: number): Promise<void>;
   
   // Leveling system
   calculateLevel(xp: number): number;
@@ -74,10 +74,11 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
-  async createJournalEntry(insertEntry: InsertJournalEntry): Promise<JournalEntry> {
+  async createJournalEntry(userId: number, insertEntry: InsertJournalEntry): Promise<JournalEntry> {
     const [entry] = await db
       .insert(journalEntries)
       .values({
+        userId,
         content: insertEntry.content,
         mood: insertEntry.mood || null,
         tags: insertEntry.tags || null,
@@ -88,106 +89,127 @@ export class DatabaseStorage implements IStorage {
       .returning();
     
     // Update user stats
-    await this.updateStatsOnNewEntry();
+    await this.updateStatsOnNewEntry(userId);
     
     return entry;
   }
 
-  private async updateStatsOnNewEntry(): Promise<void> {
-    const stats = await this.getUserStats();
-    const streakData = await this.calculateStreak();
+  private async updateStatsOnNewEntry(userId: number): Promise<void> {
+    const currentStats = await this.getUserStats(userId);
+    const { currentStreak, longestStreak } = await this.calculateStreak(userId);
     
     // Award XP points: 10 for entry, bonus for streaks
-    const baseXP = 10;
-    const streakBonus = streakData.currentStreak > 1 ? streakData.currentStreak * 2 : 0;
-    const newXP = stats.xpPoints + baseXP + streakBonus;
+    let xpBonus = 0;
+    if (currentStreak >= 7) xpBonus += 5; // Weekly streak bonus
+    if (currentStreak >= 30) xpBonus += 10; // Monthly streak bonus
     
-    // Calculate new level and title
-    const newLevel = this.calculateLevel(newXP);
+    const newXp = currentStats.xpPoints + 10 + xpBonus;
+    const newLevel = this.calculateLevel(newXp);
     const newTitle = this.calculateLevelTitle(newLevel);
     
-    await this.updateUserStats({
-      totalEntries: stats.totalEntries + 1,
-      currentStreak: streakData.currentStreak,
-      longestStreak: Math.max(stats.longestStreak, streakData.longestStreak),
-      xpPoints: newXP,
+    await this.updateUserStats(userId, {
+      totalEntries: currentStats.totalEntries + 1,
+      currentStreak,
+      longestStreak: Math.max(currentStats.longestStreak, longestStreak),
+      xpPoints: newXp,
       level: newLevel,
       title: newTitle,
       lastEntryDate: new Date(),
     });
-    
-    // Check for new badges to unlock
-    await this.checkAndUnlockBadges();
+
+    // Check for new badge unlocks
+    await this.checkAndUnlockBadges(userId);
   }
 
-  async getJournalEntry(id: number): Promise<JournalEntry | undefined> {
-    const [entry] = await db.select().from(journalEntries).where(eq(journalEntries.id, id));
-    return entry || undefined;
+  async getJournalEntry(userId: number, id: number): Promise<JournalEntry | undefined> {
+    const [entry] = await db.select().from(journalEntries).where(
+      and(eq(journalEntries.id, id), eq(journalEntries.userId, userId))
+    );
+    return entry;
   }
 
-  async getAllJournalEntries(): Promise<JournalEntry[]> {
-    return await db.select().from(journalEntries).orderBy(desc(journalEntries.createdAt));
-  }
-
-  async getRecentJournalEntries(limit: number): Promise<JournalEntry[]> {
+  async getAllJournalEntries(userId: number): Promise<JournalEntry[]> {
     return await db.select().from(journalEntries)
+      .where(eq(journalEntries.userId, userId))
+      .orderBy(desc(journalEntries.createdAt));
+  }
+
+  async getRecentJournalEntries(userId: number, limit: number): Promise<JournalEntry[]> {
+    return await db
+      .select()
+      .from(journalEntries)
+      .where(eq(journalEntries.userId, userId))
       .orderBy(desc(journalEntries.createdAt))
       .limit(limit);
   }
 
-  async getEntriesByDateRange(startDate: Date, endDate: Date): Promise<JournalEntry[]> {
-    return await db.select().from(journalEntries)
-      .where(and(
-        gte(journalEntries.createdAt, startDate),
-        lte(journalEntries.createdAt, endDate)
-      ))
+  async getEntriesByDateRange(userId: number, startDate: Date, endDate: Date): Promise<JournalEntry[]> {
+    return await db
+      .select()
+      .from(journalEntries)
+      .where(
+        and(
+          eq(journalEntries.userId, userId),
+          gte(journalEntries.createdAt, startDate),
+          lte(journalEntries.createdAt, endDate)
+        )
+      )
       .orderBy(desc(journalEntries.createdAt));
   }
 
-  async updateJournalEntryReflection(id: number, reflection: AIReflection): Promise<JournalEntry | undefined> {
-    const [updatedEntry] = await db
+  async updateJournalEntryReflection(userId: number, id: number, reflection: AIReflection): Promise<JournalEntry | undefined> {
+    const [entry] = await db
       .update(journalEntries)
       .set({ aiReflection: reflection })
-      .where(eq(journalEntries.id, id))
+      .where(and(eq(journalEntries.id, id), eq(journalEntries.userId, userId)))
       .returning();
-    return updatedEntry || undefined;
+    return entry;
   }
 
-  async getUserStats(): Promise<UserStats> {
-    let [stats] = await db.select().from(userStats).limit(1);
+  async getUserStats(userId: number): Promise<UserStats> {
+    const [stats] = await db.select().from(userStats).where(eq(userStats.id, userId));
     
     if (!stats) {
-      // Initialize stats for first time user
-      [stats] = await db.insert(userStats).values({
-        totalEntries: 0,
-        currentStreak: 0,
-        longestStreak: 0,
-        xpPoints: 0,
-      }).returning();
+      // Create default stats for new user
+      const [newStats] = await db
+        .insert(userStats)
+        .values({
+          id: userId,
+          totalEntries: 0,
+          currentStreak: 0,
+          longestStreak: 0,
+          xpPoints: 0,
+          level: 1,
+          title: "Reflective Wanderer",
+          moodMasteryScore: 0,
+          lastEntryDate: null,
+        })
+        .returning();
+      return newStats;
     }
     
     return stats;
   }
 
-  async updateUserStats(updateData: Partial<UserStats>): Promise<UserStats> {
-    const currentStats = await this.getUserStats();
-    
+  async updateUserStats(userId: number, updateData: Partial<UserStats>): Promise<UserStats> {
     const [updatedStats] = await db
       .update(userStats)
       .set({
         ...updateData,
         updatedAt: new Date(),
       })
-      .where(eq(userStats.id, currentStats.id))
+      .where(eq(userStats.id, userId))
       .returning();
-      
+    
     return updatedStats;
   }
 
-  async calculateStreak(): Promise<{ currentStreak: number; longestStreak: number }> {
-    const entries = await db.select({
-      createdAt: journalEntries.createdAt
-    }).from(journalEntries).orderBy(desc(journalEntries.createdAt));
+  async calculateStreak(userId: number): Promise<{ currentStreak: number; longestStreak: number }> {
+    const entries = await db
+      .select({ createdAt: journalEntries.createdAt })
+      .from(journalEntries)
+      .where(eq(journalEntries.userId, userId))
+      .orderBy(desc(journalEntries.createdAt));
 
     if (entries.length === 0) {
       return { currentStreak: 0, longestStreak: 0 };
@@ -196,83 +218,89 @@ export class DatabaseStorage implements IStorage {
     let currentStreak = 0;
     let longestStreak = 0;
     let tempStreak = 1;
+    let lastDate = new Date(entries[0].createdAt);
     
+    // Normalize to start of day for comparison
+    lastDate.setHours(0, 0, 0, 0);
     const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(today.getDate() - 1);
+    today.setHours(0, 0, 0, 0);
     
-    // Check if there's an entry today or yesterday to start streak
-    const latestEntry = entries[0];
-    const latestDate = new Date(latestEntry.createdAt);
-    const daysDiff = Math.floor((today.getTime() - latestDate.getTime()) / (1000 * 60 * 60 * 24));
-    
+    // Check if the most recent entry was today or yesterday
+    const daysDiff = Math.floor((today.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
     if (daysDiff <= 1) {
       currentStreak = 1;
+    }
+
+    // Calculate streaks
+    for (let i = 1; i < entries.length; i++) {
+      const currentDate = new Date(entries[i].createdAt);
+      currentDate.setHours(0, 0, 0, 0);
       
-      // Calculate consecutive days
-      for (let i = 1; i < entries.length; i++) {
-        const currentDate = new Date(entries[i-1].createdAt);
-        const prevDate = new Date(entries[i].createdAt);
-        const diff = Math.floor((currentDate.getTime() - prevDate.getTime()) / (1000 * 60 * 60 * 24));
-        
-        if (diff === 1) {
-          currentStreak++;
-          tempStreak++;
-        } else {
-          longestStreak = Math.max(longestStreak, tempStreak);
-          tempStreak = 1;
+      const prevDate = new Date(entries[i - 1].createdAt);
+      prevDate.setHours(0, 0, 0, 0);
+      
+      const diff = Math.floor((prevDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24));
+      
+      if (diff === 1) {
+        tempStreak++;
+        if (daysDiff <= 1 && i < currentStreak + daysDiff) {
+          currentStreak = tempStreak;
         }
+      } else {
+        longestStreak = Math.max(longestStreak, tempStreak);
+        tempStreak = 1;
       }
     }
     
-    longestStreak = Math.max(longestStreak, currentStreak, tempStreak);
+    longestStreak = Math.max(longestStreak, tempStreak);
     
     return { currentStreak, longestStreak };
   }
 
-  async getGrowthMetrics(): Promise<GrowthMetrics> {
-    const stats = await this.getUserStats();
-    const entries = await this.getAllJournalEntries();
+  async getGrowthMetrics(userId: number): Promise<GrowthMetrics> {
+    const stats = await this.getUserStats(userId);
     
-    // Calculate mood trends
-    const moodCounts: Record<string, number> = {};
-    entries.forEach(entry => {
+    // Get mood trends from recent entries
+    const recentEntries = await this.getRecentJournalEntries(userId, 50);
+    const moodCounts = recentEntries.reduce((acc, entry) => {
       if (entry.mood) {
-        moodCounts[entry.mood] = (moodCounts[entry.mood] || 0) + 1;
+        acc[entry.mood] = (acc[entry.mood] || 0) + 1;
       }
-    });
+      return acc;
+    }, {} as Record<string, number>);
     
+    const totalMoodEntries = Object.values(moodCounts).reduce((sum, count) => sum + count, 0);
     const moodTrends = Object.entries(moodCounts).map(([mood, count]) => ({
       mood,
       count,
-      percentage: Math.round((count / entries.length) * 100)
+      percentage: Math.round((count / totalMoodEntries) * 100) || 0,
     }));
 
-    // Calculate theme frequency (from tags)
-    const themeCounts: Record<string, number> = {};
-    entries.forEach(entry => {
-      if (entry.tags) {
-        entry.tags.forEach(tag => {
-          themeCounts[tag] = (themeCounts[tag] || 0) + 1;
-        });
-      }
-    });
-    
-    const commonThemes = Object.entries(themeCounts)
-      .map(([theme, frequency]) => ({ theme, frequency }))
-      .sort((a, b) => b.frequency - a.frequency)
-      .slice(0, 10);
+    // Get common themes from tags
+    const commonThemes = recentEntries
+      .flatMap(entry => entry.tags || [])
+      .reduce((acc, tag) => {
+        acc[tag] = (acc[tag] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
 
-    // Calculate writing frequency by day
-    const writingFrequency = entries.reduce((acc: Record<string, number>, entry) => {
-      const date = new Date(entry.createdAt).toISOString().split('T')[0];
+    const themes = Object.entries(commonThemes)
+      .sort(([,a], [,b]) => b - a)
+      .slice(0, 10)
+      .map(([theme, frequency]) => ({ theme, frequency }));
+
+    // Get writing frequency for the last 30 days
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    
+    const monthlyEntries = await this.getEntriesByDateRange(userId, thirtyDaysAgo, new Date());
+    const writingFrequency = monthlyEntries.reduce((acc, entry) => {
+      const date = entry.createdAt.toISOString().split('T')[0];
       acc[date] = (acc[date] || 0) + 1;
       return acc;
-    }, {});
+    }, {} as Record<string, number>);
 
-    const writingFrequencyArray = Object.entries(writingFrequency)
-      .map(([date, count]) => ({ date, count }))
-      .sort((a, b) => a.date.localeCompare(b.date));
+    const frequency = Object.entries(writingFrequency).map(([date, count]) => ({ date, count }));
 
     return {
       totalEntries: stats.totalEntries,
@@ -280,12 +308,12 @@ export class DatabaseStorage implements IStorage {
       longestStreak: stats.longestStreak,
       xpPoints: stats.xpPoints,
       moodTrends,
-      commonThemes,
-      writingFrequency: writingFrequencyArray,
+      commonThemes: themes,
+      writingFrequency: frequency,
     };
   }
 
-  async saveInsight(insight: InsertSavedInsight): Promise<SavedInsight> {
+  async saveInsight(userId: number, insight: InsertSavedInsight): Promise<SavedInsight> {
     const [savedInsight] = await db
       .insert(savedInsights)
       .values(insight)
@@ -293,79 +321,73 @@ export class DatabaseStorage implements IStorage {
     return savedInsight;
   }
 
-  async getSavedInsights(): Promise<SavedInsight[]> {
-    return await db.select().from(savedInsights).orderBy(desc(savedInsights.createdAt));
+  async getSavedInsights(userId: number): Promise<SavedInsight[]> {
+    return await db
+      .select()
+      .from(savedInsights)
+      .orderBy(desc(savedInsights.createdAt));
   }
 
-  async deleteSavedInsight(id: number): Promise<void> {
-    await db.delete(savedInsights).where(eq(savedInsights.id, id));
+  async deleteSavedInsight(userId: number, id: number): Promise<void> {
+    await db
+      .delete(savedInsights)
+      .where(eq(savedInsights.id, id));
   }
 
-  // Badges and achievements
-  async getBadges(): Promise<Badge[]> {
-    return await db.select().from(badges).orderBy(badges.createdAt);
+  async getBadges(userId: number): Promise<Badge[]> {
+    return await db.select().from(badges).orderBy(badges.id);
   }
 
-  async unlockBadge(badgeId: number): Promise<Badge> {
+  async unlockBadge(userId: number, badgeId: number): Promise<Badge> {
     const [badge] = await db
       .update(badges)
-      .set({ unlockedAt: new Date() })
+      .set({ unlockedAt: new Date().toISOString() })
       .where(eq(badges.id, badgeId))
       .returning();
     return badge;
   }
 
-  async checkAndUnlockBadges(): Promise<Badge[]> {
-    const stats = await this.getUserStats();
+  async checkAndUnlockBadges(userId: number): Promise<Badge[]> {
+    const stats = await this.getUserStats(userId);
+    const allBadges = await this.getBadges(userId);
     const unlockedBadges: Badge[] = [];
-    
-    // Define badge requirements
-    const badgeRules = [
-      { name: "First Steps", requirement: "1 entry", check: stats.totalEntries >= 1 },
-      { name: "Week Warrior", requirement: "7-day streak", check: stats.currentStreak >= 7 },
-      { name: "Consistency King", requirement: "30 entries", check: stats.totalEntries >= 30 },
-      { name: "Reflection Master", requirement: "100 XP", check: stats.xpPoints >= 100 },
-      { name: "Streak Legend", requirement: "30-day streak", check: stats.longestStreak >= 30 },
-    ];
 
-    // Check each badge rule
-    for (const rule of badgeRules) {
-      if (rule.check) {
-        const existingBadges = await db.select().from(badges).where(eq(badges.name, rule.name));
-        if (existingBadges.length === 0) {
-          // Create and unlock new badge
-          const [newBadge] = await db
-            .insert(badges)
-            .values({
-              name: rule.name,
-              description: `Unlocked for ${rule.requirement}`,
-              icon: this.getBadgeIcon(rule.name),
-              requirement: rule.requirement,
-              xpReward: 25,
-              unlockedAt: new Date(),
-            })
-            .returning();
-          unlockedBadges.push(newBadge);
-        }
+    for (const badge of allBadges) {
+      if (badge.unlockedAt) continue; // Already unlocked
+
+      let shouldUnlock = false;
+      
+      switch (badge.name) {
+        case "First Steps":
+          shouldUnlock = stats.totalEntries >= 1;
+          break;
+        case "Week Warrior":
+          shouldUnlock = stats.currentStreak >= 7;
+          break;
+        case "Consistency King":
+          shouldUnlock = stats.totalEntries >= 30;
+          break;
+        case "Streak Legend":
+          shouldUnlock = stats.longestStreak >= 30;
+          break;
+        case "Reflection Master":
+          shouldUnlock = stats.totalEntries >= 100;
+          break;
+        case "XP Hunter":
+          shouldUnlock = stats.xpPoints >= 500;
+          break;
+      }
+
+      if (shouldUnlock) {
+        const unlockedBadge = await this.unlockBadge(userId, badge.id);
+        unlockedBadges.push(unlockedBadge);
       }
     }
 
     return unlockedBadges;
   }
 
-  private getBadgeIcon(badgeName: string): string {
-    const icons: { [key: string]: string } = {
-      "First Steps": "🏆",
-      "Week Warrior": "🔥",
-      "Consistency King": "👑",
-      "Reflection Master": "🧠",
-      "Streak Legend": "⚡",
-    };
-    return icons[badgeName] || "🎖️";
-  }
-
-  // Daily challenges
-  async getTodaysChallenge(): Promise<DailyChallenge | null> {
+  async getTodaysChallenge(userId: number): Promise<DailyChallenge | null> {
     const today = new Date().toISOString().split('T')[0];
     const [challenge] = await db
       .select()
@@ -373,40 +395,35 @@ export class DatabaseStorage implements IStorage {
       .where(eq(dailyChallenges.date, today))
       .limit(1);
     
-    if (!challenge) {
-      return await this.generateDailyChallenge(today);
-    }
-    
-    return challenge;
+    return challenge || null;
   }
 
-  async generateDailyChallenge(date: string): Promise<DailyChallenge> {
+  async generateDailyChallenge(userId: number, date: string): Promise<DailyChallenge> {
     const challenges = [
       {
+        title: "Gratitude Spotlight",
+        description: "What made you smile today?",
+        prompt: "Write about three things you're grateful for today, no matter how small.",
+        xpReward: 15
+      },
+      {
         title: "Fear Explorer",
-        description: "Write about a fear you're facing",
-        prompt: "What's one thing that's been worrying you lately? How might you approach it differently?",
+        description: "Face a small fear today",
+        prompt: "What's one small thing you've been avoiding? Write about taking that first step.",
+        xpReward: 20
       },
       {
-        title: "Gratitude Seeker",
-        description: "Reflect on three things you're grateful for",
-        prompt: "List three things that brought you joy today, no matter how small.",
-      },
-      {
-        title: "Growth Spotter", 
-        description: "Identify one lesson learned recently",
-        prompt: "What's one thing you learned about yourself this week?",
+        title: "Growth Spotter",
+        description: "Notice your progress",
+        prompt: "Reflect on how you've grown in the past month. What positive changes do you notice?",
+        xpReward: 15
       },
       {
         title: "Future Visionary",
-        description: "Describe your ideal day next month",
-        prompt: "If everything went perfectly, what would a typical day look like for you in 30 days?",
-      },
-      {
-        title: "Connection Builder",
-        description: "Write about a meaningful relationship",
-        prompt: "Think about someone important to you. What do you appreciate most about them?",
-      },
+        description: "Dream about tomorrow",
+        prompt: "Describe where you see yourself in one year. What steps will get you there?",
+        xpReward: 18
+      }
     ];
 
     const randomChallenge = challenges[Math.floor(Math.random() * challenges.length)];
@@ -415,53 +432,68 @@ export class DatabaseStorage implements IStorage {
       .insert(dailyChallenges)
       .values({
         date,
-        title: randomChallenge.title,
-        description: randomChallenge.description,
-        prompt: randomChallenge.prompt,
-        xpReward: 15,
+        ...randomChallenge,
+        completed: false,
+        completedAt: null,
       })
       .returning();
-
+    
     return challenge;
   }
 
-  async completeChallenge(challengeId: number): Promise<DailyChallenge> {
+  async completeChallenge(userId: number, challengeId: number): Promise<DailyChallenge> {
     const [challenge] = await db
       .update(dailyChallenges)
-      .set({ completed: true, completedAt: new Date() })
+      .set({
+        completed: true,
+        completedAt: new Date(),
+      })
       .where(eq(dailyChallenges.id, challengeId))
       .returning();
 
     // Award XP for completing challenge
-    const stats = await this.getUserStats();
-    await this.updateUserStats({
+    const stats = await this.getUserStats(userId);
+    await this.updateUserStats(userId, {
       xpPoints: stats.xpPoints + challenge.xpReward,
     });
 
     return challenge;
   }
 
-  // Leveling system
   calculateLevel(xp: number): number {
-    // Level formula: every 100 XP = 1 level
-    return Math.floor(xp / 100) + 1;
+    // Level progression: 100, 300, 600, 1000, 1500, 2100, 2800, 3600, 4500, 5500...
+    let level = 1;
+    let requiredXp = 100;
+    let totalXp = 0;
+    
+    while (totalXp + requiredXp <= xp) {
+      totalXp += requiredXp;
+      level++;
+      requiredXp += 200; // Increasing requirement for each level
+    }
+    
+    return level;
   }
 
   calculateLevelTitle(level: number): string {
     const titles = [
-      "Reflective Wanderer",    // Level 1
-      "Clarity Seeker",         // Level 2
-      "Inner Explorer",         // Level 3
-      "Wisdom Gatherer",        // Level 4
-      "Growth Navigator",       // Level 5
-      "Inner Architect",        // Level 6+
+      "Reflective Wanderer",      // Level 1
+      "Thoughtful Seeker",        // Level 2-3
+      "Mindful Explorer",         // Level 4-5
+      "Wisdom Gatherer",          // Level 6-7
+      "Growth Catalyst",          // Level 8-9
+      "Inner Architect",          // Level 10+
     ];
     
-    const titleIndex = Math.min(level - 1, titles.length - 1);
-    return titles[titleIndex] || "Inner Architect";
+    if (level === 1) return titles[0];
+    if (level <= 3) return titles[1];
+    if (level <= 5) return titles[2];
+    if (level <= 7) return titles[3];
+    if (level <= 9) return titles[4];
+    return titles[5];
   }
-  // Goals management (Premium feature)
-  async createGoal(goalData: InsertUserGoal): Promise<UserGoal> {
+
+  async createGoal(userId: number, goalData: InsertUserGoal): Promise<UserGoal> {
     const [goal] = await db
       .insert(userGoals)
       .values(goalData)
@@ -469,31 +501,35 @@ export class DatabaseStorage implements IStorage {
     return goal;
   }
 
-  async getGoals(): Promise<UserGoal[]> {
+  async getGoals(userId: number): Promise<UserGoal[]> {
     return await db
       .select()
       .from(userGoals)
       .orderBy(desc(userGoals.createdAt));
   }
 
-  async getGoal(id: number): Promise<UserGoal | undefined> {
+  async getGoal(userId: number, id: number): Promise<UserGoal | undefined> {
     const [goal] = await db
       .select()
       .from(userGoals)
-      .where(eq(userGoals.id, id));
+      .where(eq(userGoals.id, id))
+      .limit(1);
     return goal;
   }
 
-  async updateGoal(id: number, updates: Partial<InsertUserGoal>): Promise<UserGoal | undefined> {
+  async updateGoal(userId: number, id: number, updates: Partial<InsertUserGoal>): Promise<UserGoal | undefined> {
     const [goal] = await db
       .update(userGoals)
-      .set({ ...updates, updatedAt: new Date() })
+      .set({
+        ...updates,
+        updatedAt: new Date(),
+      })
       .where(eq(userGoals.id, id))
       .returning();
     return goal;
   }
 
-  async deleteGoal(id: number): Promise<void> {
+  async deleteGoal(userId: number, id: number): Promise<void> {
     await db
       .delete(userGoals)
       .where(eq(userGoals.id, id));

@@ -126,10 +126,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get recent journal entries (protected)
-  app.get("/api/entries", isAuthenticated, async (req, res) => {
+  app.get("/api/entries", isAuthenticated, async (req: any, res) => {
     try {
+      const userId = req.user.id;
       const limit = parseInt(req.query.limit as string) || 10;
-      const entries = await storage.getRecentJournalEntries(limit);
+      const entries = await storage.getRecentJournalEntries(userId, limit);
       res.json(entries);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch entries" });
@@ -137,10 +138,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get specific journal entry (protected)
-  app.get("/api/entries/:id", isAuthenticated, async (req, res) => {
+  app.get("/api/entries/:id", isAuthenticated, async (req: any, res) => {
     try {
+      const userId = req.user.id;
       const id = parseInt(req.params.id);
-      const entry = await storage.getJournalEntry(id);
+      const entry = await storage.getJournalEntry(userId, id);
       if (!entry) {
         return res.status(404).json({ message: "Entry not found" });
       }
@@ -151,8 +153,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Create new journal entry (protected)
-  app.post("/api/entries", isAuthenticated, async (req, res) => {
+  app.post("/api/entries", isAuthenticated, async (req: any, res) => {
     try {
+      const userId = req.user.id;
       const { content, mood, tags } = req.body;
       
       // Parse bullet symbols from the content
@@ -169,7 +172,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
       
       const validatedData = insertJournalEntrySchema.parse(entryData);
-      const entry = await storage.createJournalEntry(validatedData);
+      const entry = await storage.createJournalEntry(userId, validatedData);
       res.status(201).json(entry);
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -227,8 +230,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get weekly reflection
-  app.get("/api/reflect/weekly", async (req, res) => {
+  app.get("/api/reflect/weekly", isAuthenticated, async (req: any, res) => {
     try {
+      const userId = req.user.id;
       const weekStart = req.query.weekStart as string;
       if (!weekStart) {
         return res.status(400).json({ message: "weekStart parameter is required (YYYY-MM-DD format)" });
@@ -238,7 +242,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const endDate = new Date(startDate);
       endDate.setDate(startDate.getDate() + 6);
 
-      const entries = await storage.getEntriesByDateRange(startDate, endDate);
+      const entries = await storage.getEntriesByDateRange(userId, startDate, endDate);
       
       if (entries.length === 0) {
         return res.status(404).json({ message: "No entries found for this week" });
@@ -282,7 +286,7 @@ Please provide a weekly reflection in JSON format with these fields:
       const processingTime = Date.now() - startTime;
 
       // Get user goals for progress assessment (Premium feature)
-      const goals = await storage.getGoals();
+      const goals = await storage.getGoals(userId);
       let goalProgressAssessment = undefined;
       
       if (goals.length > 0) {
@@ -344,9 +348,10 @@ Keep it encouraging but honest, focusing on patterns and momentum.`;
   });
 
   // Get user stats and growth metrics
-  app.get("/api/stats", async (req: Request, res: Response) => {
+  app.get("/api/stats", isAuthenticated, async (req: any, res: Response) => {
     try {
-      const stats = await storage.getUserStats();
+      const userId = req.user.id;
+      const stats = await storage.getUserStats(userId);
       res.json(stats);
     } catch (error) {
       console.error("Error fetching user stats:", error);
@@ -354,9 +359,10 @@ Keep it encouraging but honest, focusing on patterns and momentum.`;
     }
   });
 
-  app.get("/api/growth-metrics", async (req: Request, res: Response) => {
+  app.get("/api/growth-metrics", isAuthenticated, async (req: any, res: Response) => {
     try {
-      const metrics = await storage.getGrowthMetrics();
+      const userId = req.user.id;
+      const metrics = await storage.getGrowthMetrics(userId);
       res.json(metrics);
     } catch (error) {
       console.error("Error fetching growth metrics:", error);
@@ -365,9 +371,10 @@ Keep it encouraging but honest, focusing on patterns and momentum.`;
   });
 
   // Saved insights management
-  app.get("/api/insights", async (req: Request, res: Response) => {
+  app.get("/api/insights", isAuthenticated, async (req: any, res: Response) => {
     try {
-      const insights = await storage.getSavedInsights();
+      const userId = req.user.id;
+      const insights = await storage.getSavedInsights(userId);
       res.json(insights);
     } catch (error) {
       console.error("Error fetching saved insights:", error);
@@ -375,10 +382,11 @@ Keep it encouraging but honest, focusing on patterns and momentum.`;
     }
   });
 
-  app.post("/api/insights", async (req: Request, res: Response) => {
+  app.post("/api/insights", isAuthenticated, async (req: any, res: Response) => {
     try {
+      const userId = req.user.id;
       const { title, content, category, source, entryId } = req.body;
-      const insight = await storage.saveInsight({
+      const insight = await storage.saveInsight(userId, {
         title,
         content,
         category,
@@ -392,10 +400,11 @@ Keep it encouraging but honest, focusing on patterns and momentum.`;
     }
   });
 
-  app.delete("/api/insights/:id", async (req: Request, res: Response) => {
+  app.delete("/api/insights/:id", isAuthenticated, async (req: any, res: Response) => {
     try {
+      const userId = req.user.id;
       const id = parseInt(req.params.id);
-      await storage.deleteSavedInsight(id);
+      await storage.deleteSavedInsight(userId, id);
       res.json({ success: true });
     } catch (error) {
       console.error("Error deleting insight:", error);
@@ -404,9 +413,10 @@ Keep it encouraging but honest, focusing on patterns and momentum.`;
   });
 
   // Badge routes
-  app.get("/api/badges", async (req: Request, res: Response) => {
+  app.get("/api/badges", isAuthenticated, async (req: any, res: Response) => {
     try {
-      const badges = await storage.getBadges();
+      const userId = req.user.id;
+      const badges = await storage.getBadges(userId);
       res.json(badges);
     } catch (error) {
       console.error("Error fetching badges:", error);
@@ -415,9 +425,10 @@ Keep it encouraging but honest, focusing on patterns and momentum.`;
   });
 
   // Daily challenge routes
-  app.get("/api/challenge/today", async (req: Request, res: Response) => {
+  app.get("/api/challenge/today", isAuthenticated, async (req: any, res: Response) => {
     try {
-      const challenge = await storage.getTodaysChallenge();
+      const userId = req.user.id;
+      const challenge = await storage.getTodaysChallenge(userId);
       res.json(challenge);
     } catch (error) {
       console.error("Error fetching today's challenge:", error);
@@ -633,10 +644,11 @@ Wrap these practical steps with mystical language, but the actions must be concr
     }
   });
 
-  app.post("/api/challenge/:id/complete", async (req: Request, res: Response) => {
+  app.post("/api/challenge/:id/complete", isAuthenticated, async (req: any, res: Response) => {
     try {
+      const userId = req.user.id;
       const id = parseInt(req.params.id);
-      const challenge = await storage.completeChallenge(id);
+      const challenge = await storage.completeChallenge(userId, id);
       res.json(challenge);
     } catch (error) {
       console.error("Error completing challenge:", error);
@@ -645,8 +657,9 @@ Wrap these practical steps with mystical language, but the actions must be concr
   });
 
   // Get monthly reflection
-  app.get("/api/reflect/monthly", async (req, res) => {
+  app.get("/api/reflect/monthly", isAuthenticated, async (req: any, res) => {
     try {
+      const userId = req.user.id;
       const month = req.query.month as string;
       const year = parseInt(req.query.year as string);
       
@@ -657,7 +670,7 @@ Wrap these practical steps with mystical language, but the actions must be concr
       const startDate = new Date(year, new Date(`${month} 1, ${year}`).getMonth(), 1);
       const endDate = new Date(year, startDate.getMonth() + 1, 0);
 
-      const entries = await storage.getEntriesByDateRange(startDate, endDate);
+      const entries = await storage.getEntriesByDateRange(userId, startDate, endDate);
       
       if (entries.length === 0) {
         return res.status(404).json({ message: "No entries found for this month" });
@@ -702,7 +715,7 @@ Please provide a monthly reflection in JSON format with these fields:
       const processingTime = Date.now() - startTime;
 
       // Get user goals for progress assessment (Premium feature)
-      const goals = await storage.getGoals();
+      const goals = await storage.getGoals(userId);
       let goalProgressAssessment = undefined;
       
       if (goals.length > 0) {
@@ -765,10 +778,11 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
   });
 
   // Export journal entries
-  app.get("/api/entries/export", async (req, res) => {
+  app.get("/api/entries/export", isAuthenticated, async (req: any, res) => {
     try {
+      const userId = req.user.id;
       const format = req.query.format as string || 'json';
-      const entries = await storage.getAllJournalEntries();
+      const entries = await storage.getAllJournalEntries(userId);
       
       if (format === 'json') {
         res.setHeader('Content-Type', 'application/json');
@@ -1169,11 +1183,10 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
   });
 
   // Goals management routes (Premium feature)
-  app.get("/api/goals", async (req: Request, res: Response) => {
+  app.get("/api/goals", isAuthenticated, async (req: any, res: Response) => {
     try {
-      // For demo purposes, allow all users to access goals
-      // In production, check if user has paid subscription
-      const goals = await storage.getGoals();
+      const userId = req.user.id;
+      const goals = await storage.getGoals(userId);
       res.json({ success: true, goals });
     } catch (error) {
       console.error("Goals fetch error:", error);
@@ -1181,8 +1194,9 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
     }
   });
 
-  app.post("/api/goals", async (req: Request, res: Response) => {
+  app.post("/api/goals", isAuthenticated, async (req: any, res: Response) => {
     try {
+      const userId = req.user.id;
       const { title, description, category, targetDate, priority, progressNotes } = req.body;
       
       if (!title || !category) {
@@ -1198,7 +1212,7 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
         progressNotes: progressNotes || null,
       };
 
-      const goal = await storage.createGoal(goalData);
+      const goal = await storage.createGoal(userId, goalData);
       res.json({ success: true, goal });
     } catch (error) {
       console.error("Goal creation error:", error);
@@ -1206,8 +1220,9 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
     }
   });
 
-  app.patch("/api/goals/:id", async (req: Request, res: Response) => {
+  app.patch("/api/goals/:id", isAuthenticated, async (req: any, res: Response) => {
     try {
+      const userId = req.user.id;
       const goalId = parseInt(req.params.id);
       const updates = req.body;
 
@@ -1220,7 +1235,7 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
         updates.targetDate = new Date(updates.targetDate);
       }
 
-      const goal = await storage.updateGoal(goalId, updates);
+      const goal = await storage.updateGoal(userId, goalId, updates);
       
       if (!goal) {
         return res.status(404).json({ success: false, message: "Goal not found" });
@@ -1233,15 +1248,16 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
     }
   });
 
-  app.delete("/api/goals/:id", async (req: Request, res: Response) => {
+  app.delete("/api/goals/:id", isAuthenticated, async (req: any, res: Response) => {
     try {
+      const userId = req.user.id;
       const goalId = parseInt(req.params.id);
 
       if (isNaN(goalId)) {
         return res.status(400).json({ success: false, message: "Invalid goal ID" });
       }
 
-      await storage.deleteGoal(goalId);
+      await storage.deleteGoal(userId, goalId);
       res.json({ success: true, message: "Goal deleted successfully" });
     } catch (error) {
       console.error("Goal deletion error:", error);
