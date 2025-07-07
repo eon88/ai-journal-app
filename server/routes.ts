@@ -75,15 +75,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Username and password are required" });
       }
       
+      console.log("Login attempt for username:", username);
+      
       // Find user by username or email
       let user = await storage.getUserByUsername(username);
       if (!user) {
+        console.log("User not found by username, trying email");
         user = await storage.getUserByEmail(username);
       }
       
       if (!user) {
+        console.log("User not found in database");
         return res.status(401).json({ message: "Invalid credentials" });
       }
+      
+      console.log("User found:", user.username);
       
       // Verify password
       const isValid = await verifyPassword(password, user.passwordHash);
