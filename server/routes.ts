@@ -940,23 +940,46 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
         return res.status(400).json({ success: false, message: "Invalid plan ID" });
       }
 
-      // For now, simulate successful subscription upgrade for development
-      // In production, this would create real Stripe checkout sessions
-      // The current Stripe account is in test mode and needs proper configuration
-      
-      console.log(`Simulating upgrade to plan ${planId}: ${plan.name}`);
-      
-      // Simulate successful payment processing
-      setTimeout(() => {
-        console.log(`Payment simulation complete for ${plan.name}`);
-      }, 1000);
+      // Create actual Stripe test checkout session that requires real payment flow
+      try {
+        const session = await stripe.checkout.sessions.create({
+          payment_method_types: ['card'],
+          line_items: [{
+            price_data: {
+              currency: 'usd',
+              product_data: {
+                name: plan.name,
+                description: `Life Path Companion - ${plan.name}`,
+              },
+              unit_amount: plan.amount,
+              recurring: {
+                interval: plan.interval as 'month' | 'year',
+              },
+            },
+            quantity: 1,
+          }],
+          mode: 'subscription',
+          success_url: `${req.protocol}://${req.get('host')}/profile?upgrade=success&plan=${planId}`,
+          cancel_url: `${req.protocol}://${req.get('host')}/pricing?upgrade=cancelled`,
+          metadata: {
+            planId: planId.toString(),
+          },
+        });
 
-      res.json({ 
-        success: true, 
-        checkoutUrl: `/profile?upgrade=success&plan=${planId}`,
-        sessionId: `sim_${Date.now()}`,
-        message: `Successfully subscribed to ${plan.name}`
-      });
+        res.json({ 
+          success: true, 
+          checkoutUrl: session.url,
+          sessionId: session.id
+        });
+      } catch (stripeError: any) {
+        // If Stripe is not properly configured, show meaningful error
+        console.error("Stripe configuration error:", stripeError.message);
+        res.status(400).json({ 
+          success: false, 
+          message: "Payment processing is not yet configured. Please contact support to enable payments.",
+          error: "stripe_not_configured"
+        });
+      }
       
     } catch (error) {
       console.error("Checkout creation error:", error);

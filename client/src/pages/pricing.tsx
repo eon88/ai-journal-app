@@ -46,12 +46,23 @@ export default function Pricing() {
         }
       }
     },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: "Failed to create checkout session. Please try again.",
-        variant: "destructive",
-      });
+    onError: (error: any) => {
+      console.error("Checkout error:", error);
+      const errorMessage = error.message || "Failed to create checkout session. Please try again.";
+      
+      if (errorMessage.includes("stripe_not_configured") || errorMessage.includes("Payment processing is not yet configured")) {
+        toast({
+          title: "Payment Not Available",
+          description: "Payment processing is not yet configured. Please contact support to enable payments.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      }
     },
   });
 
