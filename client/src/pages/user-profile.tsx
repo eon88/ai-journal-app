@@ -7,12 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
-import { User, Edit3, Trash2, Shield, Bell, Palette, Save } from "lucide-react";
+import { User, Edit3, Trash2, Shield, Bell, Palette, Save, Target } from "lucide-react";
 import { useUser } from "@/components/user-provider";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { useNotificationSettings } from "@/hooks/useNotificationSettings";
 import { SubscriptionManager } from "@/components/subscription-manager";
+import { GoalsManager } from "@/components/goals-manager";
 
 export default function UserProfile() {
   const { userName, setUserName } = useUser();
@@ -133,8 +134,9 @@ export default function UserProfile() {
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="goals">Goals</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
             <TabsTrigger value="subscription">Subscription</TabsTrigger>
             <TabsTrigger value="data">Data</TabsTrigger>
@@ -196,6 +198,11 @@ export default function UserProfile() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Goals Tab */}
+          <TabsContent value="goals" className="space-y-6">
+            <GoalsManager />
           </TabsContent>
 
           {/* Settings Tab */}

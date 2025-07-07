@@ -4,6 +4,7 @@ import {
   savedInsights,
   badges,
   dailyChallenges,
+  userGoals,
   type JournalEntry, 
   type InsertJournalEntry,
   type UserStats,
@@ -14,6 +15,8 @@ import {
   type InsertBadge,
   type DailyChallenge,
   type InsertDailyChallenge,
+  type UserGoal,
+  type InsertUserGoal,
   type AIReflection,
   type GrowthMetrics
 } from "@shared/schema";
@@ -48,6 +51,13 @@ export interface IStorage {
   getTodaysChallenge(): Promise<DailyChallenge | null>;
   generateDailyChallenge(date: string): Promise<DailyChallenge>;
   completeChallenge(challengeId: number): Promise<DailyChallenge>;
+  
+  // Goals management (Premium feature)
+  createGoal(goal: InsertUserGoal): Promise<UserGoal>;
+  getGoals(): Promise<UserGoal[]>;
+  getGoal(id: number): Promise<UserGoal | undefined>;
+  updateGoal(id: number, updates: Partial<InsertUserGoal>): Promise<UserGoal | undefined>;
+  deleteGoal(id: number): Promise<void>;
   
   // Leveling system
   calculateLevel(xp: number): number;
@@ -440,6 +450,44 @@ export class DatabaseStorage implements IStorage {
     
     const titleIndex = Math.min(level - 1, titles.length - 1);
     return titles[titleIndex] || "Inner Architect";
+  }
+  // Goals management (Premium feature)
+  async createGoal(goalData: InsertUserGoal): Promise<UserGoal> {
+    const [goal] = await db
+      .insert(userGoals)
+      .values(goalData)
+      .returning();
+    return goal;
+  }
+
+  async getGoals(): Promise<UserGoal[]> {
+    return await db
+      .select()
+      .from(userGoals)
+      .orderBy(desc(userGoals.createdAt));
+  }
+
+  async getGoal(id: number): Promise<UserGoal | undefined> {
+    const [goal] = await db
+      .select()
+      .from(userGoals)
+      .where(eq(userGoals.id, id));
+    return goal;
+  }
+
+  async updateGoal(id: number, updates: Partial<InsertUserGoal>): Promise<UserGoal | undefined> {
+    const [goal] = await db
+      .update(userGoals)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(userGoals.id, id))
+      .returning();
+    return goal;
+  }
+
+  async deleteGoal(id: number): Promise<void> {
+    await db
+      .delete(userGoals)
+      .where(eq(userGoals.id, id));
   }
 }
 

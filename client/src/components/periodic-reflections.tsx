@@ -172,6 +172,18 @@ export function PeriodicReflections() {
                     </div>
                   </div>
 
+                  {weeklyReflection.goalProgressAssessment && (
+                    <div className="bg-purple-50 p-3 rounded-lg">
+                      <h4 className="font-medium flex items-center gap-2 text-sm text-purple-800">
+                        <Target className="w-4 h-4" />
+                        Goal Progress Assessment
+                      </h4>
+                      <p className="text-sm text-purple-700 mt-1 whitespace-pre-line">
+                        {weeklyReflection.goalProgressAssessment}
+                      </p>
+                    </div>
+                  )}
+
                   <div className="bg-blue-50 p-3 rounded-lg">
                     <h4 className="font-medium flex items-center gap-2 text-sm text-blue-800">
                       <Lightbulb className="w-4 h-4" />
@@ -279,6 +291,18 @@ export function PeriodicReflections() {
                       ))}
                     </div>
                   </div>
+
+                  {monthlyReflection.goalProgressAssessment && (
+                    <div className="bg-purple-50 p-3 rounded-lg">
+                      <h4 className="font-medium flex items-center gap-2 text-sm text-purple-800">
+                        <Target className="w-4 h-4" />
+                        Goal Progress Assessment
+                      </h4>
+                      <p className="text-sm text-purple-700 mt-1 whitespace-pre-line">
+                        {monthlyReflection.goalProgressAssessment}
+                      </p>
+                    </div>
+                  )}
 
                   <div className="bg-purple-50 p-3 rounded-lg">
                     <h4 className="font-medium flex items-center gap-2 text-sm text-purple-800">

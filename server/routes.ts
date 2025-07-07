@@ -174,6 +174,47 @@ Please provide a weekly reflection in JSON format with these fields:
       const aiResponse = JSON.parse(response.choices[0].message.content || "{}");
       const processingTime = Date.now() - startTime;
 
+      // Get user goals for progress assessment (Premium feature)
+      const goals = await storage.getGoals();
+      let goalProgressAssessment = undefined;
+      
+      if (goals.length > 0) {
+        const goalsContext = goals.map(goal => 
+          `Goal: "${goal.title}" (${goal.category}, Priority: ${goal.priority}, Status: ${goal.status})`
+        ).join('\n');
+        
+        const goalAssessmentPrompt = `Based on this week's journal entries and the user's goals:
+
+Goals:
+${goalsContext}
+
+Journal entries from this week:
+${entryTexts}
+
+Please assess the user's progress toward their goals this week. Provide:
+1. Which goals seem to be moving forward and why
+2. Which goals may need more attention  
+3. Specific evidence from the journal entries
+4. Actionable suggestions for the upcoming week
+
+Keep it encouraging but honest, focusing on patterns and momentum.`;
+
+        try {
+          const goalAssessmentResponse = await openai.chat.completions.create({
+            model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+            messages: [
+              { role: "system", content: "You are a supportive life coach analyzing goal progress." },
+              { role: "user", content: goalAssessmentPrompt }
+            ],
+            max_tokens: 500,
+          });
+          
+          goalProgressAssessment = goalAssessmentResponse.choices[0].message.content;
+        } catch (error) {
+          console.error("Goal assessment error:", error);
+        }
+      }
+
       const weeklyReflection: WeeklyReflection = {
         weekStart: weekStart,
         weekEnd: endDate.toISOString().split('T')[0],
@@ -184,6 +225,7 @@ Please provide a weekly reflection in JSON format with these fields:
         weeklyInsight: aiResponse.weeklyInsight || "Regular reflection helps build self-awareness.",
         directionAndMomentum: aiResponse.directionAndMomentum || "Moving toward greater self-awareness through consistent reflection.",
         emergingGoals: aiResponse.emergingGoals || ["Continue journaling practice", "Develop deeper self-reflection"],
+        goalProgressAssessment,
         processingTime
       };
 
@@ -552,6 +594,47 @@ Please provide a monthly reflection in JSON format with these fields:
       const aiResponse = JSON.parse(response.choices[0].message.content || "{}");
       const processingTime = Date.now() - startTime;
 
+      // Get user goals for progress assessment (Premium feature)
+      const goals = await storage.getGoals();
+      let goalProgressAssessment = undefined;
+      
+      if (goals.length > 0) {
+        const goalsContext = goals.map(goal => 
+          `Goal: "${goal.title}" (${goal.category}, Priority: ${goal.priority}, Status: ${goal.status})`
+        ).join('\n');
+        
+        const goalAssessmentPrompt = `Based on this month's journal entries and the user's goals:
+
+Goals:
+${goalsContext}
+
+Journal entries from this month:
+${entryTexts}
+
+Please assess the user's progress toward their goals this month. Provide:
+1. Which goals showed significant progress and why
+2. Which goals need renewed focus
+3. Patterns from the journal entries that support or hinder goal achievement
+4. Strategic recommendations for next month
+
+Be comprehensive and insightful, focusing on long-term patterns and sustainable progress.`;
+
+        try {
+          const goalAssessmentResponse = await openai.chat.completions.create({
+            model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+            messages: [
+              { role: "system", content: "You are an experienced life coach providing monthly goal progress analysis." },
+              { role: "user", content: goalAssessmentPrompt }
+            ],
+            max_tokens: 600,
+          });
+          
+          goalProgressAssessment = goalAssessmentResponse.choices[0].message.content;
+        } catch (error) {
+          console.error("Goal assessment error:", error);
+        }
+      }
+
       const monthlyReflection: MonthlyReflection = {
         month,
         year,
@@ -563,6 +646,7 @@ Please provide a monthly reflection in JSON format with these fields:
         lifeDirection: aiResponse.lifeDirection || "Moving toward greater self-awareness and personal development.",
         emergingGoals: aiResponse.emergingGoals || ["Continue personal growth", "Maintain consistent journaling", "Develop deeper self-reflection skills"],
         goalAchievementSuggestions: aiResponse.goalAchievementSuggestions || ["Set aside dedicated time for daily reflection", "Create specific goals with measurable outcomes", "Track progress weekly"],
+        goalProgressAssessment,
         processingTime
       };
 
@@ -783,6 +867,8 @@ Please provide a monthly reflection in JSON format with these fields:
             "Unlimited journal entries",
             "AI-powered reflections",
             "Weekly & monthly insights",
+            "Personal goals management",
+            "Goal progress tracking in reflections",
             "Growth dashboard",
             "Daily challenges",
             "Community forum access",
@@ -802,6 +888,7 @@ Please provide a monthly reflection in JSON format with these fields:
           features: [
             "All Light features",
             "2 months free (save $5.98)",
+            "Advanced goal analytics",
             "Priority support",
             "Early access to new features"
           ],
@@ -902,6 +989,87 @@ Please provide a monthly reflection in JSON format with these fields:
     } catch (error) {
       console.error("Webhook error:", error);
       res.status(500).json({ success: false, message: "Webhook processing failed" });
+    }
+  });
+
+  // Goals management routes (Premium feature)
+  app.get("/api/goals", async (req: Request, res: Response) => {
+    try {
+      // For demo purposes, allow all users to access goals
+      // In production, check if user has paid subscription
+      const goals = await storage.getGoals();
+      res.json({ success: true, goals });
+    } catch (error) {
+      console.error("Goals fetch error:", error);
+      res.status(500).json({ success: false, message: "Failed to fetch goals" });
+    }
+  });
+
+  app.post("/api/goals", async (req: Request, res: Response) => {
+    try {
+      const { title, description, category, targetDate, priority, progressNotes } = req.body;
+      
+      if (!title || !category) {
+        return res.status(400).json({ success: false, message: "Title and category are required" });
+      }
+
+      const goalData = {
+        title,
+        description: description || null,
+        category,
+        targetDate: targetDate ? new Date(targetDate) : null,
+        priority: priority || "medium",
+        progressNotes: progressNotes || null,
+      };
+
+      const goal = await storage.createGoal(goalData);
+      res.json({ success: true, goal });
+    } catch (error) {
+      console.error("Goal creation error:", error);
+      res.status(500).json({ success: false, message: "Failed to create goal" });
+    }
+  });
+
+  app.patch("/api/goals/:id", async (req: Request, res: Response) => {
+    try {
+      const goalId = parseInt(req.params.id);
+      const updates = req.body;
+
+      if (isNaN(goalId)) {
+        return res.status(400).json({ success: false, message: "Invalid goal ID" });
+      }
+
+      // Convert targetDate string to Date if provided
+      if (updates.targetDate) {
+        updates.targetDate = new Date(updates.targetDate);
+      }
+
+      const goal = await storage.updateGoal(goalId, updates);
+      
+      if (!goal) {
+        return res.status(404).json({ success: false, message: "Goal not found" });
+      }
+
+      res.json({ success: true, goal });
+    } catch (error) {
+      console.error("Goal update error:", error);
+      res.status(500).json({ success: false, message: "Failed to update goal" });
+    }
+  });
+
+  app.delete("/api/goals/:id", async (req: Request, res: Response) => {
+    try {
+      const goalId = parseInt(req.params.id);
+
+      if (isNaN(goalId)) {
+        return res.status(400).json({ success: false, message: "Invalid goal ID" });
+      }
+
+      await storage.deleteGoal(goalId);
+      res.json({ success: true, message: "Goal deleted successfully" });
+    } catch (error) {
+      console.error("Goal deletion error:", error);
+      res.status(500).json({ success: false, message: "Failed to delete goal" });
     }
   });
 

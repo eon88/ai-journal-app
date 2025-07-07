@@ -94,6 +94,7 @@ export interface WeeklyReflection {
   weeklyInsight: string;
   directionAndMomentum: string;
   emergingGoals: string[];
+  goalProgressAssessment?: string; // Premium feature: AI assessment of progress toward user goals
   processingTime: number;
 }
 
@@ -108,6 +109,7 @@ export interface MonthlyReflection {
   lifeDirection: string;
   emergingGoals: string[];
   goalAchievementSuggestions: string[];
+  goalProgressAssessment?: string; // Premium feature: AI assessment of progress toward user goals
   processingTime: number;
 }
 
@@ -189,6 +191,20 @@ export const subscriptionPlans = pgTable("subscription_plans", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// User goals table for paid subscribers
+export const userGoals = pgTable("user_goals", {
+  id: serial("id").primaryKey(),
+  title: varchar("title", { length: 200 }).notNull(),
+  description: text("description"),
+  category: varchar("category", { length: 100 }).notNull(),
+  targetDate: timestamp("target_date"),
+  status: varchar("status", { length: 50 }).notNull().default("active"), // active, completed, paused
+  priority: varchar("priority", { length: 20 }).notNull().default("medium"), // low, medium, high
+  progressNotes: text("progress_notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export type UserStats = typeof userStats.$inferSelect;
 export type InsertUserStats = typeof userStats.$inferInsert;
 
@@ -206,6 +222,9 @@ export type InsertUserAccount = typeof userAccounts.$inferInsert;
 
 export type SubscriptionPlan = typeof subscriptionPlans.$inferSelect;
 export type InsertSubscriptionPlan = typeof subscriptionPlans.$inferInsert;
+
+export type UserGoal = typeof userGoals.$inferSelect;
+export type InsertUserGoal = typeof userGoals.$inferInsert;
 
 export interface GrowthMetrics {
   totalEntries: number;
