@@ -909,35 +909,70 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
     try {
       const { planId } = req.body;
       
-      // For demo purposes, use predefined price IDs
-      // In production, these would be stored in the subscription_plans table
-      const priceIds = {
-        1: "price_monthly", // Replace with actual Stripe price ID
-        2: "price_yearly"   // Replace with actual Stripe price ID
+      // Create dynamic price based on plan
+      const planDetails = {
+        1: { amount: 299, interval: 'month', name: 'Life Path Light Monthly' }, // $2.99/month
+        2: { amount: 2999, interval: 'year', name: 'Life Path Light Annual' }   // $29.99/year
       };
       
-      if (!priceIds[planId as keyof typeof priceIds]) {
+      const plan = planDetails[planId as keyof typeof planDetails];
+      if (!plan) {
         return res.status(400).json({ success: false, message: "Invalid plan ID" });
+      }
+      
+      // Create or find the product
+      const products = await stripe.products.list({
+        limit: 10,
+      });
+      
+      let product = products.data.find(p => p.name === plan.name);
+      if (!product) {
+        product = await stripe.products.create({
+          name: plan.name,
+          description: `${plan.name} subscription for Life Path journaling app`,
+        });
+      }
+      
+      // Create or find the price
+      const prices = await stripe.prices.list({
+        product: product.id,
+        limit: 10,
+      });
+      
+      let price = prices.data.find(p => 
+        p.unit_amount === plan.amount && 
+        p.recurring?.interval === plan.interval
+      );
+      
+      if (!price) {
+        price = await stripe.prices.create({
+          product: product.id,
+          unit_amount: plan.amount,
+          currency: 'usd',
+          recurring: {
+            interval: plan.interval as 'month' | 'year',
+          },
+        });
       }
       
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
         line_items: [
           {
-            price: priceIds[planId as keyof typeof priceIds],
+            price: price.id,
             quantity: 1,
           },
         ],
         mode: 'subscription',
-        success_url: `${req.headers.origin}/user-profile?tab=account&success=true`,
-        cancel_url: `${req.headers.origin}/user-profile?tab=account&canceled=true`,
-        customer_email: "user@example.com", // Would get from authenticated user
+        success_url: `${req.headers.origin}/profile?success=true`,
+        cancel_url: `${req.headers.origin}/profile?canceled=true`,
+        customer_email: "user@example.com", // Would get from authenticated user in production
       });
 
       res.json({ success: true, checkoutUrl: session.url });
     } catch (error) {
       console.error("Checkout creation error:", error);
-      res.status(500).json({ success: false, message: "Failed to create checkout session" });
+      res.status(500).json({ success: false, message: "Failed to create checkout session. Please try again." });
     }
   });
 
