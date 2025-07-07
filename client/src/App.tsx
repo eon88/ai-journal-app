@@ -7,13 +7,18 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { UserProvider } from "@/components/user-provider";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
+import About from "@/pages/about";
+import Contact from "@/pages/contact";
+import UserProfile from "@/pages/user-profile";
 
 
 function Router() {
   return (
     <Switch>
-
       <Route path="/" component={Home} />
+      <Route path="/about" component={About} />
+      <Route path="/contact" component={Contact} />
+      <Route path="/profile" component={UserProfile} />
       <Route component={NotFound} />
     </Switch>
   );
