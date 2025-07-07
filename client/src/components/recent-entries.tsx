@@ -1,7 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { MessageCircle } from "lucide-react";
 import type { JournalEntry } from "@shared/schema";
+import { BULLET_SYMBOLS } from "@shared/schema";
 
 export function RecentEntries() {
   const { data: entries, isLoading, error } = useQuery<JournalEntry[]>({
@@ -107,15 +109,22 @@ export function RecentEntries() {
                 <span className="text-sm text-gray-500">
                   {formatDate(entry.createdAt)}
                 </span>
-                <div className="flex items-center space-x-1">
-                  <div className={`w-2 h-2 ${getMoodColor(entry.mood)} rounded-full`}></div>
-                  <span className="text-xs text-gray-400">
-                    {entry.mood || 'No mood'}
-                  </span>
+                <div className="flex items-center space-x-2">
+                  {entry.symbol && (
+                    <Badge variant="outline" className="text-xs px-2 py-1">
+                      {entry.symbol} {BULLET_SYMBOLS[entry.symbol as keyof typeof BULLET_SYMBOLS]?.name}
+                    </Badge>
+                  )}
+                  <div className="flex items-center space-x-1">
+                    <div className={`w-2 h-2 ${getMoodColor(entry.mood)} rounded-full`}></div>
+                    <span className="text-xs text-gray-400">
+                      {entry.mood || 'No mood'}
+                    </span>
+                  </div>
                 </div>
               </div>
               <p className="text-sm text-gray-700 line-clamp-3 mb-3">
-                {truncateText(entry.content)}
+                {entry.symbol ? `${entry.symbol} ` : ''}{truncateText(entry.content)}
               </p>
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-1 text-xs text-gray-400">

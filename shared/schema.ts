@@ -8,6 +8,9 @@ export const journalEntries = pgTable("journal_entries", {
   aiReflection: jsonb("ai_reflection"),
   mood: text("mood"),
   tags: text("tags").array(),
+  type: text("type"), // task, note, insight, event, etc.
+  status: text("status"), // pending, done, migrated, scheduled for applicable types
+  symbol: text("symbol"), // the actual symbol used (→, ✓, 💡, etc.)
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -15,10 +18,64 @@ export const insertJournalEntrySchema = createInsertSchema(journalEntries).pick(
   content: true,
   mood: true,
   tags: true,
+  type: true,
+  status: true,
+  symbol: true,
+}).partial({
+  type: true,
+  status: true,
+  symbol: true,
 });
 
 export type InsertJournalEntry = z.infer<typeof insertJournalEntrySchema>;
 export type JournalEntry = typeof journalEntries.$inferSelect;
+
+// Bullet Symbol System
+export const BULLET_SYMBOLS = {
+  "→": { type: "task", status: "pending", name: "Task" },
+  "✓": { type: "task", status: "done", name: "Completed Task" },
+  ">>": { type: "task", status: "migrated", name: "Migrated Task" },
+  "📅": { type: "scheduled", status: "pending", name: "Scheduled" },
+  "★": { type: "event", status: "pending", name: "Event" },
+  "✎": { type: "note", status: "none", name: "Note" },
+  "💡": { type: "insight", status: "none", name: "Insight" },
+  "⚠️": { type: "priority", status: "pending", name: "Priority" },
+} as const;
+
+export type BulletSymbol = keyof typeof BULLET_SYMBOLS;
+export type EntryType = typeof BULLET_SYMBOLS[BulletSymbol]["type"];
+export type EntryStatus = typeof BULLET_SYMBOLS[BulletSymbol]["status"];
+
+// Utility function to parse bullet symbols from entry content
+export function parseBulletSymbol(content: string): {
+  symbol: BulletSymbol | null;
+  type: EntryType | null;
+  status: EntryStatus | null;
+  cleanContent: string;
+} {
+  const trimmedContent = content.trim();
+  
+  // Check for bullet symbols at the start of the content
+  for (const [symbol, config] of Object.entries(BULLET_SYMBOLS)) {
+    if (trimmedContent.startsWith(symbol)) {
+      const cleanContent = trimmedContent.slice(symbol.length).trim();
+      return {
+        symbol: symbol as BulletSymbol,
+        type: config.type,
+        status: config.status,
+        cleanContent
+      };
+    }
+  }
+  
+  // No bullet symbol found
+  return {
+    symbol: null,
+    type: null,
+    status: null,
+    cleanContent: trimmedContent
+  };
+}
 
 export interface AIReflection {
   insights: string;

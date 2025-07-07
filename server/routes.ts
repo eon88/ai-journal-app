@@ -1,7 +1,7 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertJournalEntrySchema, type AIReflection, type WeeklyReflection, type MonthlyReflection, type JournalEntry } from "@shared/schema";
+import { insertJournalEntrySchema, type AIReflection, type WeeklyReflection, type MonthlyReflection, type JournalEntry, parseBulletSymbol } from "@shared/schema";
 import { z } from "zod";
 import OpenAI from "openai";
 
@@ -38,7 +38,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create new journal entry
   app.post("/api/entries", async (req, res) => {
     try {
-      const validatedData = insertJournalEntrySchema.parse(req.body);
+      const { content, mood, tags } = req.body;
+      
+      // Parse bullet symbols from the content
+      const { symbol, type, status, cleanContent } = parseBulletSymbol(content || "");
+      
+      // Prepare the entry data with parsed bullet symbol information
+      const entryData = {
+        content: cleanContent || content, // Use cleaned content if symbol was found
+        mood,
+        tags,
+        type,
+        status,
+        symbol
+      };
+      
+      const validatedData = insertJournalEntrySchema.parse(entryData);
       const entry = await storage.createJournalEntry(validatedData);
       res.status(201).json(entry);
     } catch (error) {

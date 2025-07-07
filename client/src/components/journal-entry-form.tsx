@@ -8,6 +8,7 @@ import { Clock, Smile, Tags, Sparkles, X, Plus } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { BULLET_SYMBOLS } from "@shared/schema";
 
 interface JournalEntryFormProps {
   onAnalysisResult: (result: any) => void;
@@ -135,6 +136,40 @@ export function JournalEntryForm({ onAnalysisResult }: JournalEntryFormProps) {
           />
           <div className="absolute bottom-3 right-3 text-xs text-gray-400">
             {entry.length} characters
+          </div>
+        </div>
+
+        {/* Bullet Symbol Buttons */}
+        <div className="mb-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Sparkles className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Quick Symbols:</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {Object.entries(BULLET_SYMBOLS).map(([symbol, config]) => (
+              <Button
+                key={symbol}
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const cursorPos = (document.querySelector('textarea') as HTMLTextAreaElement)?.selectionStart || 0;
+                  const newEntry = entry.slice(0, cursorPos) + symbol + ' ' + entry.slice(cursorPos);
+                  setEntry(newEntry);
+                  // Focus back to textarea after symbol insertion
+                  setTimeout(() => {
+                    const textarea = document.querySelector('textarea') as HTMLTextAreaElement;
+                    if (textarea) {
+                      textarea.focus();
+                      textarea.setSelectionRange(cursorPos + symbol.length + 1, cursorPos + symbol.length + 1);
+                    }
+                  }, 10);
+                }}
+                className="text-xs px-2 py-1 h-auto"
+                title={config.name}
+              >
+                {symbol} {config.name}
+              </Button>
+            ))}
           </div>
         </div>
 

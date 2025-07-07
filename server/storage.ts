@@ -62,6 +62,9 @@ export class DatabaseStorage implements IStorage {
         content: insertEntry.content,
         mood: insertEntry.mood || null,
         tags: insertEntry.tags || null,
+        type: insertEntry.type || null,
+        status: insertEntry.status || null,
+        symbol: insertEntry.symbol || null,
       })
       .returning();
     
