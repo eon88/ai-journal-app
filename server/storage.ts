@@ -18,7 +18,10 @@ import {
   type UserGoal,
   type InsertUserGoal,
   type AIReflection,
-  type GrowthMetrics
+  type GrowthMetrics,
+  users,
+  type User,
+  type UpsertUser,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, sql, and, gte, lte, count } from "drizzle-orm";
@@ -62,6 +65,10 @@ export interface IStorage {
   // Leveling system
   calculateLevel(xp: number): number;
   calculateLevelTitle(level: number): string;
+  
+  // User operations (required for Replit Auth)
+  getUser(id: string): Promise<User | undefined>;
+  upsertUser(user: UpsertUser): Promise<User>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -488,6 +495,27 @@ export class DatabaseStorage implements IStorage {
     await db
       .delete(userGoals)
       .where(eq(userGoals.id, id));
+  }
+
+  // User operations (required for Replit Auth)
+  async getUser(id: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(userData)
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          ...userData,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    return user;
   }
 }
 

@@ -6,6 +6,7 @@ import { z } from "zod";
 import OpenAI from "openai";
 import Stripe from "stripe";
 import { emailService } from "./email-service";
+import { setupAuth, isAuthenticated } from "./replitAuth";
 
 const openai = new OpenAI({ 
   apiKey: process.env.OPENAI_API_KEY || process.env.OPENAI_KEY || "default_key"
@@ -19,6 +20,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Set up authentication first
+  await setupAuth(app);
   // Login endpoint
   app.get("/api/login", async (req, res) => {
     // Simple login redirect to home page
@@ -26,15 +29,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.redirect('/');
   });
 
-  // Logout endpoint
-  app.get("/api/logout", async (req, res) => {
-    // Simple logout - redirect to home page
-    // In a real app with sessions, this would clear session data
-    res.redirect('/');
+  // Auth route to get current user
+  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
   });
 
-  // Get recent journal entries
-  app.get("/api/entries", async (req, res) => {
+  // Get recent journal entries (protected)
+  app.get("/api/entries", isAuthenticated, async (req, res) => {
     try {
       const limit = parseInt(req.query.limit as string) || 10;
       const entries = await storage.getRecentJournalEntries(limit);
@@ -44,8 +52,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get specific journal entry
-  app.get("/api/entries/:id", async (req, res) => {
+  // Get specific journal entry (protected)
+  app.get("/api/entries/:id", isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const entry = await storage.getJournalEntry(id);
@@ -58,8 +66,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create new journal entry
-  app.post("/api/entries", async (req, res) => {
+  // Create new journal entry (protected)
+  app.post("/api/entries", isAuthenticated, async (req, res) => {
     try {
       const { content, mood, tags } = req.body;
       
