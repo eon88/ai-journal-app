@@ -17,6 +17,8 @@ import { LevelSidebar } from "@/components/level-sidebar";
 import { useUser } from "@/components/user-provider";
 
 import { useQuery } from "@tanstack/react-query";
+import type { AIReflection } from "@shared/schema";
+import { useNotificationSettings } from "@/hooks/useNotificationSettings";
 
 export default function Home() {
 

@@ -665,6 +665,71 @@ Please provide a monthly reflection in JSON format with these fields:
     }
   });
 
+  // User settings endpoint
+  app.post("/api/user/settings", async (req: Request, res: Response) => {
+    try {
+      const { settingType, settings } = req.body;
+      
+      if (!settingType || !settings) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Missing required fields" 
+        });
+      }
+
+      // Log the settings update for admin review
+      console.log('===== USER SETTINGS UPDATE =====');
+      console.log('Timestamp:', new Date().toISOString());
+      console.log('Setting Type:', settingType);
+      console.log('Settings:', JSON.stringify(settings, null, 2));
+      console.log('================================');
+
+      // Here you could save to database if needed
+      // For now, we'll just acknowledge the update
+      
+      res.json({ 
+        success: true, 
+        message: "Settings updated successfully" 
+      });
+      
+    } catch (error) {
+      console.error("Settings update error:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Failed to update settings" 
+      });
+    }
+  });
+
+  // Get user settings endpoint
+  app.get("/api/user/settings", async (req: Request, res: Response) => {
+    try {
+      // In production, this would fetch from database
+      // For now, return default settings
+      const defaultSettings = {
+        notifications: {
+          emailNotifications: true,
+          weeklyReflections: true,
+          dailyChallenges: true,
+          progressReminders: false,
+          darkMode: true
+        }
+      };
+      
+      res.json({ 
+        success: true, 
+        settings: defaultSettings 
+      });
+      
+    } catch (error) {
+      console.error("Settings fetch error:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Failed to fetch settings" 
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

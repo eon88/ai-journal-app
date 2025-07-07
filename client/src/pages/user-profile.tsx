@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,18 +11,13 @@ import { User, Edit3, Trash2, Shield, Bell, Palette, Save } from "lucide-react";
 import { useUser } from "@/components/user-provider";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
+import { useNotificationSettings } from "@/hooks/useNotificationSettings";
 
 export default function UserProfile() {
   const { userName, setUserName } = useUser();
   const [editingName, setEditingName] = useState(false);
   const [newName, setNewName] = useState(userName);
-  const [settings, setSettings] = useState({
-    emailNotifications: true,
-    weeklyReflections: true,
-    dailyChallenges: true,
-    progressReminders: false,
-    darkMode: true
-  });
+  const { settings, updateSetting, isLoading: settingsLoading } = useNotificationSettings();
   const { toast } = useToast();
 
   // Fetch user stats
@@ -48,12 +43,32 @@ export default function UserProfile() {
     }
   };
 
-  const handleSettingChange = (setting: string, value: boolean) => {
-    setSettings(prev => ({ ...prev, [setting]: value }));
-    toast({
-      title: "Setting Updated",
-      description: "Your preference has been saved.",
-    });
+  const handleSettingChange = async (setting: keyof typeof settings, value: boolean) => {
+    const result = await updateSetting(setting, value);
+    
+    if (result.success) {
+      toast({
+        title: "Setting Updated",
+        description: `${getSettingDisplayName(setting)} ${value ? 'enabled' : 'disabled'} successfully.`,
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: "Failed to save setting. Your preference has been saved locally.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const getSettingDisplayName = (setting: string) => {
+    const names = {
+      emailNotifications: 'Email notifications',
+      weeklyReflections: 'Weekly reflection notifications',
+      dailyChallenges: 'Daily challenge notifications',
+      progressReminders: 'Progress reminders',
+      darkMode: 'Dark mode'
+    };
+    return names[setting as keyof typeof names] || setting;
   };
 
 
