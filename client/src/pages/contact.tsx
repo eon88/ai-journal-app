@@ -53,21 +53,21 @@ export default function Contact() {
       icon: <Mail className="w-5 h-5" />,
       title: "Email Support",
       description: "Get help with technical issues or account questions",
-      contact: "support@lifepathcompanion.com",
+      contact: "tiny0.0thinker@gmail.com",
       responseTime: "Within 24 hours"
     },
     {
       icon: <MessageSquare className="w-5 h-5" />,
       title: "General Inquiries",
       description: "Questions about features, partnerships, or feedback",
-      contact: "hello@lifepathcompanion.com", 
+      contact: "tiny0.0thinker@gmail.com", 
       responseTime: "Within 48 hours"
     },
     {
       icon: <Heart className="w-5 h-5" />,
       title: "Share Your Story",
       description: "Tell us how Life Path Companion has impacted your journey",
-      contact: "stories@lifepathcompanion.com",
+      contact: "tiny0.0thinker@gmail.com",
       responseTime: "We read every message"
     }
   ];
