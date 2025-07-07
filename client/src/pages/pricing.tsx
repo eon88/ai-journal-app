@@ -41,13 +41,7 @@ export default function Pricing() {
           // External Stripe checkout URL
           window.location.href = data.checkoutUrl;
         } else {
-          // Internal redirect for beta users
-          toast({
-            title: "Beta Access Active",
-            description: data.message || "You already have full access during beta!",
-            variant: "default",
-          });
-          // Redirect to profile with success message
+          // Internal redirect for beta users - success message will be shown on profile page
           window.location.href = data.checkoutUrl;
         }
       }

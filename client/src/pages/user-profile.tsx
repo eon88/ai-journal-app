@@ -22,6 +22,32 @@ export default function UserProfile() {
   const { settings, updateSetting, isLoading: settingsLoading } = useNotificationSettings();
   const { toast } = useToast();
 
+  // Check for upgrade success message in URL parameters
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const upgradeSuccess = urlParams.get('upgrade');
+    const planId = urlParams.get('plan');
+    
+    if (upgradeSuccess === 'success') {
+      const planNames = {
+        '1': 'Life Path Light Monthly',
+        '2': 'Life Path Light Annual'
+      };
+      
+      const planName = planNames[planId as keyof typeof planNames] || 'Premium Plan';
+      
+      toast({
+        title: "Welcome to Beta Access!",
+        description: `You have full access to all premium features during our beta period. No payment needed for ${planName}!`,
+        variant: "default",
+      });
+      
+      // Clean up the URL without refreshing the page
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
+    }
+  }, [toast]);
+
   // Fetch user stats
   const { data: userStats } = useQuery({
     queryKey: ["/api/stats"],
