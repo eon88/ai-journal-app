@@ -6,7 +6,7 @@ import { z } from "zod";
 import OpenAI from "openai";
 import Stripe from "stripe";
 import { emailService } from "./email-service";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupAuth, isAuthenticated, hashPassword, verifyPassword } from "./auth";
 
 const openai = new OpenAI({ 
   apiKey: process.env.OPENAI_API_KEY || process.env.OPENAI_KEY || "default_key"
@@ -22,19 +22,103 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 export async function registerRoutes(app: Express): Promise<Server> {
   // Set up authentication first
   await setupAuth(app);
+  // Registration endpoint
+  app.post("/api/register", async (req, res) => {
+    try {
+      const { username, email, password, firstName, lastName } = req.body;
+      
+      // Validate required fields
+      if (!username || !email || !password) {
+        return res.status(400).json({ message: "Username, email, and password are required" });
+      }
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByUsername(username);
+      if (existingUser) {
+        return res.status(400).json({ message: "Username already exists" });
+      }
+      
+      const existingEmail = await storage.getUserByEmail(email);
+      if (existingEmail) {
+        return res.status(400).json({ message: "Email already exists" });
+      }
+      
+      // Hash password and create user
+      const passwordHash = await hashPassword(password);
+      const user = await storage.createUser({
+        username,
+        email,
+        passwordHash,
+        firstName,
+        lastName,
+      });
+      
+      // Set up session
+      (req.session as any).userId = user.id;
+      
+      // Return user without password hash
+      const { passwordHash: _, ...userResponse } = user;
+      res.json({ success: true, user: userResponse });
+      
+    } catch (error) {
+      console.error("Registration error:", error);
+      res.status(500).json({ message: "Failed to register user" });
+    }
+  });
+
   // Login endpoint
-  app.get("/api/login", async (req, res) => {
-    // Simple login redirect to home page
-    // In a real app with authentication, this would handle login flow
-    res.redirect('/');
+  app.post("/api/login", async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      
+      if (!username || !password) {
+        return res.status(400).json({ message: "Username and password are required" });
+      }
+      
+      // Find user by username or email
+      let user = await storage.getUserByUsername(username);
+      if (!user) {
+        user = await storage.getUserByEmail(username);
+      }
+      
+      if (!user) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+      
+      // Verify password
+      const isValid = await verifyPassword(password, user.passwordHash);
+      if (!isValid) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+      
+      // Set up session
+      (req.session as any).userId = user.id;
+      
+      // Return user without password hash
+      const { passwordHash: _, ...userResponse } = user;
+      res.json({ success: true, user: userResponse });
+      
+    } catch (error) {
+      console.error("Login error:", error);
+      res.status(500).json({ message: "Failed to login" });
+    }
+  });
+
+  // Logout endpoint
+  app.post("/api/logout", async (req, res) => {
+    req.session?.destroy((err) => {
+      if (err) {
+        return res.status(500).json({ message: "Failed to logout" });
+      }
+      res.json({ success: true });
+    });
   });
 
   // Auth route to get current user
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
+      const { passwordHash: _, ...userResponse } = req.user;
+      res.json(userResponse);
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });

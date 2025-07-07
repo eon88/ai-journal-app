@@ -14,10 +14,10 @@ export default function Landing() {
             <h1 className="text-2xl font-bold text-white">Life Path Companion</h1>
           </div>
           <Button 
-            onClick={() => window.location.href = '/api/login'}
+            onClick={() => window.location.href = '/login'}
             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium"
           >
-            Sign In with Replit
+            Sign In
           </Button>
         </div>
       </header>
@@ -38,7 +38,7 @@ export default function Landing() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
             <Button 
-              onClick={() => window.location.href = '/api/login'}
+              onClick={() => window.location.href = '/register'}
               className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-lg rounded-lg font-medium"
             >
               Start Your Journey
@@ -113,7 +113,7 @@ export default function Landing() {
           <CardContent className="pt-6">
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button 
-                onClick={() => window.location.href = '/api/login'}
+                onClick={() => window.location.href = '/register'}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-lg rounded-lg font-medium"
               >
                 <CheckCircle className="w-5 h-5 mr-2" />

@@ -15,6 +15,8 @@ import Pricing from "@/pages/pricing";
 import Forum from "@/pages/forum";
 import ForumAdmin from "@/pages/forum-admin";
 import Landing from "@/pages/landing";
+import Login from "@/pages/login";
+import Register from "@/pages/register";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -34,6 +36,8 @@ function Router() {
       <Route path="/about" component={About} />
       <Route path="/contact" component={Contact} />
       <Route path="/pricing" component={Pricing} />
+      <Route path="/login" component={Login} />
+      <Route path="/register" component={Register} />
       <Route component={NotFound} />
     </Switch>
   );
