@@ -940,7 +940,7 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
         return res.status(400).json({ success: false, message: "Invalid plan ID" });
       }
 
-      // Create actual Stripe test checkout session that requires real payment flow
+      // Create Stripe checkout session - works in both test and live mode
       try {
         const session = await stripe.checkout.sessions.create({
           payment_method_types: ['card'],
@@ -959,26 +959,38 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
             quantity: 1,
           }],
           mode: 'subscription',
-          success_url: `${req.protocol}://${req.get('host')}/profile?upgrade=success&plan=${planId}`,
+          success_url: `${req.protocol}://${req.get('host')}/profile?upgrade=success&plan=${planId}&session_id={CHECKOUT_SESSION_ID}`,
           cancel_url: `${req.protocol}://${req.get('host')}/pricing?upgrade=cancelled`,
           metadata: {
             planId: planId.toString(),
           },
+          // Allow test mode checkouts
+          allow_promotion_codes: true,
         });
 
         res.json({ 
           success: true, 
           checkoutUrl: session.url,
-          sessionId: session.id
+          sessionId: session.id,
+          message: "Redirecting to secure payment checkout..."
         });
       } catch (stripeError: any) {
-        // If Stripe is not properly configured, show meaningful error
-        console.error("Stripe configuration error:", stripeError.message);
-        res.status(400).json({ 
-          success: false, 
-          message: "Payment processing is not yet configured. Please contact support to enable payments.",
-          error: "stripe_not_configured"
-        });
+        console.error("Stripe error:", stripeError.message);
+        
+        // Check for specific error types
+        if (stripeError.message.includes("live charges") || stripeError.message.includes("live mode")) {
+          res.status(400).json({ 
+            success: false, 
+            message: "Payment system is in test mode. Contact support for live payment processing.",
+            error: "test_mode_only"
+          });
+        } else {
+          res.status(500).json({ 
+            success: false, 
+            message: `Payment processing error: ${stripeError.message}`,
+            error: "stripe_error"
+          });
+        }
       }
       
     } catch (error) {
