@@ -26,6 +26,10 @@ export default function Login() {
         description: "You're now logged in to Life Path Companion.",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      // Force a page refresh to update auth state
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 1000);
     },
     onError: (error: any) => {
       toast({

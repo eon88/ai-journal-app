@@ -30,6 +30,10 @@ export default function Register() {
         description: "Welcome to Life Path Companion. You're now logged in.",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      // Force a page refresh to update auth state
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 1000);
     },
     onError: (error: any) => {
       toast({
