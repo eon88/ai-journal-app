@@ -19,7 +19,7 @@ export default function About() {
     {
       icon: <Sparkles className="w-5 h-5" />,
       title: "AI-Powered Insights",
-      description: "Weekly and monthly reflections with Merlin, your mystical AI companion"
+      description: "Weekly and monthly reflections with Merlin, your AI guide"
     },
     {
       icon: <Zap className="w-5 h-5" />,
