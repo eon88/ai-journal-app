@@ -33,13 +33,13 @@ export class EmailService {
     // Use a simple logging fallback when no email service is configured
     this.transporter = {
       sendMail: async (mailOptions: any) => {
-        console.log('\n===== EMAIL NOTIFICATION =====');
-        console.log('From:', mailOptions.from);
-        console.log('To:', mailOptions.to);
-        console.log('Subject:', mailOptions.subject);
-        console.log('Content:', mailOptions.text || mailOptions.html);
-        console.log('Timestamp:', new Date().toISOString());
-        console.log('===============================\n');
+        console.log('\n🔔 ===== NEW CONTACT MESSAGE =====');
+        console.log('📧 From:', mailOptions.from);
+        console.log('📨 To:', mailOptions.to);
+        console.log('📋 Subject:', mailOptions.subject);
+        console.log('💬 Content:', mailOptions.text || mailOptions.html);
+        console.log('⏰ Timestamp:', new Date().toISOString());
+        console.log('================================== 🔔\n');
         
         // Store in a simple file for backup
         const fs = await import('fs/promises');
