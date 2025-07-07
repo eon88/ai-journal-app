@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Header } from "@/components/header";
 import { JournalEntryForm } from "@/components/journal-entry-form";
-import { AIReflectionComponent } from "@/components/ai-reflection";
+
 import { RecentEntries } from "@/components/recent-entries";
 import { PeriodicReflections } from "@/components/periodic-reflections";
 import { StreakScoreboard } from "@/components/streak-scoreboard";
@@ -15,13 +15,11 @@ import { LifePathQuestionnaire } from "@/components/life-path-questionnaire";
 import { Footer } from "@/components/footer";
 import { LevelSidebar } from "@/components/level-sidebar";
 import { useUser } from "@/components/user-provider";
-import type { AIReflection } from "@shared/schema";
+
 import { useQuery } from "@tanstack/react-query";
 
 export default function Home() {
-  const [aiReflection, setAiReflection] = useState<AIReflection | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+
   const { hasCompletedQuestionnaire, setHasCompletedQuestionnaire } = useUser();
 
   // Fetch recent entry for Merlin context
@@ -33,18 +31,7 @@ export default function Home() {
   const todaysEntry = recentEntries?.[0];
   const hasJournalToday = todaysEntry && new Date(todaysEntry.createdAt).toDateString() === new Date().toDateString();
 
-  const handleAnalysisResult = (result: { summary: AIReflection }) => {
-    setIsLoading(false);
-    setError(null);
-    setAiReflection(result.summary);
-  };
 
-  const handleRegenerate = () => {
-    // This would trigger a new analysis of the current entry
-    // For now, we'll just reset the state
-    setAiReflection(null);
-    setError(null);
-  };
 
   const handleQuestionnaireComplete = () => {
     setHasCompletedQuestionnaire(true);
@@ -80,13 +67,7 @@ export default function Home() {
           <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left Column - Journal Entry */}
             <div className="lg:col-span-2 space-y-6">
-              <JournalEntryForm onAnalysisResult={handleAnalysisResult} />
-              <AIReflectionComponent 
-                reflection={aiReflection}
-                isLoading={isLoading}
-                error={error}
-                onRegenerate={handleRegenerate}
-              />
+              <JournalEntryForm />
             </div>
             
             {/* Right Column - Gamification Features */}

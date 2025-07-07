@@ -4,17 +4,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Clock, Smile, Tags, Sparkles, X, Plus } from "lucide-react";
+import { Clock, Smile, Tags, PenTool, X, Plus } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { BULLET_SYMBOLS } from "@shared/schema";
 
-interface JournalEntryFormProps {
-  onAnalysisResult: (result: any) => void;
-}
-
-export function JournalEntryForm({ onAnalysisResult }: JournalEntryFormProps) {
+export function JournalEntryForm() {
   const [entry, setEntry] = useState("");
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [tags, setTags] = useState<string[]>([]);
@@ -36,30 +32,7 @@ export function JournalEntryForm({ onAnalysisResult }: JournalEntryFormProps) {
     { value: "reflective", label: "🤔 Reflective" },
   ];
 
-  const analyzeMutation = useMutation({
-    mutationFn: async (content: string) => {
-      const response = await apiRequest("POST", "/api/analyze", { entry: content });
-      return response.json();
-    },
-    onSuccess: (data) => {
-      onAnalysisResult(data);
-      // Clear the form after successful submission
-      setEntry("");
-      setSelectedMood(null);
-      setTags([]);
-      toast({
-        title: "Analysis Complete",
-        description: "Your journal entry has been analyzed successfully.",
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Analysis Failed",
-        description: error instanceof Error ? error.message : "Failed to analyze entry. Please try again.",
-        variant: "destructive",
-      });
-    }
-  });
+
 
   const createEntryMutation = useMutation({
     mutationFn: async (data: { content: string; mood?: string | null; tags?: string[] | null }) => {
@@ -68,6 +41,21 @@ export function JournalEntryForm({ onAnalysisResult }: JournalEntryFormProps) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/entries"] });
+      // Clear the form after successful submission
+      setEntry("");
+      setSelectedMood(null);
+      setTags([]);
+      toast({
+        title: "Entry Saved",
+        description: "Your journal entry has been saved successfully.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Save Failed",
+        description: error instanceof Error ? error.message : "Failed to save entry. Please try again.",
+        variant: "destructive",
+      });
     }
   });
 
@@ -92,15 +80,14 @@ export function JournalEntryForm({ onAnalysisResult }: JournalEntryFormProps) {
       return;
     }
 
-    // Create the entry first
+    // Create the entry
     createEntryMutation.mutate({
       content: entry.trim(),
       mood: selectedMood,
       tags: tags.length > 0 ? tags : null
     });
-    
-    // Then analyze it
-    analyzeMutation.mutate(entry.trim());
+
+
   };
 
   const formatTime = () => {
@@ -142,7 +129,7 @@ export function JournalEntryForm({ onAnalysisResult }: JournalEntryFormProps) {
         {/* Bullet Symbol Buttons */}
         <div className="mb-4">
           <div className="flex items-center gap-2 mb-2">
-            <Sparkles className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+            <PenTool className="w-4 h-4 text-gray-500 dark:text-gray-400" />
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Quick Symbols:</span>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -266,12 +253,12 @@ export function JournalEntryForm({ onAnalysisResult }: JournalEntryFormProps) {
           
           <Button 
             onClick={handleSubmit}
-            disabled={analyzeMutation.isPending || createEntryMutation.isPending}
+            disabled={createEntryMutation.isPending}
             className="bg-journal-primary hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-journal-primary focus:ring-offset-2"
           >
-            <Sparkles className="w-4 h-4" />
+            <PenTool className="w-4 h-4" />
             <span>
-              {analyzeMutation.isPending ? "Analyzing..." : "Get AI Reflection"}
+              {createEntryMutation.isPending ? "Saving..." : "Save Entry"}
             </span>
           </Button>
         </div>
