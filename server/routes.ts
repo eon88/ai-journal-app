@@ -5,6 +5,7 @@ import { insertJournalEntrySchema, type AIReflection, type WeeklyReflection, typ
 import { z } from "zod";
 import OpenAI from "openai";
 import Stripe from "stripe";
+import { emailService } from "./email-service";
 
 const openai = new OpenAI({ 
   apiKey: process.env.OPENAI_API_KEY || process.env.OPENAI_KEY || "default_key"
@@ -745,22 +746,33 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
         });
       }
 
-      // Log the contact form submission for admin review
-      console.log('===== CONTACT FORM SUBMISSION =====');
-      console.log('Timestamp:', new Date().toISOString());
-      console.log('Name:', name);
-      console.log('Email:', email);
-      console.log('Subject:', subject || 'No subject provided');
-      console.log('Message:', message);
-      console.log('================================');
-
-      // TODO: In production, integrate with SendGrid or similar email service
-      // For now, the message is logged to the server console where you can see it
-      
-      res.json({ 
-        success: true, 
-        message: "Message received successfully. We'll respond within 24 hours." 
-      });
+      // Send email using the email service
+      try {
+        await emailService.sendContactMessage(name, email, subject || '', message);
+        
+        res.json({ 
+          success: true, 
+          message: "Message sent successfully! We'll respond within 24 hours." 
+        });
+        
+      } catch (emailError) {
+        console.error("Email sending failed:", emailError);
+        
+        // Even if email fails, log the message so it's not lost
+        console.log('===== CONTACT FORM SUBMISSION (EMAIL FAILED) =====');
+        console.log('Timestamp:', new Date().toISOString());
+        console.log('Name:', name);
+        console.log('Email:', email);
+        console.log('Subject:', subject || 'No subject provided');
+        console.log('Message:', message);
+        console.log('Email Error:', emailError);
+        console.log('================================================');
+        
+        res.json({ 
+          success: true, 
+          message: "Message received successfully. We'll respond within 24 hours." 
+        });
+      }
       
     } catch (error) {
       console.error("Contact form error:", error);
