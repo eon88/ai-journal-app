@@ -1,4 +1,4 @@
-import { Calendar, User, Crown, LogOut, UserCircle, Home } from "lucide-react";
+import { Calendar, User, Crown, LogOut, UserCircle, Home, Shield } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Link } from "wouter";
@@ -10,8 +10,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
 export function Header() {
   const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Check if current user is admin
+  const { data: adminCheck } = useQuery({
+    queryKey: ["/api/admin/check"],
+    retry: false,
+  });
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -78,6 +85,14 @@ export function Header() {
                     Profile
                   </DropdownMenuItem>
                 </Link>
+                {adminCheck?.isAdmin && (
+                  <Link href="/admin">
+                    <DropdownMenuItem className="cursor-pointer">
+                      <Shield className="mr-2 h-4 w-4" />
+                      Admin Panel
+                    </DropdownMenuItem>
+                  </Link>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem 
                   className="cursor-pointer"

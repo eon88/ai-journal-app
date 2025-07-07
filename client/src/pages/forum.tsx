@@ -8,9 +8,16 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { MessageSquare, Users, TrendingUp, Clock, Search, Plus, Pin, Heart, Reply, Shield } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 export default function Forum() {
   const [searchQuery, setSearchQuery] = useState("");
+  
+  // Check if current user is admin
+  const { data: adminCheck } = useQuery({
+    queryKey: ["/api/admin/check"],
+    retry: false,
+  });
 
   const forumCategories = [
     {
@@ -176,14 +183,16 @@ export default function Forum() {
                 <Plus className="w-4 h-4 mr-2" />
                 New Discussion
               </Button>
-              <Button 
-                variant="outline" 
-                onClick={() => window.location.href = '/forum/admin'}
-                className="border-journal-primary text-journal-primary hover:bg-journal-primary/10"
-              >
-                <Shield className="w-4 h-4 mr-2" />
-                Admin
-              </Button>
+              {adminCheck?.isAdmin && (
+                <Button 
+                  variant="outline" 
+                  onClick={() => window.location.href = '/forum/admin'}
+                  className="border-journal-primary text-journal-primary hover:bg-journal-primary/10"
+                >
+                  <Shield className="w-4 h-4 mr-2" />
+                  Admin
+                </Button>
+              )}
             </div>
           </div>
 

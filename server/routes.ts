@@ -1,12 +1,14 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertJournalEntrySchema, type AIReflection, type WeeklyReflection, type MonthlyReflection, type JournalEntry, parseBulletSymbol } from "@shared/schema";
+import { insertJournalEntrySchema, type AIReflection, type WeeklyReflection, type MonthlyReflection, type JournalEntry, parseBulletSymbol, users } from "@shared/schema";
+import { db } from "./db";
 import { z } from "zod";
 import OpenAI from "openai";
 import Stripe from "stripe";
 import { emailService } from "./email-service";
 import { setupAuth, isAuthenticated, hashPassword, verifyPassword } from "./auth";
+import type { NextFunction } from "express";
 
 const openai = new OpenAI({ 
   apiKey: process.env.OPENAI_API_KEY || process.env.OPENAI_KEY || "default_key"
@@ -1268,6 +1270,76 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
     } catch (error) {
       console.error("Goal deletion error:", error);
       res.status(500).json({ success: false, message: "Failed to delete goal" });
+    }
+  });
+
+  // Admin routes for forum management
+  const isAdmin = async (req: any, res: Response, next: NextFunction) => {
+    try {
+      if (!req.user?.id) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+      
+      const isUserAdmin = await storage.isUserAdmin(req.user.id);
+      if (!isUserAdmin) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+      
+      next();
+    } catch (error) {
+      console.error("Admin check error:", error);
+      res.status(500).json({ message: "Failed to verify admin status" });
+    }
+  };
+
+  // Check if current user is admin
+  app.get("/api/admin/check", isAuthenticated, async (req: any, res: Response) => {
+    try {
+      const isUserAdmin = await storage.isUserAdmin(req.user.id);
+      res.json({ isAdmin: isUserAdmin });
+    } catch (error) {
+      console.error("Admin check error:", error);
+      res.status(500).json({ message: "Failed to check admin status" });
+    }
+  });
+
+  // Get all users for admin management
+  app.get("/api/admin/users", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+    try {
+      const allUsers = await db.select({
+        id: users.id,
+        username: users.username,
+        email: users.email,
+        role: users.role,
+        createdAt: users.createdAt
+      }).from(users).orderBy(users.createdAt);
+      
+      res.json(allUsers);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      res.status(500).json({ message: "Failed to fetch users" });
+    }
+  });
+
+  // Update user role (promote/demote admin)
+  app.patch("/api/admin/users/:id/role", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const { role } = req.body;
+      
+      if (!role || !['admin', 'user'].includes(role)) {
+        return res.status(400).json({ message: "Valid role required (admin or user)" });
+      }
+      
+      const updatedUser = await storage.updateUserRole(userId, role);
+      if (!updatedUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      res.json({ success: true, user: updatedUser });
+    } catch (error) {
+      console.error("Error updating user role:", error);
+      res.status(500).json({ message: "Failed to update user role" });
     }
   });
 

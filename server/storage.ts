@@ -71,6 +71,8 @@ export interface IStorage {
   getUserByUsername(username: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  updateUserRole(userId: number, role: string): Promise<User | undefined>;
+  isUserAdmin(userId: number): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -557,6 +559,20 @@ export class DatabaseStorage implements IStorage {
       .values(userData)
       .returning();
     return user;
+  }
+
+  async updateUserRole(userId: number, role: string): Promise<User | undefined> {
+    const [user] = await db
+      .update(users)
+      .set({ role })
+      .where(eq(users.id, userId))
+      .returning();
+    return user;
+  }
+
+  async isUserAdmin(userId: number): Promise<boolean> {
+    const user = await this.getUser(userId);
+    return user?.role === 'admin';
   }
 }
 

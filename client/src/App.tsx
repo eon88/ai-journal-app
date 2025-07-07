@@ -14,6 +14,7 @@ import UserProfile from "@/pages/user-profile";
 import Pricing from "@/pages/pricing";
 import Forum from "@/pages/forum";
 import ForumAdmin from "@/pages/forum-admin";
+import AdminPanel from "@/pages/admin-panel";
 import Landing from "@/pages/landing";
 import Login from "@/pages/login";
 import Register from "@/pages/register";
@@ -31,6 +32,7 @@ function Router() {
           <Route path="/profile" component={UserProfile} />
           <Route path="/forum" component={Forum} />
           <Route path="/forum/admin" component={ForumAdmin} />
+          <Route path="/admin" component={AdminPanel} />
         </>
       )}
       <Route path="/about" component={About} />
