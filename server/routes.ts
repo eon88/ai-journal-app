@@ -1343,6 +1343,141 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
     }
   });
 
+  // Forum API routes
+  
+  // Get forum categories
+  app.get("/api/forum/categories", async (req: Request, res: Response) => {
+    try {
+      const categories = await storage.getForumCategories();
+      res.json(categories);
+    } catch (error) {
+      console.error("Error fetching forum categories:", error);
+      res.status(500).json({ message: "Failed to fetch categories" });
+    }
+  });
+
+  // Get forum posts
+  app.get("/api/forum/posts", async (req: Request, res: Response) => {
+    try {
+      const categoryId = req.query.categoryId ? parseInt(req.query.categoryId as string) : undefined;
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : 50;
+      const posts = await storage.getForumPosts(categoryId, limit);
+      res.json(posts);
+    } catch (error) {
+      console.error("Error fetching forum posts:", error);
+      res.status(500).json({ message: "Failed to fetch posts" });
+    }
+  });
+
+  // Get single forum post
+  app.get("/api/forum/posts/:id", async (req: Request, res: Response) => {
+    try {
+      const postId = parseInt(req.params.id);
+      const post = await storage.getForumPost(postId);
+      if (!post) {
+        return res.status(404).json({ message: "Post not found" });
+      }
+      
+      // Increment view count
+      await storage.incrementPostViews(postId);
+      
+      res.json(post);
+    } catch (error) {
+      console.error("Error fetching forum post:", error);
+      res.status(500).json({ message: "Failed to fetch post" });
+    }
+  });
+
+  // Create forum post
+  app.post("/api/forum/posts", isAuthenticated, async (req: any, res: Response) => {
+    try {
+      const { title, content, categoryId } = req.body;
+      
+      if (!title || !content || !categoryId) {
+        return res.status(400).json({ message: "Title, content, and category are required" });
+      }
+      
+      const post = await storage.createForumPost(req.user.id, {
+        title,
+        content,
+        categoryId: parseInt(categoryId)
+      });
+      
+      res.json(post);
+    } catch (error) {
+      console.error("Error creating forum post:", error);
+      res.status(500).json({ message: "Failed to create post" });
+    }
+  });
+
+  // Get forum replies
+  app.get("/api/forum/posts/:id/replies", async (req: Request, res: Response) => {
+    try {
+      const postId = parseInt(req.params.id);
+      const replies = await storage.getForumReplies(postId);
+      res.json(replies);
+    } catch (error) {
+      console.error("Error fetching forum replies:", error);
+      res.status(500).json({ message: "Failed to fetch replies" });
+    }
+  });
+
+  // Create forum reply
+  app.post("/api/forum/posts/:id/replies", isAuthenticated, async (req: any, res: Response) => {
+    try {
+      const postId = parseInt(req.params.id);
+      const { content, parentReplyId } = req.body;
+      
+      if (!content) {
+        return res.status(400).json({ message: "Content is required" });
+      }
+      
+      const reply = await storage.createForumReply(req.user.id, {
+        content,
+        postId,
+        parentReplyId: parentReplyId ? parseInt(parentReplyId) : undefined
+      });
+      
+      res.json(reply);
+    } catch (error) {
+      console.error("Error creating forum reply:", error);
+      res.status(500).json({ message: "Failed to create reply" });
+    }
+  });
+
+  // Toggle like on post or reply
+  app.post("/api/forum/like", isAuthenticated, async (req: any, res: Response) => {
+    try {
+      const { postId, replyId } = req.body;
+      
+      if (!postId && !replyId) {
+        return res.status(400).json({ message: "Post ID or Reply ID is required" });
+      }
+      
+      const liked = await storage.toggleForumLike(
+        req.user.id,
+        postId ? parseInt(postId) : undefined,
+        replyId ? parseInt(replyId) : undefined
+      );
+      
+      res.json({ liked });
+    } catch (error) {
+      console.error("Error toggling forum like:", error);
+      res.status(500).json({ message: "Failed to toggle like" });
+    }
+  });
+
+  // Get forum stats
+  app.get("/api/forum/stats", async (req: Request, res: Response) => {
+    try {
+      const stats = await storage.getForumStats();
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching forum stats:", error);
+      res.status(500).json({ message: "Failed to fetch stats" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

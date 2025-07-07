@@ -264,3 +264,63 @@ export interface GrowthMetrics {
   commonThemes: Array<{ theme: string; frequency: number }>;
   writingFrequency: Array<{ date: string; count: number }>;
 }
+
+// Forum tables
+export const forumCategories = pgTable("forum_categories", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 100 }).notNull(),
+  description: text("description").notNull(),
+  color: varchar("color", { length: 50 }).notNull(),
+  icon: varchar("icon", { length: 50 }).notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const forumPosts = pgTable("forum_posts", {
+  id: serial("id").primaryKey(),
+  title: varchar("title", { length: 200 }).notNull(),
+  content: text("content").notNull(),
+  authorId: integer("author_id").references(() => users.id).notNull(),
+  categoryId: integer("category_id").references(() => forumCategories.id).notNull(),
+  isPinned: boolean("is_pinned").default(false).notNull(),
+  isFeatured: boolean("is_featured").default(false).notNull(),
+  isLocked: boolean("is_locked").default(false).notNull(),
+  viewCount: integer("view_count").default(0).notNull(),
+  likeCount: integer("like_count").default(0).notNull(),
+  replyCount: integer("reply_count").default(0).notNull(),
+  lastReplyAt: timestamp("last_reply_at"),
+  lastReplyBy: integer("last_reply_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const forumReplies = pgTable("forum_replies", {
+  id: serial("id").primaryKey(),
+  content: text("content").notNull(),
+  authorId: integer("author_id").references(() => users.id).notNull(),
+  postId: integer("post_id").references(() => forumPosts.id).notNull(),
+  parentReplyId: integer("parent_reply_id").references(() => forumReplies.id),
+  likeCount: integer("like_count").default(0).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const forumLikes = pgTable("forum_likes", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  postId: integer("post_id").references(() => forumPosts.id),
+  replyId: integer("reply_id").references(() => forumReplies.id),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type ForumCategory = typeof forumCategories.$inferSelect;
+export type InsertForumCategory = typeof forumCategories.$inferInsert;
+
+export type ForumPost = typeof forumPosts.$inferSelect;
+export type InsertForumPost = typeof forumPosts.$inferInsert;
+
+export type ForumReply = typeof forumReplies.$inferSelect;
+export type InsertForumReply = typeof forumReplies.$inferInsert;
+
+export type ForumLike = typeof forumLikes.$inferSelect;
+export type InsertForumLike = typeof forumLikes.$inferInsert;
