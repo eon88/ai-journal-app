@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Check, Crown, Zap, Star, CreditCard } from "lucide-react";
+import { Check, Crown, Zap, Star, CreditCard, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface SubscriptionPlan {
@@ -34,9 +34,14 @@ export function SubscriptionManager() {
   const { toast } = useToast();
   const [isUpgrading, setIsUpgrading] = useState(false);
 
-  // Fetch account status
+  // Fetch account status - check for premium status
   const { data: accountData, isLoading: accountLoading } = useQuery({
     queryKey: ["/api/account/status"],
+    queryFn: () => {
+      const isPremium = localStorage.getItem('premium_user') === 'true';
+      const url = isPremium ? '/api/account/status?premium=true' : '/api/account/status';
+      return fetch(url).then(res => res.json());
+    }
   });
 
   // Fetch subscription plans
@@ -101,8 +106,8 @@ export function SubscriptionManager() {
       <Card className="glass-card">
         <CardHeader>
           <CardTitle className="text-foreground flex items-center gap-2">
-            {account?.accountType === "free_beta" ? (
-              <Star className="w-5 h-5 text-amber-500" />
+            {account?.accountType === "free" ? (
+              <User className="w-5 h-5 text-blue-500" />
             ) : (
               <Crown className="w-5 h-5 text-purple-500" />
             )}
@@ -116,19 +121,21 @@ export function SubscriptionManager() {
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-lg font-semibold text-foreground">
-                {account?.accountType === "free_beta" ? "Free Beta Account" : "Premium Account"}
+                {account?.accountType === "free" ? "Free Account" : "Premium Account"}
               </h3>
               <p className="text-sm text-muted-foreground">
-                {account?.accountType === "free_beta" 
-                  ? "Full access during beta period" 
+                {account?.accountType === "free" 
+                  ? "Limited features - upgrade for full access" 
                   : "Full premium features"}
               </p>
             </div>
             <Badge 
-              variant={account?.accountType === "free_beta" ? "default" : "secondary"}
-              className="bg-gradient-to-r from-amber-500 to-orange-500 text-white"
+              variant={account?.subscriptionStatus === "active" ? "default" : "secondary"}
+              className={account?.subscriptionStatus === "active" 
+                ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white" 
+                : "bg-gray-500 text-white"}
             >
-              {account?.subscriptionStatus === "active" ? "Active" : "Inactive"}
+              {account?.subscriptionStatus === "active" ? "Active" : "Free"}
             </Badge>
           </div>
 
@@ -146,15 +153,15 @@ export function SubscriptionManager() {
             </div>
           </div>
 
-          {account?.accountType === "free_beta" && (
-            <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
-              <div className="flex items-center gap-2 text-amber-800 dark:text-amber-200">
-                <Star className="w-4 h-4" />
-                <span className="font-medium">Beta Access</span>
+          {account?.accountType === "free" && (
+            <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+              <div className="flex items-center gap-2 text-blue-800 dark:text-blue-200">
+                <User className="w-4 h-4" />
+                <span className="font-medium">Free Account</span>
               </div>
-              <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
-                You currently have full access to all features during our beta period. 
-                Consider upgrading to premium to continue enjoying unlimited access after beta ends.
+              <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
+                You're currently on a free account with limited features. 
+                Upgrade to premium to unlock unlimited journal entries, advanced AI insights, and premium features.
               </p>
             </div>
           )}

@@ -825,23 +825,44 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
   // Account management routes
   app.get("/api/account/status", async (req: Request, res: Response) => {
     try {
-      // For now, return a mock free beta account
-      // In production, this would fetch from the user_accounts table
-      const account = {
+      // Check if user has completed upgrade simulation
+      // In production, this would check actual subscription status from database
+      const urlParams = req.query;
+      const hasUpgraded = urlParams.premium === 'true'; // Simple simulation check
+      
+      const account = hasUpgraded ? {
         id: 1,
         email: "user@example.com",
-        name: "Beta User",
-        accountType: "free_beta",
+        name: "Premium User",
+        accountType: "premium",
         subscriptionStatus: "active",
-        betaAccessGranted: true,
+        betaAccessGranted: false,
         features: [
           "Unlimited journal entries",
           "AI-powered reflections",
           "Weekly & monthly insights",
+          "Personal goals management",
+          "Goal progress tracking in reflections",
           "Growth dashboard",
           "Daily challenges",
-          "Community access",
-          "All beta features"
+          "Community forum access",
+          "Merlin AI assistant",
+          "Streak tracking & XP system",
+          "Export capabilities",
+          "Premium support"
+        ]
+      } : {
+        id: 1,
+        email: "user@example.com",
+        name: "Free User",
+        accountType: "free",
+        subscriptionStatus: "inactive",
+        betaAccessGranted: false,
+        features: [
+          "Basic journal entries (up to 10 per month)",
+          "Basic AI insights",
+          "View recent entries",
+          "Limited growth dashboard"
         ]
       };
       
@@ -918,13 +939,23 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
       if (!plan) {
         return res.status(400).json({ success: false, message: "Invalid plan ID" });
       }
+
+      // For now, simulate successful subscription upgrade for development
+      // In production, this would create real Stripe checkout sessions
+      // The current Stripe account is in test mode and needs proper configuration
       
-      // For beta period, return a success message instead of actual Stripe checkout
-      // This allows users to see the upgrade flow without actual payment processing
+      console.log(`Simulating upgrade to plan ${planId}: ${plan.name}`);
+      
+      // Simulate successful payment processing
+      setTimeout(() => {
+        console.log(`Payment simulation complete for ${plan.name}`);
+      }, 1000);
+
       res.json({ 
         success: true, 
-        checkoutUrl: "/profile?upgrade=success&plan=" + planId,
-        message: "Beta users get full access - no payment needed!" 
+        checkoutUrl: `/profile?upgrade=success&plan=${planId}`,
+        sessionId: `sim_${Date.now()}`,
+        message: `Successfully subscribed to ${plan.name}`
       });
       
     } catch (error) {

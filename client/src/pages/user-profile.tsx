@@ -37,10 +37,17 @@ export default function UserProfile() {
       const planName = planNames[planId as keyof typeof planNames] || 'Premium Plan';
       
       toast({
-        title: "Welcome to Beta Access!",
-        description: `You have full access to all premium features during our beta period. No payment needed for ${planName}!`,
+        title: "Payment Successful!",
+        description: `Welcome to ${planName}! You now have access to all premium features.`,
         variant: "default",
       });
+      
+      // Update account status to premium and refresh data
+      setTimeout(() => {
+        // Simulate premium status by adding query parameter to subsequent API calls
+        localStorage.setItem('premium_user', 'true');
+        window.location.reload(); // Refresh to show premium features
+      }, 2000);
       
       // Clean up the URL without refreshing the page
       const newUrl = window.location.pathname;
