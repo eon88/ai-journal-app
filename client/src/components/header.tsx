@@ -49,13 +49,15 @@ export function Header() {
               <p className="text-sm text-muted-foreground">Reflect, grow, and discover insights</p>
             </div>
           </div>
-          <div className="hidden md:flex items-center space-x-4">
-            <span className="text-sm text-muted-foreground">
-              Today, {formatDate(currentTime)}
-            </span>
-            <span className="text-sm text-muted-foreground">
-              {formatTime(currentTime)}
-            </span>
+          <div className="flex items-center space-x-3">
+            <div className="hidden md:flex items-center space-x-4 mr-3">
+              <span className="text-sm text-muted-foreground">
+                Today, {formatDate(currentTime)}
+              </span>
+              <span className="text-sm text-muted-foreground">
+                {formatTime(currentTime)}
+              </span>
+            </div>
 {/* Upgrade button temporarily hidden - payment system is properly configured but in test mode */}
             <ThemeToggle />
             <Link href="/">
