@@ -33,15 +33,36 @@ export default function Contact() {
 
     setIsSubmitting(true);
     
-    // Simulate form submission
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      
       toast({
         title: "Message Sent!",
         description: "Thank you for reaching out. We'll get back to you within 24 hours.",
       });
       setFormData({ name: "", email: "", subject: "", message: "" });
-    }, 1000);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast({
+        title: "Error Sending Message",
+        description: "There was a problem sending your message. Please try again or contact us directly at tiny0.0thinker@gmail.com",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleInputChange = (field: string, value: string) => {

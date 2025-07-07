@@ -617,6 +617,54 @@ Please provide a monthly reflection in JSON format with these fields:
     }
   });
 
+  // Contact form endpoint
+  app.post("/api/contact", async (req: Request, res: Response) => {
+    try {
+      const { name, email, subject, message } = req.body;
+      
+      // Validate required fields
+      if (!name || !email || !message) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Missing required fields" 
+        });
+      }
+
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Invalid email format" 
+        });
+      }
+
+      // Log the contact form submission for admin review
+      console.log('===== CONTACT FORM SUBMISSION =====');
+      console.log('Timestamp:', new Date().toISOString());
+      console.log('Name:', name);
+      console.log('Email:', email);
+      console.log('Subject:', subject || 'No subject provided');
+      console.log('Message:', message);
+      console.log('================================');
+
+      // TODO: In production, integrate with SendGrid or similar email service
+      // For now, the message is logged to the server console where you can see it
+      
+      res.json({ 
+        success: true, 
+        message: "Message received successfully. We'll respond within 24 hours." 
+      });
+      
+    } catch (error) {
+      console.error("Contact form error:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Failed to process contact form" 
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
