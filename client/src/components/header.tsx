@@ -1,4 +1,4 @@
-import { Calendar, User } from "lucide-react";
+import { Calendar, User, Crown } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Link } from "wouter";
@@ -49,6 +49,12 @@ export function Header() {
             <span className="text-sm text-muted-foreground">
               {formatTime(currentTime)}
             </span>
+            <Link href="/pricing">
+              <div className="px-3 py-1.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-medium rounded-md hover:from-purple-600 hover:to-pink-600 transition-colors flex items-center gap-1">
+                <Crown className="w-4 h-4" />
+                Upgrade
+              </div>
+            </Link>
             <ThemeToggle />
             <Link href="/">
               <div className="w-8 h-8 bg-accent rounded-full flex items-center justify-center cursor-pointer hover:bg-accent/80 transition-colors">

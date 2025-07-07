@@ -10,6 +10,7 @@ import Home from "@/pages/home";
 import About from "@/pages/about";
 import Contact from "@/pages/contact";
 import UserProfile from "@/pages/user-profile";
+import Pricing from "@/pages/pricing";
 import Forum from "@/pages/forum";
 import ForumAdmin from "@/pages/forum-admin";
 
@@ -19,6 +20,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/about" component={About} />
       <Route path="/contact" component={Contact} />
+      <Route path="/pricing" component={Pricing} />
       <Route path="/profile" component={UserProfile} />
       <Route path="/forum" component={Forum} />
       <Route path="/forum/admin" component={ForumAdmin} />

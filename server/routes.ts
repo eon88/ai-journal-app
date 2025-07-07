@@ -4,9 +4,17 @@ import { storage } from "./storage";
 import { insertJournalEntrySchema, type AIReflection, type WeeklyReflection, type MonthlyReflection, type JournalEntry, parseBulletSymbol } from "@shared/schema";
 import { z } from "zod";
 import OpenAI from "openai";
+import Stripe from "stripe";
 
 const openai = new OpenAI({ 
   apiKey: process.env.OPENAI_API_KEY || process.env.OPENAI_KEY || "default_key"
+});
+
+if (!process.env.STRIPE_SECRET_KEY) {
+  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+}
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  apiVersion: "2023-10-16",
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -727,6 +735,174 @@ Please provide a monthly reflection in JSON format with these fields:
         success: false, 
         message: "Failed to fetch settings" 
       });
+    }
+  });
+
+  // Account management routes
+  app.get("/api/account/status", async (req: Request, res: Response) => {
+    try {
+      // For now, return a mock free beta account
+      // In production, this would fetch from the user_accounts table
+      const account = {
+        id: 1,
+        email: "user@example.com",
+        name: "Beta User",
+        accountType: "free_beta",
+        subscriptionStatus: "active",
+        betaAccessGranted: true,
+        features: [
+          "Unlimited journal entries",
+          "AI-powered reflections",
+          "Weekly & monthly insights",
+          "Growth dashboard",
+          "Daily challenges",
+          "Community access",
+          "All beta features"
+        ]
+      };
+      
+      res.json({ success: true, account });
+    } catch (error) {
+      console.error("Account status error:", error);
+      res.status(500).json({ success: false, message: "Failed to fetch account status" });
+    }
+  });
+
+  // Get subscription plans
+  app.get("/api/subscription/plans", async (req: Request, res: Response) => {
+    try {
+      const plans = [
+        {
+          id: 1,
+          name: "Life Path Premium",
+          description: "Full access to all premium features and unlimited AI insights",
+          price: 997, // $9.97/month
+          currency: "usd",
+          interval: "month",
+          features: [
+            "Unlimited journal entries",
+            "Advanced AI insights & analysis",
+            "Weekly & monthly reflections",
+            "Priority customer support",
+            "Export & backup features",
+            "Advanced analytics dashboard",
+            "Community forum access",
+            "Daily challenges & goals",
+            "Merlin AI assistant"
+          ],
+          isActive: true,
+          popular: true
+        },
+        {
+          id: 2,
+          name: "Life Path Premium Annual",
+          description: "Full yearly access with 2 months free",
+          price: 9970, // $99.70/year (2 months free)
+          currency: "usd",
+          interval: "year",
+          features: [
+            "All Premium features",
+            "2 months free",
+            "Priority support",
+            "Early access to new features"
+          ],
+          isActive: true,
+          popular: false
+        }
+      ];
+      
+      res.json({ success: true, plans });
+    } catch (error) {
+      console.error("Plans fetch error:", error);
+      res.status(500).json({ success: false, message: "Failed to fetch subscription plans" });
+    }
+  });
+
+  // Create subscription checkout session
+  app.post("/api/subscription/create-checkout", async (req: Request, res: Response) => {
+    try {
+      const { planId } = req.body;
+      
+      // For demo purposes, use predefined price IDs
+      // In production, these would be stored in the subscription_plans table
+      const priceIds = {
+        1: "price_monthly", // Replace with actual Stripe price ID
+        2: "price_yearly"   // Replace with actual Stripe price ID
+      };
+      
+      if (!priceIds[planId as keyof typeof priceIds]) {
+        return res.status(400).json({ success: false, message: "Invalid plan ID" });
+      }
+      
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        line_items: [
+          {
+            price: priceIds[planId as keyof typeof priceIds],
+            quantity: 1,
+          },
+        ],
+        mode: 'subscription',
+        success_url: `${req.headers.origin}/user-profile?tab=account&success=true`,
+        cancel_url: `${req.headers.origin}/user-profile?tab=account&canceled=true`,
+        customer_email: "user@example.com", // Would get from authenticated user
+      });
+
+      res.json({ success: true, checkoutUrl: session.url });
+    } catch (error) {
+      console.error("Checkout creation error:", error);
+      res.status(500).json({ success: false, message: "Failed to create checkout session" });
+    }
+  });
+
+  // Handle Stripe webhooks
+  app.post("/api/webhooks/stripe", async (req: Request, res: Response) => {
+    try {
+      const sig = req.headers['stripe-signature'];
+      const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+      
+      if (!endpointSecret) {
+        console.warn("Stripe webhook secret not configured");
+        return res.status(400).send("Webhook secret not configured");
+      }
+
+      let event;
+      try {
+        event = stripe.webhooks.constructEvent(req.body, sig as string, endpointSecret);
+      } catch (err) {
+        console.error("Webhook signature verification failed:", err);
+        return res.status(400).send(`Webhook Error: ${err}`);
+      }
+
+      // Handle the event
+      switch (event.type) {
+        case 'customer.subscription.created':
+        case 'customer.subscription.updated':
+          const subscription = event.data.object;
+          console.log('Subscription updated:', subscription.id);
+          // Update user account in database
+          break;
+        case 'customer.subscription.deleted':
+          const deletedSubscription = event.data.object;
+          console.log('Subscription canceled:', deletedSubscription.id);
+          // Update user account status in database
+          break;
+        case 'invoice.payment_succeeded':
+          const invoice = event.data.object;
+          console.log('Payment succeeded:', invoice.id);
+          break;
+        case 'invoice.payment_failed':
+          const failedInvoice = event.data.object;
+          console.log('Payment failed:', failedInvoice.id);
+          break;
+        default:
+          console.log(`Unhandled event type ${event.type}`);
+      }
+
+      res.json({ received: true });
+    } catch (error) {
+      console.error("Webhook error:", error);
+      res.status(500).json({ success: false, message: "Webhook processing failed" });
     }
   });
 

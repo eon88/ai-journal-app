@@ -12,6 +12,7 @@ import { useUser } from "@/components/user-provider";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { useNotificationSettings } from "@/hooks/useNotificationSettings";
+import { SubscriptionManager } from "@/components/subscription-manager";
 
 export default function UserProfile() {
   const { userName, setUserName } = useUser();
@@ -132,9 +133,10 @@ export default function UserProfile() {
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
+            <TabsTrigger value="subscription">Subscription</TabsTrigger>
             <TabsTrigger value="data">Data</TabsTrigger>
             <TabsTrigger value="account">Account</TabsTrigger>
           </TabsList>
@@ -280,6 +282,11 @@ export default function UserProfile() {
             </Card>
           </TabsContent>
 
+          {/* Subscription Tab */}
+          <TabsContent value="subscription" className="space-y-6">
+            <SubscriptionManager />
+          </TabsContent>
+
           {/* Data Tab */}
           <TabsContent value="data" className="space-y-6">
             <Card className="glass-card">
@@ -373,7 +380,9 @@ export default function UserProfile() {
                   <label className="block text-sm font-medium text-muted-foreground mb-1">
                     Account Type
                   </label>
-                  <Badge variant="secondary">Free Account</Badge>
+                  <Badge variant="secondary" className="bg-gradient-to-r from-amber-500 to-orange-500 text-white">
+                    Free Beta Account
+                  </Badge>
                 </div>
               </CardContent>
             </Card>

@@ -78,12 +78,21 @@ The application uses a simple but effective schema:
 3. **Data Retrieval**: Frontend queries → Express API → Drizzle ORM → PostgreSQL → JSON response
 4. **Real-time Updates**: TanStack Query handles caching and automatic refetching
 
+### Subscription Features
+16. **Free Beta Accounts**: Users start with full access during beta period with all premium features unlocked at no cost
+17. **Premium Subscription Plans**: Monthly ($9.97) and yearly ($99.70 with 2 months free) premium plans with Stripe integration
+18. **Stripe Payment Processing**: Secure subscription management with automatic billing, webhooks, and checkout sessions
+19. **Account Type Management**: Dynamic account status tracking with beta access flags and subscription states
+20. **Pricing Page**: Comprehensive pricing showcase with plan comparisons, features, and upgrade flows
+21. **Subscription Dashboard**: User profile integration showing current plan, features, and upgrade options
+
 ## External Dependencies
 
 ### Core Dependencies
 - **@neondatabase/serverless**: PostgreSQL connection for serverless environments
 - **drizzle-orm**: Type-safe ORM for database operations
 - **OpenAI**: AI-powered journal analysis and insights
+- **Stripe**: Payment processing and subscription management
 - **@tanstack/react-query**: Server state management and caching
 - **wouter**: Lightweight routing library
 
@@ -109,6 +118,9 @@ The application uses a simple but effective schema:
 ### Environment Variables
 - `DATABASE_URL`: PostgreSQL connection string (required)
 - `OPENAI_API_KEY` or `OPENAI_KEY`: OpenAI API key for AI features
+- `STRIPE_SECRET_KEY`: Stripe secret key for payment processing
+- `VITE_STRIPE_PUBLIC_KEY`: Stripe publishable key for frontend integration
+- `STRIPE_WEBHOOK_SECRET`: Stripe webhook secret for secure event handling (optional)
 - `NODE_ENV`: Environment setting (development/production)
 
 ### Scripts
@@ -136,6 +148,7 @@ Changelog:
 - July 06, 2025. Life Path Discovery System - Implemented comprehensive 16-question onboarding questionnaire with FRAME→DESTINATION→MAP→COMPASS methodology, AI-powered Ikigai analysis, and beautiful progress-tracked UI that guides users through self-discovery before journaling begins
 - July 07, 2025. Footer Pages Implementation - Created comprehensive About Us, Contact Us, and User Profile pages with full content, navigation, and functionality
 - July 07, 2025. Security Enhancement - Removed journal export functionality from user profile and FAQ sections to prevent future security concerns and data management issues
+- July 07, 2025. Subscription System Implementation - Added Stripe integration with free beta accounts and paid premium plans. Created subscription management, pricing page, account type system, and upgrade flows with comprehensive database schema for user accounts and billing
 ```
 
 ## User Preferences

@@ -1,4 +1,4 @@
-import { pgTable, text, serial, timestamp, jsonb, integer, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, timestamp, jsonb, integer, boolean, varchar } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -158,6 +158,37 @@ export const savedInsights = pgTable("saved_insights", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// User accounts table for subscription management
+export const userAccounts = pgTable("user_accounts", {
+  id: serial("id").primaryKey(),
+  email: varchar("email", { length: 255 }).unique().notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  accountType: text("account_type").notNull().default("free_beta"), // 'free_beta', 'paid', 'trial'
+  subscriptionStatus: text("subscription_status").default("active"), // 'active', 'canceled', 'past_due', 'incomplete'
+  stripeCustomerId: varchar("stripe_customer_id", { length: 255 }),
+  stripeSubscriptionId: varchar("stripe_subscription_id", { length: 255 }),
+  subscriptionStartDate: timestamp("subscription_start_date"),
+  subscriptionEndDate: timestamp("subscription_end_date"),
+  trialEndDate: timestamp("trial_end_date"),
+  betaAccessGranted: boolean("beta_access_granted").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Subscription plans table
+export const subscriptionPlans = pgTable("subscription_plans", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  price: integer("price").notNull(), // price in cents
+  currency: text("currency").default("usd").notNull(),
+  interval: text("interval").notNull(), // 'month', 'year'
+  stripePriceId: varchar("stripe_price_id", { length: 255 }).notNull(),
+  features: text("features").array().notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export type UserStats = typeof userStats.$inferSelect;
 export type InsertUserStats = typeof userStats.$inferInsert;
 
@@ -169,6 +200,12 @@ export type InsertBadge = typeof badges.$inferInsert;
 
 export type DailyChallenge = typeof dailyChallenges.$inferSelect;
 export type InsertDailyChallenge = typeof dailyChallenges.$inferInsert;
+
+export type UserAccount = typeof userAccounts.$inferSelect;
+export type InsertUserAccount = typeof userAccounts.$inferInsert;
+
+export type SubscriptionPlan = typeof subscriptionPlans.$inferSelect;
+export type InsertSubscriptionPlan = typeof subscriptionPlans.$inferInsert;
 
 export interface GrowthMetrics {
   totalEntries: number;
