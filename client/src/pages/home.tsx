@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Header } from "@/components/header";
+import { Link } from "wouter";
 import { JournalEntryForm } from "@/components/journal-entry-form";
 
 import { RecentEntries } from "@/components/recent-entries";
@@ -82,6 +83,24 @@ export default function Home() {
         
         {/* Periodic Reflections */}
         <PeriodicReflections />
+        
+        {/* Community Link Section */}
+        <div className="text-center py-8">
+          <div className="glass-card-transparent rounded-xl p-8 max-w-md mx-auto">
+            <h3 className="text-xl font-semibold text-white mb-4">Join Our Community</h3>
+            <p className="text-gray-300 mb-6">
+              Connect with fellow journalers, share insights, and grow together on your life path journey.
+            </p>
+            <Link href="/forum">
+              <button className="bg-journal-primary hover:bg-journal-primary/90 text-white px-6 py-3 rounded-lg font-medium transition-colors inline-flex items-center gap-2">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2v-6a2 2 0 012-2h8z" />
+                </svg>
+                Visit Community Forum
+              </button>
+            </Link>
+          </div>
+        </div>
         
         {/* Growth Dashboard */}
         <GrowthDashboard />
