@@ -137,7 +137,9 @@ export function Header() {
               </Button>
             </div>
             <div className="p-4 h-full overflow-y-auto">
-              <MerlinAssistant />
+              <MerlinAssistant 
+                mobileMode={true}
+              />
             </div>
           </div>
         </div>

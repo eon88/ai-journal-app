@@ -19,11 +19,18 @@ interface MerlinProps {
   userMood?: string;
   hasJournalToday?: boolean;
   recentEntry?: string;
+  isOpen?: boolean;
+  onClose?: () => void;
+  mobileMode?: boolean; // When true, renders content directly without modal wrapper
 }
 
-export function MerlinAssistant({ userMood, hasJournalToday, recentEntry }: MerlinProps) {
+export function MerlinAssistant({ userMood, hasJournalToday, recentEntry, isOpen: externalIsOpen, onClose, mobileMode = false }: MerlinProps) {
   const { userName } = useUser();
-  const [isOpen, setIsOpen] = useState(false);
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
+  
+  // Use external isOpen if provided, otherwise use internal state
+  const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
+  const setIsOpen = onClose ? (open: boolean) => !open && onClose() : setInternalIsOpen;
   const [selectedMode, setSelectedMode] = useState<string | null>(null);
   const [customQuestion, setCustomQuestion] = useState("");
   const [showCustomInput, setShowCustomInput] = useState(false);
@@ -118,12 +125,152 @@ export function MerlinAssistant({ userMood, hasJournalToday, recentEntry }: Merl
     return tips[Math.floor(Math.random() * tips.length)];
   };
 
+  // Mobile content without modal wrapper
+  const MerlinContent = () => (
+    <div className="space-y-4">
+      <div className="text-center">
+        <img 
+          src={merlinWizardImage} 
+          alt="Merlin" 
+          className="w-16 h-16 object-cover rounded-full border-2 border-purple-300 mx-auto mb-2"
+        />
+        <h3 className="text-lg font-serif text-amber-800 dark:text-amber-200">Merlin the Wise</h3>
+        <p className="text-sm text-amber-600 dark:text-amber-400 italic">
+          "What wisdom do you seek today?"
+        </p>
+      </div>
+
+      {!selectedMode && !merlinMutation.data && (
+        <div className="space-y-3">
+          {/* Daily Wisdom Button */}
+          <Button
+            onClick={() => handleModeSelect("daily-wisdom")}
+            disabled={merlinMutation.isPending || dailyWisdomUsed}
+            className="w-full justify-start bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+          >
+            <Sparkles className="w-4 h-4 mr-2" />
+            {dailyWisdomUsed ? "Daily Prophecy Received" : "Daily Prophecy"}
+          </Button>
+
+          {/* Other Mode Buttons */}
+          <Button
+            onClick={() => handleModeSelect("reflection")}
+            disabled={merlinMutation.isPending}
+            variant="outline"
+            className="w-full justify-start"
+          >
+            <Scroll className="w-4 h-4 mr-2" />
+            Deep Reflection
+          </Button>
+
+          <Button
+            onClick={() => handleModeSelect("goal-alignment")}
+            disabled={merlinMutation.isPending}
+            variant="outline"
+            className="w-full justify-start"
+          >
+            <Compass className="w-4 h-4 mr-2" />
+            Path Alignment
+          </Button>
+
+          <Button
+            onClick={() => setShowCustomInput(true)}
+            disabled={merlinMutation.isPending}
+            variant="outline"
+            className="w-full justify-start"
+          >
+            <Send className="w-4 h-4 mr-2" />
+            Ask Anything
+          </Button>
+        </div>
+      )}
+
+      {showCustomInput && !selectedMode && (
+        <div className="space-y-3">
+          <Textarea
+            placeholder="What wisdom do you seek today?"
+            value={customQuestion}
+            onChange={(e) => setCustomQuestion(e.target.value)}
+            className="bg-white/50 dark:bg-black/20 border-amber-300"
+            rows={3}
+          />
+          <div className="flex gap-2">
+            <Button
+              onClick={handleCustomQuestion}
+              disabled={!customQuestion.trim() || merlinMutation.isPending}
+              className="flex-1"
+            >
+              <Send className="w-4 h-4 mr-2" />
+              Consult Merlin
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setShowCustomInput(false)}
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {merlinMutation.isPending && (
+        <div className="text-center py-6">
+          <Gem className="w-8 h-8 mx-auto animate-spin text-purple-600 mb-2" />
+          <p className="text-sm text-amber-600 dark:text-amber-400 italic">
+            Merlin consults the mystical forces...
+          </p>
+        </div>
+      )}
+
+      {merlinMutation.data && (
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 text-sm text-amber-700 dark:text-amber-300">
+            {getModeIcon(selectedMode || "custom")}
+            <span className="font-medium">
+              {getModeTitle(selectedMode || "custom")}
+            </span>
+          </div>
+          
+          <div className="bg-white/60 dark:bg-black/20 p-4 rounded-lg border border-amber-200 dark:border-amber-700">
+            <p className="text-amber-800 dark:text-amber-200 leading-relaxed font-serif">
+              {merlinMutation.data.message}
+            </p>
+          </div>
+
+          <Button
+            onClick={() => {
+              setSelectedMode(null);
+              merlinMutation.reset();
+            }}
+            variant="outline"
+            className="w-full"
+          >
+            Seek More Wisdom
+          </Button>
+        </div>
+      )}
+
+      {merlinMutation.error && (
+        <div className="bg-red-50 dark:bg-red-950 p-3 rounded-lg border border-red-200 dark:border-red-800">
+          <p className="text-red-700 dark:text-red-300 text-sm">
+            "The mystical connection falters... Please try again, {userName || 'friend'}."
+          </p>
+        </div>
+      )}
+    </div>
+  );
+
+  // If in mobile mode, render content directly
+  if (mobileMode) {
+    return <MerlinContent />;
+  }
+
   return (
     <>
-      {/* Floating Merlin Avatar */}
-      <div className="fixed top-6 right-6 z-50">
+      {/* Floating Merlin Avatar - Hidden on mobile devices */}
+      <div className="fixed top-6 right-6 z-50 hidden md:block">
         <Button
-          onClick={() => setIsOpen(true)}
+          onClick={() => setInternalIsOpen(true)}
           className="w-20 h-20 rounded-full p-1 bg-gradient-to-br from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg transition-all duration-300 hover:scale-110 border-2 border-purple-300/50 overflow-hidden"
           title={getRandomHoverTip()}
         >
@@ -140,8 +287,8 @@ export function MerlinAssistant({ userMood, hasJournalToday, recentEntry }: Merl
         </Button>
       </div>
 
-      {/* Merlin Dialog Window */}
-      {isOpen && (
+      {/* Merlin Dialog Window - Only show when not externally controlled */}
+      {isOpen && externalIsOpen === undefined && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <Card className="w-full max-w-md bg-gradient-to-b from-amber-50 to-orange-50 dark:from-amber-950 dark:to-orange-950 border-2 border-amber-200 dark:border-amber-800 shadow-2xl">
             <CardHeader className="relative pb-2">
