@@ -11,7 +11,7 @@ import About from "@/pages/about";
 import Contact from "@/pages/contact";
 import UserProfile from "@/pages/user-profile";
 import Forum from "@/pages/forum";
-
+import ForumAdmin from "@/pages/forum-admin";
 
 function Router() {
   return (
@@ -21,6 +21,7 @@ function Router() {
       <Route path="/contact" component={Contact} />
       <Route path="/profile" component={UserProfile} />
       <Route path="/forum" component={Forum} />
+      <Route path="/forum/admin" component={ForumAdmin} />
       <Route component={NotFound} />
     </Switch>
   );

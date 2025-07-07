@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { MessageSquare, Users, TrendingUp, Clock, Search, Plus, Pin, Heart, Reply } from "lucide-react";
+import { MessageSquare, Users, TrendingUp, Clock, Search, Plus, Pin, Heart, Reply, Shield } from "lucide-react";
 
 export default function Forum() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -171,10 +171,20 @@ export default function Forum() {
                 className="pl-10 bg-gray-800 border-gray-600 text-white"
               />
             </div>
-            <Button className="bg-journal-primary hover:bg-indigo-700">
-              <Plus className="w-4 h-4 mr-2" />
-              New Discussion
-            </Button>
+            <div className="flex gap-2">
+              <Button className="bg-journal-primary hover:bg-indigo-700">
+                <Plus className="w-4 h-4 mr-2" />
+                New Discussion
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => window.location.href = '/forum/admin'}
+                className="border-journal-primary text-journal-primary hover:bg-journal-primary/10"
+              >
+                <Shield className="w-4 h-4 mr-2" />
+                Admin
+              </Button>
+            </div>
           </div>
 
           {/* Forum Stats */}
