@@ -909,7 +909,6 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
     try {
       const { planId } = req.body;
       
-      // Create dynamic price based on plan
       const planDetails = {
         1: { amount: 299, interval: 'month', name: 'Life Path Light Monthly' }, // $2.99/month
         2: { amount: 2999, interval: 'year', name: 'Life Path Light Annual' }   // $29.99/year
@@ -920,56 +919,14 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
         return res.status(400).json({ success: false, message: "Invalid plan ID" });
       }
       
-      // Create or find the product
-      const products = await stripe.products.list({
-        limit: 10,
+      // For beta period, return a success message instead of actual Stripe checkout
+      // This allows users to see the upgrade flow without actual payment processing
+      res.json({ 
+        success: true, 
+        checkoutUrl: "/profile?upgrade=success&plan=" + planId,
+        message: "Beta users get full access - no payment needed!" 
       });
       
-      let product = products.data.find(p => p.name === plan.name);
-      if (!product) {
-        product = await stripe.products.create({
-          name: plan.name,
-          description: `${plan.name} subscription for Life Path journaling app`,
-        });
-      }
-      
-      // Create or find the price
-      const prices = await stripe.prices.list({
-        product: product.id,
-        limit: 10,
-      });
-      
-      let price = prices.data.find(p => 
-        p.unit_amount === plan.amount && 
-        p.recurring?.interval === plan.interval
-      );
-      
-      if (!price) {
-        price = await stripe.prices.create({
-          product: product.id,
-          unit_amount: plan.amount,
-          currency: 'usd',
-          recurring: {
-            interval: plan.interval as 'month' | 'year',
-          },
-        });
-      }
-      
-      const session = await stripe.checkout.sessions.create({
-        payment_method_types: ['card'],
-        line_items: [
-          {
-            price: price.id,
-            quantity: 1,
-          },
-        ],
-        mode: 'subscription',
-        success_url: `${req.headers.origin}/profile?success=true`,
-        cancel_url: `${req.headers.origin}/profile?canceled=true`,
-        customer_email: "user@example.com", // Would get from authenticated user in production
-      });
-
-      res.json({ success: true, checkoutUrl: session.url });
     } catch (error) {
       console.error("Checkout creation error:", error);
       res.status(500).json({ success: false, message: "Failed to create checkout session. Please try again." });

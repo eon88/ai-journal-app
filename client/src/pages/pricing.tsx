@@ -36,8 +36,20 @@ export default function Pricing() {
       return response.json();
     },
     onSuccess: (data) => {
-      if (data.success && data.checkoutUrl) {
-        window.location.href = data.checkoutUrl;
+      if (data.success) {
+        if (data.checkoutUrl.startsWith('http')) {
+          // External Stripe checkout URL
+          window.location.href = data.checkoutUrl;
+        } else {
+          // Internal redirect for beta users
+          toast({
+            title: "Beta Access Active",
+            description: data.message || "You already have full access during beta!",
+            variant: "default",
+          });
+          // Redirect to profile with success message
+          window.location.href = data.checkoutUrl;
+        }
       }
     },
     onError: (error) => {
