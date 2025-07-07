@@ -82,8 +82,8 @@ export default function Contact() {
       answer: "Our AI uses OpenAI's GPT-4o to analyze patterns in your entries and provide insights. The analysis happens securely and your data is processed according to strict privacy guidelines."
     },
     {
-      question: "Can I export my journal entries?",
-      answer: "Yes! You can export all your entries at any time. We believe your data belongs to you, and you should always have access to it."
+      question: "How long are my entries stored?",
+      answer: "Your journal entries are stored securely for as long as you maintain your account. You have full control over your data and can delete entries individually if needed."
     },
     {
       question: "Do I need to journal every day?",

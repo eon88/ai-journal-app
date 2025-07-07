@@ -132,6 +132,8 @@ Changelog:
 - July 06, 2025. Enhanced Merlin Practicality - Updated Merlin AI assistant to provide concrete, actionable advice while maintaining mystical personality. Now gives specific techniques, time frames, and practical steps instead of purely metaphorical responses
 - July 06, 2025. Dark Mode Accessibility Fix - Fixed visibility issues in mood selection dropdown and tag input fields for dark mode, ensuring proper text contrast and readability across all interactive elements
 - July 06, 2025. Life Path Discovery System - Implemented comprehensive 16-question onboarding questionnaire with FRAME→DESTINATION→MAP→COMPASS methodology, AI-powered Ikigai analysis, and beautiful progress-tracked UI that guides users through self-discovery before journaling begins
+- July 07, 2025. Footer Pages Implementation - Created comprehensive About Us, Contact Us, and User Profile pages with full content, navigation, and functionality
+- July 07, 2025. Security Enhancement - Removed journal export functionality from user profile and FAQ sections to prevent future security concerns and data management issues
 ```
 
 ## User Preferences

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
-import { User, Edit3, Download, Trash2, Shield, Bell, Palette, Save } from "lucide-react";
+import { User, Edit3, Trash2, Shield, Bell, Palette, Save } from "lucide-react";
 import { useUser } from "@/components/user-provider";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
@@ -56,13 +56,7 @@ export default function UserProfile() {
     });
   };
 
-  const handleExportData = () => {
-    toast({
-      title: "Export Started",
-      description: "Your journal data export will be ready shortly.",
-    });
-    // In a real implementation, this would trigger an actual export
-  };
+
 
   const handleDeleteAccount = () => {
     toast({
@@ -276,22 +270,32 @@ export default function UserProfile() {
             <Card className="glass-card">
               <CardHeader>
                 <CardTitle className="text-white flex items-center gap-2">
-                  <Download className="w-5 h-5" />
-                  Export Your Data
+                  <Shield className="w-5 h-5" />
+                  Data Management
                 </CardTitle>
                 <CardDescription className="text-gray-300">
-                  Download all your journal entries and insights
+                  Information about your data and storage
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-gray-300 mb-4">
-                  Export all your journal entries, reflections, and insights in JSON format. 
-                  This includes your complete journaling history and metadata.
+                  Your journal entries and personal reflections are stored securely in our encrypted database. 
+                  You maintain full ownership and control over your data at all times.
                 </p>
-                <Button onClick={handleExportData} className="bg-journal-primary hover:bg-indigo-700">
-                  <Download className="w-4 h-4 mr-2" />
-                  Export All Data
-                </Button>
+                <div className="space-y-3 text-gray-300">
+                  <div className="flex items-start gap-3">
+                    <div className="w-2 h-2 bg-journal-primary rounded-full mt-2"></div>
+                    <div>All entries are encrypted at rest and in transit</div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-2 h-2 bg-journal-primary rounded-full mt-2"></div>
+                    <div>Data is backed up regularly for reliability</div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-2 h-2 bg-journal-primary rounded-full mt-2"></div>
+                    <div>You can delete individual entries anytime</div>
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
