@@ -1,7 +1,14 @@
-import { Calendar, User, Crown } from "lucide-react";
+import { Calendar, User, Crown, LogOut, UserCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Link } from "wouter";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export function Header() {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -51,11 +58,35 @@ export function Header() {
             </span>
 {/* Upgrade button temporarily hidden - payment system is properly configured but in test mode */}
             <ThemeToggle />
-            <Link href="/">
-              <div className="w-8 h-8 bg-accent rounded-full flex items-center justify-center cursor-pointer hover:bg-accent/80 transition-colors">
-                <User className="text-accent-foreground text-sm" />
-              </div>
-            </Link>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <div className="w-8 h-8 bg-accent rounded-full flex items-center justify-center cursor-pointer hover:bg-accent/80 transition-colors">
+                  <User className="text-accent-foreground text-sm" />
+                </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <Link href="/profile">
+                  <DropdownMenuItem className="cursor-pointer">
+                    <UserCircle className="mr-2 h-4 w-4" />
+                    Profile
+                  </DropdownMenuItem>
+                </Link>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  className="cursor-pointer text-red-600 focus:text-red-600"
+                  onClick={() => {
+                    // Clear any stored user data
+                    localStorage.removeItem('premium_user');
+                    localStorage.removeItem('user_name');
+                    // Redirect to logout endpoint or home page
+                    window.location.href = '/api/logout';
+                  }}
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>

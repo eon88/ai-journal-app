@@ -18,6 +18,13 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Logout endpoint
+  app.get("/api/logout", async (req, res) => {
+    // Simple logout - redirect to home page
+    // In a real app with sessions, this would clear session data
+    res.redirect('/');
+  });
+
   // Get recent journal entries
   app.get("/api/entries", async (req, res) => {
     try {
