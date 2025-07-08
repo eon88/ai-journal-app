@@ -133,6 +133,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update questionnaire completion status
+  app.post('/api/questionnaire/complete', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const user = await storage.updateQuestionnaireCompletion(userId, true);
+      if (user) {
+        const { passwordHash: _, ...userResponse } = user;
+        res.json(userResponse);
+      } else {
+        res.status(404).json({ message: "User not found" });
+      }
+    } catch (error) {
+      console.error("Error updating questionnaire completion:", error);
+      res.status(500).json({ message: "Failed to update questionnaire completion" });
+    }
+  });
+
   // Get recent journal entries (protected)
   app.get("/api/entries", isAuthenticated, async (req: any, res) => {
     try {

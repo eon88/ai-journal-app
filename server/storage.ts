@@ -85,6 +85,7 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   updateUserRole(userId: number, role: string): Promise<User | undefined>;
   isUserAdmin(userId: number): Promise<boolean>;
+  updateQuestionnaireCompletion(userId: number, completed: boolean): Promise<User | undefined>;
   
   // Forum operations
   getForumCategories(): Promise<ForumCategory[]>;
@@ -776,6 +777,15 @@ export class DatabaseStorage implements IStorage {
       activeMembers: membersCount.count,
       onlineNow: Math.floor(membersCount.count * 0.05) // Simulate online users
     };
+  }
+
+  async updateQuestionnaireCompletion(userId: number, completed: boolean): Promise<User | undefined> {
+    const [user] = await db
+      .update(users)
+      .set({ hasCompletedQuestionnaire: completed })
+      .where(eq(users.id, userId))
+      .returning();
+    return user;
   }
 }
 

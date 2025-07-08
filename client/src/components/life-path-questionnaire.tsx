@@ -122,9 +122,19 @@ export function LifePathQuestionnaire({ onComplete, onSkip }: LifePathQuestionna
       console.log("Analysis result received:", result);
       return result;
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       setIkigaiResults(data.ikigaiAnalysis);
       setShowResults(true);
+      
+      // Mark questionnaire as completed in database
+      try {
+        await apiRequest("/api/questionnaire/complete", "POST");
+        // Invalidate user query to refresh questionnaire completion status
+        queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      } catch (error) {
+        console.error("Failed to mark questionnaire as completed:", error);
+      }
+      
       // Invalidate relevant queries to refresh data
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
     },
@@ -304,7 +314,15 @@ export function LifePathQuestionnaire({ onComplete, onSkip }: LifePathQuestionna
             <div className="flex items-center justify-between mb-4">
               <Button 
                 variant="ghost" 
-                onClick={onSkip}
+                onClick={async () => {
+                  try {
+                    await apiRequest("/api/questionnaire/complete", "POST");
+                    queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+                  } catch (error) {
+                    console.error("Failed to mark questionnaire as completed:", error);
+                  }
+                  onSkip();
+                }}
                 className="text-gray-500 hover:text-gray-700 dark:text-white-strong dark:hover:text-white dark:hover:bg-white/10"
               >
                 Skip for now

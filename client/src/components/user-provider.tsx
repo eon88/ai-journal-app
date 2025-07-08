@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 type UserContextType = {
   userName: string;
@@ -15,10 +16,21 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     return localStorage.getItem("userName") || "";
   });
 
-  const [hasCompletedQuestionnaire, setHasCompletedQuestionnaire] = useState(() => {
-    // Check localStorage for questionnaire completion
-    return localStorage.getItem("hasCompletedQuestionnaire") === "true";
+  const [hasCompletedQuestionnaire, setHasCompletedQuestionnaire] = useState(false);
+
+  // Fetch current user data to get questionnaire completion status
+  const { data: user } = useQuery({
+    queryKey: ["/api/auth/user"],
+    retry: false,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
+
+  // Update questionnaire status from database when user data loads
+  useEffect(() => {
+    if (user && typeof user.hasCompletedQuestionnaire === 'boolean') {
+      setHasCompletedQuestionnaire(user.hasCompletedQuestionnaire);
+    }
+  }, [user]);
 
   useEffect(() => {
     // Save to localStorage whenever userName changes
@@ -26,11 +38,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem("userName", userName);
     }
   }, [userName]);
-
-  useEffect(() => {
-    // Save questionnaire completion status
-    localStorage.setItem("hasCompletedQuestionnaire", hasCompletedQuestionnaire.toString());
-  }, [hasCompletedQuestionnaire]);
 
   const value = {
     userName,
