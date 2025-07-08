@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import { UserProvider } from "@/components/user-provider";
+import { ScrollToTopButton } from "@/components/scroll-to-top-button";
 import { useAuth } from "@/hooks/useAuth";
 import { useScrollToTop } from "@/hooks/useScrollToTop";
 import NotFound from "@/pages/not-found";
@@ -57,6 +58,7 @@ function App() {
           <TooltipProvider>
             <Toaster />
             <Router />
+            <ScrollToTopButton />
           </TooltipProvider>
         </UserProvider>
       </ThemeProvider>
