@@ -135,10 +135,12 @@ export default function Landing() {
             <div className="mt-6">
               <Button 
                 onClick={() => window.location.href = '/register'}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-lg rounded-lg font-medium"
+                className="w-full max-w-md mx-auto bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-12 py-6 text-xl rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 border-2 border-blue-500/30"
               >
-                Start journaling with purpose.<br />
-                Your castle is waiting.
+                <div className="leading-relaxed">
+                  Start journaling with purpose.<br />
+                  Your castle is waiting.
+                </div>
               </Button>
             </div>
           </div>
