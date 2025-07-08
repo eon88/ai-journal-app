@@ -168,9 +168,10 @@ export default function UserProfile() {
           </div>
         </div>
 
-        <Tabs defaultValue="overview" className="space-y-0">
-          <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm pb-4 mb-8">
-            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-1 p-1">
+        <Tabs defaultValue="overview" className="space-y-6">
+          {/* Tab Navigation */}
+          <div className="bg-white dark:bg-black border border-gray-200 dark:border-gray-700 rounded-lg p-2 shadow-sm">
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-1 p-1 bg-gray-50 dark:bg-gray-800">
               <TabsTrigger value="overview" className="text-xs sm:text-sm px-2 py-3">Overview</TabsTrigger>
               <TabsTrigger value="analysis" className="text-xs sm:text-sm px-2 py-3">Analysis</TabsTrigger>
               <TabsTrigger value="goals" className="text-xs sm:text-sm px-2 py-3">Goals</TabsTrigger>
@@ -179,12 +180,13 @@ export default function UserProfile() {
               <TabsTrigger value="data" className="text-xs sm:text-sm px-2 py-3">Data</TabsTrigger>
               <TabsTrigger value="account" className="text-xs sm:text-sm px-2 py-3">Account</TabsTrigger>
             </TabsList>
-            {/* Visual separator */}
-            <div className="w-full h-px bg-border/50 mt-4"></div>
           </div>
+          
+          {/* Tab Content Container */}
+          <div className="bg-white dark:bg-black border border-gray-200 dark:border-gray-700 rounded-lg p-4 sm:p-6 shadow-sm min-h-[500px]">
 
-          {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-4 sm:space-y-6 relative z-0">
+            {/* Overview Tab */}
+            <TabsContent value="overview" className="space-y-4 sm:space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
               <Card className="glass-card">
                 <CardContent className="p-3 sm:p-6 text-center">
@@ -240,8 +242,8 @@ export default function UserProfile() {
             </Card>
           </TabsContent>
 
-          {/* AI Analysis Tab */}
-          <TabsContent value="analysis" className="space-y-4 sm:space-y-6 relative z-0">
+            {/* AI Analysis Tab */}
+            <TabsContent value="analysis" className="space-y-4 sm:space-y-6">
             <Card className="glass-card">
               <CardHeader>
                 <CardTitle className="text-foreground flex items-center gap-2">
@@ -258,13 +260,13 @@ export default function UserProfile() {
             </Card>
           </TabsContent>
 
-          {/* Goals Tab */}
-          <TabsContent value="goals" className="space-y-4 sm:space-y-6 relative z-0">
+            {/* Goals Tab */}
+            <TabsContent value="goals" className="space-y-4 sm:space-y-6">
             <GoalsManager />
           </TabsContent>
 
-          {/* Settings Tab */}
-          <TabsContent value="settings" className="space-y-4 sm:space-y-6 relative z-0">
+            {/* Settings Tab */}
+            <TabsContent value="settings" className="space-y-4 sm:space-y-6">
             <Card className="glass-card">
               <CardHeader>
                 <CardTitle className="text-foreground flex items-center gap-2">
@@ -347,13 +349,13 @@ export default function UserProfile() {
             </Card>
           </TabsContent>
 
-          {/* Subscription Tab */}
-          <TabsContent value="subscription" className="space-y-4 sm:space-y-6 relative z-0">
+            {/* Subscription Tab */}
+            <TabsContent value="subscription" className="space-y-4 sm:space-y-6">
             <SubscriptionManager />
           </TabsContent>
 
-          {/* Data Tab */}
-          <TabsContent value="data" className="space-y-4 sm:space-y-6 relative z-0">
+            {/* Data Tab */}
+            <TabsContent value="data" className="space-y-4 sm:space-y-6">
             <Card className="glass-card">
               <CardHeader>
                 <CardTitle className="text-foreground flex items-center gap-2">
@@ -417,8 +419,8 @@ export default function UserProfile() {
             </Card>
           </TabsContent>
 
-          {/* Account Tab */}
-          <TabsContent value="account" className="space-y-4 sm:space-y-6 relative z-0">
+            {/* Account Tab */}
+            <TabsContent value="account" className="space-y-4 sm:space-y-6">
             <Card className="glass-card">
               <CardHeader>
                 <CardTitle className="text-foreground">Account Information</CardTitle>
@@ -478,6 +480,7 @@ export default function UserProfile() {
               </CardContent>
             </Card>
           </TabsContent>
+          </div>
         </Tabs>
       </main>
 

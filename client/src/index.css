@@ -387,33 +387,21 @@
       padding: 1rem !important;
     }
     
-    /* Mobile tab fixes */
+    /* Mobile tab content fixes - cleaner approach */
     [role="tabpanel"] {
-      position: relative;
-      z-index: 1;
-      background: rgba(255, 255, 255, 0.98) !important;
-      border-radius: 8px;
-      padding: 1rem !important;
-      margin-top: 0 !important;
-      min-height: 60vh;
+      padding: 0 !important;
+      margin: 0 !important;
     }
     
-    .dark [role="tabpanel"] {
-      background: rgba(0, 0, 0, 0.95) !important;
-    }
-    
-    /* Tab trigger container */
+    /* Enhanced mobile tab navigation */
     [role="tablist"] {
-      position: relative;
-      z-index: 10;
-      background: rgba(255, 255, 255, 0.98) !important;
-      border-radius: 8px;
-      padding: 0.5rem !important;
-      margin-bottom: 1rem !important;
+      background: rgba(249, 250, 251, 1) !important;
+      border: 1px solid rgba(229, 231, 235, 1) !important;
     }
     
     .dark [role="tablist"] {
-      background: rgba(0, 0, 0, 0.95) !important;
+      background: rgba(31, 41, 55, 1) !important;
+      border: 1px solid rgba(75, 85, 99, 1) !important;
     }
     
     /* Better visibility for header text on mobile */
