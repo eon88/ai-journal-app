@@ -119,7 +119,7 @@ export function JournalEntryForm() {
             onChange={(e) => setEntry(e.target.value)}
             placeholder="Write about your day, thoughts, goals, or anything that comes to mind. The AI will help you reflect on your entry..."
             rows={12}
-            className="w-full p-4 border border-journal-border rounded-lg focus:ring-2 focus:ring-journal-primary focus:border-transparent resize-none text-journal-text placeholder-gray-400 leading-relaxed"
+            className="w-full p-4 border border-journal-border rounded-lg focus:ring-2 focus:ring-journal-primary focus:border-transparent resize-none text-white placeholder-gray-400 leading-relaxed bg-transparent"
           />
           <div className="absolute bottom-3 right-3 text-xs text-gray-400">
             {entry.length} characters
