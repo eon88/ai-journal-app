@@ -1,6 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 
+const scrollToTop = () => {
+  window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+};
+
 export function Footer() {
   return (
     <footer className="glass-overlay border-t border-border mt-16">
@@ -8,17 +12,32 @@ export function Footer() {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-6 text-sm text-gray-600 dark:text-gray-500">
             <Link href="/profile">
-              <Button variant="ghost" size="sm" className="hover:text-journal-primary text-gray-700 dark:text-gray-300">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="hover:text-journal-primary text-gray-700 dark:text-gray-300"
+                onClick={scrollToTop}
+              >
                 User Profile
               </Button>
             </Link>
             <Link href="/contact">
-              <Button variant="ghost" size="sm" className="hover:text-journal-primary text-gray-700 dark:text-gray-300">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="hover:text-journal-primary text-gray-700 dark:text-gray-300"
+                onClick={scrollToTop}
+              >
                 Contact Us
               </Button>
             </Link>
             <Link href="/about">
-              <Button variant="ghost" size="sm" className="hover:text-journal-primary text-gray-700 dark:text-gray-300">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="hover:text-journal-primary text-gray-700 dark:text-gray-300"
+                onClick={scrollToTop}
+              >
                 About Us
               </Button>
             </Link>

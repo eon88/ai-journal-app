@@ -68,7 +68,10 @@ export function Header() {
 {/* Upgrade button temporarily hidden - payment system is properly configured but in test mode */}
             <ThemeToggle />
             <Link href="/">
-              <div className="w-8 h-8 bg-accent rounded-full flex items-center justify-center cursor-pointer hover:bg-accent/80 transition-colors">
+              <div 
+                className="w-8 h-8 bg-accent rounded-full flex items-center justify-center cursor-pointer hover:bg-accent/80 transition-colors"
+                onClick={() => window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })}
+              >
                 <Home className="text-accent-foreground text-sm" />
               </div>
             </Link>
