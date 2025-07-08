@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
-import { User, Edit3, Trash2, Shield, Bell, Palette, Save, Target } from "lucide-react";
+import { User, Edit3, Trash2, Shield, Bell, Palette, Save, Target, Compass } from "lucide-react";
 import { useUser } from "@/components/user-provider";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
@@ -187,6 +187,30 @@ export default function UserProfile() {
 
             {/* Overview Tab */}
             <TabsContent value="overview" className="space-y-4 sm:space-y-6">
+            
+            {/* Life Path Questionnaire Link */}
+            <Card className="glass-card bg-gradient-to-r from-journal-primary/5 to-journal-secondary/5 border-journal-primary/20">
+              <CardContent className="p-4 sm:p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-journal-primary/10 rounded-lg">
+                      <Compass className="w-6 h-6 text-journal-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-foreground">Life Path Discovery</h3>
+                      <p className="text-sm text-muted-foreground">Take the questionnaire to discover your unique path</p>
+                    </div>
+                  </div>
+                  <Button 
+                    onClick={() => window.location.href = '/questionnaire'}
+                    className="bg-journal-primary hover:bg-journal-primary/90 text-white"
+                  >
+                    Start Journey
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+            
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
               <Card className="glass-card">
                 <CardContent className="p-3 sm:p-6 text-center">
