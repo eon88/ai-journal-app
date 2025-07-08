@@ -37,7 +37,7 @@ export function BadgeShowcase() {
   const lockedBadges = badges.filter(badge => !badge.unlockedAt);
 
   return (
-    <div className="glass-card-transparent rounded-xl shadow-sm p-6">
+    <div className="glass-card-transparent rounded-xl shadow-sm p-6 pb-8 min-h-fit h-auto overflow-hidden">
       <div className="mb-6">
         <h3 className="text-lg font-semibold text-white flex items-center gap-2">
           <Trophy className="h-5 w-5" />
@@ -47,19 +47,19 @@ export function BadgeShowcase() {
           {unlockedBadges.length} of {badges.length} badges unlocked
         </p>
       </div>
-      <div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="w-full">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
           {/* Unlocked Badges */}
-          <div>
+          <div className="w-full">
             <h4 className="font-medium text-sm text-white/80 mb-3 flex items-center gap-2">
               <Star className="h-4 w-4" />
               Unlocked ({unlockedBadges.length})
             </h4>
-            <div className="space-y-2">
+            <div className="space-y-2 w-full">
               {unlockedBadges.map((badge) => (
                 <div
                   key={badge.id}
-                  className="flex items-center gap-3 p-3 rounded-lg border bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20"
+                  className="flex items-center gap-3 p-3 rounded-lg border bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 w-full"
                 >
                   <div className="text-2xl">{badge.icon}</div>
                   <div className="flex-1">
@@ -84,16 +84,16 @@ export function BadgeShowcase() {
           </div>
 
           {/* Locked Badges */}
-          <div>
+          <div className="w-full">
             <h4 className="font-medium text-sm text-white/80 mb-3 flex items-center gap-2">
               <Lock className="h-4 w-4" />
               Locked ({lockedBadges.length})
             </h4>
-            <div className="space-y-2">
+            <div className="space-y-2 w-full">
               {lockedBadges.map((badge) => (
                 <div
                   key={badge.id}
-                  className="flex items-center gap-3 p-3 rounded-lg border bg-muted/30 opacity-60"
+                  className="flex items-center gap-3 p-3 rounded-lg border bg-muted/30 opacity-60 w-full"
                 >
                   <div className="text-2xl grayscale">{badge.icon}</div>
                   <div className="flex-1">
