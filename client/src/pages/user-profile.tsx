@@ -168,43 +168,43 @@ export default function UserProfile() {
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-7">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="analysis">AI Analysis</TabsTrigger>
-            <TabsTrigger value="goals">Goals</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
-            <TabsTrigger value="subscription">Subscription</TabsTrigger>
-            <TabsTrigger value="data">Data</TabsTrigger>
-            <TabsTrigger value="account">Account</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-1">
+            <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
+            <TabsTrigger value="analysis" className="text-xs sm:text-sm">AI Analysis</TabsTrigger>
+            <TabsTrigger value="goals" className="text-xs sm:text-sm">Goals</TabsTrigger>
+            <TabsTrigger value="settings" className="text-xs sm:text-sm">Settings</TabsTrigger>
+            <TabsTrigger value="subscription" className="text-xs sm:text-sm">Subscription</TabsTrigger>
+            <TabsTrigger value="data" className="text-xs sm:text-sm">Data</TabsTrigger>
+            <TabsTrigger value="account" className="text-xs sm:text-sm">Account</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <TabsContent value="overview" className="space-y-4 sm:space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
               <Card className="glass-card">
-                <CardContent className="p-6 text-center">
-                  <div className="text-2xl font-bold text-journal-primary mb-1">
+                <CardContent className="p-4 sm:p-6 text-center">
+                  <div className="text-xl sm:text-2xl font-bold text-journal-primary mb-1">
                     {userStats?.totalEntries || 0}
                   </div>
-                  <div className="text-sm text-gray-300">Journal Entries</div>
+                  <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">Journal Entries</div>
                 </CardContent>
               </Card>
               
               <Card className="glass-card">
-                <CardContent className="p-6 text-center">
-                  <div className="text-2xl font-bold text-journal-primary mb-1">
+                <CardContent className="p-4 sm:p-6 text-center">
+                  <div className="text-xl sm:text-2xl font-bold text-journal-primary mb-1">
                     {userStats?.currentStreak || 0}
                   </div>
-                  <div className="text-sm text-gray-300">Current Streak</div>
+                  <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">Current Streak</div>
                 </CardContent>
               </Card>
               
               <Card className="glass-card">
-                <CardContent className="p-6 text-center">
-                  <div className="text-2xl font-bold text-journal-primary mb-1">
+                <CardContent className="p-4 sm:p-6 text-center">
+                  <div className="text-xl sm:text-2xl font-bold text-journal-primary mb-1">
                     {totalWords.toLocaleString()}
                   </div>
-                  <div className="text-sm text-gray-300">Words Written</div>
+                  <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">Words Written</div>
                 </CardContent>
               </Card>
             </div>

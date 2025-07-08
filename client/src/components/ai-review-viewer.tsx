@@ -74,16 +74,16 @@ export function AIReviewViewer({ responses }: AIReviewViewerProps) {
             View AI Life Path Analysis
           </Button>
         </DialogTrigger>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md mx-4 max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
               <Compass className="w-5 h-5" />
               Life Path Analysis
             </DialogTitle>
           </DialogHeader>
           <div className="text-center py-6">
-            <Brain className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-            <p className="text-gray-600 dark:text-gray-300">
+            <Brain className="w-12 h-12 mx-auto mb-4 text-gray-400 dark:text-gray-500" />
+            <p className="text-gray-700 dark:text-gray-200 leading-relaxed">
               Complete the Life Path Discovery questionnaire first to access your personalized AI analysis.
             </p>
           </div>
@@ -100,9 +100,9 @@ export function AIReviewViewer({ responses }: AIReviewViewerProps) {
           View AI Life Path Analysis
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl mx-4 max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2 text-gray-900 dark:text-white text-lg sm:text-xl">
             <Compass className="w-5 h-5" />
             Your Life Path Discovery
           </DialogTitle>
@@ -133,85 +133,85 @@ export function AIReviewViewer({ responses }: AIReviewViewerProps) {
           </div>
         ) : (
           <div className="space-y-6">
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border-l-4 border-red-400">
-              <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-3">🧩 Your Current Tension</h3>
-              <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{ikigaiResults.currentTension}</p>
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6 border-l-4 border-red-400 shadow-sm">
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-100 mb-3">🧩 Your Current Tension</h3>
+              <p className="text-gray-700 dark:text-gray-200 leading-relaxed text-sm sm:text-base">{ikigaiResults.currentTension}</p>
             </div>
 
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border-l-4 border-blue-400">
-              <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-3">🌅 Your Future Calling</h3>
-              <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{ikigaiResults.futureCalling}</p>
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6 border-l-4 border-blue-400 shadow-sm">
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-100 mb-3">🌅 Your Future Calling</h3>
+              <p className="text-gray-700 dark:text-gray-200 leading-relaxed text-sm sm:text-base">{ikigaiResults.futureCalling}</p>
             </div>
 
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border-l-4 border-green-400">
-              <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-3">🛤 Your Strengths & Map</h3>
-              <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{ikigaiResults.strengthsAndMap}</p>
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6 border-l-4 border-green-400 shadow-sm">
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-100 mb-3">🛤 Your Strengths & Map</h3>
+              <p className="text-gray-700 dark:text-gray-200 leading-relaxed text-sm sm:text-base">{ikigaiResults.strengthsAndMap}</p>
             </div>
 
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border-l-4 border-purple-400">
-              <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-3">🧭 Your Life Compass</h3>
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6 border-l-4 border-purple-400 shadow-sm">
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-100 mb-3">🧭 Your Life Compass</h3>
               {typeof ikigaiResults.lifeCompass === 'string' ? (
-                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{ikigaiResults.lifeCompass}</p>
+                <p className="text-gray-700 dark:text-gray-200 leading-relaxed text-sm sm:text-base">{ikigaiResults.lifeCompass}</p>
               ) : (
                 <div className="space-y-3">
                   {(ikigaiResults.lifeCompass as any)?.coreValues && (
                     <div>
-                      <h4 className="font-semibold text-gray-800 dark:text-white mb-1">Core Values:</h4>
-                      <p className="text-gray-700 dark:text-gray-300">{Array.isArray((ikigaiResults.lifeCompass as any).coreValues) ? (ikigaiResults.lifeCompass as any).coreValues.join(', ') : (ikigaiResults.lifeCompass as any).coreValues}</p>
+                      <h4 className="font-semibold text-gray-800 dark:text-gray-100 mb-1 text-sm sm:text-base">Core Values:</h4>
+                      <p className="text-gray-700 dark:text-gray-200 text-sm sm:text-base">{Array.isArray((ikigaiResults.lifeCompass as any).coreValues) ? (ikigaiResults.lifeCompass as any).coreValues.join(', ') : (ikigaiResults.lifeCompass as any).coreValues}</p>
                     </div>
                   )}
                   {(ikigaiResults.lifeCompass as any)?.sourcesOfJoy && (
                     <div>
-                      <h4 className="font-semibold text-gray-800 dark:text-white mb-1">Sources of Joy:</h4>
-                      <p className="text-gray-700 dark:text-gray-300">{(ikigaiResults.lifeCompass as any).sourcesOfJoy}</p>
+                      <h4 className="font-semibold text-gray-800 dark:text-gray-100 mb-1 text-sm sm:text-base">Sources of Joy:</h4>
+                      <p className="text-gray-700 dark:text-gray-200 text-sm sm:text-base">{(ikigaiResults.lifeCompass as any).sourcesOfJoy}</p>
                     </div>
                   )}
                   {(ikigaiResults.lifeCompass as any)?.innerNavigation && (
                     <div>
-                      <h4 className="font-semibold text-gray-800 dark:text-white mb-1">Inner Navigation:</h4>
-                      <p className="text-gray-700 dark:text-gray-300">{(ikigaiResults.lifeCompass as any).innerNavigation}</p>
+                      <h4 className="font-semibold text-gray-800 dark:text-gray-100 mb-1 text-sm sm:text-base">Inner Navigation:</h4>
+                      <p className="text-gray-700 dark:text-gray-200 text-sm sm:text-base">{(ikigaiResults.lifeCompass as any).innerNavigation}</p>
                     </div>
                   )}
                 </div>
               )}
             </div>
 
-            <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/30 dark:to-blue-900/30 rounded-lg p-6 border border-purple-200 dark:border-purple-700">
-              <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-3">🔵 Your Ikigai Pathway</h3>
+            <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/30 dark:to-blue-900/30 rounded-lg p-4 sm:p-6 border border-purple-200 dark:border-purple-700 shadow-sm">
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-100 mb-3">🔵 Your Ikigai Pathway</h3>
               {typeof ikigaiResults.ikigaiPathway === 'string' ? (
-                <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">{ikigaiResults.ikigaiPathway}</p>
+                <p className="text-gray-700 dark:text-gray-200 leading-relaxed mb-4 text-sm sm:text-base">{ikigaiResults.ikigaiPathway}</p>
               ) : (
                 <div className="space-y-3 mb-4">
                   {(ikigaiResults.ikigaiPathway as any)?.whatTheyLove && (
                     <div>
-                      <h4 className="font-semibold text-gray-800 dark:text-white mb-1">💖 What You Love:</h4>
-                      <p className="text-gray-700 dark:text-gray-300">{Array.isArray((ikigaiResults.ikigaiPathway as any).whatTheyLove) ? (ikigaiResults.ikigaiPathway as any).whatTheyLove.join(', ') : (ikigaiResults.ikigaiPathway as any).whatTheyLove}</p>
+                      <h4 className="font-semibold text-gray-800 dark:text-gray-100 mb-1 text-sm sm:text-base">💖 What You Love:</h4>
+                      <p className="text-gray-700 dark:text-gray-200 text-sm sm:text-base">{Array.isArray((ikigaiResults.ikigaiPathway as any).whatTheyLove) ? (ikigaiResults.ikigaiPathway as any).whatTheyLove.join(', ') : (ikigaiResults.ikigaiPathway as any).whatTheyLove}</p>
                     </div>
                   )}
                   {(ikigaiResults.ikigaiPathway as any)?.whatTheyAreGoodAt && (
                     <div>
-                      <h4 className="font-semibold text-gray-800 dark:text-white mb-1">🎯 What You're Good At:</h4>
-                      <p className="text-gray-700 dark:text-gray-300">{Array.isArray((ikigaiResults.ikigaiPathway as any).whatTheyAreGoodAt) ? (ikigaiResults.ikigaiPathway as any).whatTheyAreGoodAt.join(', ') : (ikigaiResults.ikigaiPathway as any).whatTheyAreGoodAt}</p>
+                      <h4 className="font-semibold text-gray-800 dark:text-gray-100 mb-1 text-sm sm:text-base">🎯 What You're Good At:</h4>
+                      <p className="text-gray-700 dark:text-gray-200 text-sm sm:text-base">{Array.isArray((ikigaiResults.ikigaiPathway as any).whatTheyAreGoodAt) ? (ikigaiResults.ikigaiPathway as any).whatTheyAreGoodAt.join(', ') : (ikigaiResults.ikigaiPathway as any).whatTheyAreGoodAt}</p>
                     </div>
                   )}
                   {(ikigaiResults.ikigaiPathway as any)?.whatTheWorldNeeds && (
                     <div>
-                      <h4 className="font-semibold text-gray-800 dark:text-white mb-1">🌍 What the World Needs:</h4>
-                      <p className="text-gray-700 dark:text-gray-300">{Array.isArray((ikigaiResults.ikigaiPathway as any).whatTheWorldNeeds) ? (ikigaiResults.ikigaiPathway as any).whatTheWorldNeeds.join(', ') : (ikigaiResults.ikigaiPathway as any).whatTheWorldNeeds}</p>
+                      <h4 className="font-semibold text-gray-800 dark:text-gray-100 mb-1 text-sm sm:text-base">🌍 What the World Needs:</h4>
+                      <p className="text-gray-700 dark:text-gray-200 text-sm sm:text-base">{Array.isArray((ikigaiResults.ikigaiPathway as any).whatTheWorldNeeds) ? (ikigaiResults.ikigaiPathway as any).whatTheWorldNeeds.join(', ') : (ikigaiResults.ikigaiPathway as any).whatTheWorldNeeds}</p>
                     </div>
                   )}
                   {(ikigaiResults.ikigaiPathway as any)?.whatTheyCanBePaidFor && (
                     <div>
-                      <h4 className="font-semibold text-gray-800 dark:text-white mb-1">💰 What You Can Be Paid For:</h4>
-                      <p className="text-gray-700 dark:text-gray-300">{Array.isArray((ikigaiResults.ikigaiPathway as any).whatTheyCanBePaidFor) ? (ikigaiResults.ikigaiPathway as any).whatTheyCanBePaidFor.join(', ') : (ikigaiResults.ikigaiPathway as any).whatTheyCanBePaidFor}</p>
+                      <h4 className="font-semibold text-gray-800 dark:text-gray-100 mb-1 text-sm sm:text-base">💰 What You Can Be Paid For:</h4>
+                      <p className="text-gray-700 dark:text-gray-200 text-sm sm:text-base">{Array.isArray((ikigaiResults.ikigaiPathway as any).whatTheyCanBePaidFor) ? (ikigaiResults.ikigaiPathway as any).whatTheyCanBePaidFor.join(', ') : (ikigaiResults.ikigaiPathway as any).whatTheyCanBePaidFor}</p>
                     </div>
                   )}
                 </div>
               )}
               
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border-l-4 border-orange-400">
-                <h4 className="font-semibold text-gray-800 dark:text-white mb-2">Your Next Step:</h4>
-                <p className="text-gray-700 dark:text-gray-300">{ikigaiResults.nextStep}</p>
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-4 border-l-4 border-orange-400 shadow-sm">
+                <h4 className="font-semibold text-gray-800 dark:text-gray-100 mb-2 text-sm sm:text-base">Your Next Step:</h4>
+                <p className="text-gray-700 dark:text-gray-200 text-sm sm:text-base">{ikigaiResults.nextStep}</p>
               </div>
             </div>
           </div>
