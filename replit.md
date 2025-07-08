@@ -30,19 +30,35 @@ This is a full-stack web application for an AI-powered life path companion syste
 ## Key Components
 
 ### Database Schema
-The application uses a simple but effective schema:
+The application uses an enhanced schema supporting advanced organization:
 - **journal_entries** table with fields:
   - `id`: Serial primary key
   - `content`: Text content of the journal entry
   - `ai_reflection`: JSONB field storing AI-generated insights
   - `mood`: Optional text field for user's mood
   - `tags`: Array of text tags for categorization
+  - `is_pinned`: Boolean flag for pinned entries (appear at top)
+  - `folder_id`: Foreign key reference to folders table for organization
+  - `created_at`: Timestamp with default to current time
+- **folders** table with fields:
+  - `id`: Serial primary key
+  - `user_id`: Foreign key reference to users table
+  - `name`: Folder name (max 100 characters)
+  - `color`: Hex color code for visual identification
   - `created_at`: Timestamp with default to current time
 
 ### API Endpoints
-- `GET /api/entries` - Fetch recent journal entries with optional limit
+- `GET /api/entries` - Fetch recent journal entries with pinned entries prioritized
 - `GET /api/entries/:id` - Fetch specific journal entry by ID
-- `POST /api/entries` - Create new journal entry
+- `POST /api/entries` - Create new journal entry with optional pinning and folder assignment
+- `GET /api/entries/search` - Search and filter entries by content, tags, mood, date range, and folder
+- `PATCH /api/entries/:id/pin` - Pin or unpin journal entries
+- `PATCH /api/entries/:id/folder` - Move entry to specific folder or remove from folder
+- `POST /api/entries/download` - Download selected entries as formatted text file
+- `GET /api/folders` - Fetch user's custom folders
+- `POST /api/folders` - Create new folder with name and color
+- `PATCH /api/folders/:id` - Update folder name and color
+- `DELETE /api/folders/:id` - Delete folder and move entries to "No folder"
 - `POST /api/analyze` - Analyze journal entry and generate AI reflection
 - `GET /api/reflect/weekly?weekStart=YYYY-MM-DD` - Generate weekly reflection for specified week
 - `GET /api/reflect/monthly?month=MonthName&year=YYYY` - Generate monthly reflection with goal suggestions
@@ -69,7 +85,11 @@ The application uses a simple but effective schema:
 13. **Merlin AI Assistant**: Narrative-based AI mentor providing daily prophecies, reflection guidance, and goal alignment with mystical, fantasy-themed interface, personalized with user names
 14. **Life Path Discovery Questionnaire**: Comprehensive 16-question onboarding flow that guides users through self-discovery using the FRAME → DESTINATION → MAP → COMPASS methodology, with AI-powered Ikigai analysis providing personalized life path insights before journaling begins
 15. **Entry History**: View and browse previous journal entries with mood and tag filtering
-16. **Responsive Design**: Mobile-first design with adaptive layouts that work across all devices
+16. **Advanced Entry Management**: Pin important entries, organize with custom folders, search by multiple criteria, and download as text files
+17. **Entry Organization System**: Three-dot menu (⋯) on each entry with options to pin, move to folder, or download individual entries
+18. **Sidebar Navigation**: Quick access to "All Entries", "Pinned Entries", and custom folders with color-coded organization
+19. **Bulk Operations**: Select multiple entries for batch downloading and management
+20. **Responsive Design**: Mobile-first design with adaptive layouts that work across all devices
 
 ## Data Flow
 
@@ -153,6 +173,7 @@ Changelog:
 - July 07, 2025. Mobile UI Optimization - Removed floating Merlin wizard from mobile devices to improve mobile user experience. Floating Merlin avatar now only appears on desktop screens (md:block), providing cleaner mobile interface without overlapping UI elements
 - July 07, 2025. Username/Password Authentication System - Replaced Replit OAuth with traditional username/password registration system. Added secure password hashing with bcrypt, session management, and beautiful registration/login pages. Users can now create accounts with username, email, and password, with all journal data being user-specific and protected
 - July 08, 2025. Application Rebranding - Changed application name from "AI Bullet Journal" to "Life Path Companion" throughout the entire codebase. Updated header, about page, email service, landing page, and documentation to reflect the new name and focus on life path discovery rather than traditional bullet journaling
+- July 08, 2025. Advanced Entry Management System - Implemented comprehensive entry organization with pinning functionality, custom folders with color coding, advanced search/filtering by content/tags/mood/date/folder, bulk selection and download capabilities, three-dot menus (⋯) with pin/folder/download actions, and dedicated /entries page with sidebar navigation for quick access to pinned entries and folders
 ```
 
 ## User Preferences
