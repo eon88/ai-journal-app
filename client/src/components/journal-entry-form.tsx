@@ -9,10 +9,12 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { BULLET_SYMBOLS } from "@shared/schema";
+import { BulletSymbolSelector } from "@/components/bullet-symbol-selector";
 
 export function JournalEntryForm() {
   const [entry, setEntry] = useState("");
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
+  const [selectedSymbol, setSelectedSymbol] = useState<string>("");
   const [tags, setTags] = useState<string[]>([]);
   const [newTag, setNewTag] = useState("");
   const [showTagInput, setShowTagInput] = useState(false);
@@ -35,7 +37,7 @@ export function JournalEntryForm() {
 
 
   const createEntryMutation = useMutation({
-    mutationFn: async (data: { content: string; mood?: string | null; tags?: string[] | null }) => {
+    mutationFn: async (data: { content: string; mood?: string | null; tags?: string[] | null; symbol?: string }) => {
       const response = await apiRequest("/api/entries", "POST", data);
       return response.json();
     },
@@ -44,6 +46,7 @@ export function JournalEntryForm() {
       // Clear the form after successful submission
       setEntry("");
       setSelectedMood(null);
+      setSelectedSymbol("");
       setTags([]);
       toast({
         title: "Entry Saved",
@@ -80,11 +83,16 @@ export function JournalEntryForm() {
       return;
     }
 
-    // Create the entry
+    // Create the entry with symbol prefix if selected
+    const contentWithSymbol = selectedSymbol && !entry.trim().startsWith(selectedSymbol) 
+      ? `${selectedSymbol} ${entry.trim()}` 
+      : entry.trim();
+
     createEntryMutation.mutate({
-      content: entry.trim(),
+      content: contentWithSymbol,
       mood: selectedMood,
-      tags: tags.length > 0 ? tags : null
+      tags: tags.length > 0 ? tags : null,
+      symbol: selectedSymbol || undefined,
     });
 
 
@@ -126,38 +134,21 @@ export function JournalEntryForm() {
           </div>
         </div>
 
-        {/* Bullet Symbol Buttons */}
+        {/* Bullet Symbol Selector */}
         <div className="mb-4">
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-3 mb-2">
             <PenTool className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Quick Symbols:</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Entry Type:</span>
+            <BulletSymbolSelector 
+              selectedSymbol={selectedSymbol}
+              onSymbolSelect={setSelectedSymbol}
+            />
           </div>
-          <div className="flex flex-wrap gap-2">
-            {Object.entries(BULLET_SYMBOLS).map(([symbol, config]) => (
-              <Button
-                key={symbol}
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  const cursorPos = (document.querySelector('textarea') as HTMLTextAreaElement)?.selectionStart || 0;
-                  const newEntry = entry.slice(0, cursorPos) + symbol + ' ' + entry.slice(cursorPos);
-                  setEntry(newEntry);
-                  // Focus back to textarea after symbol insertion
-                  setTimeout(() => {
-                    const textarea = document.querySelector('textarea') as HTMLTextAreaElement;
-                    if (textarea) {
-                      textarea.focus();
-                      textarea.setSelectionRange(cursorPos + symbol.length + 1, cursorPos + symbol.length + 1);
-                    }
-                  }, 10);
-                }}
-                className="text-xs px-2 py-1 h-auto"
-                title={config.name}
-              >
-                {symbol} {config.name}
-              </Button>
-            ))}
-          </div>
+          {selectedSymbol && (
+            <div className="text-xs text-gray-600 dark:text-gray-400 ml-7">
+              Selected: {selectedSymbol} {BULLET_SYMBOLS[selectedSymbol as keyof typeof BULLET_SYMBOLS]?.name}
+            </div>
+          )}
         </div>
 
         {/* Mood and Tags Section */}

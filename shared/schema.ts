@@ -39,14 +39,24 @@ export type JournalEntry = typeof journalEntries.$inferSelect;
 
 // Bullet Symbol System
 export const BULLET_SYMBOLS = {
-  "→": { type: "task", status: "pending", name: "Task" },
-  "✓": { type: "task", status: "done", name: "Completed Task" },
-  ">>": { type: "task", status: "migrated", name: "Migrated Task" },
-  "📅": { type: "scheduled", status: "pending", name: "Scheduled" },
-  "★": { type: "event", status: "pending", name: "Event" },
-  "✎": { type: "note", status: "none", name: "Note" },
-  "💡": { type: "insight", status: "none", name: "Insight" },
-  "⚠️": { type: "priority", status: "pending", name: "Priority" },
+  "•": { type: "task", status: "pending", name: "Task" },
+  "✔": { type: "task", status: "done", name: "Completed task" },
+  "→": { type: "task", status: "migrated", name: "Moved/rescheduled task" },
+  "✖": { type: "task", status: "cancelled", name: "Canceled task" },
+  "○": { type: "event", status: "pending", name: "Event or appointment" },
+  "★": { type: "priority", status: "pending", name: "Important item" },
+  "–": { type: "note", status: "none", name: "Note or observation" },
+  "❓": { type: "question", status: "pending", name: "Question or needs clarification" },
+  "🪶": { type: "insight", status: "none", name: "Insight or realization" },
+  "🌱": { type: "growth", status: "none", name: "Growth opportunity" },
+  "🎯": { type: "goal", status: "pending", name: "Goal or focus" },
+  "🧭": { type: "direction", status: "none", name: "Daily direction or theme" },
+  "🔥": { type: "motivation", status: "none", name: "Motivating quote or idea" },
+  "🏆": { type: "achievement", status: "done", name: "Achievement or milestone" },
+  "🧙": { type: "prompt", status: "none", name: "Prompt from Merlin" },
+  "📸": { type: "media", status: "none", name: "Photo attached" },
+  "📌": { type: "pinned", status: "none", name: "Pinned/important entry" },
+  "🧩": { type: "pattern", status: "none", name: "Part of a recurring pattern" },
 } as const;
 
 export type BulletSymbol = keyof typeof BULLET_SYMBOLS;
