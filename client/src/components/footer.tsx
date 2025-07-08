@@ -42,9 +42,6 @@ export function Footer() {
               </Button>
             </Link>
           </div>
-          <div className="text-sm text-gray-600 dark:text-gray-400">
-            Built with ❤️ and AI
-          </div>
         </div>
       </div>
     </footer>
