@@ -82,6 +82,12 @@ export function Header() {
                 </div>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
+                <Link href="/entries">
+                  <DropdownMenuItem className="cursor-pointer">
+                    <Calendar className="mr-2 h-4 w-4" />
+                    Browse Entries
+                  </DropdownMenuItem>
+                </Link>
                 <Link href="/profile">
                   <DropdownMenuItem className="cursor-pointer">
                     <UserCircle className="mr-2 h-4 w-4" />

@@ -1,9 +1,10 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertJournalEntrySchema, type AIReflection, type WeeklyReflection, type MonthlyReflection, type JournalEntry, parseBulletSymbol, users } from "@shared/schema";
+import { insertJournalEntrySchema, insertFolderSchema, type AIReflection, type WeeklyReflection, type MonthlyReflection, type JournalEntry, type Folder, parseBulletSymbol, users, folders, journalEntries } from "@shared/schema";
 import { db } from "./db";
 import { z } from "zod";
+import { eq, and, desc, asc, like, or, inArray } from "drizzle-orm";
 import OpenAI from "openai";
 import Stripe from "stripe";
 import { emailService } from "./email-service";
@@ -178,9 +179,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.id;
       const limit = parseInt(req.query.limit as string) || 10;
-      const entries = await storage.getRecentJournalEntries(userId, limit);
+      
+      // Get entries with pinned entries first
+      const entries = await db.select().from(journalEntries)
+        .where(eq(journalEntries.userId, userId))
+        .orderBy(desc(journalEntries.isPinned), desc(journalEntries.createdAt))
+        .limit(limit);
+      
       res.json(entries);
     } catch (error) {
+      console.error("Get entries error:", error);
       res.status(500).json({ message: "Failed to fetch entries" });
     }
   });
@@ -297,6 +305,254 @@ export async function registerRoutes(app: Express): Promise<Server> {
         message: "Failed to analyze entry with AI. Please check your API key and try again.",
         error: error instanceof Error ? error.message : "Unknown error"
       });
+    }
+  });
+
+  // FOLDER MANAGEMENT ROUTES
+
+  // Get user folders (protected)
+  app.get("/api/folders", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const userFolders = await db.select().from(folders)
+        .where(eq(folders.userId, userId))
+        .orderBy(asc(folders.name));
+      res.json(userFolders);
+    } catch (error) {
+      console.error("Get folders error:", error);
+      res.status(500).json({ message: "Failed to fetch folders" });
+    }
+  });
+
+  // Create new folder (protected)
+  app.post("/api/folders", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const folderData = insertFolderSchema.parse(req.body);
+      
+      const [folder] = await db.insert(folders)
+        .values({ ...folderData, userId })
+        .returning();
+      
+      res.status(201).json(folder);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid folder data", errors: error.errors });
+      }
+      console.error("Create folder error:", error);
+      res.status(500).json({ message: "Failed to create folder" });
+    }
+  });
+
+  // Update folder (protected)
+  app.patch("/api/folders/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const folderId = parseInt(req.params.id);
+      const folderData = insertFolderSchema.partial().parse(req.body);
+      
+      if (isNaN(folderId)) {
+        return res.status(400).json({ message: "Invalid folder ID" });
+      }
+      
+      const [folder] = await db.update(folders)
+        .set(folderData)
+        .where(and(eq(folders.id, folderId), eq(folders.userId, userId)))
+        .returning();
+      
+      if (!folder) {
+        return res.status(404).json({ message: "Folder not found" });
+      }
+      
+      res.json(folder);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid folder data", errors: error.errors });
+      }
+      console.error("Update folder error:", error);
+      res.status(500).json({ message: "Failed to update folder" });
+    }
+  });
+
+  // Delete folder (protected)
+  app.delete("/api/folders/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const folderId = parseInt(req.params.id);
+      
+      if (isNaN(folderId)) {
+        return res.status(400).json({ message: "Invalid folder ID" });
+      }
+      
+      // First, remove folder reference from all entries in this folder
+      await db.update(journalEntries)
+        .set({ folderId: null })
+        .where(and(eq(journalEntries.folderId, folderId), eq(journalEntries.userId, userId)));
+      
+      // Then delete the folder
+      const [deletedFolder] = await db.delete(folders)
+        .where(and(eq(folders.id, folderId), eq(folders.userId, userId)))
+        .returning();
+      
+      if (!deletedFolder) {
+        return res.status(404).json({ message: "Folder not found" });
+      }
+      
+      res.json({ message: "Folder deleted successfully" });
+    } catch (error) {
+      console.error("Delete folder error:", error);
+      res.status(500).json({ message: "Failed to delete folder" });
+    }
+  });
+
+  // ENHANCED ENTRY MANAGEMENT ROUTES
+
+  // Search entries by filters (protected)
+  app.get("/api/entries/search", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const { tags, mood, dateFrom, dateTo, query, folderId } = req.query;
+      
+      const conditions = [eq(journalEntries.userId, userId)];
+      
+      // Filter by tags
+      if (tags) {
+        const tagsArray = Array.isArray(tags) ? tags : tags.split(',');
+        const tagConditions = tagsArray.map((tag: string) => 
+          like(journalEntries.tags, `%${tag.trim()}%`)
+        );
+        if (tagConditions.length > 0) {
+          conditions.push(or(...tagConditions));
+        }
+      }
+      
+      // Filter by mood
+      if (mood) {
+        conditions.push(eq(journalEntries.mood, mood));
+      }
+      
+      // Filter by date range
+      if (dateFrom) {
+        const fromDate = new Date(dateFrom);
+        conditions.push(eq(journalEntries.createdAt, fromDate));
+      }
+      
+      // Filter by folder
+      if (folderId) {
+        if (folderId === 'null' || folderId === 'none') {
+          conditions.push(eq(journalEntries.folderId, null));
+        } else {
+          conditions.push(eq(journalEntries.folderId, parseInt(folderId)));
+        }
+      }
+      
+      // Search in content
+      if (query) {
+        conditions.push(like(journalEntries.content, `%${query}%`));
+      }
+      
+      const entries = await db.select().from(journalEntries)
+        .where(and(...conditions))
+        .orderBy(desc(journalEntries.isPinned), desc(journalEntries.createdAt));
+      
+      res.json(entries);
+    } catch (error) {
+      console.error("Search error:", error);
+      res.status(500).json({ message: "Failed to search entries" });
+    }
+  });
+
+  // Pin/unpin entry (protected)
+  app.patch("/api/entries/:id/pin", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const entryId = parseInt(req.params.id);
+      const { isPinned } = req.body;
+      
+      if (isNaN(entryId)) {
+        return res.status(400).json({ message: "Invalid entry ID" });
+      }
+      
+      const [entry] = await db.update(journalEntries)
+        .set({ isPinned })
+        .where(and(eq(journalEntries.id, entryId), eq(journalEntries.userId, userId)))
+        .returning();
+      
+      if (!entry) {
+        return res.status(404).json({ message: "Entry not found" });
+      }
+      
+      res.json(entry);
+    } catch (error) {
+      console.error("Pin entry error:", error);
+      res.status(500).json({ message: "Failed to update entry" });
+    }
+  });
+
+  // Move entry to folder (protected)
+  app.patch("/api/entries/:id/folder", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const entryId = parseInt(req.params.id);
+      const { folderId } = req.body;
+      
+      if (isNaN(entryId)) {
+        return res.status(400).json({ message: "Invalid entry ID" });
+      }
+      
+      const [entry] = await db.update(journalEntries)
+        .set({ folderId: folderId || null })
+        .where(and(eq(journalEntries.id, entryId), eq(journalEntries.userId, userId)))
+        .returning();
+      
+      if (!entry) {
+        return res.status(404).json({ message: "Entry not found" });
+      }
+      
+      res.json(entry);
+    } catch (error) {
+      console.error("Move entry error:", error);
+      res.status(500).json({ message: "Failed to move entry" });
+    }
+  });
+
+  // Download entries as text (protected)
+  app.post("/api/entries/download", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const { entryIds } = req.body;
+      
+      if (!Array.isArray(entryIds) || entryIds.length === 0) {
+        return res.status(400).json({ message: "Entry IDs are required" });
+      }
+      
+      const entries = await db.select().from(journalEntries)
+        .where(and(
+          eq(journalEntries.userId, userId),
+          inArray(journalEntries.id, entryIds)
+        ))
+        .orderBy(desc(journalEntries.createdAt));
+      
+      // Generate text content
+      let textContent = "Life Path Companion - Journal Entries Export\n";
+      textContent += "=" + "=".repeat(50) + "\n\n";
+      
+      entries.forEach((entry, index) => {
+        textContent += `Entry ${index + 1}\n`;
+        textContent += `Date: ${new Date(entry.createdAt).toLocaleDateString()}\n`;
+        if (entry.mood) textContent += `Mood: ${entry.mood}\n`;
+        if (entry.tags && entry.tags.length > 0) textContent += `Tags: ${entry.tags.join(", ")}\n`;
+        if (entry.isPinned) textContent += `Status: Pinned\n`;
+        textContent += `\n${entry.content}\n\n`;
+        textContent += "-".repeat(50) + "\n\n";
+      });
+      
+      res.setHeader('Content-Type', 'text/plain');
+      res.setHeader('Content-Disposition', `attachment; filename="journal-entries-${new Date().toISOString().split('T')[0]}.txt"`);
+      res.send(textContent);
+    } catch (error) {
+      console.error("Download entries error:", error);
+      res.status(500).json({ message: "Failed to download entries" });
     }
   });
 

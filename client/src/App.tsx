@@ -18,6 +18,7 @@ import Forum from "@/pages/forum";
 import ForumAdmin from "@/pages/forum-admin";
 import AdminPanel from "@/pages/admin-panel";
 import EntryDetail from "@/pages/entry-detail";
+import Entries from "@/pages/entries";
 import Landing from "@/pages/landing";
 import Login from "@/pages/login";
 import Register from "@/pages/register";
@@ -34,6 +35,7 @@ function Router() {
       ) : (
         <>
           <Route path="/" component={Home} />
+          <Route path="/entries" component={Entries} />
           <Route path="/entry/:id" component={EntryDetail} />
           <Route path="/profile" component={UserProfile} />
           <Route path="/forum" component={Forum} />

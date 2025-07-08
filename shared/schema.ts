@@ -12,6 +12,8 @@ export const journalEntries = pgTable("journal_entries", {
   type: text("type"), // task, note, insight, event, etc.
   status: text("status"), // pending, done, migrated, scheduled for applicable types
   symbol: text("symbol"), // the actual symbol used (→, ✓, 💡, etc.)
+  isPinned: boolean("is_pinned").default(false),
+  folderId: integer("folder_id"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -22,10 +24,14 @@ export const insertJournalEntrySchema = createInsertSchema(journalEntries).pick(
   type: true,
   status: true,
   symbol: true,
+  isPinned: true,
+  folderId: true,
 }).partial({
   type: true,
   status: true,
   symbol: true,
+  isPinned: true,
+  folderId: true,
 });
 
 export type InsertJournalEntry = z.infer<typeof insertJournalEntrySchema>;
@@ -326,3 +332,20 @@ export type InsertForumReply = typeof forumReplies.$inferInsert;
 
 export type ForumLike = typeof forumLikes.$inferSelect;
 export type InsertForumLike = typeof forumLikes.$inferInsert;
+
+// Custom folders for organizing journal entries
+export const folders = pgTable("folders", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  name: varchar("name", { length: 100 }).notNull(),
+  color: varchar("color", { length: 20 }).default("#3B82F6"), // hex color for folder icon
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertFolderSchema = createInsertSchema(folders).pick({
+  name: true,
+  color: true,
+});
+
+export type InsertFolder = z.infer<typeof insertFolderSchema>;
+export type Folder = typeof folders.$inferSelect;
