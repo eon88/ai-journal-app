@@ -84,8 +84,8 @@ export default function EntryDetail() {
         <Header />
         <main className="max-w-4xl mx-auto px-4 py-8">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-white mb-4">Entry Not Found</h1>
-            <p className="text-gray-300 mb-6">The journal entry you're looking for doesn't exist or has been removed.</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Entry Not Found</h1>
+            <p className="text-gray-700 dark:text-gray-300 mb-6">The journal entry you're looking for doesn't exist or has been removed.</p>
             <Link href="/">
               <Button className="bg-journal-primary hover:bg-indigo-700">
                 <ArrowLeft className="w-4 h-4 mr-2" />
@@ -107,7 +107,7 @@ export default function EntryDetail() {
         {/* Back Navigation */}
         <div className="mb-6">
           <Link href="/">
-            <Button variant="ghost" className="text-gray-300 hover:text-white">
+            <Button variant="ghost" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Home
             </Button>
@@ -119,11 +119,11 @@ export default function EntryDetail() {
           <CardHeader>
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <div className="flex items-center gap-2 text-sm text-gray-400 mb-2">
+                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2">
                   <Calendar className="w-4 h-4" />
                   <span>{formatDate(entry.createdAt)}</span>
                 </div>
-                <CardTitle className="text-white text-xl">
+                <CardTitle className="text-gray-900 dark:text-white text-xl">
                   {getBulletSymbol(entry.type, entry.status) && (
                     <span className="mr-3 text-journal-primary">
                       {getBulletSymbol(entry.type, entry.status)}
@@ -145,7 +145,7 @@ export default function EntryDetail() {
         <Card className="glass-card mb-6">
           <CardContent className="p-6">
             <div className="prose prose-invert max-w-none">
-              <p className="text-gray-200 whitespace-pre-wrap leading-relaxed">
+              <p className="text-gray-900 dark:text-gray-200 whitespace-pre-wrap leading-relaxed">
                 {entry.content}
               </p>
             </div>
@@ -154,9 +154,9 @@ export default function EntryDetail() {
             {entry.tags && entry.tags.length > 0 && (
               <div className="mt-6 pt-4 border-t border-gray-700">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <Tag className="w-4 h-4 text-gray-400" />
+                  <Tag className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                   {entry.tags.map((tag, index) => (
-                    <Badge key={index} variant="outline" className="text-gray-300 border-gray-600">
+                    <Badge key={index} variant="outline" className="text-gray-700 dark:text-gray-300 border-gray-400 dark:border-gray-600">
                       {tag}
                     </Badge>
                   ))}
@@ -184,7 +184,7 @@ export default function EntryDetail() {
         {entry.aiReflection ? (
           <Card className="glass-card">
             <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
+              <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2">
                 <MessageCircle className="w-5 h-5 text-journal-primary" />
                 AI Reflection
               </CardTitle>
@@ -205,7 +205,7 @@ export default function EntryDetail() {
           <Card className="glass-card">
             <CardContent className="p-6 text-center">
               <MessageCircle className="w-8 h-8 mx-auto mb-4 text-gray-400" />
-              <p className="text-gray-300 mb-4">No AI reflection generated for this entry yet.</p>
+              <p className="text-gray-700 dark:text-gray-300 mb-4">No AI reflection generated for this entry yet.</p>
               <Button 
                 className="bg-journal-primary hover:bg-indigo-700"
                 onClick={() => {
