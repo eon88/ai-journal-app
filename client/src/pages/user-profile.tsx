@@ -125,28 +125,29 @@ export default function UserProfile() {
     <div className="min-h-screen">
       <Header />
       
-      <main className="max-w-4xl mx-auto px-4 py-8">
+      <main className="max-w-4xl mx-auto px-2 sm:px-4 py-4 sm:py-8 profile-mobile-spacing md:profile-mobile-spacing-none">
         {/* Profile Header */}
-        <div className="text-center mb-8">
-          <div className="w-20 h-20 bg-journal-primary rounded-full flex items-center justify-center mx-auto mb-4">
-            <User className="w-10 h-10 text-white" />
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-journal-primary rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+            <User className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
           </div>
           
           {editingName ? (
-            <div className="flex items-center justify-center gap-2 mb-2">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 mb-3 sm:mb-2 px-4 sm:px-0">
               <Input
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
-                className="w-48 text-center"
+                className="w-full sm:w-48 text-center"
                 onKeyPress={(e) => e.key === 'Enter' && handleNameSave()}
               />
-              <Button size="sm" onClick={handleNameSave}>
-                <Save className="w-4 h-4" />
+              <Button size="sm" onClick={handleNameSave} className="w-full sm:w-auto">
+                <Save className="w-4 h-4 mr-2 sm:mr-0" />
+                <span className="sm:hidden">Save</span>
               </Button>
             </div>
           ) : (
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{userName}</h1>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 mb-3 sm:mb-2 px-4 sm:px-0">
+              <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-white text-center">{userName}</h1>
               <Button 
                 variant="ghost" 
                 size="sm" 
@@ -158,32 +159,32 @@ export default function UserProfile() {
             </div>
           )}
           
-          <p className="text-muted-foreground">Member since {joinDate}</p>
+          <p className="text-xs sm:text-sm text-muted-foreground px-4 sm:px-0">Member since {joinDate}</p>
           
-          <div className="flex justify-center gap-4 mt-4">
-            <Badge variant="secondary">
+          <div className="flex justify-center mt-3 sm:mt-4 px-4 sm:px-0">
+            <Badge variant="secondary" className="text-xs sm:text-sm px-2 sm:px-3 py-1">
               Level {userStats?.level || 1} • {userStats?.title || "Reflective Wanderer"}
             </Badge>
           </div>
         </div>
 
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-1">
-            <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
-            <TabsTrigger value="analysis" className="text-xs sm:text-sm">AI Analysis</TabsTrigger>
-            <TabsTrigger value="goals" className="text-xs sm:text-sm">Goals</TabsTrigger>
-            <TabsTrigger value="settings" className="text-xs sm:text-sm">Settings</TabsTrigger>
-            <TabsTrigger value="subscription" className="text-xs sm:text-sm">Subscription</TabsTrigger>
-            <TabsTrigger value="data" className="text-xs sm:text-sm">Data</TabsTrigger>
-            <TabsTrigger value="account" className="text-xs sm:text-sm">Account</TabsTrigger>
+        <Tabs defaultValue="overview" className="space-y-4 sm:space-y-6">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-1 p-1">
+            <TabsTrigger value="overview" className="text-xs sm:text-sm px-2 py-2">Overview</TabsTrigger>
+            <TabsTrigger value="analysis" className="text-xs sm:text-sm px-2 py-2">Analysis</TabsTrigger>
+            <TabsTrigger value="goals" className="text-xs sm:text-sm px-2 py-2">Goals</TabsTrigger>
+            <TabsTrigger value="settings" className="text-xs sm:text-sm px-2 py-2">Settings</TabsTrigger>
+            <TabsTrigger value="subscription" className="text-xs sm:text-sm px-1 py-2">Sub</TabsTrigger>
+            <TabsTrigger value="data" className="text-xs sm:text-sm px-2 py-2">Data</TabsTrigger>
+            <TabsTrigger value="account" className="text-xs sm:text-sm px-2 py-2">Account</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-4 sm:space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+          <TabsContent value="overview" className="space-y-3 sm:space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-6">
               <Card className="glass-card">
-                <CardContent className="p-4 sm:p-6 text-center">
-                  <div className="text-xl sm:text-2xl font-bold text-journal-primary mb-1">
+                <CardContent className="p-3 sm:p-6 text-center">
+                  <div className="text-lg sm:text-xl md:text-2xl font-bold text-journal-primary mb-1">
                     {userStats?.totalEntries || 0}
                   </div>
                   <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">Journal Entries</div>
@@ -191,8 +192,8 @@ export default function UserProfile() {
               </Card>
               
               <Card className="glass-card">
-                <CardContent className="p-4 sm:p-6 text-center">
-                  <div className="text-xl sm:text-2xl font-bold text-journal-primary mb-1">
+                <CardContent className="p-3 sm:p-6 text-center">
+                  <div className="text-lg sm:text-xl md:text-2xl font-bold text-journal-primary mb-1">
                     {userStats?.currentStreak || 0}
                   </div>
                   <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">Current Streak</div>
@@ -200,8 +201,8 @@ export default function UserProfile() {
               </Card>
               
               <Card className="glass-card">
-                <CardContent className="p-4 sm:p-6 text-center">
-                  <div className="text-xl sm:text-2xl font-bold text-journal-primary mb-1">
+                <CardContent className="p-3 sm:p-6 text-center">
+                  <div className="text-lg sm:text-xl md:text-2xl font-bold text-journal-primary mb-1">
                     {totalWords.toLocaleString()}
                   </div>
                   <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">Words Written</div>
@@ -210,13 +211,13 @@ export default function UserProfile() {
             </div>
 
             <Card className="glass-card">
-              <CardHeader>
-                <CardTitle className="text-foreground">Recent Activity</CardTitle>
-                <CardDescription className="text-muted-foreground">
+              <CardHeader className="pb-3 sm:pb-6">
+                <CardTitle className="text-foreground text-base sm:text-lg">Recent Activity</CardTitle>
+                <CardDescription className="text-muted-foreground text-xs sm:text-sm">
                   Your journaling journey at a glance
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-0">
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
                     <div className="w-2 h-2 bg-journal-primary rounded-full"></div>
