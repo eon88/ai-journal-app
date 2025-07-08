@@ -415,6 +415,25 @@
       [role="tablist"] {
         margin-bottom: 4rem !important;
       }
+      
+      /* Plain white text on mobile landing page - no shadows or effects */
+      .landing-text {
+        color: white !important;
+        text-shadow: none !important;
+        background: none !important;
+        -webkit-background-clip: unset !important;
+        background-clip: unset !important;
+        -webkit-text-fill-color: white !important;
+      }
+      
+      /* Remove gradient text effects on mobile */
+      .landing-gradient-text {
+        background: none !important;
+        -webkit-background-clip: unset !important;
+        background-clip: unset !important;
+        -webkit-text-fill-color: white !important;
+        color: white !important;
+      }
     }
     
     /* Better visibility for header text on mobile */

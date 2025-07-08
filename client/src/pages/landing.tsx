@@ -28,11 +28,11 @@ export default function Landing() {
           <Badge className="bg-blue-600/20 text-blue-300 border-blue-400/30 px-4 py-2">
             AI-Powered Personal Growth
           </Badge>
-          <h1 className="text-5xl font-bold text-white leading-tight">
+          <h1 className="text-5xl font-bold text-white leading-tight landing-text">
             Transform Your Life Through
-            <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent"> Intelligent Journaling</span>
+            <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent landing-gradient-text"> Intelligent Journaling</span>
           </h1>
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed landing-text">
             Discover your purpose, track meaningful growth, and unlock your potential with our AI-powered journaling companion. 
             Get personalized insights, reflections, and guidance on your journey to becoming your best self.
           </p>
@@ -52,8 +52,8 @@ export default function Landing() {
       <section className="max-w-4xl mx-auto px-4 py-16">
         <div className="space-y-8 text-gray-300">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-white mb-6">🎯 Why Journal?</h2>
-            <p className="text-xl leading-relaxed">
+            <h2 className="text-4xl font-bold text-white mb-6 landing-text">🎯 Why Journal?</h2>
+            <p className="text-xl leading-relaxed landing-text">
               Because writing is clear thinking.<br />
               When you write, you're not just taking notes—you're taking command. A scattered mind produces scattered outcomes. But a focused pen produces power.
             </p>
