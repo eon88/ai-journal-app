@@ -365,93 +365,93 @@ export interface ForumRank {
 export const FORUM_RANKS: ForumRank[] = [
   {
     id: 1,
-    name: "Novice Journaler",
+    name: "Wanderer",
     minXP: 0,
     maxXP: 99,
     color: "#94A3B8", // gray
-    icon: "👶",
+    icon: "🚶",
     badge: "🌱",
     description: "Just beginning their journey of self-discovery"
   },
   {
     id: 2,
-    name: "Reflective Explorer",
+    name: "Seeker",
     minXP: 100,
     maxXP: 299,
     color: "#84CC16", // lime
-    icon: "🌿",
+    icon: "🔍",
     badge: "🌿",
     description: "Actively exploring thoughts and emotions"
   },
   {
     id: 3,
-    name: "Mindful Contributor",
+    name: "Student",
     minXP: 300,
     maxXP: 599,
     color: "#06B6D4", // cyan
-    icon: "💭",
+    icon: "📖",
     badge: "💭",
-    description: "Sharing insights and supporting others"
+    description: "Learning and absorbing life lessons"
   },
   {
     id: 4,
-    name: "Wisdom Keeper",
+    name: "Climber",
     minXP: 600,
     maxXP: 999,
     color: "#8B5CF6", // violet
-    icon: "📚",
+    icon: "⛰️",
     badge: "📚",
-    description: "Accumulating and sharing valuable life insights"
+    description: "Steadily ascending towards greater understanding"
   },
   {
     id: 5,
-    name: "Growth Catalyst",
+    name: "Builder",
     minXP: 1000,
     maxXP: 1499,
     color: "#F59E0B", // amber
-    icon: "⚡",
+    icon: "🔨",
     badge: "⚡",
-    description: "Inspiring growth and transformation in others"
+    description: "Constructing a solid foundation for growth"
   },
   {
     id: 6,
-    name: "Inner Architect",
+    name: "Navigator",
     minXP: 1500,
     maxXP: 2099,
     color: "#DC2626", // red
-    icon: "🏗️",
-    badge: "🏗️",
-    description: "Masterfully designing their life path"
+    icon: "🧭",
+    badge: "🗺️",
+    description: "Charting their course with purpose and direction"
   },
   {
     id: 7,
-    name: "Life Path Sage",
+    name: "Architect",
     minXP: 2100,
     maxXP: 2799,
     color: "#7C3AED", // purple
-    icon: "🔮",
-    badge: "🔮",
-    description: "Guiding others with profound wisdom and experience"
+    icon: "🏗️",
+    badge: "📐",
+    description: "Masterfully designing their life path"
   },
   {
     id: 8,
-    name: "Enlightened Mentor",
+    name: "Guardian",
     minXP: 2800,
     maxXP: 4999,
     color: "#BE185D", // pink
-    icon: "🌟",
+    icon: "🛡️",
     badge: "🌟",
-    description: "A beacon of wisdom and inspiration for the community"
+    description: "Protecting and nurturing wisdom within the community"
   },
   {
     id: 9,
-    name: "Transcendent Guide",
+    name: "Sage",
     minXP: 5000,
     maxXP: 9999,
     color: "#059669", // emerald
-    icon: "👑",
+    icon: "🧙",
     badge: "👑",
-    description: "Reached extraordinary levels of self-awareness and wisdom"
+    description: "Embodying deep wisdom and guiding others"
   },
   {
     id: 10,
