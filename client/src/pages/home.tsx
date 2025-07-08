@@ -9,6 +9,7 @@ import { StreakScoreboard } from "@/components/streak-scoreboard";
 import { GrowthDashboard } from "@/components/growth-dashboard";
 import { InsightsVault } from "@/components/insights-vault";
 import { DailyChallenge } from "@/components/daily-challenge";
+import { DailyQuote } from "@/components/daily-quote";
 import { BadgeShowcase } from "@/components/badge-showcase";
 import { MerlinAssistant } from "@/components/merlin-assistant";
 
@@ -76,6 +77,7 @@ export default function Home() {
             {/* Right Column - Gamification Features */}
             <div className="space-y-6">
               <DailyChallenge />
+              <DailyQuote />
               <BadgeShowcase />
             </div>
           </div>
