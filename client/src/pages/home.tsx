@@ -87,8 +87,8 @@ export default function Home() {
         {/* Community Link Section */}
         <div className="text-center py-8">
           <div className="glass-card-transparent rounded-xl p-8 max-w-md mx-auto">
-            <h3 className="text-xl font-semibold text-white mb-4">Join Our Community</h3>
-            <p className="text-gray-300 mb-6">
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Join Our Community</h3>
+            <p className="text-gray-700 dark:text-gray-300 mb-6">
               Connect with fellow journalers, share insights, and grow together on your life path journey.
             </p>
             <Link href="/forum">

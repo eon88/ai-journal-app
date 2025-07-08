@@ -273,10 +273,10 @@ export default function Contact() {
         {/* Community Section */}
         <Card className="glass-card text-center">
           <CardContent className="p-8">
-            <h3 className="text-xl font-semibold text-white mb-3">
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
               Join Our Community
             </h3>
-            <p className="text-gray-300 mb-4 max-w-2xl mx-auto">
+            <p className="text-gray-700 dark:text-gray-300 mb-4 max-w-2xl mx-auto">
               Connect with other journalers, share insights, and be part of a community 
               dedicated to personal growth and self-discovery.
             </p>
