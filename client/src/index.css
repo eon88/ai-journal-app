@@ -97,11 +97,74 @@
   /* Mobile optimizations for better visibility */
   @media (max-width: 768px) {
     body::before {
-      background: rgba(255, 255, 255, 0.4);
+      background: rgba(255, 255, 255, 0.5);
     }
     
     .dark body::before {
-      background: rgba(0, 0, 0, 0.65);
+      background: rgba(0, 0, 0, 0.75);
+    }
+    
+    /* Stronger text visibility on mobile */
+    .text-foreground {
+      color: rgb(17, 24, 39) !important;
+    }
+    
+    .dark .text-foreground {
+      color: rgb(249, 250, 251) !important;
+    }
+    
+    .text-muted-foreground {
+      color: rgb(75, 85, 99) !important;
+    }
+    
+    .dark .text-muted-foreground {
+      color: rgb(209, 213, 219) !important;
+    }
+    
+    /* Button visibility improvements on mobile */
+    button,
+    .btn {
+      text-shadow: none !important;
+      font-weight: 600 !important;
+    }
+    
+    /* Input field improvements on mobile */
+    input,
+    textarea,
+    select {
+      background: rgba(255, 255, 255, 0.95) !important;
+      color: rgb(17, 24, 39) !important;
+      border: 1px solid rgba(0, 0, 0, 0.2) !important;
+    }
+    
+    .dark input,
+    .dark textarea,
+    .dark select {
+      background: rgba(0, 0, 0, 0.9) !important;
+      color: rgb(249, 250, 251) !important;
+      border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    }
+    
+    /* Tab visibility improvements */
+    [role="tablist"] button,
+    .tabs-trigger {
+      background: rgba(255, 255, 255, 0.9) !important;
+      color: rgb(17, 24, 39) !important;
+      border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    .dark [role="tablist"] button,
+    .dark .tabs-trigger {
+      background: rgba(0, 0, 0, 0.8) !important;
+      color: rgb(249, 250, 251) !important;
+      border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    }
+    
+    /* Active tab visibility */
+    [role="tablist"] button[data-state="active"],
+    .tabs-trigger[data-state="active"] {
+      background: rgba(59, 130, 246, 0.9) !important;
+      color: white !important;
     }
   }
 }
@@ -193,13 +256,33 @@
   /* Mobile-specific glass improvements */
   @media (max-width: 768px) {
     .glass-card {
-      background: rgba(255, 255, 255, 0.98);
+      background: rgba(255, 255, 255, 0.98) !important;
       backdrop-filter: blur(16px);
+      border: 1px solid rgba(0, 0, 0, 0.1) !important;
     }
     
     .dark .glass-card {
-      background: rgba(0, 0, 0, 0.92);
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(0, 0, 0, 0.95) !important;
+      border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    }
+    
+    /* Enhanced mobile text in glass cards */
+    .glass-card .text-foreground,
+    .glass-card h1,
+    .glass-card h2,
+    .glass-card h3,
+    .glass-card h4,
+    .glass-card p {
+      color: rgb(17, 24, 39) !important;
+    }
+    
+    .dark .glass-card .text-foreground,
+    .dark .glass-card h1,
+    .dark .glass-card h2,
+    .dark .glass-card h3,
+    .dark .glass-card h4,
+    .dark .glass-card p {
+      color: rgb(249, 250, 251) !important;
     }
   }
   
@@ -219,6 +302,20 @@
     height: auto;
   }
   
+  /* Mobile improvements for transparent cards */
+  @media (max-width: 768px) {
+    .glass-card-transparent {
+      background: rgba(255, 255, 255, 0.95) !important;
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    .dark .glass-card-transparent {
+      background: rgba(0, 0, 0, 0.9) !important;
+      border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    }
+  }
+  
   .glass-overlay {
     background: rgba(255, 255, 255, 0.96);
     backdrop-filter: blur(8px);
@@ -232,13 +329,29 @@
   /* Mobile glass overlay improvements */
   @media (max-width: 768px) {
     .glass-overlay {
-      background: rgba(255, 255, 255, 0.98);
+      background: rgba(255, 255, 255, 0.98) !important;
       backdrop-filter: blur(12px);
+      border: 1px solid rgba(0, 0, 0, 0.1) !important;
     }
     
     .dark .glass-overlay {
-      background: rgba(0, 0, 0, 0.9);
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(0, 0, 0, 0.95) !important;
+      border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    }
+    
+    /* Better visibility for header text on mobile */
+    .glass-overlay h1,
+    .glass-overlay h2,
+    .glass-overlay p,
+    .glass-overlay span {
+      color: rgb(17, 24, 39) !important;
+    }
+    
+    .dark .glass-overlay h1,
+    .dark .glass-overlay h2,
+    .dark .glass-overlay p,
+    .dark .glass-overlay span {
+      color: rgb(249, 250, 251) !important;
     }
   }
   

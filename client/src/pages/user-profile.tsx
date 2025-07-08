@@ -146,12 +146,12 @@ export default function UserProfile() {
             </div>
           ) : (
             <div className="flex items-center justify-center gap-2 mb-2">
-              <h1 className="text-2xl font-bold text-foreground">{userName}</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{userName}</h1>
               <Button 
                 variant="ghost" 
                 size="sm" 
                 onClick={() => setEditingName(true)}
-                className="text-muted-foreground hover:text-foreground"
+                className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
               >
                 <Edit3 className="w-4 h-4" />
               </Button>
