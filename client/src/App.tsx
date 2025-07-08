@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import { UserProvider } from "@/components/user-provider";
+import { PWAInstallPrompt } from "@/components/pwa-install-prompt";
 import { ScrollToTopButton } from "@/components/scroll-to-top-button";
 import { useAuth } from "@/hooks/useAuth";
 import { useScrollToTop } from "@/hooks/useScrollToTop";
@@ -65,6 +66,7 @@ function App() {
             <Toaster />
             <Router />
             <ScrollToTopButton />
+            <PWAInstallPrompt />
           </TooltipProvider>
         </UserProvider>
       </ThemeProvider>
