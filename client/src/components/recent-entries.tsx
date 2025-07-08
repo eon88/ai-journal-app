@@ -91,12 +91,14 @@ export function RecentEntries() {
     <div className="mt-8">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-semibold text-mobile-enhanced">Recent Entries</h2>
-        <Button 
-          variant="ghost"
-          className="text-sm text-mobile-enhanced hover:text-blue-200 font-medium"
-        >
-          View All
-        </Button>
+        <Link href="/entries">
+          <Button 
+            variant="ghost"
+            className="text-sm text-mobile-enhanced hover:text-blue-200 font-medium"
+          >
+            View All
+          </Button>
+        </Link>
       </div>
 
       {entries && entries.length > 0 ? (
