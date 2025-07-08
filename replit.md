@@ -1,8 +1,8 @@
-# AI Bullet Journal - Replit.md
+# Life Path Companion - Replit.md
 
 ## Overview
 
-This is a full-stack web application for an AI-powered bullet journal system. The application allows users to create journal entries and receive AI-generated insights and reflections about their entries. Built with a modern tech stack featuring React frontend, Express backend, and PostgreSQL database with Drizzle ORM.
+This is a full-stack web application for an AI-powered life path companion system. The application allows users to create journal entries and receive AI-generated insights and reflections about their entries. Built with a modern tech stack featuring React frontend, Express backend, and PostgreSQL database with Drizzle ORM.
 
 ## System Architecture
 
@@ -133,7 +133,7 @@ The application uses a simple but effective schema:
 
 ```
 Changelog:
-- July 06, 2025. Initial setup - Created AI-powered journaling app with React frontend and Express backend
+- July 06, 2025. Initial setup - Created AI-powered life path companion app with React frontend and Express backend
 - July 06, 2025. Added PostgreSQL database - Replaced in-memory storage with persistent PostgreSQL database using Drizzle ORM
 - July 06, 2025. Added mood and tags functionality - Users can now select moods and add custom tags to journal entries
 - July 06, 2025. Enhanced periodic reflections - Added directional insights, emerging goals, and achievement suggestions
@@ -152,6 +152,7 @@ Changelog:
 - July 07, 2025. Proper Subscription Flow - Implemented real payment processing simulation with free vs premium account distinction. Users start with limited free features and must upgrade to access premium features like unlimited entries, advanced AI insights, and goals management
 - July 07, 2025. Mobile UI Optimization - Removed floating Merlin wizard from mobile devices to improve mobile user experience. Floating Merlin avatar now only appears on desktop screens (md:block), providing cleaner mobile interface without overlapping UI elements
 - July 07, 2025. Username/Password Authentication System - Replaced Replit OAuth with traditional username/password registration system. Added secure password hashing with bcrypt, session management, and beautiful registration/login pages. Users can now create accounts with username, email, and password, with all journal data being user-specific and protected
+- July 08, 2025. Application Rebranding - Changed application name from "AI Bullet Journal" to "Life Path Companion" throughout the entire codebase. Updated header, about page, email service, landing page, and documentation to reflect the new name and focus on life path discovery rather than traditional bullet journaling
 ```
 
 ## User Preferences

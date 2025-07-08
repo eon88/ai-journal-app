@@ -52,7 +52,7 @@ export function Header() {
               <Calendar className="text-primary-foreground text-lg" />
             </div>
             <div>
-              <h1 className="text-2xl font-semibold text-foreground">AI Bullet Journal</h1>
+              <h1 className="text-2xl font-semibold text-foreground">Life Path Companion</h1>
               <p className="text-sm text-muted-foreground">Reflect, grow, and discover insights</p>
             </div>
           </div>

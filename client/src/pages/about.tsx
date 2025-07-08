@@ -9,7 +9,7 @@ export default function About() {
     {
       icon: <BookOpen className="w-5 h-5" />,
       title: "Smart Journaling",
-      description: "Express yourself with custom bullet symbols and automatic entry categorization"
+      description: "Express yourself with custom symbols and automatic entry categorization"
     },
     {
       icon: <Target className="w-5 h-5" />,
@@ -74,7 +74,7 @@ export default function About() {
               personal growth, and our platform makes this practice both engaging and insightful.
             </p>
             <p>
-              By combining the proven benefits of bullet journaling with AI-powered insights 
+              By combining the proven benefits of structured journaling with AI-powered insights 
               and gamification elements, we've created a unique ecosystem that not only captures 
               your thoughts but actively helps you understand patterns, celebrate progress, and 
               discover your authentic path forward.

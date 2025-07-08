@@ -75,7 +75,7 @@ Message:
 ${message}
 
 --
-Sent from AI Bullet Journal Contact Form
+Sent from Life Path Companion Contact Form
 Time: ${new Date().toLocaleString()}
     `.trim();
 
