@@ -101,8 +101,8 @@ export function JournalEntryForm() {
   return (
     <div className="glass-card-transparent rounded-xl shadow-sm p-8 mb-8">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-white">Today's Entry</h2>
-        <div className="flex items-center space-x-2 text-sm text-white">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Today's Entry</h2>
+        <div className="flex items-center space-x-2 text-sm text-gray-900 dark:text-white">
           <Clock className="w-4 h-4" />
           <span>{formatTime()}</span>
         </div>
@@ -110,7 +110,7 @@ export function JournalEntryForm() {
       
       <div className="space-y-4">
         <div className="relative">
-          <label htmlFor="entry" className="block text-sm font-medium text-white mb-2">
+          <label htmlFor="entry" className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
             What's on your mind today?
           </label>
           <Textarea 
@@ -121,7 +121,7 @@ export function JournalEntryForm() {
             rows={12}
             className="w-full p-4 border border-journal-border rounded-lg focus:ring-2 focus:ring-journal-primary focus:border-transparent resize-none text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 leading-relaxed bg-transparent"
           />
-          <div className="absolute bottom-3 right-3 text-xs text-gray-400">
+          <div className="absolute bottom-3 right-3 text-xs text-gray-500 dark:text-gray-400">
             {entry.length} characters
           </div>
         </div>
