@@ -136,19 +136,19 @@ export function JournalEntryForm() {
 
         {/* Bullet Symbol Selector */}
         <div className="mb-4">
-          <div className="flex items-center gap-3 mb-2">
+          <div className="flex items-center gap-3 mb-3">
             <PenTool className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Entry Type:</span>
-            <BulletSymbolSelector 
-              selectedSymbol={selectedSymbol}
-              onSymbolSelect={setSelectedSymbol}
-            />
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Choose Entry Symbol:</span>
+            {selectedSymbol && (
+              <span className="text-sm text-gray-600 dark:text-gray-400">
+                Selected: {selectedSymbol} {BULLET_SYMBOLS[selectedSymbol as keyof typeof BULLET_SYMBOLS]?.name}
+              </span>
+            )}
           </div>
-          {selectedSymbol && (
-            <div className="text-xs text-gray-600 dark:text-gray-400 ml-7">
-              Selected: {selectedSymbol} {BULLET_SYMBOLS[selectedSymbol as keyof typeof BULLET_SYMBOLS]?.name}
-            </div>
-          )}
+          <BulletSymbolSelector 
+            selectedSymbol={selectedSymbol}
+            onSymbolSelect={setSelectedSymbol}
+          />
         </div>
 
         {/* Mood and Tags Section */}
