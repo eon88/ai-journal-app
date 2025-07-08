@@ -168,9 +168,9 @@ export default function UserProfile() {
           </div>
         </div>
 
-        <Tabs defaultValue="overview" className="space-y-6">
+        <Tabs defaultValue="overview" className="space-y-8 sm:space-y-10">
           {/* Tab Navigation */}
-          <div className="bg-white dark:bg-black border border-gray-200 dark:border-gray-700 rounded-lg p-2 shadow-sm">
+          <div className="bg-white dark:bg-black border border-gray-200 dark:border-gray-700 rounded-lg p-3 shadow-sm mb-8 sm:mb-12">
             <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-1 p-1 bg-gray-50 dark:bg-gray-800">
               <TabsTrigger value="overview" className="text-xs sm:text-sm px-2 py-3">Overview</TabsTrigger>
               <TabsTrigger value="analysis" className="text-xs sm:text-sm px-2 py-3">Analysis</TabsTrigger>
@@ -183,7 +183,7 @@ export default function UserProfile() {
           </div>
           
           {/* Tab Content Container */}
-          <div className="bg-white dark:bg-black border border-gray-200 dark:border-gray-700 rounded-lg p-4 sm:p-6 shadow-sm min-h-[500px]">
+          <div className="bg-white dark:bg-black border border-gray-200 dark:border-gray-700 rounded-lg p-6 sm:p-8 shadow-sm min-h-[500px] mt-8 sm:mt-12">
 
             {/* Overview Tab */}
             <TabsContent value="overview" className="space-y-4 sm:space-y-6">
