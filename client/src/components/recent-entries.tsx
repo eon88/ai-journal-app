@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MessageCircle } from "lucide-react";
+import { Link } from "wouter";
 import type { JournalEntry } from "@shared/schema";
 import { BULLET_SYMBOLS } from "@shared/schema";
 
@@ -101,47 +102,48 @@ export function RecentEntries() {
       {entries && entries.length > 0 ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {entries.map((entry) => (
-            <div 
-              key={entry.id}
-              className="bg-white rounded-lg shadow-sm border border-journal-border p-4 hover:shadow-md transition-shadow duration-200"
-            >
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-gray-500">
-                  {formatDate(entry.createdAt)}
-                </span>
-                <div className="flex items-center space-x-2">
-                  {entry.symbol && (
-                    <Badge variant="outline" className="text-xs px-2 py-1">
-                      {entry.symbol} {BULLET_SYMBOLS[entry.symbol as keyof typeof BULLET_SYMBOLS]?.name}
-                    </Badge>
-                  )}
-                  <div className="flex items-center space-x-1">
-                    <div className={`w-2 h-2 ${getMoodColor(entry.mood)} rounded-full`}></div>
-                    <span className="text-xs text-gray-400">
-                      {entry.mood || 'No mood'}
-                    </span>
+            <Link href={`/entry/${entry.id}`} key={entry.id}>
+              <div 
+                className="bg-white rounded-lg shadow-sm border border-journal-border p-4 hover:shadow-md transition-all duration-200 cursor-pointer hover:border-journal-primary group"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-gray-500">
+                    {formatDate(entry.createdAt)}
+                  </span>
+                  <div className="flex items-center space-x-2">
+                    {entry.symbol && (
+                      <Badge variant="outline" className="text-xs px-2 py-1">
+                        {entry.symbol} {BULLET_SYMBOLS[entry.symbol as keyof typeof BULLET_SYMBOLS]?.name}
+                      </Badge>
+                    )}
+                    <div className="flex items-center space-x-1">
+                      <div className={`w-2 h-2 ${getMoodColor(entry.mood)} rounded-full`}></div>
+                      <span className="text-xs text-gray-400">
+                        {entry.mood || 'No mood'}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <p className="text-sm text-gray-700 line-clamp-3 mb-3">
-                {entry.symbol ? `${entry.symbol} ` : ''}{truncateText(entry.content)}
-              </p>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-1 text-xs text-gray-400">
-                  <MessageCircle className="w-3 h-3" />
-                  <span>
-                    {entry.aiReflection ? 'AI Reflection' : 'No reflection'}
-                  </span>
+                <p className="text-sm text-gray-700 line-clamp-3 mb-3">
+                  {entry.symbol ? `${entry.symbol} ` : ''}{truncateText(entry.content)}
+                </p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-1 text-xs text-gray-400">
+                    <MessageCircle className="w-3 h-3" />
+                    <span>
+                      {entry.aiReflection ? 'AI Reflection' : 'No reflection'}
+                    </span>
+                  </div>
+                  <Button 
+                    variant="ghost"
+                    size="sm"
+                    className="text-xs text-journal-primary hover:text-indigo-700 group-hover:text-indigo-700"
+                  >
+                    Read More
+                  </Button>
                 </div>
-                <Button 
-                  variant="ghost"
-                  size="sm"
-                  className="text-xs text-journal-primary hover:text-indigo-700"
-                >
-                  Read More
-                </Button>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       ) : (

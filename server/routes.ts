@@ -145,6 +145,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get specific journal entry by ID (protected)
+  app.get("/api/entries/:id", isAuthenticated, async (req: any, res: Response) => {
+    try {
+      const userId = req.user.id;
+      const entryId = parseInt(req.params.id);
+      
+      if (isNaN(entryId)) {
+        return res.status(400).json({ message: "Invalid entry ID" });
+      }
+      
+      const entry = await storage.getJournalEntry(userId, entryId);
+      
+      if (!entry) {
+        return res.status(404).json({ message: "Entry not found" });
+      }
+      
+      res.json(entry);
+    } catch (error) {
+      console.error("Error fetching entry:", error);
+      res.status(500).json({ message: "Failed to fetch entry" });
+    }
+  });
+
   // Get specific journal entry (protected)
   app.get("/api/entries/:id", isAuthenticated, async (req: any, res) => {
     try {
