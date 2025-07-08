@@ -387,25 +387,33 @@
       padding: 1rem !important;
     }
     
-    /* Tab content spacing on mobile */
-    [data-state="active"] {
-      padding-top: 2rem !important;
-      margin-top: 2rem !important;
+    /* Mobile tab fixes */
+    [role="tabpanel"] {
+      position: relative;
+      z-index: 1;
+      background: rgba(255, 255, 255, 0.98) !important;
+      border-radius: 8px;
+      padding: 1rem !important;
+      margin-top: 0 !important;
+      min-height: 60vh;
     }
     
-    .tabs-content > * {
+    .dark [role="tabpanel"] {
+      background: rgba(0, 0, 0, 0.95) !important;
+    }
+    
+    /* Tab trigger container */
+    [role="tablist"] {
+      position: relative;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.98) !important;
+      border-radius: 8px;
+      padding: 0.5rem !important;
       margin-bottom: 1rem !important;
     }
     
-    /* Tab trigger spacing */
-    [role="tablist"] {
-      margin-bottom: 2.5rem !important;
-    }
-    
-    /* Additional spacing between tab list and tab content */
-    [role="tabpanel"] {
-      margin-top: 2rem !important;
-      padding-top: 1.5rem !important;
+    .dark [role="tablist"] {
+      background: rgba(0, 0, 0, 0.95) !important;
     }
     
     /* Better visibility for header text on mobile */

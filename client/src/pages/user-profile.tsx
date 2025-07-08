@@ -168,19 +168,23 @@ export default function UserProfile() {
           </div>
         </div>
 
-        <Tabs defaultValue="overview" className="space-y-8 sm:space-y-10">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-1 p-1 mb-8 sm:mb-10">
-            <TabsTrigger value="overview" className="text-xs sm:text-sm px-2 py-3">Overview</TabsTrigger>
-            <TabsTrigger value="analysis" className="text-xs sm:text-sm px-2 py-3">Analysis</TabsTrigger>
-            <TabsTrigger value="goals" className="text-xs sm:text-sm px-2 py-3">Goals</TabsTrigger>
-            <TabsTrigger value="settings" className="text-xs sm:text-sm px-2 py-3">Settings</TabsTrigger>
-            <TabsTrigger value="subscription" className="text-xs sm:text-sm px-1 py-3">Sub</TabsTrigger>
-            <TabsTrigger value="data" className="text-xs sm:text-sm px-2 py-3">Data</TabsTrigger>
-            <TabsTrigger value="account" className="text-xs sm:text-sm px-2 py-3">Account</TabsTrigger>
-          </TabsList>
+        <Tabs defaultValue="overview" className="space-y-0">
+          <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm pb-4 mb-8">
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-1 p-1">
+              <TabsTrigger value="overview" className="text-xs sm:text-sm px-2 py-3">Overview</TabsTrigger>
+              <TabsTrigger value="analysis" className="text-xs sm:text-sm px-2 py-3">Analysis</TabsTrigger>
+              <TabsTrigger value="goals" className="text-xs sm:text-sm px-2 py-3">Goals</TabsTrigger>
+              <TabsTrigger value="settings" className="text-xs sm:text-sm px-2 py-3">Settings</TabsTrigger>
+              <TabsTrigger value="subscription" className="text-xs sm:text-sm px-1 py-3">Sub</TabsTrigger>
+              <TabsTrigger value="data" className="text-xs sm:text-sm px-2 py-3">Data</TabsTrigger>
+              <TabsTrigger value="account" className="text-xs sm:text-sm px-2 py-3">Account</TabsTrigger>
+            </TabsList>
+            {/* Visual separator */}
+            <div className="w-full h-px bg-border/50 mt-4"></div>
+          </div>
 
           {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-4 sm:space-y-6 pt-6 sm:pt-8 mt-6 sm:mt-8">
+          <TabsContent value="overview" className="space-y-4 sm:space-y-6 relative z-0">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
               <Card className="glass-card">
                 <CardContent className="p-3 sm:p-6 text-center">
@@ -237,7 +241,7 @@ export default function UserProfile() {
           </TabsContent>
 
           {/* AI Analysis Tab */}
-          <TabsContent value="analysis" className="space-y-4 sm:space-y-6 pt-6 sm:pt-8 mt-6 sm:mt-8">
+          <TabsContent value="analysis" className="space-y-4 sm:space-y-6 relative z-0">
             <Card className="glass-card">
               <CardHeader>
                 <CardTitle className="text-foreground flex items-center gap-2">
@@ -255,12 +259,12 @@ export default function UserProfile() {
           </TabsContent>
 
           {/* Goals Tab */}
-          <TabsContent value="goals" className="space-y-4 sm:space-y-6 pt-6 sm:pt-8 mt-6 sm:mt-8">
+          <TabsContent value="goals" className="space-y-4 sm:space-y-6 relative z-0">
             <GoalsManager />
           </TabsContent>
 
           {/* Settings Tab */}
-          <TabsContent value="settings" className="space-y-4 sm:space-y-6 pt-6 sm:pt-8 mt-6 sm:mt-8">
+          <TabsContent value="settings" className="space-y-4 sm:space-y-6 relative z-0">
             <Card className="glass-card">
               <CardHeader>
                 <CardTitle className="text-foreground flex items-center gap-2">
@@ -344,12 +348,12 @@ export default function UserProfile() {
           </TabsContent>
 
           {/* Subscription Tab */}
-          <TabsContent value="subscription" className="space-y-4 sm:space-y-6 pt-6 sm:pt-8 mt-6 sm:mt-8">
+          <TabsContent value="subscription" className="space-y-4 sm:space-y-6 relative z-0">
             <SubscriptionManager />
           </TabsContent>
 
           {/* Data Tab */}
-          <TabsContent value="data" className="space-y-4 sm:space-y-6 pt-6 sm:pt-8 mt-6 sm:mt-8">
+          <TabsContent value="data" className="space-y-4 sm:space-y-6 relative z-0">
             <Card className="glass-card">
               <CardHeader>
                 <CardTitle className="text-foreground flex items-center gap-2">
@@ -414,7 +418,7 @@ export default function UserProfile() {
           </TabsContent>
 
           {/* Account Tab */}
-          <TabsContent value="account" className="space-y-4 sm:space-y-6 pt-6 sm:pt-8 mt-6 sm:mt-8">
+          <TabsContent value="account" className="space-y-4 sm:space-y-6 relative z-0">
             <Card className="glass-card">
               <CardHeader>
                 <CardTitle className="text-foreground">Account Information</CardTitle>
