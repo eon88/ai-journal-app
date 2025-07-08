@@ -10,14 +10,13 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { BULLET_SYMBOLS } from "@shared/schema";
 import { BulletSymbolSelector } from "@/components/bullet-symbol-selector";
+import { TagSuggestions } from "@/components/tag-suggestions";
 
 export function JournalEntryForm() {
   const [entry, setEntry] = useState("");
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [selectedSymbol, setSelectedSymbol] = useState<string>("");
   const [tags, setTags] = useState<string[]>([]);
-  const [newTag, setNewTag] = useState("");
-  const [showTagInput, setShowTagInput] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -62,16 +61,7 @@ export function JournalEntryForm() {
     }
   });
 
-  const addTag = () => {
-    if (newTag.trim() && !tags.includes(newTag.trim())) {
-      setTags([...tags, newTag.trim()]);
-      setNewTag("");
-    }
-  };
 
-  const removeTag = (tagToRemove: string) => {
-    setTags(tags.filter(tag => tag !== tagToRemove));
-  };
 
   const handleSubmit = async () => {
     if (!entry.trim()) {
@@ -191,52 +181,7 @@ export function JournalEntryForm() {
             </select>
           </div>
 
-          <div className="flex items-center gap-3">
-            <Tags className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-            {!showTagInput ? (
-              <button
-                type="button"
-                onClick={() => setShowTagInput(true)}
-                className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700"
-              >
-                <Plus className="w-4 h-4" />
-                Add Tag
-              </button>
-            ) : (
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={newTag}
-                  onChange={(e) => setNewTag(e.target.value)}
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
-                      addTag();
-                    }
-                  }}
-                  placeholder="Enter tag..."
-                  className="w-32 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-journal-primary bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
-                />
-                <button 
-                  type="button" 
-                  onClick={addTag}
-                  disabled={!newTag.trim()}
-                  className="px-3 py-1 text-sm bg-journal-primary text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
-                >
-                  Add
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowTagInput(false);
-                    setNewTag("");
-                  }}
-                  className="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700"
-                >
-                  Cancel
-                </button>
-              </div>
-            )}
-          </div>
+          <TagSuggestions tags={tags} onTagsChange={setTags} />
         </div>
 
         <div className="flex items-center justify-between pt-4">
