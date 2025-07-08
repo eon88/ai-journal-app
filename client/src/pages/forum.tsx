@@ -7,9 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { MessageSquare, Users, TrendingUp, Clock, Search, Shield, Pin, Heart, Brain } from "lucide-react";
+import { MessageSquare, Users, TrendingUp, Clock, Search, Shield, Pin, Heart, Brain, Trophy } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { NewPostDialog } from "@/components/new-post-dialog";
+import { ForumRankBadge } from "@/components/forum-rank-badge";
 import type { ForumCategory, ForumPost } from "@shared/schema";
 
 export default function Forum() {
@@ -98,6 +99,14 @@ export default function Forum() {
               />
             </div>
             <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                onClick={() => window.location.href = '/forum/leaderboard'}
+                className="border-gray-600 text-gray-300 hover:bg-gray-700"
+              >
+                <Trophy className="w-4 h-4 mr-2" />
+                Leaderboard
+              </Button>
               <NewPostDialog />
               {adminCheck?.isAdmin && (
                 <Button 
@@ -203,6 +212,9 @@ export default function Forum() {
                             </h3>
                             <div className="flex items-center gap-2 text-sm text-gray-400">
                               <span>{post.author?.username}</span>
+                              {post.author?.xpPoints !== undefined && (
+                                <ForumRankBadge xpPoints={post.author.xpPoints} size="sm" />
+                              )}
                               <span>•</span>
                               <span>{post.category?.name}</span>
                               <span>•</span>
@@ -267,6 +279,9 @@ export default function Forum() {
                         <h4 className="font-medium text-white mb-1">{post.title}</h4>
                         <div className="flex items-center gap-2 text-xs text-gray-400 mb-2">
                           <span>{post.author?.username}</span>
+                          {post.author?.xpPoints !== undefined && (
+                            <ForumRankBadge xpPoints={post.author.xpPoints} size="sm" />
+                          )}
                           <span>•</span>
                           <span>{post.category?.name}</span>
                           <span>•</span>

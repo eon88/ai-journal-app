@@ -1797,6 +1797,33 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
     }
   });
 
+  // Get leaderboard data
+  app.get("/api/leaderboard/top-users", async (req: Request, res: Response) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 20;
+      
+      const topUsers = await db
+        .select({
+          id: users.id,
+          username: users.username,
+          xpPoints: userStats.xpPoints,
+          level: userStats.level,
+          title: userStats.title,
+          totalEntries: userStats.totalEntries,
+          currentStreak: userStats.currentStreak,
+        })
+        .from(users)
+        .innerJoin(userStats, eq(users.id, userStats.id))
+        .orderBy(desc(userStats.xpPoints), desc(userStats.totalEntries))
+        .limit(limit);
+
+      res.json(topUsers);
+    } catch (error) {
+      console.error("Error fetching leaderboard:", error);
+      res.status(500).json({ message: "Failed to fetch leaderboard" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

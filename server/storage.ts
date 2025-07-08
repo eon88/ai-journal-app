@@ -91,12 +91,12 @@ export interface IStorage {
   // Forum operations
   getForumCategories(): Promise<ForumCategory[]>;
   createForumCategory(category: InsertForumCategory): Promise<ForumCategory>;
-  getForumPosts(categoryId?: number, limit?: number): Promise<(ForumPost & { author: { username: string; }, category: { name: string; } })[]>;
+  getForumPosts(categoryId?: number, limit?: number): Promise<(ForumPost & { author: { username: string; xpPoints: number; }, category: { name: string; } })[]>;
   getForumPost(id: number): Promise<(ForumPost & { author: { username: string; }, category: { name: string; } }) | undefined>;
   createForumPost(userId: number, post: InsertForumPost): Promise<ForumPost>;
   updateForumPost(id: number, updates: Partial<InsertForumPost>): Promise<ForumPost | undefined>;
   deleteForumPost(id: number): Promise<void>;
-  getForumReplies(postId: number): Promise<(ForumReply & { author: { username: string; } })[]>;
+  getForumReplies(postId: number): Promise<(ForumReply & { author: { username: string; xpPoints: number; } })[]>;
   createForumReply(userId: number, reply: InsertForumReply): Promise<ForumReply>;
   toggleForumLike(userId: number, postId?: number, replyId?: number): Promise<boolean>;
   incrementPostViews(postId: number): Promise<void>;
@@ -613,7 +613,7 @@ export class DatabaseStorage implements IStorage {
     return category;
   }
 
-  async getForumPosts(categoryId?: number, limit = 50): Promise<(ForumPost & { author: { username: string; }, category: { name: string; } })[]> {
+  async getForumPosts(categoryId?: number, limit = 50): Promise<(ForumPost & { author: { username: string; xpPoints: number; }, category: { name: string; } })[]> {
     const query = db
       .select({
         id: forumPosts.id,
@@ -631,11 +631,15 @@ export class DatabaseStorage implements IStorage {
         lastReplyBy: forumPosts.lastReplyBy,
         createdAt: forumPosts.createdAt,
         updatedAt: forumPosts.updatedAt,
-        author: { username: users.username },
+        author: { 
+          username: users.username,
+          xpPoints: userStats.xpPoints
+        },
         category: { name: forumCategories.name }
       })
       .from(forumPosts)
       .leftJoin(users, eq(forumPosts.authorId, users.id))
+      .leftJoin(userStats, eq(users.id, userStats.id))
       .leftJoin(forumCategories, eq(forumPosts.categoryId, forumCategories.id))
       .orderBy(desc(forumPosts.isPinned), desc(forumPosts.createdAt))
       .limit(limit);
@@ -690,7 +694,7 @@ export class DatabaseStorage implements IStorage {
     await db.delete(forumPosts).where(eq(forumPosts.id, id));
   }
 
-  async getForumReplies(postId: number): Promise<(ForumReply & { author: { username: string; } })[]> {
+  async getForumReplies(postId: number): Promise<(ForumReply & { author: { username: string; xpPoints: number; } })[]> {
     return await db
       .select({
         id: forumReplies.id,
@@ -701,10 +705,14 @@ export class DatabaseStorage implements IStorage {
         likeCount: forumReplies.likeCount,
         createdAt: forumReplies.createdAt,
         updatedAt: forumReplies.updatedAt,
-        author: { username: users.username }
+        author: { 
+          username: users.username,
+          xpPoints: userStats.xpPoints
+        }
       })
       .from(forumReplies)
       .leftJoin(users, eq(forumReplies.authorId, users.id))
+      .leftJoin(userStats, eq(users.id, userStats.id))
       .where(eq(forumReplies.postId, postId))
       .orderBy(forumReplies.createdAt);
   }

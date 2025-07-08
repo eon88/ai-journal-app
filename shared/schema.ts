@@ -349,3 +349,138 @@ export const insertFolderSchema = createInsertSchema(folders).pick({
 
 export type InsertFolder = z.infer<typeof insertFolderSchema>;
 export type Folder = typeof folders.$inferSelect;
+
+// Forum rank hierarchy based on XP points
+export interface ForumRank {
+  id: number;
+  name: string;
+  minXP: number;
+  maxXP: number;
+  color: string;
+  icon: string;
+  badge: string;
+  description: string;
+}
+
+export const FORUM_RANKS: ForumRank[] = [
+  {
+    id: 1,
+    name: "Novice Journaler",
+    minXP: 0,
+    maxXP: 99,
+    color: "#94A3B8", // gray
+    icon: "👶",
+    badge: "🌱",
+    description: "Just beginning their journey of self-discovery"
+  },
+  {
+    id: 2,
+    name: "Reflective Explorer",
+    minXP: 100,
+    maxXP: 299,
+    color: "#84CC16", // lime
+    icon: "🌿",
+    badge: "🌿",
+    description: "Actively exploring thoughts and emotions"
+  },
+  {
+    id: 3,
+    name: "Mindful Contributor",
+    minXP: 300,
+    maxXP: 599,
+    color: "#06B6D4", // cyan
+    icon: "💭",
+    badge: "💭",
+    description: "Sharing insights and supporting others"
+  },
+  {
+    id: 4,
+    name: "Wisdom Keeper",
+    minXP: 600,
+    maxXP: 999,
+    color: "#8B5CF6", // violet
+    icon: "📚",
+    badge: "📚",
+    description: "Accumulating and sharing valuable life insights"
+  },
+  {
+    id: 5,
+    name: "Growth Catalyst",
+    minXP: 1000,
+    maxXP: 1499,
+    color: "#F59E0B", // amber
+    icon: "⚡",
+    badge: "⚡",
+    description: "Inspiring growth and transformation in others"
+  },
+  {
+    id: 6,
+    name: "Inner Architect",
+    minXP: 1500,
+    maxXP: 2099,
+    color: "#DC2626", // red
+    icon: "🏗️",
+    badge: "🏗️",
+    description: "Masterfully designing their life path"
+  },
+  {
+    id: 7,
+    name: "Life Path Sage",
+    minXP: 2100,
+    maxXP: 2799,
+    color: "#7C3AED", // purple
+    icon: "🔮",
+    badge: "🔮",
+    description: "Guiding others with profound wisdom and experience"
+  },
+  {
+    id: 8,
+    name: "Enlightened Mentor",
+    minXP: 2800,
+    maxXP: 4999,
+    color: "#BE185D", // pink
+    icon: "🌟",
+    badge: "🌟",
+    description: "A beacon of wisdom and inspiration for the community"
+  },
+  {
+    id: 9,
+    name: "Transcendent Guide",
+    minXP: 5000,
+    maxXP: 9999,
+    color: "#059669", // emerald
+    icon: "👑",
+    badge: "👑",
+    description: "Reached extraordinary levels of self-awareness and wisdom"
+  },
+  {
+    id: 10,
+    name: "Legendary Oracle",
+    minXP: 10000,
+    maxXP: Infinity,
+    color: "#DC2626", // red with gold accent
+    icon: "🏆",
+    badge: "🏆",
+    description: "A legendary figure whose wisdom transcends ordinary understanding"
+  }
+];
+
+// Function to get forum rank based on XP
+export function getForumRank(xpPoints: number): ForumRank {
+  return FORUM_RANKS.find(rank => xpPoints >= rank.minXP && xpPoints <= rank.maxXP) || FORUM_RANKS[0];
+}
+
+// Function to get next rank and XP needed
+export function getNextRank(xpPoints: number): { nextRank: ForumRank | null; xpNeeded: number } {
+  const currentRank = getForumRank(xpPoints);
+  const nextRankIndex = FORUM_RANKS.findIndex(rank => rank.id === currentRank.id) + 1;
+  
+  if (nextRankIndex >= FORUM_RANKS.length) {
+    return { nextRank: null, xpNeeded: 0 }; // Already at max rank
+  }
+  
+  const nextRank = FORUM_RANKS[nextRankIndex];
+  const xpNeeded = nextRank.minXP - xpPoints;
+  
+  return { nextRank, xpNeeded };
+}
