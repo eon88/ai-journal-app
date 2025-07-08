@@ -133,14 +133,15 @@ export default function Landing() {
               <p>Let's help you become the architect of your own life.</p>
             </div>
             <div className="mt-6">
+              <p className="text-xl font-semibold text-blue-300">
+                Start journaling with purpose.<br />
+                Your castle is waiting.
+              </p>
               <Button 
                 onClick={() => window.location.href = '/register'}
-                className="w-full max-w-md mx-auto bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-12 py-6 text-xl rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 border-2 border-blue-500/30"
+                className="mt-3 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 text-sm font-bold rounded-full transition-all duration-200"
               >
-                <div className="leading-relaxed">
-                  Start journaling with purpose.<br />
-                  Your castle is waiting.
-                </div>
+                GO!
               </Button>
             </div>
           </div>
