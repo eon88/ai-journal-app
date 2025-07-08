@@ -48,6 +48,98 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Why Journal Section */}
+      <section className="max-w-4xl mx-auto px-4 py-16">
+        <div className="space-y-8 text-gray-300">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-white mb-6">🎯 Why Journal?</h2>
+            <p className="text-xl leading-relaxed">
+              Because writing is clear thinking.<br />
+              When you write, you're not just taking notes—you're taking command. A scattered mind produces scattered outcomes. But a focused pen produces power.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8 mt-12">
+            <div className="space-y-6">
+              <div>
+                <p className="text-lg leading-relaxed">
+                  Your mind is for generating ideas, not for storing them. The more thoughts you hold inside, the more clutter you carry. 
+                  Journaling frees you from mental overload. It becomes your second brain—a place to dump, sort, build, and grow.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="text-xl font-semibold text-white mb-3">🧱 One Brick at a Time</h3>
+                <p className="leading-relaxed">
+                  Success isn't one big leap. It's a brick laid on top of the last. One clear idea. One completed task. 
+                  One honest reflection. Stack enough of those, and you build a fortress of focus. A castle made of clarity.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="text-xl font-semibold text-white mb-3">🔍 Measure to Master</h3>
+                <p className="leading-relaxed">
+                  What you can measure, you can manage.<br />
+                  What you can manage, you can master.<br />
+                  But if you're not even aware of what's running your life, it will master you.
+                </p>
+                <p className="leading-relaxed mt-3">
+                  This journal helps you make the invisible visible. It reveals patterns, spotlights distractions, and makes progress trackable. 
+                  You'll gain awareness, and with awareness, power.
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-xl font-semibold text-white mb-3">🧭 Know Where You're Going</h3>
+                <p className="leading-relaxed">
+                  Vision-boarding, goal-setting, reflection—it all starts here.<br />
+                  When you know where you're headed, the journey shortens. You act with intention, not reaction. 
+                  You stop drifting, and start building.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="text-xl font-semibold text-white mb-3">👥 You're Not Alone</h3>
+                <p className="leading-relaxed">
+                  Even the most legendary minds in history used journals. Not because they were weak—but because they were wise. 
+                  They knew that writing doesn't make you soft. It makes you sharp.
+                </p>
+                <p className="leading-relaxed mt-3">
+                  And here, you're not doing it alone. You've got a structure. A rhythm. A supportive system. 
+                  And soon, an AI partner to reflect, guide, and grow with you.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="text-xl font-semibold text-white mb-3">💪 Discipline is Not Slavery</h3>
+                <p className="leading-relaxed">
+                  If someone forces you to do what you don't want to do, that's slavery.<br />
+                  But when you force yourself to do what you truly want—that's empowerment.
+                </p>
+                <p className="leading-relaxed mt-3">
+                  This tool doesn't push you into a mold. It helps you mold your own life. On your terms. With your values. One line at a time.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center mt-12 p-8 bg-gradient-to-r from-blue-900/30 to-purple-900/30 rounded-lg border border-blue-500/20">
+            <h3 className="text-2xl font-bold text-white mb-4">✅ Ready?</h3>
+            <div className="space-y-2 text-lg">
+              <p>Let's turn chaos into clarity.</p>
+              <p>Let's shorten the journey.</p>
+              <p>Let's help you become the architect of your own life.</p>
+            </div>
+            <p className="text-xl font-semibold text-blue-300 mt-4">
+              Start journaling with purpose.<br />
+              Your castle is waiting.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Features Grid */}
       <section className="max-w-6xl mx-auto px-4 py-16">
         <div className="text-center mb-12">
