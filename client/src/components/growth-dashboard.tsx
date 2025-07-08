@@ -47,8 +47,8 @@ export function GrowthDashboard() {
   if (!metrics) return null;
 
   return (
-    <div className="bg-gray-100/80 rounded-lg shadow-sm border p-6">
-      <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+    <div className="bg-gray-100/80 dark:bg-gray-800/50 rounded-lg shadow-sm border p-6">
+      <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
         <TrendingUp className="w-5 h-5 text-green-500" />
         Growth Map
       </h2>
@@ -56,7 +56,7 @@ export function GrowthDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {/* Mood Trends Chart */}
         <div>
-          <h3 className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
+          <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
             <Calendar className="w-4 h-4" />
             Emotional Landscape
           </h3>
@@ -88,7 +88,7 @@ export function GrowthDashboard() {
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <div className="h-48 flex items-center justify-center text-gray-500 text-sm">
+            <div className="h-48 flex items-center justify-center text-gray-500 dark:text-gray-400 text-sm">
               No mood data yet. Start adding moods to your entries!
             </div>
           )}
@@ -96,7 +96,7 @@ export function GrowthDashboard() {
 
         {/* Writing Frequency */}
         <div>
-          <h3 className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
+          <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
             <Calendar className="w-4 h-4" />
             Writing Activity
           </h3>
@@ -123,7 +123,7 @@ export function GrowthDashboard() {
               </LineChart>
             </ResponsiveContainer>
           ) : (
-            <div className="h-48 flex items-center justify-center text-gray-500 text-sm">
+            <div className="h-48 flex items-center justify-center text-gray-500 dark:text-gray-400 text-sm">
               Keep writing to see your activity patterns!
             </div>
           )}
@@ -132,7 +132,7 @@ export function GrowthDashboard() {
 
       {/* Common Themes */}
       <div>
-        <h3 className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
+        <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
           <Hash className="w-4 h-4" />
           Your Top Themes
         </h3>
@@ -141,17 +141,17 @@ export function GrowthDashboard() {
             {metrics.commonThemes.slice(0, 8).map((theme, index) => (
               <div 
                 key={theme.theme}
-                className="bg-gray-50 rounded-lg p-3 text-center border"
+                className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 text-center border"
               >
-                <div className="text-lg font-semibold text-gray-900">{theme.frequency}</div>
-                <div className="text-sm text-gray-600 truncate" title={theme.theme}>
+                <div className="text-lg font-semibold text-gray-900 dark:text-white">{theme.frequency}</div>
+                <div className="text-sm text-gray-600 dark:text-gray-300 truncate" title={theme.theme}>
                   {theme.theme}
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          <div className="text-center py-8 text-gray-500 text-sm">
+          <div className="text-center py-8 text-gray-500 dark:text-gray-400 text-sm">
             Add tags to your entries to discover patterns in your thoughts and experiences!
           </div>
         )}

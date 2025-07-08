@@ -86,15 +86,15 @@ export function PeriodicReflections() {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-2xl font-semibold text-white mb-2">Periodic Reflections</h2>
-        <p className="text-white">Get AI-powered insights about your journaling patterns over time</p>
+        <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">Periodic Reflections</h2>
+        <p className="text-gray-700 dark:text-white">Get AI-powered insights about your journaling patterns over time</p>
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
         {/* Weekly Reflection */}
         <div className="glass-card-transparent rounded-xl shadow-sm p-6">
           <div className="mb-6">
-            <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
               <Calendar className="w-5 h-5" />
               Weekly Reflection
             </h3>
@@ -114,13 +114,13 @@ export function PeriodicReflections() {
             {weeklyReflection && (
               <div className="space-y-4 pt-4 border-t">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-medium text-white">Week of {weeklyReflection.weekStart}</h3>
+                  <h3 className="font-medium text-gray-900 dark:text-white">Week of {weeklyReflection.weekStart}</h3>
                   <Badge variant="secondary">{weeklyReflection.entryCount} entries</Badge>
                 </div>
 
                 <div className="space-y-3">
                   <div>
-                    <h4 className="font-medium flex items-center gap-2 text-sm text-white/80">
+                    <h4 className="font-medium flex items-center gap-2 text-sm text-gray-700 dark:text-white/80">
                       <TrendingUp className="w-4 h-4" />
                       Dominant Moods
                     </h4>
@@ -134,31 +134,31 @@ export function PeriodicReflections() {
                   </div>
 
                   <div>
-                    <h4 className="font-medium flex items-center gap-2 text-sm">
+                    <h4 className="font-medium flex items-center gap-2 text-sm text-gray-700 dark:text-white">
                       <BarChart3 className="w-4 h-4" />
                       Common Themes
                     </h4>
-                    <p className="text-sm text-white/70 mt-1">{weeklyReflection.commonThemes}</p>
+                    <p className="text-sm text-gray-600 dark:text-white/70 mt-1">{weeklyReflection.commonThemes}</p>
                   </div>
 
                   <div>
-                    <h4 className="font-medium flex items-center gap-2 text-sm">
+                    <h4 className="font-medium flex items-center gap-2 text-sm text-gray-700 dark:text-white">
                       <TrendingUp className="w-4 h-4" />
                       Growth Observations
                     </h4>
-                    <p className="text-sm text-gray-600 mt-1">{weeklyReflection.growthObservations}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{weeklyReflection.growthObservations}</p>
                   </div>
 
                   <div>
-                    <h4 className="font-medium flex items-center gap-2 text-sm">
+                    <h4 className="font-medium flex items-center gap-2 text-sm text-gray-700 dark:text-white">
                       <ArrowRight className="w-4 h-4" />
                       Direction & Momentum
                     </h4>
-                    <p className="text-sm text-gray-600 mt-1">{weeklyReflection.directionAndMomentum}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{weeklyReflection.directionAndMomentum}</p>
                   </div>
 
                   <div>
-                    <h4 className="font-medium flex items-center gap-2 text-sm">
+                    <h4 className="font-medium flex items-center gap-2 text-sm text-gray-700 dark:text-white">
                       <Target className="w-4 h-4" />
                       Emerging Goals
                     </h4>
@@ -166,7 +166,7 @@ export function PeriodicReflections() {
                       {weeklyReflection.emergingGoals.map((goal, index) => (
                         <div key={index} className="flex items-start gap-2">
                           <CheckCircle className="w-3 h-3 mt-0.5 text-green-600" />
-                          <p className="text-sm text-gray-600">{goal}</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-300">{goal}</p>
                         </div>
                       ))}
                     </div>
@@ -204,7 +204,7 @@ export function PeriodicReflections() {
         {/* Monthly Reflection */}
         <div className="glass-card-transparent rounded-xl shadow-sm p-6">
           <div className="mb-6">
-            <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
               <BarChart3 className="w-5 h-5" />
               Monthly Reflection
             </h3>
@@ -225,45 +225,45 @@ export function PeriodicReflections() {
             {monthlyReflection && (
               <div className="space-y-4 pt-4 border-t">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-medium">{monthlyReflection.month} {monthlyReflection.year}</h3>
+                  <h3 className="font-medium text-gray-900 dark:text-white">{monthlyReflection.month} {monthlyReflection.year}</h3>
                   <Badge variant="secondary">{monthlyReflection.entryCount} entries</Badge>
                 </div>
 
                 <div className="space-y-3">
                   <div>
-                    <h4 className="font-medium flex items-center gap-2 text-sm">
+                    <h4 className="font-medium flex items-center gap-2 text-sm text-gray-700 dark:text-white">
                       <TrendingUp className="w-4 h-4" />
                       Mood Trends
                     </h4>
-                    <p className="text-sm text-gray-600 mt-1">{monthlyReflection.moodTrends}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{monthlyReflection.moodTrends}</p>
                   </div>
 
                   <div>
-                    <h4 className="font-medium flex items-center gap-2 text-sm">
+                    <h4 className="font-medium flex items-center gap-2 text-sm text-gray-700 dark:text-white">
                       <BarChart3 className="w-4 h-4" />
                       Key Themes
                     </h4>
-                    <p className="text-sm text-gray-600 mt-1">{monthlyReflection.keyThemes}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{monthlyReflection.keyThemes}</p>
                   </div>
 
                   <div>
-                    <h4 className="font-medium flex items-center gap-2 text-sm">
+                    <h4 className="font-medium flex items-center gap-2 text-sm text-gray-700 dark:text-white">
                       <TrendingUp className="w-4 h-4" />
                       Growth Journey
                     </h4>
-                    <p className="text-sm text-gray-600 mt-1">{monthlyReflection.growthJourney}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{monthlyReflection.growthJourney}</p>
                   </div>
 
                   <div>
-                    <h4 className="font-medium flex items-center gap-2 text-sm">
+                    <h4 className="font-medium flex items-center gap-2 text-sm text-gray-700 dark:text-white">
                       <ArrowRight className="w-4 h-4" />
                       Life Direction
                     </h4>
-                    <p className="text-sm text-gray-600 mt-1">{monthlyReflection.lifeDirection}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{monthlyReflection.lifeDirection}</p>
                   </div>
 
                   <div>
-                    <h4 className="font-medium flex items-center gap-2 text-sm">
+                    <h4 className="font-medium flex items-center gap-2 text-sm text-gray-700 dark:text-white">
                       <Target className="w-4 h-4" />
                       Emerging Goals
                     </h4>
@@ -271,7 +271,7 @@ export function PeriodicReflections() {
                       {monthlyReflection.emergingGoals.map((goal, index) => (
                         <div key={index} className="flex items-start gap-2">
                           <CheckCircle className="w-3 h-3 mt-0.5 text-green-600" />
-                          <p className="text-sm text-gray-600">{goal}</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-300">{goal}</p>
                         </div>
                       ))}
                     </div>

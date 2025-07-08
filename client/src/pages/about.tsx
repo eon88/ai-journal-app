@@ -45,10 +45,10 @@ export default function About() {
       <main className="max-w-4xl mx-auto px-4 py-8">
         {/* Hero Section */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-white mb-4">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
             About Life Path Companion
           </h1>
-          <p className="text-xl text-gray-300 mb-6 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-700 dark:text-gray-300 mb-6 max-w-2xl mx-auto">
             An AI-powered journaling experience that transforms personal reflection into 
             an immersive journey of self-discovery and growth.
           </p>
@@ -62,12 +62,12 @@ export default function About() {
         {/* Mission Section */}
         <Card className="glass-card mb-8">
           <CardHeader>
-            <CardTitle className="text-white">Our Mission</CardTitle>
-            <CardDescription className="text-gray-300">
+            <CardTitle className="text-gray-900 dark:text-white">Our Mission</CardTitle>
+            <CardDescription className="text-gray-700 dark:text-gray-300">
               Empowering personal transformation through intelligent journaling
             </CardDescription>
           </CardHeader>
-          <CardContent className="text-gray-200">
+          <CardContent className="text-gray-800 dark:text-gray-200">
             <p className="mb-4">
               Life Path Companion was created to bridge the gap between traditional journaling 
               and modern technology. We believe that self-reflection is the cornerstone of 
@@ -84,7 +84,7 @@ export default function About() {
 
         {/* Features Grid */}
         <div className="mb-8">
-          <h2 className="text-2xl font-semibold text-white mb-6 text-center">
+          <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6 text-center">
             Features That Transform Your Journey
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -96,10 +96,10 @@ export default function About() {
                       {feature.icon}
                     </div>
                     <div>
-                      <h3 className="font-medium text-white mb-1">
+                      <h3 className="font-medium text-gray-900 dark:text-white mb-1">
                         {feature.title}
                       </h3>
-                      <p className="text-sm text-gray-300">
+                      <p className="text-sm text-gray-700 dark:text-gray-300">
                         {feature.description}
                       </p>
                     </div>
@@ -113,28 +113,28 @@ export default function About() {
         {/* Technology Section */}
         <Card className="glass-card mb-8">
           <CardHeader>
-            <CardTitle className="text-white">Built With Modern Technology</CardTitle>
-            <CardDescription className="text-gray-300">
+            <CardTitle className="text-gray-900 dark:text-white">Built With Modern Technology</CardTitle>
+            <CardDescription className="text-gray-700 dark:text-gray-300">
               Powered by cutting-edge technologies for a seamless experience
             </CardDescription>
           </CardHeader>
-          <CardContent className="text-gray-200">
+          <CardContent className="text-gray-800 dark:text-gray-200">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
               <div>
-                <div className="font-medium text-white mb-1">Frontend</div>
-                <div className="text-sm text-gray-300">React, TypeScript, Tailwind CSS</div>
+                <div className="font-medium text-gray-900 dark:text-white mb-1">Frontend</div>
+                <div className="text-sm text-gray-700 dark:text-gray-300">React, TypeScript, Tailwind CSS</div>
               </div>
               <div>
-                <div className="font-medium text-white mb-1">Backend</div>
-                <div className="text-sm text-gray-300">Node.js, Express, PostgreSQL</div>
+                <div className="font-medium text-gray-900 dark:text-white mb-1">Backend</div>
+                <div className="text-sm text-gray-700 dark:text-gray-300">Node.js, Express, PostgreSQL</div>
               </div>
               <div>
-                <div className="font-medium text-white mb-1">AI Engine</div>
-                <div className="text-sm text-gray-300">OpenAI GPT-4o</div>
+                <div className="font-medium text-gray-900 dark:text-white mb-1">AI Engine</div>
+                <div className="text-sm text-gray-700 dark:text-gray-300">OpenAI GPT-4o</div>
               </div>
               <div>
-                <div className="font-medium text-white mb-1">Platform</div>
-                <div className="text-sm text-gray-300">Replit Cloud</div>
+                <div className="font-medium text-gray-900 dark:text-white mb-1">Platform</div>
+                <div className="text-sm text-gray-700 dark:text-gray-300">Replit Cloud</div>
               </div>
             </div>
           </CardContent>
@@ -143,37 +143,37 @@ export default function About() {
         {/* Values Section */}
         <Card className="glass-card">
           <CardHeader>
-            <CardTitle className="text-white">Our Values</CardTitle>
-            <CardDescription className="text-gray-300">
+            <CardTitle className="text-gray-900 dark:text-white">Our Values</CardTitle>
+            <CardDescription className="text-gray-700 dark:text-gray-300">
               The principles that guide our development and design
             </CardDescription>
           </CardHeader>
-          <CardContent className="text-gray-200">
+          <CardContent className="text-gray-800 dark:text-gray-200">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <h4 className="font-medium text-white mb-2">Privacy First</h4>
-                <p className="text-sm text-gray-300">
+                <h4 className="font-medium text-gray-900 dark:text-white mb-2">Privacy First</h4>
+                <p className="text-sm text-gray-700 dark:text-gray-300">
                   Your journal entries and personal reflections are private and secure. 
                   We prioritize data protection and user privacy in everything we build.
                 </p>
               </div>
               <div>
-                <h4 className="font-medium text-white mb-2">Authentic Growth</h4>
-                <p className="text-sm text-gray-300">
+                <h4 className="font-medium text-gray-900 dark:text-white mb-2">Authentic Growth</h4>
+                <p className="text-sm text-gray-700 dark:text-gray-300">
                   We believe in genuine personal development over superficial metrics. 
                   Our features are designed to promote real self-awareness and growth.
                 </p>
               </div>
               <div>
-                <h4 className="font-medium text-white mb-2">Inclusive Design</h4>
-                <p className="text-sm text-gray-300">
+                <h4 className="font-medium text-gray-900 dark:text-white mb-2">Inclusive Design</h4>
+                <p className="text-sm text-gray-700 dark:text-gray-300">
                   Our platform welcomes all journaling styles and personal paths. 
                   Whether you're new to reflection or a seasoned journaler, you belong here.
                 </p>
               </div>
               <div>
-                <h4 className="font-medium text-white mb-2">Continuous Innovation</h4>
-                <p className="text-sm text-gray-300">
+                <h4 className="font-medium text-gray-900 dark:text-white mb-2">Continuous Innovation</h4>
+                <p className="text-sm text-gray-700 dark:text-gray-300">
                   We're constantly evolving our platform based on user feedback and 
                   the latest research in psychology, AI, and personal development.
                 </p>
