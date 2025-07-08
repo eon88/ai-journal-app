@@ -389,8 +389,8 @@
     
     /* Tab content spacing on mobile */
     [data-state="active"] {
-      padding-top: 1.5rem !important;
-      margin-top: 1rem !important;
+      padding-top: 2rem !important;
+      margin-top: 2rem !important;
     }
     
     .tabs-content > * {
@@ -399,7 +399,13 @@
     
     /* Tab trigger spacing */
     [role="tablist"] {
-      margin-bottom: 1.5rem !important;
+      margin-bottom: 2.5rem !important;
+    }
+    
+    /* Additional spacing between tab list and tab content */
+    [role="tabpanel"] {
+      margin-top: 2rem !important;
+      padding-top: 1.5rem !important;
     }
     
     /* Better visibility for header text on mobile */
