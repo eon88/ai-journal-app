@@ -4,10 +4,27 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { User } from "lucide-react";
 import { useUser } from "@/components/user-provider";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 
 export function UserNameSetup() {
   const { userName, setUserName } = useUser();
   const [inputName, setInputName] = useState("");
+  const queryClient = useQueryClient();
+
+  const updateDisplayNameMutation = useMutation({
+    mutationFn: async (displayName: string) => {
+      const response = await apiRequest("/api/user/display-name", "POST", { displayName });
+      return await response.json();
+    },
+    onSuccess: (data) => {
+      setUserName(data.displayName);
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+    },
+    onError: (error) => {
+      console.error("Failed to update display name:", error);
+    }
+  });
 
   if (userName) {
     return null; // Don't show if name is already set
@@ -15,7 +32,7 @@ export function UserNameSetup() {
 
   const handleSubmit = () => {
     if (inputName.trim()) {
-      setUserName(inputName.trim());
+      updateDisplayNameMutation.mutate(inputName.trim());
     }
   };
 
@@ -50,9 +67,9 @@ export function UserNameSetup() {
           <Button 
             onClick={handleSubmit} 
             className="w-full"
-            disabled={!inputName.trim()}
+            disabled={!inputName.trim() || updateDisplayNameMutation.isPending}
           >
-            Begin Your Journey
+            {updateDisplayNameMutation.isPending ? "Setting up..." : "Begin Your Journey"}
           </Button>
         </CardContent>
       </Card>

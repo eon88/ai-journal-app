@@ -86,6 +86,7 @@ export interface IStorage {
   updateUserRole(userId: number, role: string): Promise<User | undefined>;
   isUserAdmin(userId: number): Promise<boolean>;
   updateQuestionnaireCompletion(userId: number, completed: boolean): Promise<User | undefined>;
+  updateUserDisplayName(userId: number, displayName: string): Promise<User | undefined>;
   
   // Forum operations
   getForumCategories(): Promise<ForumCategory[]>;
@@ -783,6 +784,15 @@ export class DatabaseStorage implements IStorage {
     const [user] = await db
       .update(users)
       .set({ hasCompletedQuestionnaire: completed })
+      .where(eq(users.id, userId))
+      .returning();
+    return user;
+  }
+
+  async updateUserDisplayName(userId: number, displayName: string): Promise<User | undefined> {
+    const [user] = await db
+      .update(users)
+      .set({ displayName })
       .where(eq(users.id, userId))
       .returning();
     return user;

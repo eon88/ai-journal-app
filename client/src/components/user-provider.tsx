@@ -11,33 +11,27 @@ type UserContextType = {
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
-  const [userName, setUserName] = useState(() => {
-    // Get from localStorage or default to empty string
-    return localStorage.getItem("userName") || "";
-  });
-
+  const [userName, setUserName] = useState("");
   const [hasCompletedQuestionnaire, setHasCompletedQuestionnaire] = useState(false);
 
-  // Fetch current user data to get questionnaire completion status
+  // Fetch current user data to get questionnaire completion status and display name
   const { data: user } = useQuery({
     queryKey: ["/api/auth/user"],
     retry: false,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
-  // Update questionnaire status from database when user data loads
+  // Update user data from database when user data loads
   useEffect(() => {
-    if (user && typeof user.hasCompletedQuestionnaire === 'boolean') {
-      setHasCompletedQuestionnaire(user.hasCompletedQuestionnaire);
+    if (user) {
+      if (typeof user.hasCompletedQuestionnaire === 'boolean') {
+        setHasCompletedQuestionnaire(user.hasCompletedQuestionnaire);
+      }
+      if (user.displayName) {
+        setUserName(user.displayName);
+      }
     }
   }, [user]);
-
-  useEffect(() => {
-    // Save to localStorage whenever userName changes
-    if (userName) {
-      localStorage.setItem("userName", userName);
-    }
-  }, [userName]);
 
   const value = {
     userName,

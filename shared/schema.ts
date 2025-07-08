@@ -246,6 +246,7 @@ export const users = pgTable("users", {
   passwordHash: varchar("password_hash", { length: 255 }).notNull(),
   firstName: varchar("first_name", { length: 50 }),
   lastName: varchar("last_name", { length: 50 }),
+  displayName: varchar("display_name", { length: 100 }),
   profileImageUrl: varchar("profile_image_url"),
   role: varchar("role", { length: 20 }).default("user").notNull(), // 'admin' or 'user'
   hasCompletedQuestionnaire: boolean("has_completed_questionnaire").default(false).notNull(),

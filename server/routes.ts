@@ -150,6 +150,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update user display name
+  app.post('/api/user/display-name', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const { displayName } = req.body;
+      
+      if (!displayName || !displayName.trim()) {
+        return res.status(400).json({ message: "Display name is required" });
+      }
+      
+      const user = await storage.updateUserDisplayName(userId, displayName.trim());
+      if (user) {
+        const { passwordHash: _, ...userResponse } = user;
+        res.json(userResponse);
+      } else {
+        res.status(404).json({ message: "User not found" });
+      }
+    } catch (error) {
+      console.error("Error updating display name:", error);
+      res.status(500).json({ message: "Failed to update display name" });
+    }
+  });
+
   // Get recent journal entries (protected)
   app.get("/api/entries", isAuthenticated, async (req: any, res) => {
     try {
