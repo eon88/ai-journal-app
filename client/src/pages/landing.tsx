@@ -132,10 +132,15 @@ export default function Landing() {
               <p>Let's shorten the journey.</p>
               <p>Let's help you become the architect of your own life.</p>
             </div>
-            <p className="text-xl font-semibold text-blue-300 mt-4">
-              Start journaling with purpose.<br />
-              Your castle is waiting.
-            </p>
+            <div className="mt-6">
+              <Button 
+                onClick={() => window.location.href = '/register'}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-lg rounded-lg font-medium"
+              >
+                Start journaling with purpose.<br />
+                Your castle is waiting.
+              </Button>
+            </div>
           </div>
         </div>
       </section>
