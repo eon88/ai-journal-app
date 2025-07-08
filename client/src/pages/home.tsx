@@ -11,7 +11,7 @@ import { InsightsVault } from "@/components/insights-vault";
 import { DailyChallenge } from "@/components/daily-challenge";
 import { BadgeShowcase } from "@/components/badge-showcase";
 import { MerlinAssistant } from "@/components/merlin-assistant";
-import { UserNameSetup } from "@/components/user-name-setup";
+
 import { LifePathQuestionnaire } from "@/components/life-path-questionnaire";
 import { Footer } from "@/components/footer";
 import { LevelSidebar } from "@/components/level-sidebar";
@@ -120,9 +120,6 @@ export default function Home() {
       />
       
       <Footer />
-      
-      {/* User Name Setup Modal */}
-      <UserNameSetup />
     </div>
   );
 }

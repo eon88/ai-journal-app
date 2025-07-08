@@ -29,6 +29,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       }
       if (user.displayName) {
         setUserName(user.displayName);
+      } else {
+        // Set a default display name from username if no display name is set
+        setUserName(user.username || "");
       }
     }
   }, [user]);

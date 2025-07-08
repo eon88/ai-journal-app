@@ -14,6 +14,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useNotificationSettings } from "@/hooks/useNotificationSettings";
 import { SubscriptionManager } from "@/components/subscription-manager";
 import { GoalsManager } from "@/components/goals-manager";
+import { AIReviewViewer } from "@/components/ai-review-viewer";
 
 export default function UserProfile() {
   const { userName, setUserName } = useUser();
@@ -167,8 +168,9 @@ export default function UserProfile() {
         </div>
 
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="analysis">AI Analysis</TabsTrigger>
             <TabsTrigger value="goals">Goals</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
             <TabsTrigger value="subscription">Subscription</TabsTrigger>
@@ -229,6 +231,24 @@ export default function UserProfile() {
                     <span className="text-foreground">Achievement level: {userStats?.level || 1}</span>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* AI Analysis Tab */}
+          <TabsContent value="analysis" className="space-y-6">
+            <Card className="glass-card">
+              <CardHeader>
+                <CardTitle className="text-foreground flex items-center gap-2">
+                  <Target className="w-5 h-5" />
+                  Life Path Analysis
+                </CardTitle>
+                <CardDescription className="text-muted-foreground">
+                  View your personalized AI-generated life path insights based on your questionnaire responses
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <AIReviewViewer />
               </CardContent>
             </Card>
           </TabsContent>
