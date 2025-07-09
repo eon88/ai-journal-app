@@ -141,9 +141,18 @@ export default function Forum() {
 
         <Tabs defaultValue="categories" className="space-y-6">
           <TabsList className="grid w-full grid-cols-3 bg-gray-800">
-            <TabsTrigger value="categories">Categories</TabsTrigger>
-            <TabsTrigger value="featured">Featured Posts</TabsTrigger>
-            <TabsTrigger value="recent">Recent Discussions</TabsTrigger>
+            <TabsTrigger value="categories" className="text-xs sm:text-sm">
+              <span className="hidden sm:inline">Categories</span>
+              <span className="sm:hidden">Categories</span>
+            </TabsTrigger>
+            <TabsTrigger value="featured" className="text-xs sm:text-sm">
+              <span className="hidden sm:inline">Featured Posts</span>
+              <span className="sm:hidden">Featured</span>
+            </TabsTrigger>
+            <TabsTrigger value="recent" className="text-xs sm:text-sm">
+              <span className="hidden sm:inline">Recent Discussions</span>
+              <span className="sm:hidden">Recent</span>
+            </TabsTrigger>
           </TabsList>
 
           {/* Categories Tab */}
