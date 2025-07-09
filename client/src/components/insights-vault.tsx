@@ -102,15 +102,15 @@ export function InsightsVault() {
   }
 
   return (
-    <div className="bg-gray-100/80 rounded-lg shadow-sm border p-6">
+    <div className="bg-gray-100/80 dark:bg-gray-800/80 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
           <Vault className="w-5 h-5 text-purple-500" />
           Your Inner Library
         </h2>
         <button
           onClick={() => setShowAddForm(!showAddForm)}
-          className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-purple-600 hover:text-purple-700 hover:bg-purple-50 rounded-lg transition-colors"
+          className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/30 rounded-lg transition-colors"
         >
           <Plus className="w-4 h-4" />
           Add Insight
@@ -232,14 +232,14 @@ export function InsightsVault() {
         </div>
       ) : (
         <div className="text-center py-8">
-          <Vault className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-sm font-medium text-gray-900 mb-1">No insights saved yet</h3>
-          <p className="text-sm text-gray-500 mb-4">
+          <Vault className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+          <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-1">No insights saved yet</h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
             Start saving meaningful insights from your reflections to build your personal wisdom library.
           </p>
           <button
             onClick={() => setShowAddForm(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600"
           >
             <Plus className="w-4 h-4" />
             Add Your First Insight
