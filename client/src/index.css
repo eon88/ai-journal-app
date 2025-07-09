@@ -216,6 +216,22 @@ button,
   color: rgb(209, 213, 219) !important;
 }
 
+.text-gray-700 {
+  color: rgb(17, 24, 39) !important;
+}
+
+.dark .text-gray-700 {
+  color: rgb(209, 213, 219) !important;
+}
+
+.text-gray-800 {
+  color: rgb(17, 24, 39) !important;
+}
+
+.dark .text-gray-800 {
+  color: rgb(229, 231, 235) !important;
+}
+
 @layer utilities {
   .bg-journal-primary {
     background-color: var(--journal-primary);
