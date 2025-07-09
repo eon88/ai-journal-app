@@ -353,7 +353,8 @@ export default function Forum() {
                   </div>
                 </CardContent>
               </Card>
-            ))}
+              ))
+            )}
           </TabsContent>
 
           {/* Recent Discussions Tab */}
