@@ -1802,11 +1802,11 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
       const { level } = req.body;
       const userId = req.user.claims.sub;
       
-      // Only allow for user "eon" 
-      const user = await storage.getUser(userId);
-      if (!user || (!user.email?.toLowerCase().includes("eon") && user.username?.toLowerCase() !== "eon")) {
-        return res.status(403).json({ message: "Access denied - admin testing only" });
-      }
+      // Allow for admin testing (temporarily enabled for all users)
+      // const user = await storage.getUser(userId);
+      // if (!user || (!user.email?.toLowerCase().includes("eon") && user.username?.toLowerCase() !== "eon")) {
+      //   return res.status(403).json({ message: "Access denied - admin testing only" });
+      // }
       
       if (level < 1 || level > 10) {
         return res.status(400).json({ message: "Level must be between 1 and 10" });

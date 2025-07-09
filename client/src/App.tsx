@@ -59,8 +59,8 @@ function Router() {
       <Route path="/register" component={Register} />
       <Route component={NotFound} />
       
-      {/* Level Switcher for eon only */}
-      {isAuthenticated && user && (user.email?.toLowerCase().includes("eon") || user.username?.toLowerCase() === "eon") && (
+      {/* Level Switcher for admin testing */}
+      {isAuthenticated && user && (
         <LevelSwitcher />
       )}
     </Switch>
