@@ -425,7 +425,11 @@ export class DatabaseStorage implements IStorage {
       .where(eq(dailyChallenges.date, today))
       .limit(1);
     
-    return challenge || null;
+    if (!challenge) {
+      return await this.generateDailyChallenge(userId, today);
+    }
+    
+    return challenge;
   }
 
   async generateDailyChallenge(userId: number, date: string): Promise<DailyChallenge> {
