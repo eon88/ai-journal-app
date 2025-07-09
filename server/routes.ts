@@ -1,7 +1,7 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertJournalEntrySchema, insertFolderSchema, type AIReflection, type WeeklyReflection, type MonthlyReflection, type JournalEntry, type Folder, parseBulletSymbol, users, folders, journalEntries, LEVEL_UNLOCKS } from "@shared/schema";
+import { insertJournalEntrySchema, insertFolderSchema, type AIReflection, type WeeklyReflection, type MonthlyReflection, type JournalEntry, type Folder, parseBulletSymbol, users, folders, journalEntries, LEVEL_UNLOCKS, getUnlockedFeatures } from "@shared/schema";
 import { db } from "./db";
 import { z } from "zod";
 import { eq, and, desc, asc, like, or, inArray } from "drizzle-orm";
@@ -1812,24 +1812,24 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
         return res.status(400).json({ message: "Level must be between 1 and 10" });
       }
       
-      // Calculate XP for the target level
-      const requiredXP = calculateXPForLevel(level);
-      
       // Get current progress or initialize if doesn't exist
       const currentProgress = await storage.getUserProgress(userId);
       
+      // Calculate unlocked features for this level
+      const unlockedFeatures = getUnlockedFeatures(level);
+      
       await storage.updateUserProgress(userId, {
         currentLevel: level,
-        totalXP: requiredXP,
+        unlockedFeatures: unlockedFeatures,
+        lastLevelUp: new Date(),
         updatedAt: new Date()
       });
       
       res.json({ 
         success: true, 
         newLevel: level,
-        totalXP: requiredXP,
         message: `Level manually set to ${level}`,
-        unlockedFeatures: LEVEL_UNLOCKS[level] || []
+        unlockedFeatures: unlockedFeatures
       });
     } catch (error) {
       console.error("Error setting level:", error);
