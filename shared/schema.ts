@@ -494,3 +494,207 @@ export function getNextRank(xpPoints: number): { nextRank: ForumRank | null; xpN
   
   return { nextRank, xpNeeded };
 }
+
+// Progressive Gamification System
+export const PROGRESSIVE_GAMIFICATION_ENABLED = true;
+
+// Feature unlock configuration based on levels
+export interface FeatureUnlock {
+  level: number;
+  features: string[];
+  description: string;
+  motivation: string;
+}
+
+export const LEVEL_UNLOCKS: FeatureUnlock[] = [
+  {
+    level: 1, // Wanderer (0-99 XP)
+    features: [
+      'journal_entries_30',
+      'basic_symbols_5',
+      'mood_tracker_5',
+      'daily_quote',
+      'daily_challenge_1',
+      'streak_tracker',
+      'xp_tracking'
+    ],
+    description: "Journal entry cap: 30 entries, 5 basic symbols, 5 moods, daily quote & challenge",
+    motivation: "You've begun your journey. Every step forward is progress."
+  },
+  {
+    level: 2, // Seeker (100-299 XP)
+    features: [
+      'xp_bonus_3day',
+      'ai_reflection_weekly',
+      'mood_history',
+      'insights_vault',
+      'symbols_8'
+    ],
+    description: "AI reflections, mood history, insights vault, more symbols",
+    motivation: "There's more to discover inside you. Keep exploring."
+  },
+  {
+    level: 3, // Student (300-599 XP)
+    features: [
+      'mood_tracker_10',
+      'pin_entries',
+      'basic_folders',
+      'challenge_sequences',
+      'badge_cabinet'
+    ],
+    description: "Full mood tracker, pinning, folders, challenge sequences",
+    motivation: "You're learning the language of your inner world."
+  },
+  {
+    level: 4, // Climber (600-999 XP)
+    features: [
+      'streak_badges',
+      'ai_reflection_weekly_reports',
+      'mood_trends_graph',
+      'folder_customization'
+    ],
+    description: "Weekly AI reports, mood trends, folder customization",
+    motivation: "You're getting stronger. Your mind has muscles now."
+  },
+  {
+    level: 5, // Builder (1000-1499 XP)
+    features: [
+      'unlimited_entries',
+      'all_symbols_18',
+      'daily_challenges_3',
+      'pattern_recognition_ai',
+      'prompt_library'
+    ],
+    description: "Unlimited entries, all symbols, pattern recognition, prompts",
+    motivation: "You're building your inner home. One word at a time."
+  },
+  {
+    level: 6, // Navigator (1500-2099 XP)
+    features: [
+      'life_path_quiz',
+      'advanced_search',
+      'reflection_tags',
+      'navigation_mode'
+    ],
+    description: "Life path quiz, advanced search, navigation mode",
+    motivation: "You're not lost anymore. You have a compass now."
+  },
+  {
+    level: 7, // Architect (2100-2799 XP)
+    features: [
+      'growth_dashboard',
+      'custom_prompt_packs',
+      'visual_themes',
+      'long_term_vision'
+    ],
+    description: "Growth dashboard, custom prompts, themes, vision tracking",
+    motivation: "You're not just living your life — you're designing it."
+  },
+  {
+    level: 8, // Guardian (2800-4999 XP)
+    features: [
+      'forum_access',
+      'leaderboard',
+      'shareable_badges',
+      'community_threads',
+      'guardian_gate'
+    ],
+    description: "Forum access, leaderboard, community features",
+    motivation: "You've seen what works. Now you help others rise."
+  },
+  {
+    level: 9, // Sage (5000-9999 XP)
+    features: [
+      'merlin_prophecies',
+      'legacy_view',
+      'deep_prompts',
+      'contribution_quests'
+    ],
+    description: "Merlin prophecies, legacy view, deep prompts, contributions",
+    motivation: "You've gone deep. You've become a well others can drink from."
+  },
+  {
+    level: 10, // Legendary Oracle (10000+ XP)
+    features: [
+      'secret_grove_theme',
+      'oracle_forum',
+      'custom_avatars',
+      'solo_quests',
+      'oracle_emblem'
+    ],
+    description: "Secret grove theme, oracle forum, avatars, solo quests",
+    motivation: "You've become what you once sought. A voice that echoes."
+  }
+];
+
+// Function to get unlocked features for a user level
+export function getUnlockedFeatures(userLevel: number): string[] {
+  if (!PROGRESSIVE_GAMIFICATION_ENABLED) {
+    // Return all features if progressive system is disabled
+    return LEVEL_UNLOCKS.flatMap(unlock => unlock.features);
+  }
+  
+  return LEVEL_UNLOCKS
+    .filter(unlock => unlock.level <= userLevel)
+    .flatMap(unlock => unlock.features);
+}
+
+// Function to check if a specific feature is unlocked
+export function isFeatureUnlocked(userLevel: number, featureName: string): boolean {
+  if (!PROGRESSIVE_GAMIFICATION_ENABLED) return true;
+  
+  const unlockedFeatures = getUnlockedFeatures(userLevel);
+  return unlockedFeatures.includes(featureName);
+}
+
+// Function to get next unlock information
+export function getNextUnlock(userLevel: number): FeatureUnlock | null {
+  const nextUnlock = LEVEL_UNLOCKS.find(unlock => unlock.level > userLevel);
+  return nextUnlock || null;
+}
+
+// User progress tracking
+export const userProgress = pgTable("user_progress", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  currentLevel: integer("current_level").default(1).notNull(),
+  unlockedFeatures: text("unlocked_features").array().default([]).notNull(),
+  tokensEarned: integer("tokens_earned").default(0).notNull(),
+  themesUnlocked: text("themes_unlocked").array().default([]).notNull(),
+  activeTheme: varchar("active_theme", { length: 50 }).default("default"),
+  lastLevelUp: timestamp("last_level_up"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export type UserProgress = typeof userProgress.$inferSelect;
+export type InsertUserProgress = typeof userProgress.$inferInsert;
+
+// Quest system for guided journeys
+export const quests = pgTable("quests", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 100 }).notNull(),
+  description: text("description").notNull(),
+  questArc: varchar("quest_arc", { length: 50 }).notNull(), // "mountain_path", "blueprint_series", etc.
+  level: integer("level").notNull(),
+  steps: jsonb("steps").notNull(), // Array of quest steps
+  rewards: jsonb("rewards").notNull(), // XP, tokens, badges, etc.
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const userQuests = pgTable("user_quests", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  questId: integer("quest_id").notNull().references(() => quests.id),
+  status: varchar("status", { length: 20 }).default("active").notNull(), // active, completed, abandoned
+  currentStep: integer("current_step").default(0).notNull(),
+  progress: jsonb("progress"), // Step-specific progress data
+  startedAt: timestamp("started_at").defaultNow().notNull(),
+  completedAt: timestamp("completed_at"),
+});
+
+export type Quest = typeof quests.$inferSelect;
+export type InsertQuest = typeof quests.$inferInsert;
+export type UserQuest = typeof userQuests.$inferSelect;
+export type InsertUserQuest = typeof userQuests.$inferInsert;

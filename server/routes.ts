@@ -1,7 +1,7 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertJournalEntrySchema, insertFolderSchema, type AIReflection, type WeeklyReflection, type MonthlyReflection, type JournalEntry, type Folder, parseBulletSymbol, users, folders, journalEntries } from "@shared/schema";
+import { insertJournalEntrySchema, insertFolderSchema, type AIReflection, type WeeklyReflection, type MonthlyReflection, type JournalEntry, type Folder, parseBulletSymbol, users, folders, journalEntries, LEVEL_UNLOCKS } from "@shared/schema";
 import { db } from "./db";
 import { z } from "zod";
 import { eq, and, desc, asc, like, or, inArray } from "drizzle-orm";
@@ -21,6 +21,12 @@ if (!process.env.STRIPE_SECRET_KEY) {
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: "2023-10-16",
 });
+
+// Helper function to get level motivation
+function getLevelMotivation(level: number): string {
+  const unlock = LEVEL_UNLOCKS.find(u => u.level === level);
+  return unlock?.motivation || "Keep growing and exploring your inner world!";
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Set up authentication first
@@ -134,6 +140,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Progressive gamification routes
+  app.get('/api/user/progress', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const progress = await storage.getUserProgress(userId);
+      res.json(progress);
+    } catch (error) {
+      console.error("Error fetching user progress:", error);
+      res.status(500).json({ message: "Failed to fetch user progress" });
+    }
+  });
+
+  app.post('/api/user/progress/check-level', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const stats = await storage.getUserStats(userId);
+      const levelUpdate = await storage.checkAndUpdateUserLevel(userId, stats.xpPoints);
+      res.json(levelUpdate);
+    } catch (error) {
+      console.error("Error checking user level:", error);
+      res.status(500).json({ message: "Failed to check user level" });
+    }
+  });
+
+  app.get('/api/user/feature-check/:featureName', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const { featureName } = req.params;
+      const isUnlocked = await storage.isFeatureUnlockedForUser(userId, featureName);
+      res.json({ isUnlocked });
+    } catch (error) {
+      console.error("Error checking feature unlock:", error);
+      res.status(500).json({ message: "Failed to check feature unlock" });
+    }
+  });
+
+  app.get('/api/user/entry-count', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const count = await storage.getUserEntryCount(userId);
+      res.json({ count });
+    } catch (error) {
+      console.error("Error fetching entry count:", error);
+      res.status(500).json({ message: "Failed to fetch entry count" });
+    }
+  });
+
   // Update questionnaire completion status
   app.post('/api/questionnaire/complete', isAuthenticated, async (req: any, res) => {
     try {
@@ -216,11 +269,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create new journal entry (protected)
+  // Create new journal entry (protected) with progressive limits
   app.post("/api/entries", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const { content, mood, tags } = req.body;
+      
+      // Check progressive gamification limits
+      const progress = await storage.getUserProgress(userId);
+      const entryCount = await storage.getUserEntryCount(userId);
+      
+      // Check entry limits for lower levels
+      const isUnlimitedUnlocked = await storage.isFeatureUnlockedForUser(userId, 'unlimited_entries');
+      if (!isUnlimitedUnlocked && progress.currentLevel === 1 && entryCount >= 30) {
+        return res.status(403).json({ 
+          message: "Entry limit reached", 
+          limit: 30,
+          currentCount: entryCount,
+          upgradeMessage: "Level up to unlock more entries!",
+          requiredLevel: 5
+        });
+      }
       
       // Parse bullet symbols from the content
       const { symbol, type, status, cleanContent } = parseBulletSymbol(content || "");
@@ -237,7 +306,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const validatedData = insertJournalEntrySchema.parse(entryData);
       const entry = await storage.createJournalEntry(userId, validatedData);
-      res.status(201).json(entry);
+      
+      // Check for level up after creating entry
+      const stats = await storage.getUserStats(userId);
+      const levelUpdate = await storage.checkAndUpdateUserLevel(userId, stats.xpPoints);
+      
+      res.status(201).json({ 
+        entry, 
+        levelUpdate: levelUpdate.leveledUp ? {
+          newLevel: levelUpdate.newLevel,
+          unlockedFeatures: levelUpdate.unlockedFeatures,
+          motivation: getLevelMotivation(levelUpdate.newLevel || 1)
+        } : null
+      });
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Invalid entry data", errors: error.errors });

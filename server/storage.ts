@@ -34,6 +34,19 @@ import {
   type InsertForumReply,
   type ForumLike,
   type InsertForumLike,
+  userProgress,
+  type UserProgress,
+  type InsertUserProgress,
+  quests,
+  type Quest,
+  type InsertQuest,
+  userQuests,
+  type UserQuest,
+  type InsertUserQuest,
+  isFeatureUnlocked,
+  getUnlockedFeatures,
+  getNextUnlock,
+  LEVEL_UNLOCKS
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, sql, and, gte, lte, count } from "drizzle-orm";
@@ -87,6 +100,21 @@ export interface IStorage {
   isUserAdmin(userId: number): Promise<boolean>;
   updateQuestionnaireCompletion(userId: number, completed: boolean): Promise<User | undefined>;
   updateUserDisplayName(userId: number, displayName: string): Promise<User | undefined>;
+
+  // Progressive gamification system
+  getUserProgress(userId: number): Promise<UserProgress>;
+  updateUserProgress(userId: number, updates: Partial<InsertUserProgress>): Promise<UserProgress>;
+  initializeUserProgress(userId: number): Promise<UserProgress>;
+  checkAndUpdateUserLevel(userId: number, currentXP: number): Promise<{ leveledUp: boolean; newLevel?: number; unlockedFeatures?: string[] }>;
+  isFeatureUnlockedForUser(userId: number, featureName: string): Promise<boolean>;
+  getUserEntryCount(userId: number): Promise<number>;
+  
+  // Quest system
+  getActiveQuests(userId: number): Promise<UserQuest[]>;
+  getQuest(questId: number): Promise<Quest | undefined>;
+  startQuest(userId: number, questId: number): Promise<UserQuest>;
+  updateQuestProgress(userId: number, questId: number, progress: any): Promise<UserQuest>;
+  completeQuest(userId: number, questId: number): Promise<UserQuest>;
   
   // Forum operations
   getForumCategories(): Promise<ForumCategory[]>;
@@ -808,6 +836,154 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, userId))
       .returning();
     return user;
+  }
+
+  // Progressive gamification system implementation
+  async getUserProgress(userId: number): Promise<UserProgress> {
+    const [progress] = await db
+      .select()
+      .from(userProgress)
+      .where(eq(userProgress.userId, userId));
+    
+    if (!progress) {
+      return await this.initializeUserProgress(userId);
+    }
+    
+    return progress;
+  }
+
+  async updateUserProgress(userId: number, updates: Partial<InsertUserProgress>): Promise<UserProgress> {
+    const [progress] = await db
+      .update(userProgress)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(userProgress.userId, userId))
+      .returning();
+    return progress;
+  }
+
+  async initializeUserProgress(userId: number): Promise<UserProgress> {
+    // Get current user stats to determine initial level
+    const stats = await this.getUserStats(userId);
+    const initialLevel = this.calculateLevel(stats.xpPoints);
+    const unlockedFeatures = getUnlockedFeatures(initialLevel);
+    
+    const [progress] = await db
+      .insert(userProgress)
+      .values({
+        userId,
+        currentLevel: initialLevel,
+        unlockedFeatures,
+        tokensEarned: 0,
+        themesUnlocked: ['default'],
+        activeTheme: 'default'
+      })
+      .returning();
+    
+    return progress;
+  }
+
+  async checkAndUpdateUserLevel(userId: number, currentXP: number): Promise<{ leveledUp: boolean; newLevel?: number; unlockedFeatures?: string[] }> {
+    const progress = await this.getUserProgress(userId);
+    const newLevel = this.calculateLevel(currentXP);
+    
+    if (newLevel > progress.currentLevel) {
+      const newUnlockedFeatures = getUnlockedFeatures(newLevel);
+      const newlyUnlocked = newUnlockedFeatures.filter(
+        feature => !progress.unlockedFeatures.includes(feature)
+      );
+      
+      await this.updateUserProgress(userId, {
+        currentLevel: newLevel,
+        unlockedFeatures: newUnlockedFeatures,
+        lastLevelUp: new Date()
+      });
+      
+      return {
+        leveledUp: true,
+        newLevel,
+        unlockedFeatures: newlyUnlocked
+      };
+    }
+    
+    return { leveledUp: false };
+  }
+
+  async isFeatureUnlockedForUser(userId: number, featureName: string): Promise<boolean> {
+    const progress = await this.getUserProgress(userId);
+    return isFeatureUnlocked(progress.currentLevel, featureName);
+  }
+
+  async getUserEntryCount(userId: number): Promise<number> {
+    const [result] = await db
+      .select({ count: count() })
+      .from(journalEntries)
+      .where(eq(journalEntries.userId, userId));
+    
+    return result.count;
+  }
+
+  // Quest system implementation
+  async getActiveQuests(userId: number): Promise<UserQuest[]> {
+    return await db
+      .select()
+      .from(userQuests)
+      .where(and(
+        eq(userQuests.userId, userId),
+        eq(userQuests.status, 'active')
+      ));
+  }
+
+  async getQuest(questId: number): Promise<Quest | undefined> {
+    const [quest] = await db
+      .select()
+      .from(quests)
+      .where(eq(quests.id, questId));
+    
+    return quest;
+  }
+
+  async startQuest(userId: number, questId: number): Promise<UserQuest> {
+    const [userQuest] = await db
+      .insert(userQuests)
+      .values({
+        userId,
+        questId,
+        status: 'active',
+        currentStep: 0,
+        progress: {}
+      })
+      .returning();
+    
+    return userQuest;
+  }
+
+  async updateQuestProgress(userId: number, questId: number, progress: any): Promise<UserQuest> {
+    const [userQuest] = await db
+      .update(userQuests)
+      .set({ progress })
+      .where(and(
+        eq(userQuests.userId, userId),
+        eq(userQuests.questId, questId)
+      ))
+      .returning();
+    
+    return userQuest;
+  }
+
+  async completeQuest(userId: number, questId: number): Promise<UserQuest> {
+    const [userQuest] = await db
+      .update(userQuests)
+      .set({ 
+        status: 'completed',
+        completedAt: new Date()
+      })
+      .where(and(
+        eq(userQuests.userId, userId),
+        eq(userQuests.questId, questId)
+      ))
+      .returning();
+    
+    return userQuest;
   }
 }
 
