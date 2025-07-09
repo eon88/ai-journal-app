@@ -1,5 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { Trophy, Star, Zap } from "lucide-react";
+import { Trophy, Star, Zap, HelpCircle } from "lucide-react";
+import { Link } from "wouter";
+import { Button } from "@/components/ui/button";
 
 interface UserStats {
   totalEntries: number;
@@ -78,6 +80,16 @@ export function LevelSidebar() {
           </div>
           <span className="font-medium text-foreground">{stats.totalEntries}</span>
         </div>
+      </div>
+      
+      {/* Rules Link */}
+      <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+        <Link href="/rules">
+          <Button variant="outline" size="sm" className="w-full text-xs">
+            <HelpCircle className="w-3 h-3 mr-2" />
+            Game Rules
+          </Button>
+        </Link>
       </div>
     </div>
   );
