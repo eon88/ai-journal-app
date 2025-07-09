@@ -64,7 +64,7 @@ export function LevelSwitcher() {
   };
 
   return (
-    <div className="fixed top-4 right-4 z-50 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-4 max-w-sm">
+    <div className="fixed top-20 right-4 z-50 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-4 max-w-sm">
       <div className="flex items-center gap-2 mb-3">
         <Settings className="w-4 h-4 text-gray-600 dark:text-gray-400" />
         <h3 className="font-semibold text-sm text-gray-900 dark:text-white">Level Switcher (Admin)</h3>
