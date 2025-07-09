@@ -246,7 +246,75 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Analyze journal entry with AI
+  // Analyze journal entry with AI and save reflection
+  app.post("/api/entries/:id/analyze", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const entryId = parseInt(req.params.id);
+      
+      if (isNaN(entryId)) {
+        return res.status(400).json({ message: "Invalid entry ID" });
+      }
+
+      // Get the entry to analyze
+      const entry = await storage.getJournalEntry(userId, entryId);
+      if (!entry) {
+        return res.status(404).json({ message: "Entry not found" });
+      }
+
+      if (!entry.content || entry.content.trim().length === 0) {
+        return res.status(400).json({ message: "Entry has no content to analyze" });
+      }
+
+      const startTime = Date.now();
+
+      // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          {
+            role: "system",
+            content: "You are a reflective journaling coach. Analyze the journal entry and provide insights, a reflection question, and growth patterns. Respond in JSON format with the following structure: { \"insights\": \"string\", \"reflectionQuestion\": \"string\", \"growthPattern\": \"string\" }"
+          },
+          {
+            role: "user",
+            content: `Here is my journal entry:\n\n${entry.content}\n\nPlease analyze it and provide thoughtful insights, a meaningful reflection question, and identify any growth patterns you observe.`
+          }
+        ],
+        response_format: { type: "json_object" },
+      });
+
+      const processingTime = (Date.now() - startTime) / 1000;
+      const aiResponse = JSON.parse(response.choices[0].message.content || "{}");
+      
+      const reflection: AIReflection = {
+        insights: aiResponse.insights || "No insights generated",
+        reflectionQuestion: aiResponse.reflectionQuestion || "What would you like to explore further about this entry?",
+        growthPattern: aiResponse.growthPattern || "Continue documenting your thoughts and experiences",
+        processingTime
+      };
+
+      // Update the entry with the reflection
+      const updatedEntry = await storage.updateJournalEntryReflection(userId, entryId, reflection);
+      
+      if (!updatedEntry) {
+        return res.status(500).json({ message: "Failed to save reflection" });
+      }
+
+      res.json({ 
+        entry: updatedEntry,
+        reflection: reflection 
+      });
+    } catch (error) {
+      console.error("OpenAI API error:", error);
+      res.status(500).json({ 
+        message: "Failed to analyze entry with AI. Please check your API key and try again.",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // Analyze journal entry with AI (legacy endpoint for compatibility)
   app.post("/api/analyze", async (req, res) => {
     try {
       const { entry } = req.body;

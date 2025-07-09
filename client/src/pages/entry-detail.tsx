@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRoute } from "wouter";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Calendar, Tag, MessageCircle, Heart, RotateCcw } from "lucide-react";
 import { AIReflectionComponent } from "@/components/ai-reflection";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import type { JournalEntry } from "@shared/schema";
 import { BULLET_SYMBOLS } from "@shared/schema";
 import { Link } from "wouter";
@@ -14,6 +16,8 @@ import { Link } from "wouter";
 export default function EntryDetail() {
   const [match, params] = useRoute("/entry/:id");
   const entryId = params?.id;
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: entry, isLoading, error } = useQuery<JournalEntry>({
     queryKey: ["/api/entries", entryId],
@@ -25,6 +29,36 @@ export default function EntryDetail() {
       return response.json();
     },
     enabled: !!entryId,
+  });
+
+  // AI reflection generation mutation
+  const reflectionMutation = useMutation({
+    mutationFn: async () => {
+      if (!entryId) throw new Error("No entry ID");
+      return await apiRequest(`/api/entries/${entryId}/analyze`, {
+        method: "POST",
+      });
+    },
+    onSuccess: async (data) => {
+      toast({
+        title: "AI Reflection Generated!",
+        description: "Your AI insights are ready to view.",
+      });
+      
+      // Update the cache with the updated entry
+      if (data.entry) {
+        queryClient.setQueryData(["/api/entries", entryId], data.entry);
+        queryClient.invalidateQueries({ queryKey: ["/api/entries", entryId] });
+      }
+    },
+    onError: (error) => {
+      toast({
+        title: "Failed to generate reflection",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
+      console.error("Reflection generation error:", error);
+    },
   });
 
   const formatDate = (date: string | Date) => {
@@ -204,11 +238,10 @@ export default function EntryDetail() {
             <CardContent>
               <AIReflectionComponent 
                 reflection={entry.aiReflection}
-                isLoading={false}
-                error={null}
+                isLoading={reflectionMutation.isPending}
+                error={reflectionMutation.error?.message || null}
                 onRegenerate={() => {
-                  // Handle regeneration if needed
-                  console.log("Regenerating reflection for entry:", entry.id);
+                  reflectionMutation.mutate();
                 }}
               />
             </CardContent>
@@ -221,11 +254,18 @@ export default function EntryDetail() {
               <Button 
                 className="bg-journal-primary hover:bg-indigo-700"
                 onClick={() => {
-                  // Trigger AI analysis for this entry
-                  console.log("Analyzing entry:", entry.id);
+                  reflectionMutation.mutate();
                 }}
+                disabled={reflectionMutation.isPending || !entry?.content}
               >
-                Generate AI Reflection
+                {reflectionMutation.isPending ? (
+                  <>
+                    <RotateCcw className="w-4 h-4 mr-2 animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  "Generate AI Reflection"
+                )}
               </Button>
             </CardContent>
           </Card>
