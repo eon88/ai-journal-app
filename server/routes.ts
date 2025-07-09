@@ -216,21 +216,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get specific journal entry (protected)
-  app.get("/api/entries/:id", isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.id;
-      const id = parseInt(req.params.id);
-      const entry = await storage.getJournalEntry(userId, id);
-      if (!entry) {
-        return res.status(404).json({ message: "Entry not found" });
-      }
-      res.json(entry);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch entry" });
-    }
-  });
-
   // Create new journal entry (protected)
   app.post("/api/entries", isAuthenticated, async (req: any, res) => {
     try {

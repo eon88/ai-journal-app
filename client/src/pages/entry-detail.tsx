@@ -54,11 +54,23 @@ export default function EntryDetail() {
     }
   };
 
-  const getBulletSymbol = (type?: string | null, status?: string | null) => {
-    if (!type) return null;
+  const getBulletSymbol = (entry: JournalEntry) => {
+    // Try to get the symbol directly from the entry
+    if (entry.symbol) {
+      return entry.symbol;
+    }
     
-    const symbolData = BULLET_SYMBOLS.find(s => s.type === type && s.status === status);
-    return symbolData?.symbol || null;
+    // If no symbol but has type/status, try to derive it
+    if (entry.type === 'task') {
+      if (entry.status === 'complete') return '✔';
+      if (entry.status === 'migrated') return '→';
+      if (entry.status === 'cancelled') return '✖';
+      return '•';
+    }
+    if (entry.type === 'event') return '○';
+    if (entry.type === 'note') return '–';
+    
+    return null;
   };
 
   if (isLoading) {
@@ -124,9 +136,9 @@ export default function EntryDetail() {
                   <span>{formatDate(entry.createdAt)}</span>
                 </div>
                 <CardTitle className="text-gray-900 dark:text-white text-xl">
-                  {getBulletSymbol(entry.type, entry.status) && (
+                  {getBulletSymbol(entry) && (
                     <span className="mr-3 text-journal-primary">
-                      {getBulletSymbol(entry.type, entry.status)}
+                      {getBulletSymbol(entry)}
                     </span>
                   )}
                   Journal Entry
