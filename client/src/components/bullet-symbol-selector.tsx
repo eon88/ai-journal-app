@@ -61,7 +61,7 @@ export function BulletSymbolSelector({ selectedSymbol, onSymbolSelect }: BulletS
               <ChevronDown className="h-3 w-3" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-80 p-4" side="bottom" align="start">
+          <PopoverContent className="w-96 p-4" side="bottom" align="start">
             <div className="space-y-4">
               <div className="text-sm font-medium">Additional symbols:</div>
               
@@ -70,7 +70,7 @@ export function BulletSymbolSelector({ selectedSymbol, onSymbolSelect }: BulletS
                   <div className="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">
                     {category}
                   </div>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="grid grid-cols-1 gap-1">
                     {symbols.map((symbol) => {
                       const config = BULLET_SYMBOLS[symbol as keyof typeof BULLET_SYMBOLS];
                       return (
@@ -78,11 +78,16 @@ export function BulletSymbolSelector({ selectedSymbol, onSymbolSelect }: BulletS
                           key={symbol}
                           variant={selectedSymbol === symbol ? "default" : "ghost"}
                           size="sm"
-                          className="flex items-center gap-2 h-8 px-3"
+                          className="flex items-center gap-2 h-auto px-3 py-2 text-left justify-start"
                           onClick={() => handleSymbolClick(symbol)}
                         >
-                          <span className="text-base">{symbol}</span>
-                          <span className="text-xs">{config?.name}</span>
+                          <span className="text-base flex-shrink-0">{symbol}</span>
+                          <div className="flex flex-col items-start min-w-0">
+                            <span className="text-xs font-medium">{config?.name}</span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400 leading-tight">
+                              {config?.description}
+                            </span>
+                          </div>
                         </Button>
                       );
                     })}
