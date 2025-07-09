@@ -86,19 +86,10 @@ export function MerlinWhisper() {
   if (!currentWhisper) return null;
 
   return (
-    <div className="hidden md:block fixed bottom-24 right-6 z-50">
-      <div className="relative">
-        {/* Merlin Avatar */}
-        <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-amber-400 bg-gradient-to-br from-amber-100 to-amber-200 dark:from-amber-900 dark:to-amber-800 shadow-lg">
-          <img 
-            src={merlinWizardImage} 
-            alt="Merlin" 
-            className="w-full h-full object-cover"
-          />
-        </div>
-        
-        {/* Whisper Bubble */}
-        <div className={`absolute bottom-full right-0 mb-4 w-80 transition-all duration-500 ${
+    <div className="hidden md:block fixed top-6 right-28 z-40">
+      <div className="relative">        
+        {/* Whisper Bubble - positioned to the left of existing Merlin */}
+        <div className={`absolute top-0 right-0 w-80 transition-all duration-500 ${
           isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
         }`}>
           <div className={`bg-gradient-to-br ${currentWhisper.color} p-4 rounded-2xl rounded-br-sm shadow-2xl border border-white/20`}>
@@ -117,22 +108,22 @@ export function MerlinWhisper() {
             </div>
           </div>
           
-          {/* Speech bubble tail */}
-          <div className={`absolute top-full right-4 w-0 h-0 border-l-[12px] border-r-[12px] border-t-[12px] border-l-transparent border-r-transparent bg-gradient-to-br ${currentWhisper.color}`} 
+          {/* Speech bubble tail pointing to Merlin */}
+          <div className={`absolute top-6 -right-3 w-0 h-0 border-l-[12px] border-t-[12px] border-b-[12px] border-l-transparent border-t-transparent border-b-transparent`} 
                style={{
-                 borderTopColor: 'currentColor',
-                 filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
+                 borderLeftColor: `rgb(251 146 60)`, // Default to orange, will be overridden by gradient
+                 filter: 'drop-shadow(2px 0 4px rgba(0,0,0,0.1))'
                }}>
           </div>
         </div>
         
-        {/* Magical sparkles around avatar */}
+        {/* Magical sparkles around the whisper area */}
         {isVisible && (
           <div className="absolute -inset-4 pointer-events-none">
-            <div className="absolute top-0 left-0 w-2 h-2 bg-yellow-400 rounded-full animate-ping" />
-            <div className="absolute top-2 right-0 w-1 h-1 bg-purple-400 rounded-full animate-pulse" />
-            <div className="absolute bottom-0 left-2 w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" />
-            <div className="absolute bottom-2 right-1 w-1 h-1 bg-pink-400 rounded-full animate-ping" />
+            <div className="absolute top-2 left-4 w-2 h-2 bg-yellow-400 rounded-full animate-ping" />
+            <div className="absolute top-8 right-8 w-1 h-1 bg-purple-400 rounded-full animate-pulse" />
+            <div className="absolute bottom-4 left-8 w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" />
+            <div className="absolute bottom-8 right-4 w-1 h-1 bg-pink-400 rounded-full animate-ping" />
           </div>
         )}
       </div>
