@@ -1,0 +1,154 @@
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Trophy, Zap, Star, HelpCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { Link } from "wouter";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+
+interface UserStats {
+  totalEntries: number;
+  currentStreak: number;
+  longestStreak: number;
+  xpPoints: number;
+  level: number;
+  title: string;
+}
+
+export function MobileScoreboard() {
+  const [isOpen, setIsOpen] = useState(false);
+  
+  const { data: stats, isLoading } = useQuery<UserStats>({
+    queryKey: ["/api/stats"],
+  });
+
+  if (isLoading) {
+    return (
+      <div className="lg:hidden mb-4">
+        <Card className="glass-card">
+          <CardContent className="p-3">
+            <div className="animate-pulse flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                <div className="h-4 w-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
+              </div>
+              <div className="h-4 w-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!stats) return null;
+
+  const nextLevelXP = stats.level * 1000;
+  const progress = (stats.xpPoints % 1000) / 10;
+
+  return (
+    <div className="lg:hidden mb-4">
+      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+        {/* Compact Header Bar */}
+        <Card className="glass-card">
+          <CollapsibleTrigger asChild>
+            <CardContent className="p-3 cursor-pointer hover:bg-accent/20 transition-colors">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-1 bg-yellow-100 dark:bg-yellow-900/30 px-2 py-1 rounded-full">
+                    <Trophy className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
+                    <span className="text-sm font-bold text-yellow-700 dark:text-yellow-300">Lv. {stats.level}</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-1">
+                      <Zap className="w-3 h-3 text-orange-500" />
+                      <span className="text-sm font-medium">{stats.currentStreak}</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <Star className="w-3 h-3 text-blue-500" />
+                      <span className="text-sm font-medium">{stats.totalEntries}</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-xs text-muted-foreground">{stats.xpPoints} XP</span>
+                  {isOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                </div>
+              </div>
+            </CardContent>
+          </CollapsibleTrigger>
+        </Card>
+
+        {/* Expanded Content */}
+        <CollapsibleContent>
+          <Card className="glass-card mt-2">
+            <CardContent className="p-4">
+              {/* Level Title */}
+              <div className="text-center mb-4">
+                <div className="text-xs text-purple-600 dark:text-purple-400 font-medium bg-purple-50 dark:bg-purple-900/30 px-3 py-1 rounded-full inline-block">
+                  {stats.title}
+                </div>
+              </div>
+
+              {/* XP Progress Bar */}
+              <div className="mb-4">
+                <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
+                  <span>Experience Points</span>
+                  <span>{stats.xpPoints}</span>
+                </div>
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                  <div 
+                    className="bg-gradient-to-r from-purple-500 to-blue-500 h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${progress}%` }}
+                  ></div>
+                </div>
+                <div className="text-xs text-muted-foreground mt-1 text-center">
+                  {1000 - (stats.xpPoints % 1000)} XP to next level
+                </div>
+              </div>
+
+              {/* Detailed Stats Grid */}
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-3">
+                  <div className="flex items-center justify-center mb-1">
+                    <Zap className="w-4 h-4 text-orange-500 mr-1" />
+                    <span className="text-sm font-medium text-orange-700 dark:text-orange-300">Current Streak</span>
+                  </div>
+                  <div className="text-xl font-bold text-orange-600 dark:text-orange-400 text-center">{stats.currentStreak}</div>
+                  <div className="text-xs text-orange-600/70 dark:text-orange-400/70 text-center">days</div>
+                </div>
+                
+                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
+                  <div className="flex items-center justify-center mb-1">
+                    <Star className="w-4 h-4 text-blue-500 mr-1" />
+                    <span className="text-sm font-medium text-blue-700 dark:text-blue-300">Total Entries</span>
+                  </div>
+                  <div className="text-xl font-bold text-blue-600 dark:text-blue-400 text-center">{stats.totalEntries}</div>
+                  <div className="text-xs text-blue-600/70 dark:text-blue-400/70 text-center">entries</div>
+                </div>
+              </div>
+
+              {/* Best Streak Display */}
+              {stats.longestStreak > 0 && (
+                <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg p-3 mb-4">
+                  <div className="text-center">
+                    <div className="text-sm font-medium text-purple-700 dark:text-purple-300 mb-1">Personal Best Streak</div>
+                    <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{stats.longestStreak}</div>
+                    <div className="text-xs text-purple-600/70 dark:text-purple-400/70">consecutive days</div>
+                  </div>
+                </div>
+              )}
+
+              {/* Game Rules Button */}
+              <Link href="/rules">
+                <Button variant="outline" size="sm" className="w-full">
+                  <HelpCircle className="w-4 h-4 mr-2" />
+                  Game Rules & XP System
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </CollapsibleContent>
+      </Collapsible>
+    </div>
+  );
+}

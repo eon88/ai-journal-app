@@ -17,6 +17,7 @@ import { MerlinWhisper } from "@/components/merlin-whisper";
 import { LifePathQuestionnaire } from "@/components/life-path-questionnaire";
 import { Footer } from "@/components/footer";
 import { LevelSidebar } from "@/components/level-sidebar";
+import { MobileScoreboard } from "@/components/mobile-scoreboard";
 import { useUser } from "@/components/user-provider";
 
 import { useQuery } from "@tanstack/react-query";
@@ -61,6 +62,9 @@ export default function Home() {
       <Header />
       
       <main className="max-w-6xl mx-auto px-4 py-8 space-y-8">
+        {/* Mobile Scoreboard */}
+        <MobileScoreboard />
+        
         {/* Main Content with Sidebar */}
         <div className="flex gap-8">
           {/* Left Sidebar - Level Category */}
