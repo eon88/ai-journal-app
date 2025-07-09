@@ -21,9 +21,9 @@ const categoryIcons = {
 };
 
 const categoryColors = {
-  insight: 'text-yellow-600 bg-yellow-50 border-yellow-200',
-  lesson: 'text-blue-600 bg-blue-50 border-blue-200',
-  goal: 'text-green-600 bg-green-50 border-green-200',
+  insight: 'text-yellow-700 bg-yellow-50 border-yellow-200 dark:text-yellow-400 dark:bg-yellow-900/30 dark:border-yellow-700',
+  lesson: 'text-blue-700 bg-blue-50 border-blue-200 dark:text-blue-400 dark:bg-blue-900/30 dark:border-blue-700',
+  goal: 'text-green-700 bg-green-50 border-green-200 dark:text-green-400 dark:bg-green-900/30 dark:border-green-700',
 };
 
 export function InsightsVault() {
@@ -118,43 +118,43 @@ export function InsightsVault() {
       </div>
 
       {showAddForm && (
-        <form onSubmit={handleSubmit} className="mb-6 p-4 bg-gray-50 rounded-lg border">
+        <form onSubmit={handleSubmit} className="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Title
               </label>
               <input
                 type="text"
                 value={newInsight.title}
                 onChange={(e) => setNewInsight({ ...newInsight, title: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 placeholder="What's your insight?"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Content
               </label>
               <textarea
                 value={newInsight.content}
                 onChange={(e) => setNewInsight({ ...newInsight, content: e.target.value })}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 placeholder="Describe your insight..."
                 required
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Category
                 </label>
                 <select
                   value={newInsight.category}
                   onChange={(e) => setNewInsight({ ...newInsight, category: e.target.value as any })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 >
                   <option value="insight">Insight</option>
                   <option value="lesson">Lesson</option>
@@ -162,13 +162,13 @@ export function InsightsVault() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Source
                 </label>
                 <select
                   value={newInsight.source}
                   onChange={(e) => setNewInsight({ ...newInsight, source: e.target.value as any })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 >
                   <option value="daily">Daily Entry</option>
                   <option value="weekly">Weekly Reflection</option>
@@ -187,7 +187,7 @@ export function InsightsVault() {
               <button
                 type="button"
                 onClick={() => setShowAddForm(false)}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
               >
                 Cancel
               </button>
@@ -203,7 +203,7 @@ export function InsightsVault() {
             const colorClass = categoryColors[insight.category];
             
             return (
-              <div key={insight.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow">
+              <div key={insight.id} className="border border-gray-200 dark:border-gray-600 rounded-lg p-4 hover:shadow-sm transition-shadow bg-white dark:bg-gray-700/50">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
@@ -211,17 +211,17 @@ export function InsightsVault() {
                         <IconComponent className="w-3 h-3" />
                         {insight.category}
                       </div>
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
                         {insight.source} • {new Date(insight.createdAt).toLocaleDateString()}
                       </span>
                     </div>
-                    <h3 className="font-medium text-gray-900 mb-1">{insight.title}</h3>
-                    <p className="text-sm text-gray-600">{insight.content}</p>
+                    <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-1">{insight.title}</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">{insight.content}</p>
                   </div>
                   <button
                     onClick={() => deleteInsightMutation.mutate(insight.id)}
                     disabled={deleteInsightMutation.isPending}
-                    className="ml-4 p-1 text-gray-400 hover:text-red-500 transition-colors"
+                    className="ml-4 p-1 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
