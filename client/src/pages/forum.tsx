@@ -27,6 +27,11 @@ export default function Forum() {
     queryKey: ["/api/forum/categories"],
   });
 
+  // Debug logging
+  console.log("Categories data:", categories);
+  console.log("Loading categories:", loadingCategories);
+  console.log("Categories length:", categories.length);
+
   const { data: posts = [], isLoading: loadingPosts } = useQuery({
     queryKey: ["/api/forum/posts"],
   });
