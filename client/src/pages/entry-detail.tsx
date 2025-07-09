@@ -35,9 +35,8 @@ export default function EntryDetail() {
   const reflectionMutation = useMutation({
     mutationFn: async () => {
       if (!entryId) throw new Error("No entry ID");
-      return await apiRequest(`/api/entries/${entryId}/analyze`, {
-        method: "POST",
-      });
+      const response = await apiRequest(`/api/entries/${entryId}/analyze`, "POST");
+      return await response.json();
     },
     onSuccess: async (data) => {
       toast({
