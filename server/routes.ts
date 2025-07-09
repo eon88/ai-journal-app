@@ -1800,7 +1800,7 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
   app.post("/api/admin/set-level", isAuthenticated, async (req: any, res: Response) => {
     try {
       const { level } = req.body;
-      const userId = parseInt(req.user.claims.sub); // Convert string to number
+      const userId = req.user.id; // Use direct user ID from auth middleware
       
       console.log(`Setting level ${level} for user ${userId}`);
       
