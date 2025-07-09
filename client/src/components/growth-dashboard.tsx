@@ -158,8 +158,8 @@ export function GrowthDashboard() {
       </div>
 
       {/* Progress Summary */}
-      <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
-        <div className="text-sm text-blue-800">
+      <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
+        <div className="text-sm text-blue-800 dark:text-blue-200">
           <strong>Your Journey:</strong> You've written {metrics.totalEntries} entries, 
           with your longest streak being {metrics.longestStreak} days. 
           {metrics.currentStreak > 0 && (
