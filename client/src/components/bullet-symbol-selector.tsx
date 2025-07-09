@@ -28,24 +28,39 @@ export function BulletSymbolSelector({ selectedSymbol, onSymbolSelect }: BulletS
     setIsOpen(false);
   };
 
+  // Get simple labels for main symbols
+  const getSymbolLabel = (symbol: string) => {
+    switch (symbol) {
+      case "•": return "Task";
+      case "○": return "Event";
+      case "–": return "Note";
+      case "❓": return "Question";
+      case "★": return "Important";
+      default: return "";
+    }
+  };
+
   return (
     <div className="space-y-3">
-      {/* Common symbols - always visible */}
-      <div className="flex flex-wrap gap-2">
+      {/* Common symbols - always visible with descriptions */}
+      <div className="flex flex-wrap gap-3 justify-center md:justify-start">
         {commonSymbols.map((symbol) => {
           const config = BULLET_SYMBOLS[symbol as keyof typeof BULLET_SYMBOLS];
           return (
-            <Button
-              key={symbol}
-              variant={selectedSymbol === symbol ? "default" : "outline"}
-              size="sm"
-              className="flex items-center gap-2 h-8 px-3 text-xs"
-              onClick={() => onSymbolSelect(symbol)}
-              title={config?.name}
-            >
-              <span className="text-base">{symbol}</span>
-              <span className="hidden sm:inline">{config?.name}</span>
-            </Button>
+            <div key={symbol} className="flex flex-col items-center">
+              <Button
+                variant={selectedSymbol === symbol ? "default" : "outline"}
+                size="sm"
+                className="h-10 w-10 md:h-12 md:w-12 p-0 text-lg md:text-xl flex-shrink-0"
+                onClick={() => onSymbolSelect(symbol)}
+                title={config?.name}
+              >
+                {symbol}
+              </Button>
+              <span className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-center">
+                {getSymbolLabel(symbol)}
+              </span>
+            </div>
           );
         })}
         
