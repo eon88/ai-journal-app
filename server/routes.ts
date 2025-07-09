@@ -1802,6 +1802,8 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
       const { level } = req.body;
       const userId = parseInt(req.user.claims.sub); // Convert string to number
       
+      console.log(`Setting level ${level} for user ${userId}`);
+      
       // Allow for admin testing (temporarily enabled for all users)
       // const user = await storage.getUser(userId);
       // if (!user || (!user.email?.toLowerCase().includes("eon") && user.username?.toLowerCase() !== "eon")) {
@@ -1814,16 +1816,20 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
       
       // Get current progress or initialize if doesn't exist
       const currentProgress = await storage.getUserProgress(userId);
+      console.log("Current progress:", currentProgress);
       
       // Calculate unlocked features for this level
       const unlockedFeatures = getUnlockedFeatures(level);
+      console.log("Unlocked features:", unlockedFeatures);
       
-      await storage.updateUserProgress(userId, {
+      const updatedProgress = await storage.updateUserProgress(userId, {
         currentLevel: level,
         unlockedFeatures: unlockedFeatures,
         lastLevelUp: new Date(),
         updatedAt: new Date()
       });
+      
+      console.log("Updated progress:", updatedProgress);
       
       res.json({ 
         success: true, 
@@ -1833,7 +1839,8 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
       });
     } catch (error) {
       console.error("Error setting level:", error);
-      res.status(500).json({ message: "Failed to set level" });
+      console.error("Stack trace:", error.stack);
+      res.status(500).json({ message: "Failed to set level", error: error.message });
     }
   });
 
