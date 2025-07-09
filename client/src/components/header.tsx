@@ -200,6 +200,8 @@ export function Header() {
                         method: 'POST',
                         credentials: 'include'
                       });
+                      // CRITICAL: Clear ALL cached data to prevent privacy issues when switching users
+                      queryClient.clear();
                       // Clear any stored user data
                       localStorage.removeItem('premium_user');
                       localStorage.removeItem('user_name');
@@ -208,6 +210,7 @@ export function Header() {
                     } catch (error) {
                       console.error('Logout error:', error);
                       // Even if logout fails, clear local data and redirect
+                      queryClient.clear();
                       localStorage.removeItem('premium_user');
                       localStorage.removeItem('user_name');
                       window.location.href = '/';

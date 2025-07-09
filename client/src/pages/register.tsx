@@ -29,7 +29,8 @@ export default function Register() {
         title: "Account Created!",
         description: "Welcome to Life Path Companion. You're now logged in.",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      // CRITICAL: Clear ALL cached data to prevent privacy issues when switching users
+      queryClient.clear();
       // Force a page refresh to update auth state
       setTimeout(() => {
         window.location.href = '/';
