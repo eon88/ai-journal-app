@@ -59,10 +59,7 @@ function Router() {
       <Route path="/register" component={Register} />
       <Route component={NotFound} />
       
-      {/* Level Switcher for admin testing */}
-      {isAuthenticated && user && (
-        <LevelSwitcher />
-      )}
+
     </Switch>
   );
 }
