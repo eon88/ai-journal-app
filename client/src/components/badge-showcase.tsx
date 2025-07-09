@@ -23,11 +23,11 @@ export function BadgeShowcase() {
     return (
       <div className="glass-card-transparent rounded-xl shadow-sm p-6">
         <div className="mb-6">
-          <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
             <Trophy className="h-5 w-5" />
             Achievement Badges
           </h3>
-          <p className="text-sm text-white/80">Loading your achievements...</p>
+          <p className="text-sm text-gray-800 dark:text-white">Loading your achievements...</p>
         </div>
       </div>
     );
@@ -39,11 +39,11 @@ export function BadgeShowcase() {
   return (
     <div className="glass-card-transparent rounded-xl shadow-sm p-6 pb-8 min-h-fit h-auto overflow-hidden">
       <div className="mb-6">
-        <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
           <Trophy className="h-5 w-5" />
           Achievement Badges
         </h3>
-        <p className="text-sm text-white/80">
+        <p className="text-sm text-gray-800 dark:text-white">
           {unlockedBadges.length} of {badges.length} badges unlocked
         </p>
       </div>
@@ -51,7 +51,7 @@ export function BadgeShowcase() {
         {/* Unlocked Badges Section */}
         {unlockedBadges.length > 0 && (
           <div className="w-full">
-            <h4 className="font-medium text-sm text-white/80 mb-3 flex items-center gap-2">
+            <h4 className="font-medium text-sm text-gray-900 dark:text-white mb-3 flex items-center gap-2">
               <Star className="h-4 w-4" />
               Unlocked ({unlockedBadges.length})
             </h4>
@@ -64,7 +64,7 @@ export function BadgeShowcase() {
                   <div className="text-2xl">{badge.icon}</div>
                   <div className="flex-1">
                     <div className="font-medium text-gray-900 dark:text-white">{badge.name}</div>
-                    <div className="text-xs text-gray-600 dark:text-gray-300">
+                    <div className="text-xs text-gray-800 dark:text-gray-200">
                       {badge.description}
                     </div>
                   </div>
@@ -80,7 +80,7 @@ export function BadgeShowcase() {
         {/* Locked Badges Section */}
         {lockedBadges.length > 0 && (
           <div className="w-full">
-            <h4 className="font-medium text-sm text-white/80 mb-3 flex items-center gap-2">
+            <h4 className="font-medium text-sm text-gray-900 dark:text-white mb-3 flex items-center gap-2">
               <Lock className="h-4 w-4" />
               Locked ({lockedBadges.length})
             </h4>
@@ -92,8 +92,8 @@ export function BadgeShowcase() {
                 >
                   <div className="text-2xl grayscale">{badge.icon}</div>
                   <div className="flex-1">
-                    <div className="font-medium text-gray-700 dark:text-gray-300">{badge.name}</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                    <div className="font-medium text-gray-900 dark:text-gray-300">{badge.name}</div>
+                    <div className="text-xs text-gray-800 dark:text-gray-400">
                       Requirement: {badge.requirement}
                     </div>
                   </div>
