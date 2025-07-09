@@ -27,10 +27,7 @@ export default function Forum() {
     queryKey: ["/api/forum/categories"],
   });
 
-  // Debug logging
-  console.log("Categories data:", categories);
-  console.log("Loading categories:", loadingCategories);
-  console.log("Categories length:", categories.length);
+
 
   const { data: posts = [], isLoading: loadingPosts } = useQuery({
     queryKey: ["/api/forum/posts"],
@@ -83,7 +80,7 @@ export default function Forum() {
       
       <main className="max-w-6xl mx-auto px-4 py-8">
         {/* Forum Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div className="flex flex-col gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
               Community Forum
@@ -93,31 +90,34 @@ export default function Forum() {
             </p>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-4 items-end sm:items-center">
-            <div className="relative flex-1 max-w-md">
+          {/* Search and Actions - Mobile Responsive */}
+          <div className="flex flex-col gap-3">
+            <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
                 placeholder="Search discussions..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-gray-800 border-gray-600 text-white"
+                className="pl-10 bg-gray-800 border-gray-600 text-white w-full"
               />
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Button 
                 variant="outline" 
                 onClick={() => window.location.href = '/forum/leaderboard'}
-                className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                className="border-gray-600 text-gray-300 hover:bg-gray-700 flex-1 sm:flex-none"
               >
                 <Trophy className="w-4 h-4 mr-2" />
                 Leaderboard
               </Button>
-              <NewPostDialog />
+              <div className="flex-1 sm:flex-none">
+                <NewPostDialog />
+              </div>
               {adminCheck?.isAdmin && (
                 <Button 
                   variant="outline" 
                   onClick={() => window.location.href = '/forum/admin'}
-                  className="border-journal-primary text-journal-primary hover:bg-journal-primary/10"
+                  className="border-journal-primary text-journal-primary hover:bg-journal-primary/10 flex-1 sm:flex-none"
                 >
                   <Shield className="w-4 h-4 mr-2" />
                   Admin

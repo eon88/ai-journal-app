@@ -80,7 +80,7 @@ export function NewPostDialog({ defaultCategoryId }: NewPostDialogProps = {}) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-journal-primary hover:bg-indigo-700">
+        <Button className="bg-journal-primary hover:bg-indigo-700 w-full sm:w-auto">
           <Plus className="w-4 h-4 mr-2" />
           New Discussion
         </Button>
