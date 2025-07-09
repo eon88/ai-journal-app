@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { UserProvider } from "@/components/user-provider";
 import { PWAInstallPrompt } from "@/components/pwa-install-prompt";
 import { ScrollToTopButton } from "@/components/scroll-to-top-button";
+import { LevelSwitcher } from "@/components/level-switcher";
 import { useAuth } from "@/hooks/useAuth";
 import { useScrollToTop } from "@/hooks/useScrollToTop";
 import NotFound from "@/pages/not-found";
@@ -29,7 +30,7 @@ import Register from "@/pages/register";
 import Questionnaire from "@/pages/questionnaire";
 
 function Router() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
   useScrollToTop(); // This will scroll to top on route changes
 
   return (
@@ -57,6 +58,11 @@ function Router() {
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
       <Route component={NotFound} />
+      
+      {/* Level Switcher for eon only */}
+      {isAuthenticated && user && (user.email?.toLowerCase().includes("eon") || user.username?.toLowerCase() === "eon") && (
+        <LevelSwitcher />
+      )}
     </Switch>
   );
 }

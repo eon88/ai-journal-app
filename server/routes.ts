@@ -1796,6 +1796,44 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
     }
   });
 
+  // Admin endpoint to manually set user level (for testing - EON only)
+  app.post("/api/admin/set-level", isAuthenticated, async (req: any, res: Response) => {
+    try {
+      const { level } = req.body;
+      const userId = req.user.claims.sub;
+      
+      // Only allow for user "eon" 
+      const user = await storage.getUser(userId);
+      if (!user || (!user.email?.toLowerCase().includes("eon") && user.username?.toLowerCase() !== "eon")) {
+        return res.status(403).json({ message: "Access denied - admin testing only" });
+      }
+      
+      if (level < 1 || level > 10) {
+        return res.status(400).json({ message: "Level must be between 1 and 10" });
+      }
+      
+      // Calculate XP for the target level
+      const requiredXP = calculateXPForLevel(level);
+      
+      await storage.updateUserProgress(userId, {
+        currentLevel: level,
+        totalXP: requiredXP,
+        updatedAt: new Date()
+      });
+      
+      res.json({ 
+        success: true, 
+        newLevel: level,
+        totalXP: requiredXP,
+        message: `Level manually set to ${level}`,
+        unlockedFeatures: LEVEL_UNLOCKS[level] || []
+      });
+    } catch (error) {
+      console.error("Error setting level:", error);
+      res.status(500).json({ message: "Failed to set level" });
+    }
+  });
+
   // Forum API routes
   
   // Get forum categories
