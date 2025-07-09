@@ -19,11 +19,15 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import type { ForumCategory } from "@shared/schema";
 
-export function NewPostDialog() {
+interface NewPostDialogProps {
+  defaultCategoryId?: number;
+}
+
+export function NewPostDialog({ defaultCategoryId }: NewPostDialogProps = {}) {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [categoryId, setCategoryId] = useState<string>("");
+  const [categoryId, setCategoryId] = useState<string>(defaultCategoryId ? defaultCategoryId.toString() : "");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 

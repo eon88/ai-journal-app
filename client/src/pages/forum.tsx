@@ -156,7 +156,11 @@ export default function Forum() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {categories.map((category: ForumCategory) => (
-                  <Card key={category.id} className="glass-card hover:bg-gray-800/60 transition-colors cursor-pointer">
+                  <Card 
+                    key={category.id} 
+                    className="glass-card hover:bg-gray-800/60 transition-colors cursor-pointer"
+                    onClick={() => window.location.href = `/forum/category/${category.id}`}
+                  >
                     <CardContent className="p-6">
                       <div className="flex items-start gap-4">
                         <div className={`p-2 rounded-lg ${category.color}`}>
@@ -196,7 +200,11 @@ export default function Forum() {
               </div>
             ) : (
               featuredPosts.map((post) => (
-                <Card key={post.id} className="glass-card hover:bg-gray-800/60 transition-colors cursor-pointer">
+                <Card 
+                  key={post.id} 
+                  className="glass-card hover:bg-gray-800/60 transition-colors cursor-pointer"
+                  onClick={() => window.location.href = `/forum/post/${post.id}`}
+                >
                   <CardContent className="p-6">
                     <div className="flex items-start gap-4">
                       <Avatar className="w-10 h-10">
@@ -267,7 +275,11 @@ export default function Forum() {
               </div>
             ) : (
               recentPosts.map((post) => (
-                <Card key={post.id} className="glass-card hover:bg-gray-800/60 transition-colors cursor-pointer">
+                <Card 
+                  key={post.id} 
+                  className="glass-card hover:bg-gray-800/60 transition-colors cursor-pointer"
+                  onClick={() => window.location.href = `/forum/post/${post.id}`}
+                >
                   <CardContent className="p-4">
                     <div className="flex items-start gap-3">
                       <Avatar className="w-8 h-8">

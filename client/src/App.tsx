@@ -16,6 +16,8 @@ import Contact from "@/pages/contact";
 import UserProfile from "@/pages/user-profile";
 import Pricing from "@/pages/pricing";
 import Forum from "@/pages/forum";
+import ForumCategory from "@/pages/forum-category";
+import ForumPost from "@/pages/forum-post";
 import ForumLeaderboard from "@/pages/forum-leaderboard";
 import ForumAdmin from "@/pages/forum-admin";
 import AdminPanel from "@/pages/admin-panel";
@@ -41,6 +43,8 @@ function Router() {
           <Route path="/entry/:id" component={EntryDetail} />
           <Route path="/profile" component={UserProfile} />
           <Route path="/forum" component={Forum} />
+          <Route path="/forum/category/:id" component={ForumCategory} />
+          <Route path="/forum/post/:id" component={ForumPost} />
           <Route path="/forum/leaderboard" component={ForumLeaderboard} />
           <Route path="/forum/admin" component={ForumAdmin} />
           <Route path="/admin" component={AdminPanel} />
