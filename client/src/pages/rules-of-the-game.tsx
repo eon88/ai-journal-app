@@ -332,7 +332,7 @@ export default function RulesOfTheGame() {
         <div className="text-center mt-12">
           <Link href="/">
             <Button size="lg" className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white">
-              Start Your Journey
+              Back to Homepage
             </Button>
           </Link>
         </div>
