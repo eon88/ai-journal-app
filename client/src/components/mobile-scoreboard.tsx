@@ -61,11 +61,11 @@ export function MobileScoreboard() {
                   <div className="flex items-center space-x-3">
                     <div className="flex items-center space-x-1">
                       <Zap className="w-3 h-3 text-orange-500" />
-                      <span className="text-sm font-medium">{stats.currentStreak}</span>
+                      <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{stats.currentStreak}</span>
                     </div>
                     <div className="flex items-center space-x-1">
                       <Star className="w-3 h-3 text-blue-500" />
-                      <span className="text-sm font-medium">{stats.totalEntries}</span>
+                      <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{stats.totalEntries}</span>
                     </div>
                   </div>
                 </div>
@@ -91,7 +91,7 @@ export function MobileScoreboard() {
 
               {/* XP Progress Bar */}
               <div className="mb-4">
-                <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
+                <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400 mb-2">
                   <span>Experience Points</span>
                   <span>{stats.xpPoints}</span>
                 </div>
@@ -101,7 +101,7 @@ export function MobileScoreboard() {
                     style={{ width: `${progress}%` }}
                   ></div>
                 </div>
-                <div className="text-xs text-muted-foreground mt-1 text-center">
+                <div className="text-xs text-gray-600 dark:text-gray-400 mt-1 text-center">
                   {1000 - (stats.xpPoints % 1000)} XP to next level
                 </div>
               </div>
