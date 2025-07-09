@@ -309,19 +309,19 @@ export function DailyQuote() {
   const quote = getDailyQuote();
 
   return (
-    <div className="glass-card-subtle rounded-xl p-6 border border-gray-200/50 dark:border-gray-700/50">
+    <div className="glass-card rounded-xl p-6 border border-gray-200/50 dark:border-gray-700/50 backdrop-blur-md bg-white/20 dark:bg-gray-900/40">
       <div className="flex items-start gap-4">
         <div className="p-2 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg text-white flex-shrink-0">
           <Quote className="w-5 h-5" />
         </div>
         <div className="min-w-0 flex-1">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 drop-shadow-sm">
             Daily Inspiration
           </h3>
-          <blockquote className="text-gray-700 dark:text-gray-300 italic text-base leading-relaxed mb-3">
+          <blockquote className="text-gray-800 dark:text-gray-200 italic text-base leading-relaxed mb-3 drop-shadow-sm">
             "{quote.text}"
           </blockquote>
-          <cite className="text-sm font-medium text-gray-600 dark:text-gray-400">
+          <cite className="text-sm font-medium text-gray-700 dark:text-gray-300 drop-shadow-sm">
             — {quote.author}
           </cite>
         </div>
