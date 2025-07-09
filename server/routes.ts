@@ -1800,7 +1800,7 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
   app.post("/api/admin/set-level", isAuthenticated, async (req: any, res: Response) => {
     try {
       const { level } = req.body;
-      const userId = req.user.claims.sub;
+      const userId = parseInt(req.user.claims.sub); // Convert string to number
       
       // Allow for admin testing (temporarily enabled for all users)
       // const user = await storage.getUser(userId);
@@ -1814,6 +1814,9 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
       
       // Calculate XP for the target level
       const requiredXP = calculateXPForLevel(level);
+      
+      // Get current progress or initialize if doesn't exist
+      const currentProgress = await storage.getUserProgress(userId);
       
       await storage.updateUserProgress(userId, {
         currentLevel: level,
