@@ -72,11 +72,11 @@ export function MerlinWhisper() {
         setCurrentWhisper(randomWhisper);
         setIsVisible(true);
         
-        // Show for 6 seconds, then fade out
+        // Show for 9 seconds, then fade out
         setTimeout(() => {
           setIsVisible(false);
-          setTimeout(() => setCurrentWhisper(null), 500);
-        }, 6000);
+          setTimeout(() => setCurrentWhisper(null), 1000);
+        }, 9000);
       }
     }, Math.random() * 20000 + 20000); // 20-40 seconds
 
@@ -89,8 +89,8 @@ export function MerlinWhisper() {
     <div className="hidden md:block fixed top-6 right-28 z-40">
       <div className="relative">        
         {/* Whisper Bubble - positioned to the left of existing Merlin */}
-        <div className={`absolute top-0 right-0 w-80 transition-all duration-500 ${
-          isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
+        <div className={`absolute top-0 right-0 w-80 transition-all duration-700 ease-in-out ${
+          isVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-2 scale-95'
         }`}>
           <div className={`bg-gradient-to-br ${currentWhisper.color} p-4 rounded-2xl rounded-br-sm shadow-2xl border border-white/20`}>
             <div className="flex items-start gap-3">

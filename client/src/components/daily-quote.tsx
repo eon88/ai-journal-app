@@ -363,10 +363,10 @@ export function DailyQuote() {
         setCurrentRule(randomRule);
         setShowingRule(true);
         
-        // Show for 4 seconds, then fade back
+        // Show for 7 seconds, then fade back
         setTimeout(() => {
           setShowingRule(false);
-        }, 4000);
+        }, 7000);
       }
     }, Math.random() * 15000 + 15000); // 15-30 seconds
 
@@ -376,29 +376,29 @@ export function DailyQuote() {
   return (
     <div className="glass-card rounded-xl p-6 border border-gray-200/50 dark:border-gray-700/50 backdrop-blur-md bg-white/20 dark:bg-gray-900/40">
       <div className="flex items-start gap-4">
-        <div className={`p-2 rounded-lg text-white flex-shrink-0 transition-all duration-1000 ${
+        <div className={`p-2 rounded-lg text-white flex-shrink-0 transition-all duration-1000 ease-in-out transform ${
           showingRule 
-            ? 'bg-gradient-to-br from-yellow-500 to-orange-600' 
-            : 'bg-gradient-to-br from-purple-500 to-indigo-600'
+            ? 'bg-gradient-to-br from-yellow-500 to-orange-600 scale-110 shadow-lg' 
+            : 'bg-gradient-to-br from-purple-500 to-indigo-600 scale-100'
         }`}>
           {showingRule ? <Zap className="w-5 h-5" /> : <Quote className="w-5 h-5" />}
         </div>
         <div className="min-w-0 flex-1">
-          <h3 className={`text-lg font-semibold mb-3 drop-shadow-sm transition-all duration-1000 ${
+          <h3 className={`text-lg font-semibold mb-3 drop-shadow-sm transition-all duration-1000 ease-in-out ${
             showingRule 
-              ? 'text-yellow-800 dark:text-yellow-200' 
-              : 'text-gray-900 dark:text-white'
+              ? 'text-yellow-800 dark:text-yellow-200 transform scale-105' 
+              : 'text-gray-900 dark:text-white transform scale-100'
           }`}>
             {showingRule ? currentRule?.mysticalHint : "Daily Inspiration"}
           </h3>
-          <blockquote className={`italic text-base leading-relaxed mb-3 drop-shadow-sm transition-all duration-1000 ${
+          <blockquote className={`italic text-base leading-relaxed mb-3 drop-shadow-sm transition-all duration-1000 ease-in-out ${
             showingRule 
               ? 'text-yellow-700 dark:text-yellow-300' 
               : 'text-gray-800 dark:text-gray-200'
           }`}>
             "{showingRule ? currentRule?.text : quote.text}"
           </blockquote>
-          <cite className={`text-sm font-medium drop-shadow-sm transition-all duration-1000 ${
+          <cite className={`text-sm font-medium drop-shadow-sm transition-all duration-1000 ease-in-out ${
             showingRule 
               ? 'text-yellow-600 dark:text-yellow-400' 
               : 'text-gray-700 dark:text-gray-300'
