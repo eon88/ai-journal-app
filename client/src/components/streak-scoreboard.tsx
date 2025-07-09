@@ -1,5 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { Flame, TrendingUp, Trophy, Zap } from "lucide-react";
+import { Flame, TrendingUp, Trophy, Zap, HelpCircle } from "lucide-react";
+import { Link } from "wouter";
+import { Button } from "@/components/ui/button";
 
 interface UserStats {
   totalEntries: number;
@@ -96,6 +98,16 @@ export function StreakScoreboard() {
           </div>
         </div>
       )}
+      
+      {/* Rules Link */}
+      <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+        <Link href="/rules">
+          <Button variant="outline" size="sm" className="w-full text-xs">
+            <HelpCircle className="w-4 h-4 mr-2" />
+            How to earn XP & unlock features
+          </Button>
+        </Link>
+      </div>
     </div>
   );
 }

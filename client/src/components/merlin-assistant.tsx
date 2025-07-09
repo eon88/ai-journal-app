@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Send, X, Scroll, Gem, Compass } from "lucide-react";
+import { Sparkles, Send, X, Scroll, Gem, Compass, Zap } from "lucide-react";
 import merlinWizardImage from "@assets/ChatGPT Image Jul 6, 2025, 01_31_56 PM_1751805312463.png";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";

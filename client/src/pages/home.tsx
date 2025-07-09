@@ -12,6 +12,7 @@ import { DailyChallenge } from "@/components/daily-challenge";
 import { DailyQuote } from "@/components/daily-quote";
 import { BadgeShowcase } from "@/components/badge-showcase";
 import { MerlinAssistant } from "@/components/merlin-assistant";
+import { MerlinWhisper } from "@/components/merlin-whisper";
 
 import { LifePathQuestionnaire } from "@/components/life-path-questionnaire";
 import { Footer } from "@/components/footer";
@@ -122,6 +123,9 @@ export default function Home() {
       />
       
       <Footer />
+      
+      {/* Merlin Whisper for Desktop */}
+      <MerlinWhisper />
     </div>
   );
 }

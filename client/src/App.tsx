@@ -28,6 +28,7 @@ import Landing from "@/pages/landing";
 import Login from "@/pages/login";
 import Register from "@/pages/register";
 import Questionnaire from "@/pages/questionnaire";
+import RulesOfTheGame from "@/pages/rules-of-the-game";
 
 function Router() {
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -55,6 +56,7 @@ function Router() {
       <Route path="/contact" component={Contact} />
       <Route path="/pricing" component={Pricing} />
       <Route path="/questionnaire" component={Questionnaire} />
+      <Route path="/rules" component={RulesOfTheGame} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
       <Route component={NotFound} />

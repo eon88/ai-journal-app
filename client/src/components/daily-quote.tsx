@@ -1,4 +1,5 @@
-import { Quote } from "lucide-react";
+import { Quote, Zap } from "lucide-react";
+import { useState, useEffect } from "react";
 
 const MOTIVATIONAL_QUOTES = [
   {
@@ -287,6 +288,49 @@ const MOTIVATIONAL_QUOTES = [
   }
 ];
 
+const XP_RULES = [
+  {
+    text: "Each journal entry grants you 10 XP... but deeper reflections yield hidden bonuses.",
+    mysticalHint: "The Ancient Wisdom"
+  },
+  {
+    text: "Write for 3 consecutive days to unlock the streak multiplier... XP flows like a river.",
+    mysticalHint: "The Secret of Momentum"
+  },
+  {
+    text: "Every 7 days of journaling unlocks new symbols... ancient knowledge awaits.",
+    mysticalHint: "The Ritual of Seven"
+  },
+  {
+    text: "Pin your most important entries... they hold power beyond mere words.",
+    mysticalHint: "The Keeper's Mark"
+  },
+  {
+    text: "Tag your entries with intention... patterns reveal themselves to those who seek.",
+    mysticalHint: "The Art of Naming"
+  },
+  {
+    text: "Your mood shapes your path... acknowledge it to gain deeper insights.",
+    mysticalHint: "The Mirror of Self"
+  },
+  {
+    text: "Weekly reflections unlock at Level 2... the mind's eye begins to open.",
+    mysticalHint: "The Vision Quest"
+  },
+  {
+    text: "Monthly insights await at Level 3... the bigger picture emerges.",
+    mysticalHint: "The Great Cycle"
+  },
+  {
+    text: "Level 5 unlocks the goal system... your true purpose becomes clear.",
+    mysticalHint: "The Path Reveals Itself"
+  },
+  {
+    text: "Complete daily challenges for bonus XP... small actions, great rewards.",
+    mysticalHint: "The Sacred Tasks"
+  }
+];
+
 function getDailyQuote() {
   // Get today's date and use it as a seed for consistent daily quote
   const today = new Date();
@@ -307,22 +351,59 @@ function getDailyQuote() {
 
 export function DailyQuote() {
   const quote = getDailyQuote();
+  const [showingRule, setShowingRule] = useState(false);
+  const [currentRule, setCurrentRule] = useState<any>(null);
+
+  useEffect(() => {
+    // Randomly show XP rules every 15-30 seconds
+    const interval = setInterval(() => {
+      // 15% chance to show a rule
+      if (Math.random() < 0.15) {
+        const randomRule = XP_RULES[Math.floor(Math.random() * XP_RULES.length)];
+        setCurrentRule(randomRule);
+        setShowingRule(true);
+        
+        // Show for 4 seconds, then fade back
+        setTimeout(() => {
+          setShowingRule(false);
+        }, 4000);
+      }
+    }, Math.random() * 15000 + 15000); // 15-30 seconds
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="glass-card rounded-xl p-6 border border-gray-200/50 dark:border-gray-700/50 backdrop-blur-md bg-white/20 dark:bg-gray-900/40">
       <div className="flex items-start gap-4">
-        <div className="p-2 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg text-white flex-shrink-0">
-          <Quote className="w-5 h-5" />
+        <div className={`p-2 rounded-lg text-white flex-shrink-0 transition-all duration-1000 ${
+          showingRule 
+            ? 'bg-gradient-to-br from-yellow-500 to-orange-600' 
+            : 'bg-gradient-to-br from-purple-500 to-indigo-600'
+        }`}>
+          {showingRule ? <Zap className="w-5 h-5" /> : <Quote className="w-5 h-5" />}
         </div>
         <div className="min-w-0 flex-1">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 drop-shadow-sm">
-            Daily Inspiration
+          <h3 className={`text-lg font-semibold mb-3 drop-shadow-sm transition-all duration-1000 ${
+            showingRule 
+              ? 'text-yellow-800 dark:text-yellow-200' 
+              : 'text-gray-900 dark:text-white'
+          }`}>
+            {showingRule ? currentRule?.mysticalHint : "Daily Inspiration"}
           </h3>
-          <blockquote className="text-gray-800 dark:text-gray-200 italic text-base leading-relaxed mb-3 drop-shadow-sm">
-            "{quote.text}"
+          <blockquote className={`italic text-base leading-relaxed mb-3 drop-shadow-sm transition-all duration-1000 ${
+            showingRule 
+              ? 'text-yellow-700 dark:text-yellow-300' 
+              : 'text-gray-800 dark:text-gray-200'
+          }`}>
+            "{showingRule ? currentRule?.text : quote.text}"
           </blockquote>
-          <cite className="text-sm font-medium text-gray-700 dark:text-gray-300 drop-shadow-sm">
-            — {quote.author}
+          <cite className={`text-sm font-medium drop-shadow-sm transition-all duration-1000 ${
+            showingRule 
+              ? 'text-yellow-600 dark:text-yellow-400' 
+              : 'text-gray-700 dark:text-gray-300'
+          }`}>
+            — {showingRule ? "The Path Keeper" : quote.author}
           </cite>
         </div>
       </div>
