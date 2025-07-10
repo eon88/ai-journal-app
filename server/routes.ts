@@ -2026,9 +2026,10 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
           .trim()
           .split('\n')
           .filter(line => line.trim())
-          .map(line => {
+          .map((line, index) => {
             try {
-              return JSON.parse(line);
+              const msg = JSON.parse(line);
+              return { ...msg, id: index };
             } catch {
               return null;
             }
@@ -2044,6 +2045,137 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
     } catch (error) {
       console.error("Error reading contact messages:", error);
       res.status(500).json({ success: false, message: "Failed to read contact messages" });
+    }
+  });
+
+  // Delete contact message (owner only)
+  app.delete("/api/admin/contact-messages/:id", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+    try {
+      const messageId = parseInt(req.params.id);
+      const fs = await import('fs/promises');
+      
+      try {
+        const logContent = await fs.readFile('contact-messages.log', 'utf8');
+        const messages = logContent
+          .trim()
+          .split('\n')
+          .filter(line => line.trim())
+          .map(line => {
+            try {
+              return JSON.parse(line);
+            } catch {
+              return null;
+            }
+          })
+          .filter(msg => msg !== null);
+        
+        // Remove the message at the specified index (accounting for reverse order)
+        const actualIndex = messages.length - 1 - messageId;
+        if (actualIndex >= 0 && actualIndex < messages.length) {
+          messages.splice(actualIndex, 1);
+          
+          // Write back to file
+          const newContent = messages.map(msg => JSON.stringify(msg)).join('\n') + '\n';
+          await fs.writeFile('contact-messages.log', newContent);
+          
+          res.json({ success: true, message: "Message deleted successfully" });
+        } else {
+          res.status(404).json({ success: false, message: "Message not found" });
+        }
+      } catch (fileError) {
+        res.status(500).json({ success: false, message: "Failed to read contact messages" });
+      }
+    } catch (error) {
+      console.error("Error deleting contact message:", error);
+      res.status(500).json({ success: false, message: "Failed to delete message" });
+    }
+  });
+
+  // Archive/unarchive contact message (owner only)
+  app.patch("/api/admin/contact-messages/:id/archive", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+    try {
+      const messageId = parseInt(req.params.id);
+      const { archived } = req.body;
+      const fs = await import('fs/promises');
+      
+      try {
+        const logContent = await fs.readFile('contact-messages.log', 'utf8');
+        const messages = logContent
+          .trim()
+          .split('\n')
+          .filter(line => line.trim())
+          .map(line => {
+            try {
+              return JSON.parse(line);
+            } catch {
+              return null;
+            }
+          })
+          .filter(msg => msg !== null);
+        
+        // Update the message at the specified index (accounting for reverse order)
+        const actualIndex = messages.length - 1 - messageId;
+        if (actualIndex >= 0 && actualIndex < messages.length) {
+          messages[actualIndex].archived = archived;
+          
+          // Write back to file
+          const newContent = messages.map(msg => JSON.stringify(msg)).join('\n') + '\n';
+          await fs.writeFile('contact-messages.log', newContent);
+          
+          res.json({ success: true, message: `Message ${archived ? 'archived' : 'unarchived'} successfully` });
+        } else {
+          res.status(404).json({ success: false, message: "Message not found" });
+        }
+      } catch (fileError) {
+        res.status(500).json({ success: false, message: "Failed to read contact messages" });
+      }
+    } catch (error) {
+      console.error("Error archiving contact message:", error);
+      res.status(500).json({ success: false, message: "Failed to archive message" });
+    }
+  });
+
+  // Pin/unpin contact message (owner only)
+  app.patch("/api/admin/contact-messages/:id/pin", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+    try {
+      const messageId = parseInt(req.params.id);
+      const { pinned } = req.body;
+      const fs = await import('fs/promises');
+      
+      try {
+        const logContent = await fs.readFile('contact-messages.log', 'utf8');
+        const messages = logContent
+          .trim()
+          .split('\n')
+          .filter(line => line.trim())
+          .map(line => {
+            try {
+              return JSON.parse(line);
+            } catch {
+              return null;
+            }
+          })
+          .filter(msg => msg !== null);
+        
+        // Update the message at the specified index (accounting for reverse order)
+        const actualIndex = messages.length - 1 - messageId;
+        if (actualIndex >= 0 && actualIndex < messages.length) {
+          messages[actualIndex].pinned = pinned;
+          
+          // Write back to file
+          const newContent = messages.map(msg => JSON.stringify(msg)).join('\n') + '\n';
+          await fs.writeFile('contact-messages.log', newContent);
+          
+          res.json({ success: true, message: `Message ${pinned ? 'pinned' : 'unpinned'} successfully` });
+        } else {
+          res.status(404).json({ success: false, message: "Message not found" });
+        }
+      } catch (fileError) {
+        res.status(500).json({ success: false, message: "Failed to read contact messages" });
+      }
+    } catch (error) {
+      console.error("Error pinning contact message:", error);
+      res.status(500).json({ success: false, message: "Failed to pin message" });
     }
   });
 
