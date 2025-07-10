@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Vault, Lightbulb, Target, BookOpen, Trash2, Plus } from "lucide-react";
+import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 
 interface SavedInsight {
@@ -108,13 +109,11 @@ export function InsightsVault() {
           <Vault className="w-5 h-5 text-purple-500" />
           The Vault
         </h2>
-        <button
-          onClick={() => setShowAddForm(!showAddForm)}
-          className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/30 rounded-lg transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          Add Insight
-        </button>
+        <Link href="/vault">
+          <button className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/30 rounded-lg transition-colors">
+            View All
+          </button>
+        </Link>
       </div>
 
       {showAddForm && (
