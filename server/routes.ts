@@ -1745,6 +1745,27 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
     }
   };
 
+  // Forum moderator middleware
+  const isForumModerator = async (req: any, res: Response, next: NextFunction) => {
+    try {
+      if (!req.user?.id) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+      
+      const isUserAdmin = await storage.isUserAdmin(req.user.id);
+      const isModerator = await storage.isForumModerator(req.user.id);
+      
+      if (!isUserAdmin && !isModerator) {
+        return res.status(403).json({ message: "Moderator access required" });
+      }
+      
+      next();
+    } catch (error) {
+      console.error("Moderator check error:", error);
+      res.status(500).json({ message: "Failed to verify moderator status" });
+    }
+  };
+
   // Check if current user is admin
   app.get("/api/admin/check", isAuthenticated, async (req: any, res: Response) => {
     try {

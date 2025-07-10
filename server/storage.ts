@@ -26,6 +26,7 @@ import {
   forumPosts,
   forumReplies,
   forumLikes,
+  forumModerators,
   type ForumCategory,
   type InsertForumCategory,
   type ForumPost,
@@ -49,7 +50,7 @@ import {
   LEVEL_UNLOCKS
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, sql, and, gte, lte, count } from "drizzle-orm";
+import { eq, desc, sql, and, gte, lte, count, isNotNull } from "drizzle-orm";
 
 export interface IStorage {
   createJournalEntry(userId: number, entry: InsertJournalEntry): Promise<JournalEntry>;
@@ -98,6 +99,11 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   updateUserRole(userId: number, role: string): Promise<User | undefined>;
   isUserAdmin(userId: number): Promise<boolean>;
+  
+  // Forum moderation
+  isForumModerator(userId: number): Promise<boolean>;
+  assignForumModerator(userId: number, assignedBy: number): Promise<void>;
+  removeForumModerator(userId: number): Promise<void>;
   updateQuestionnaireCompletion(userId: number, completed: boolean): Promise<User | undefined>;
   updateUserDisplayName(userId: number, displayName: string): Promise<User | undefined>;
 
@@ -633,6 +639,23 @@ export class DatabaseStorage implements IStorage {
   async isUserAdmin(userId: number): Promise<boolean> {
     const user = await this.getUser(userId);
     return user?.role === 'admin';
+  }
+
+  async isForumModerator(userId: number): Promise<boolean> {
+    const [moderator] = await db.select()
+      .from(forumModerators)
+      .where(eq(forumModerators.userId, userId));
+    return !!moderator;
+  }
+
+  async assignForumModerator(userId: number, assignedBy: number): Promise<void> {
+    await db.insert(forumModerators)
+      .values({ userId, assignedBy });
+  }
+
+  async removeForumModerator(userId: number): Promise<void> {
+    await db.delete(forumModerators)
+      .where(eq(forumModerators.userId, userId));
   }
 
   async getAllUsersWithDetails(): Promise<any[]> {

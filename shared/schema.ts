@@ -284,6 +284,14 @@ export interface GrowthMetrics {
 }
 
 // Forum tables
+// Forum moderators table
+export const forumModerators = pgTable("forum_moderators", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  assignedBy: integer("assigned_by").references(() => users.id).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const forumCategories = pgTable("forum_categories", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 100 }).notNull(),
