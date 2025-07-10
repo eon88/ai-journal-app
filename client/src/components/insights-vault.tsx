@@ -102,8 +102,8 @@ export function InsightsVault() {
   }
 
   return (
-    <div className="bg-gray-100/80 dark:bg-gray-800/80 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-      <div className="flex items-center justify-between mb-6">
+    <div className="bg-gray-100/80 dark:bg-gray-800/80 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+      <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
           <Vault className="w-5 h-5 text-purple-500" />
           The Vault
@@ -197,41 +197,41 @@ export function InsightsVault() {
       )}
 
       {insights && insights.length > 0 ? (
-        <div className="space-y-3">
+        <div className="space-y-2">
           {insights.slice(0, 3).map((insight) => {
             const IconComponent = categoryIcons[insight.category];
             const colorClass = categoryColors[insight.category];
             
             return (
-              <div key={insight.id} className="border border-gray-200 dark:border-gray-600 rounded-lg p-4 hover:shadow-sm transition-shadow bg-white dark:bg-gray-700/50">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border ${colorClass}`}>
-                        <IconComponent className="w-3 h-3" />
+              <div key={insight.id} className="border border-gray-200 dark:border-gray-600 rounded-md p-3 hover:shadow-sm transition-shadow bg-white dark:bg-gray-700/50">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium border ${colorClass}`}>
+                        <IconComponent className="w-2.5 h-2.5" />
                         {insight.category}
                       </div>
-                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                      <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
                         {insight.source} • {new Date(insight.createdAt).toLocaleDateString()}
                       </span>
                     </div>
-                    <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-1">{insight.title}</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">{insight.content}</p>
+                    <h3 className="font-medium text-sm text-gray-900 dark:text-gray-100 mb-1 truncate">{insight.title}</h3>
+                    <p className="text-xs text-gray-600 dark:text-gray-300 line-clamp-2">{insight.content}</p>
                   </div>
                   <button
                     onClick={() => deleteInsightMutation.mutate(insight.id)}
                     disabled={deleteInsightMutation.isPending}
-                    className="ml-4 p-1 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                    className="flex-shrink-0 p-1 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
             );
           })}
           {insights.length > 3 && (
-            <div className="text-center pt-4">
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+            <div className="text-center pt-2">
+              <p className="text-xs text-gray-500 dark:text-gray-400">
                 Showing 3 of {insights.length} insights
               </p>
             </div>
