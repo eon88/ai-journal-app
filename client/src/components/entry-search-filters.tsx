@@ -79,7 +79,7 @@ export function EntrySearchFilters({ onSearch, onClear }: EntrySearchFiltersProp
     <div className="space-y-4 p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
       <div className="flex items-center gap-2 mb-4">
         <Filter className="w-5 h-5 text-gray-500" />
-        <h3 className="font-semibold">Search & Filter Entries</h3>
+        <h3 className="font-semibold text-gray-900 dark:text-white">Search & Filter Entries</h3>
         {hasActiveFilters && (
           <Button 
             variant="ghost" 
@@ -94,7 +94,7 @@ export function EntrySearchFilters({ onSearch, onClear }: EntrySearchFiltersProp
 
       {/* Search Query */}
       <div className="space-y-2">
-        <label className="text-sm font-medium">Search in content</label>
+        <label className="text-sm font-medium text-gray-900 dark:text-white">Search in content</label>
         <Input
           placeholder="Search your entries..."
           value={filters.query}
@@ -105,7 +105,7 @@ export function EntrySearchFilters({ onSearch, onClear }: EntrySearchFiltersProp
 
       {/* Tags Filter */}
       <div className="space-y-2">
-        <label className="text-sm font-medium">Tags</label>
+        <label className="text-sm font-medium text-gray-900 dark:text-white">Tags</label>
         <div className="flex gap-2">
           <Input
             placeholder="Add tag to filter..."
@@ -132,7 +132,7 @@ export function EntrySearchFilters({ onSearch, onClear }: EntrySearchFiltersProp
 
       {/* Mood Filter */}
       <div className="space-y-2">
-        <label className="text-sm font-medium">Mood</label>
+        <label className="text-sm font-medium text-gray-900 dark:text-white">Mood</label>
         <Select value={filters.mood || "all"} onValueChange={(value) => setFilters({ ...filters, mood: value === "all" ? "" : value })}>
           <SelectTrigger>
             <SelectValue placeholder="Select mood" />
@@ -150,7 +150,7 @@ export function EntrySearchFilters({ onSearch, onClear }: EntrySearchFiltersProp
 
       {/* Folder Filter */}
       <div className="space-y-2">
-        <label className="text-sm font-medium">Folder</label>
+        <label className="text-sm font-medium text-gray-900 dark:text-white">Folder</label>
         <Select value={filters.folderId || "all"} onValueChange={(value) => setFilters({ ...filters, folderId: value === "all" ? "" : value })}>
           <SelectTrigger>
             <SelectValue placeholder="Select folder" />
@@ -170,7 +170,7 @@ export function EntrySearchFilters({ onSearch, onClear }: EntrySearchFiltersProp
       {/* Date Range */}
       <div className="grid grid-cols-2 gap-2">
         <div className="space-y-2">
-          <label className="text-sm font-medium">From Date</label>
+          <label className="text-sm font-medium text-gray-900 dark:text-white">From Date</label>
           <Input
             type="date"
             value={filters.dateFrom}
@@ -178,7 +178,7 @@ export function EntrySearchFilters({ onSearch, onClear }: EntrySearchFiltersProp
           />
         </div>
         <div className="space-y-2">
-          <label className="text-sm font-medium">To Date</label>
+          <label className="text-sm font-medium text-gray-900 dark:text-white">To Date</label>
           <Input
             type="date"
             value={filters.dateTo}
