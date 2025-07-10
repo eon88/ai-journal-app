@@ -227,6 +227,14 @@ export default function AdminDashboard() {
               <Mail className="w-4 h-4" />
               Contact Messages
             </Button>
+            <Button 
+              onClick={() => window.location.href = '/admin/forum-management'} 
+              variant="outline" 
+              className="flex items-center gap-2"
+            >
+              <Users className="w-4 h-4" />
+              Forum Management
+            </Button>
             <Button onClick={exportToCSV} className="flex items-center gap-2">
               <Download className="w-4 h-4" />
               Export CSV

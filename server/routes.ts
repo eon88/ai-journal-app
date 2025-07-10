@@ -1,7 +1,7 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertJournalEntrySchema, insertFolderSchema, type AIReflection, type WeeklyReflection, type MonthlyReflection, type JournalEntry, type Folder, parseBulletSymbol, users, folders, journalEntries, LEVEL_UNLOCKS, getUnlockedFeatures } from "@shared/schema";
+import { insertJournalEntrySchema, insertFolderSchema, type AIReflection, type WeeklyReflection, type MonthlyReflection, type JournalEntry, type Folder, parseBulletSymbol, users, folders, journalEntries, LEVEL_UNLOCKS, getUnlockedFeatures, forumCategories, forumPosts, forumReplies, forumLikes, forumModerators, userStats } from "@shared/schema";
 import { db } from "./db";
 import { z } from "zod";
 import { eq, and, desc, asc, like, or, inArray } from "drizzle-orm";
@@ -2209,6 +2209,228 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
     } catch (error) {
       console.error("Error fetching leaderboard:", error);
       res.status(500).json({ message: "Failed to fetch leaderboard" });
+    }
+  });
+
+  // ===== FORUM MANAGEMENT ADMIN ROUTES =====
+  
+  // Category Management
+  app.post("/api/admin/forum/categories", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+    try {
+      const { name, description, color, icon, isActive } = req.body;
+      
+      if (!name || !description) {
+        return res.status(400).json({ success: false, message: "Name and description are required" });
+      }
+
+      const [category] = await db.insert(forumCategories).values({
+        name,
+        description,
+        color: color || "#3B82F6",
+        icon: icon || "MessageSquare",
+        isActive: isActive !== undefined ? isActive : true,
+      }).returning();
+
+      res.json({ success: true, category });
+    } catch (error) {
+      console.error("Category creation error:", error);
+      res.status(500).json({ success: false, message: "Failed to create category" });
+    }
+  });
+
+  app.patch("/api/admin/forum/categories/:id", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      const updates = req.body;
+
+      const [category] = await db.update(forumCategories)
+        .set({ ...updates, updatedAt: new Date() })
+        .where(eq(forumCategories.id, id))
+        .returning();
+
+      if (!category) {
+        return res.status(404).json({ success: false, message: "Category not found" });
+      }
+
+      res.json({ success: true, category });
+    } catch (error) {
+      console.error("Category update error:", error);
+      res.status(500).json({ success: false, message: "Failed to update category" });
+    }
+  });
+
+  app.delete("/api/admin/forum/categories/:id", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+
+      // Check if category has posts
+      const postsInCategory = await db.select({ id: forumPosts.id })
+        .from(forumPosts)
+        .where(eq(forumPosts.categoryId, id))
+        .limit(1);
+
+      if (postsInCategory.length > 0) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Cannot delete category with existing posts. Move or delete posts first." 
+        });
+      }
+
+      await db.delete(forumCategories).where(eq(forumCategories.id, id));
+      res.json({ success: true, message: "Category deleted successfully" });
+    } catch (error) {
+      console.error("Category deletion error:", error);
+      res.status(500).json({ success: false, message: "Failed to delete category" });
+    }
+  });
+
+  // Post Management
+  app.patch("/api/admin/forum/posts/:id/pin", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { isPinned } = req.body;
+
+      const [post] = await db.update(forumPosts)
+        .set({ isPinned, updatedAt: new Date() })
+        .where(eq(forumPosts.id, id))
+        .returning();
+
+      if (!post) {
+        return res.status(404).json({ success: false, message: "Post not found" });
+      }
+
+      res.json({ success: true, post });
+    } catch (error) {
+      console.error("Post pin error:", error);
+      res.status(500).json({ success: false, message: "Failed to update post pin status" });
+    }
+  });
+
+  app.patch("/api/admin/forum/posts/:id/feature", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { isFeatured } = req.body;
+
+      const [post] = await db.update(forumPosts)
+        .set({ isFeatured, updatedAt: new Date() })
+        .where(eq(forumPosts.id, id))
+        .returning();
+
+      if (!post) {
+        return res.status(404).json({ success: false, message: "Post not found" });
+      }
+
+      res.json({ success: true, post });
+    } catch (error) {
+      console.error("Post feature error:", error);
+      res.status(500).json({ success: false, message: "Failed to update post feature status" });
+    }
+  });
+
+  app.patch("/api/admin/forum/posts/:id/lock", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { isLocked } = req.body;
+
+      const [post] = await db.update(forumPosts)
+        .set({ isLocked, updatedAt: new Date() })
+        .where(eq(forumPosts.id, id))
+        .returning();
+
+      if (!post) {
+        return res.status(404).json({ success: false, message: "Post not found" });
+      }
+
+      res.json({ success: true, post });
+    } catch (error) {
+      console.error("Post lock error:", error);
+      res.status(500).json({ success: false, message: "Failed to update post lock status" });
+    }
+  });
+
+  app.delete("/api/admin/forum/posts/:id", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+
+      // Delete associated replies first
+      await db.delete(forumReplies).where(eq(forumReplies.postId, id));
+      
+      // Delete associated likes
+      await db.delete(forumLikes).where(eq(forumLikes.postId, id));
+      
+      // Delete the post
+      await db.delete(forumPosts).where(eq(forumPosts.id, id));
+
+      res.json({ success: true, message: "Post deleted successfully" });
+    } catch (error) {
+      console.error("Post deletion error:", error);
+      res.status(500).json({ success: false, message: "Failed to delete post" });
+    }
+  });
+
+  // Moderator Management
+  app.get("/api/admin/forum/moderators", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+    try {
+      const moderators = await db.select({
+        id: forumModerators.id,
+        userId: forumModerators.userId,
+        createdAt: forumModerators.createdAt,
+        user: {
+          id: users.id,
+          username: users.username,
+          email: users.email,
+        }
+      })
+      .from(forumModerators)
+      .leftJoin(users, eq(forumModerators.userId, users.id));
+
+      res.json(moderators);
+    } catch (error) {
+      console.error("Moderators fetch error:", error);
+      res.status(500).json({ success: false, message: "Failed to fetch moderators" });
+    }
+  });
+
+  app.post("/api/admin/forum/moderators", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+    try {
+      const adminId = req.user.id;
+      const { userId } = req.body;
+
+      if (!userId) {
+        return res.status(400).json({ success: false, message: "User ID is required" });
+      }
+
+      // Check if user is already a moderator
+      const existing = await db.select({ id: forumModerators.id })
+        .from(forumModerators)
+        .where(eq(forumModerators.userId, userId))
+        .limit(1);
+
+      if (existing.length > 0) {
+        return res.status(400).json({ success: false, message: "User is already a moderator" });
+      }
+
+      const [moderator] = await db.insert(forumModerators).values({
+        userId,
+        assignedBy: adminId,
+      }).returning();
+
+      res.json({ success: true, moderator });
+    } catch (error) {
+      console.error("Moderator assignment error:", error);
+      res.status(500).json({ success: false, message: "Failed to assign moderator" });
+    }
+  });
+
+  app.delete("/api/admin/forum/moderators/:userId", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+    try {
+      const userId = parseInt(req.params.userId);
+
+      await db.delete(forumModerators).where(eq(forumModerators.userId, userId));
+      res.json({ success: true, message: "Moderator removed successfully" });
+    } catch (error) {
+      console.error("Moderator removal error:", error);
+      res.status(500).json({ success: false, message: "Failed to remove moderator" });
     }
   });
 

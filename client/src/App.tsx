@@ -24,6 +24,7 @@ import ForumAdmin from "@/pages/forum-admin";
 import AdminPanel from "@/pages/admin-panel";
 import AdminDashboard from "@/pages/admin-dashboard";
 import ContactMessages from "@/pages/admin/contact-messages";
+import ForumManagement from "@/pages/admin/forum-management";
 import EntryDetail from "@/pages/entry-detail";
 import Entries from "@/pages/entries";
 import Vault from "@/pages/vault";
@@ -56,6 +57,7 @@ function Router() {
           <Route path="/admin" component={AdminPanel} />
           <Route path="/admin/dashboard" component={AdminDashboard} />
           <Route path="/admin/contact-messages" component={ContactMessages} />
+          <Route path="/admin/forum-management" component={ForumManagement} />
         </>
       )}
       <Route path="/about" component={About} />
