@@ -69,10 +69,7 @@ export function EnhancedEntriesList() {
   // Pin mutation
   const pinMutation = useMutation({
     mutationFn: async (entry: JournalEntry) => {
-      await apiRequest(`/api/entries/${entry.id}/pin`, {
-        method: "PATCH",
-        body: { isPinned: !entry.isPinned }
-      });
+      await apiRequest(`/api/entries/${entry.id}/pin`, "PATCH", { isPinned: !entry.isPinned });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/entries"] });
@@ -86,10 +83,7 @@ export function EnhancedEntriesList() {
   // Move to folder mutation
   const moveFolderMutation = useMutation({
     mutationFn: async ({ id, folderId }: { id: number; folderId: number | null }) => {
-      await apiRequest(`/api/entries/${id}/folder`, {
-        method: "PATCH",
-        body: { folderId }
-      });
+      await apiRequest(`/api/entries/${id}/folder`, "PATCH", { folderId });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/entries"] });
