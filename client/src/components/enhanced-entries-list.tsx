@@ -41,7 +41,7 @@ export function EnhancedEntriesList() {
   const [showSearchFilters, setShowSearchFilters] = useState(false);
   const [showFolderManager, setShowFolderManager] = useState(false);
   const [searchFilters, setSearchFilters] = useState<any>(null);
-  const [sidebarFilter, setSidebarFilter] = useState<string>("");
+  const [sidebarFilter, setSidebarFilter] = useState<string>("all");
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -145,6 +145,8 @@ export function EnhancedEntriesList() {
     } else if (sidebarFilter.startsWith("folder-")) {
       const folderId = parseInt(sidebarFilter.replace("folder-", ""));
       filtered = entries.filter((entry: JournalEntry) => entry.folderId === folderId);
+    } else if (sidebarFilter === "all" || sidebarFilter === "") {
+      filtered = entries;
     }
     
     return filtered;
@@ -218,7 +220,7 @@ export function EnhancedEntriesList() {
                 <SelectValue placeholder="Filter entries..." />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">📚 All Entries</SelectItem>
+                <SelectItem value="all">📚 All Entries</SelectItem>
                 <SelectItem value="pinned">📌 Pinned Entries</SelectItem>
                 <SelectItem value="no-folder">🗂 No Folder</SelectItem>
                 {folders?.map((folder: Folder) => (
@@ -242,10 +244,10 @@ export function EnhancedEntriesList() {
           </CardHeader>
           <CardContent className="space-y-2">
             <Button
-              variant={sidebarFilter === "" ? "default" : "ghost"}
+              variant={sidebarFilter === "all" || sidebarFilter === "" ? "default" : "ghost"}
               size="sm"
               className="w-full justify-start"
-              onClick={() => setSidebarFilter("")}
+              onClick={() => setSidebarFilter("all")}
             >
               <Calendar className="w-4 h-4 mr-2" />
               All Entries
