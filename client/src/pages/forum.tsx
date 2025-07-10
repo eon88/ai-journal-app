@@ -110,7 +110,7 @@ export default function Forum() {
             <div className="flex flex-wrap gap-2">
               <Button 
                 variant="outline" 
-                onClick={() => window.location.href = '/forum/leaderboard'}
+                onClick={() => setLocation('/forum/leaderboard')}
                 className="border-gray-600 text-gray-300 hover:bg-gray-700 flex-1 sm:flex-none"
               >
                 <Trophy className="w-4 h-4 mr-2" />
@@ -122,7 +122,7 @@ export default function Forum() {
               {adminCheck?.isAdmin && (
                 <Button 
                   variant="outline" 
-                  onClick={() => window.location.href = '/forum/admin'}
+                  onClick={() => setLocation('/forum/admin')}
                   className="border-journal-primary text-journal-primary hover:bg-journal-primary/10 flex-1 sm:flex-none"
                 >
                   <Shield className="w-4 h-4 mr-2" />
