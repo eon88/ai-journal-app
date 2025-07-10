@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Trophy, Zap, Star, HelpCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { HelpCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { AdventureIcons } from "@/components/icons/adventure-icons";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -55,16 +56,16 @@ export function MobileScoreboard() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <div className="flex items-center space-x-1 bg-yellow-100 dark:bg-yellow-900/30 px-2 py-1 rounded-full">
-                    <Trophy className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
+                    <AdventureIcons.Hourglass size={16} className="text-yellow-600 dark:text-yellow-400" />
                     <span className="text-sm font-bold text-yellow-700 dark:text-yellow-300">Lv. {stats.level}</span>
                   </div>
                   <div className="flex items-center space-x-3">
                     <div className="flex items-center space-x-1">
-                      <Zap className="w-3 h-3 text-orange-500" />
+                      <AdventureIcons.Flame size={12} className="text-orange-500" />
                       <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{stats.currentStreak}</span>
                     </div>
                     <div className="flex items-center space-x-1">
-                      <Star className="w-3 h-3 text-blue-500" />
+                      <AdventureIcons.CompassMap size={12} className="text-blue-500" />
                       <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{stats.totalEntries}</span>
                     </div>
                   </div>
@@ -93,7 +94,7 @@ export function MobileScoreboard() {
               <div className="mb-4">
                 <div className="flex items-center justify-between text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">
                   <div className="flex items-center gap-2">
-                    <Trophy className="w-4 h-4 text-yellow-500" />
+                    <AdventureIcons.Hourglass size={16} className="text-yellow-500" />
                     <span>Level {stats.level} Progress</span>
                   </div>
                   <span className="text-xs text-gray-600 dark:text-gray-400">{stats.xpPoints} XP</span>
@@ -116,7 +117,7 @@ export function MobileScoreboard() {
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div className="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-3">
                   <div className="flex items-center justify-center mb-1">
-                    <Zap className="w-4 h-4 text-orange-500 mr-1" />
+                    <AdventureIcons.Flame size={16} className="text-orange-500 mr-1" />
                     <span className="text-sm font-medium text-orange-700 dark:text-orange-300">Current Streak</span>
                   </div>
                   <div className="text-xl font-bold text-orange-600 dark:text-orange-400 text-center">{stats.currentStreak}</div>
@@ -125,7 +126,7 @@ export function MobileScoreboard() {
                 
                 <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
                   <div className="flex items-center justify-center mb-1">
-                    <Star className="w-4 h-4 text-blue-500 mr-1" />
+                    <AdventureIcons.CompassMap size={16} className="text-blue-500 mr-1" />
                     <span className="text-sm font-medium text-blue-700 dark:text-blue-300">Total Entries</span>
                   </div>
                   <div className="text-xl font-bold text-blue-600 dark:text-blue-400 text-center">{stats.totalEntries}</div>

@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { Vault, Lightbulb, Target, BookOpen, Trash2, Plus } from "lucide-react";
+import { Lightbulb, Target, BookOpen, Trash2, Plus } from "lucide-react";
+import { AdventureIcons } from "@/components/icons/adventure-icons";
 import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 
@@ -107,7 +108,7 @@ export function InsightsVault() {
       <div className="flex items-center justify-between mb-4">
         <Link href="/vault">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2 hover:text-purple-600 dark:hover:text-purple-400 transition-colors cursor-pointer">
-            <Vault className="w-5 h-5 text-purple-500" />
+            <AdventureIcons.Vault size={20} className="text-purple-500" />
             The Vault
           </h2>
         </Link>

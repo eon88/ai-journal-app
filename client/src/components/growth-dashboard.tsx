@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, LineChart, Line, Tooltip } from "recharts";
-import { TrendingUp, Hash, Calendar } from "lucide-react";
+import { Hash, Calendar } from "lucide-react";
+import { AdventureIcons } from "@/components/icons/adventure-icons";
 
 interface GrowthMetrics {
   totalEntries: number;
@@ -49,7 +50,7 @@ export function GrowthDashboard() {
   return (
     <div className="bg-gray-100/80 dark:bg-gray-800/50 rounded-lg shadow-sm border p-6">
       <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-        <TrendingUp className="w-5 h-5 text-green-500" />
+        <AdventureIcons.TreeGrowth size={20} className="text-green-500" />
         Growth Map
       </h2>
 

@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { Trophy, Star, Zap, HelpCircle } from "lucide-react";
+import { HelpCircle } from "lucide-react";
+import { AdventureIcons } from "@/components/icons/adventure-icons";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 
@@ -39,7 +40,7 @@ export function LevelSidebar() {
       {/* Level Display */}
       <div className="text-center mb-4">
         <div className="flex items-center justify-center mb-2">
-          <Trophy className="w-5 h-5 text-yellow-500 mr-1" />
+          <AdventureIcons.Hourglass size={20} className="text-yellow-500 mr-1" />
           <span className="text-lg font-bold text-foreground">Lv. {stats.level}</span>
         </div>
         <div className="text-xs text-purple-600 font-medium bg-purple-50 dark:bg-purple-900/30 px-2 py-1 rounded-full">
@@ -68,14 +69,14 @@ export function LevelSidebar() {
       <div className="space-y-2">
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center">
-            <Zap className="w-3 h-3 text-orange-500 mr-1" />
+            <AdventureIcons.Flame size={12} className="text-orange-500 mr-1" />
             <span className="text-muted-foreground">Streak</span>
           </div>
           <span className="font-medium text-foreground">{stats.currentStreak}</span>
         </div>
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center">
-            <Star className="w-3 h-3 text-blue-500 mr-1" />
+            <AdventureIcons.CompassMap size={12} className="text-blue-500 mr-1" />
             <span className="text-muted-foreground">Entries</span>
           </div>
           <span className="font-medium text-foreground">{stats.totalEntries}</span>

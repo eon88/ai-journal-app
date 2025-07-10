@@ -9,7 +9,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { 
-  Vault, 
   Search, 
   Plus, 
   Trash2, 
@@ -20,6 +19,7 @@ import {
   Calendar,
   Archive
 } from "lucide-react";
+import { AdventureIcons } from "@/components/icons/adventure-icons";
 
 interface SavedInsight {
   id: number;
@@ -148,7 +148,7 @@ export default function VaultPage() {
         {/* Header Section */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
-            <Vault className="w-8 h-8 text-purple-500" />
+            <AdventureIcons.Vault size={32} className="text-purple-500" />
             <div>
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white">The Vault</h1>
               <p className="text-gray-600 dark:text-gray-400">Your personal collection of insights and wisdom</p>

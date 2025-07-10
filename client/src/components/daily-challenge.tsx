@@ -3,7 +3,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Target, CheckCircle, Star, Clock } from "lucide-react";
+import { CheckCircle, Star, Clock } from "lucide-react";
+import { AdventureIcons } from "@/components/icons/adventure-icons";
 import { apiRequest } from "@/lib/queryClient";
 
 interface DailyChallenge {
@@ -42,7 +43,7 @@ export function DailyChallenge() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Target className="h-5 w-5" />
+            <AdventureIcons.Sword size={20} className="" />
             Today's Challenge
           </CardTitle>
           <CardDescription>Loading your daily quest...</CardDescription>
@@ -56,7 +57,7 @@ export function DailyChallenge() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Target className="h-5 w-5" />
+            <AdventureIcons.Sword size={20} className="" />
             Today's Challenge
           </CardTitle>
           <CardDescription>No challenge available today</CardDescription>
@@ -77,7 +78,7 @@ export function DailyChallenge() {
             {challenge.completed ? (
               <CheckCircle className="h-5 w-5 text-green-600" />
             ) : (
-              <Target className="h-5 w-5" />
+              <AdventureIcons.Sword size={20} className="" />
             )}
             Today's Challenge
           </CardTitle>
@@ -112,7 +113,7 @@ export function DailyChallenge() {
               ) : (
                 <div className="p-4 rounded-lg bg-muted/50 border-l-4 border-primary">
                   <div className="flex items-start gap-2 mb-2">
-                    <Target className="h-4 w-4 mt-0.5 text-primary" />
+                    <AdventureIcons.Sword size={16} className="mt-0.5 text-primary" />
                     <span className="font-medium text-sm">Challenge Prompt</span>
                   </div>
                   <p className="text-sm leading-relaxed">

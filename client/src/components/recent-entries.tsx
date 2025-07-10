@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MessageCircle } from "lucide-react";
+import { AdventureIcons } from "@/components/icons/adventure-icons";
 import { Link } from "wouter";
 import type { JournalEntry } from "@shared/schema";
 import { BULLET_SYMBOLS } from "@shared/schema";
@@ -90,7 +91,10 @@ export function RecentEntries() {
   return (
     <div className="mt-8">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold text-mobile-enhanced">Recent Entries</h2>
+        <div className="flex items-center gap-2">
+          <AdventureIcons.CompassMap size={20} className="text-mobile-enhanced" />
+          <h2 className="text-xl font-semibold text-mobile-enhanced">Recent Entries</h2>
+        </div>
         <Link href="/entries">
           <Button 
             variant="ghost"
