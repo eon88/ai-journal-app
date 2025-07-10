@@ -38,10 +38,32 @@ function Router() {
   const { isAuthenticated, isLoading, user } = useAuth();
   useScrollToTop(); // This will scroll to top on route changes
 
+  // Show loading screen while authentication is being checked
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-lg">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <Switch>
-      {isLoading || !isAuthenticated ? (
-        <Route path="/" component={Landing} />
+      {!isAuthenticated ? (
+        <>
+          <Route path="/" component={Landing} />
+          <Route path="/about" component={About} />
+          <Route path="/contact" component={Contact} />
+          <Route path="/pricing" component={Pricing} />
+          <Route path="/questionnaire" component={Questionnaire} />
+          <Route path="/rules" component={RulesOfTheGame} />
+          <Route path="/login" component={Login} />
+          <Route path="/register" component={Register} />
+          <Route component={Landing} /> {/* Redirect unauthenticated users to landing */}
+        </>
       ) : (
         <>
           <Route path="/" component={Home} />
@@ -58,18 +80,16 @@ function Router() {
           <Route path="/admin/dashboard" component={AdminDashboard} />
           <Route path="/admin/contact-messages" component={ContactMessages} />
           <Route path="/admin/forum-management" component={ForumManagement} />
+          <Route path="/about" component={About} />
+          <Route path="/contact" component={Contact} />
+          <Route path="/pricing" component={Pricing} />
+          <Route path="/questionnaire" component={Questionnaire} />
+          <Route path="/rules" component={RulesOfTheGame} />
+          <Route path="/login" component={Login} />
+          <Route path="/register" component={Register} />
+          <Route component={NotFound} />
         </>
       )}
-      <Route path="/about" component={About} />
-      <Route path="/contact" component={Contact} />
-      <Route path="/pricing" component={Pricing} />
-      <Route path="/questionnaire" component={Questionnaire} />
-      <Route path="/rules" component={RulesOfTheGame} />
-      <Route path="/login" component={Login} />
-      <Route path="/register" component={Register} />
-      <Route component={NotFound} />
-      
-
     </Switch>
   );
 }
