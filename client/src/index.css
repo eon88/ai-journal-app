@@ -207,29 +207,34 @@ button,
   font-weight: 600 !important;
 }
 
-/* Additional text visibility overrides for problematic components */
-.text-gray-600 {
-  color: rgb(17, 24, 39) !important;
+/* Comprehensive text visibility fixes - Simple rule: dark text on light, white text on dark */
+.text-gray-300, .text-gray-400, .text-gray-500, .text-gray-600, .text-gray-700, .text-gray-800 {
+  color: rgb(17, 24, 39) !important; /* Dark text for light backgrounds */
 }
 
-.dark .text-gray-600 {
-  color: rgb(209, 213, 219) !important;
+.dark .text-gray-300, .dark .text-gray-400, .dark .text-gray-500, .dark .text-gray-600, .dark .text-gray-700, .dark .text-gray-800 {
+  color: rgb(229, 231, 235) !important; /* Light text for dark backgrounds */
 }
 
-.text-gray-700 {
-  color: rgb(17, 24, 39) !important;
+/* Ensure white text variants work correctly */
+.text-white {
+  color: rgb(17, 24, 39) !important; /* Dark text for light backgrounds */
 }
 
-.dark .text-gray-700 {
-  color: rgb(209, 213, 219) !important;
+.dark .text-white {
+  color: rgb(255, 255, 255) !important; /* White text for dark backgrounds */
 }
 
-.text-gray-800 {
-  color: rgb(17, 24, 39) !important;
+.text-white\/70, .text-white\/80 {
+  color: rgb(55, 65, 81) !important; /* Slightly lighter dark text for light backgrounds */
 }
 
-.dark .text-gray-800 {
-  color: rgb(229, 231, 235) !important;
+.dark .text-white\/70 {
+  color: rgba(255, 255, 255, 0.7) !important; /* Semi-transparent white for dark backgrounds */
+}
+
+.dark .text-white\/80 {
+  color: rgba(255, 255, 255, 0.8) !important; /* Semi-transparent white for dark backgrounds */
 }
 
 @layer utilities {
