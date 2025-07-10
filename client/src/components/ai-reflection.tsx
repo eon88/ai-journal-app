@@ -55,7 +55,7 @@ export function AIReflectionComponent({
       setIsSaved(true);
       toast({
         title: "Insight Bookmarked!",
-        description: "Saved to 'Your Inner Library' section on the home page. Scroll down to view all bookmarked insights.",
+        description: "Saved to 'The Vault' section on the home page. Scroll down to view all bookmarked insights.",
       });
     },
     onError: () => {

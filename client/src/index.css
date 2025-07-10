@@ -521,4 +521,12 @@ button,
   .focus\:ring-journal-primary:focus {
     --tw-ring-color: var(--journal-primary);
   }
+  
+  /* Line clamp utilities */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
 }
