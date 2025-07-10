@@ -549,12 +549,14 @@ function EntryCard({
             />
             {entry.isPinned && <Pin className="w-4 h-4 text-blue-500" />}
             {isToday(entry.createdAt) && (
-              <img 
-                src="/compass-icon.png" 
-                alt="Today's entry" 
-                className="w-4 h-4 opacity-80"
+              <svg 
+                className="w-4 h-4 opacity-80 text-amber-600" 
+                fill="currentColor" 
+                viewBox="0 0 24 24"
                 title="Today's Entry"
-              />
+              >
+                <path d="M12 2L13.09 6.26L18 5L16.74 9.74L22 12L16.74 14.26L18 19L13.09 17.74L12 22L10.91 17.74L6 19L7.26 14.26L2 12L7.26 9.74L6 5L10.91 6.26L12 2Z"/>
+              </svg>
             )}
             <span className="text-sm text-gray-800 dark:text-gray-300">
               {new Date(entry.createdAt).toLocaleDateString()}

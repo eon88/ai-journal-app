@@ -52,9 +52,7 @@ export function RecentEntries() {
   const isToday = (date: string | Date) => {
     const entryDate = new Date(date);
     const today = new Date();
-    const isToday = entryDate.toDateString() === today.toDateString();
-    console.log(`Checking entry date: ${entryDate.toDateString()} vs today: ${today.toDateString()}, isToday: ${isToday}`);
-    return isToday;
+    return entryDate.toDateString() === today.toDateString();
   };
 
   if (isLoading) {
@@ -122,15 +120,17 @@ export function RecentEntries() {
               >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    {(isToday(entry.createdAt) || true) && (
-                      <img 
-                        src="/compass-icon.png" 
-                        alt="Today's entry" 
-                        className="w-5 h-5 opacity-80"
-                        title="Today's Entry"
-                        onError={(e) => console.log('Image failed to load:', e)}
-                        onLoad={() => console.log('Image loaded successfully')}
-                      />
+                    {isToday(entry.createdAt) && (
+                      <div className="relative">
+                        <svg 
+                          className="w-5 h-5 opacity-80 text-amber-600" 
+                          fill="currentColor" 
+                          viewBox="0 0 24 24"
+                          title="Today's Entry"
+                        >
+                          <path d="M12 2L13.09 6.26L18 5L16.74 9.74L22 12L16.74 14.26L18 19L13.09 17.74L12 22L10.91 17.74L6 19L7.26 14.26L2 12L7.26 9.74L6 5L10.91 6.26L12 2Z"/>
+                        </svg>
+                      </div>
                     )}
                     <span className="text-sm text-gray-800 dark:text-gray-400" style={{ color: 'rgb(17, 24, 39)' }}>
                       {formatDate(entry.createdAt)}
