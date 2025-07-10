@@ -218,10 +218,20 @@ export default function AdminDashboard() {
               Manage users and analyze engagement data
             </p>
           </div>
-          <Button onClick={exportToCSV} className="flex items-center gap-2">
-            <Download className="w-4 h-4" />
-            Export CSV
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              onClick={() => window.location.href = '/admin/contact-messages'} 
+              variant="outline" 
+              className="flex items-center gap-2"
+            >
+              <Mail className="w-4 h-4" />
+              Contact Messages
+            </Button>
+            <Button onClick={exportToCSV} className="flex items-center gap-2">
+              <Download className="w-4 h-4" />
+              Export CSV
+            </Button>
+          </div>
         </div>
 
         {/* Summary Stats */}

@@ -2015,6 +2015,38 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
     }
   });
 
+  // Admin contact messages endpoint (owner only)
+  app.get("/api/admin/contact-messages", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+    try {
+      const fs = await import('fs/promises');
+      
+      try {
+        const logContent = await fs.readFile('contact-messages.log', 'utf8');
+        const messages = logContent
+          .trim()
+          .split('\n')
+          .filter(line => line.trim())
+          .map(line => {
+            try {
+              return JSON.parse(line);
+            } catch {
+              return null;
+            }
+          })
+          .filter(msg => msg !== null)
+          .reverse(); // Most recent first
+        
+        res.json({ success: true, messages });
+      } catch (fileError) {
+        // If file doesn't exist or can't be read, return empty array
+        res.json({ success: true, messages: [] });
+      }
+    } catch (error) {
+      console.error("Error reading contact messages:", error);
+      res.status(500).json({ success: false, message: "Failed to read contact messages" });
+    }
+  });
+
   // Get leaderboard data
   app.get("/api/leaderboard/top-users", async (req: Request, res: Response) => {
     try {
