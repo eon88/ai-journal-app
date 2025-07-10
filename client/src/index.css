@@ -207,34 +207,44 @@ button,
   font-weight: 600 !important;
 }
 
-/* Comprehensive text visibility fixes - Simple rule: dark text on light, white text on dark */
-.text-gray-300, .text-gray-400, .text-gray-500, .text-gray-600, .text-gray-700, .text-gray-800 {
-  color: rgb(17, 24, 39) !important; /* Dark text for light backgrounds */
+/* ULTIMATE TEXT VISIBILITY FIX - Force all text to be visible */
+/* Light mode: Force dark text */
+:not(.dark) .text-gray-300,
+:not(.dark) .text-gray-400, 
+:not(.dark) .text-gray-500,
+:not(.dark) .text-gray-600,
+:not(.dark) .text-gray-700,
+:not(.dark) .text-gray-800,
+:not(.dark) .text-white,
+:not(.dark) .text-white\/70,
+:not(.dark) .text-white\/80 {
+  color: rgb(17, 24, 39) !important;
 }
 
-.dark .text-gray-300, .dark .text-gray-400, .dark .text-gray-500, .dark .text-gray-600, .dark .text-gray-700, .dark .text-gray-800 {
-  color: rgb(229, 231, 235) !important; /* Light text for dark backgrounds */
-}
-
-/* Ensure white text variants work correctly */
-.text-white {
-  color: rgb(17, 24, 39) !important; /* Dark text for light backgrounds */
-}
-
-.dark .text-white {
-  color: rgb(255, 255, 255) !important; /* White text for dark backgrounds */
-}
-
-.text-white\/70, .text-white\/80 {
-  color: rgb(55, 65, 81) !important; /* Slightly lighter dark text for light backgrounds */
-}
-
-.dark .text-white\/70 {
-  color: rgba(255, 255, 255, 0.7) !important; /* Semi-transparent white for dark backgrounds */
-}
-
+/* Dark mode: Force light text */
+.dark .text-gray-300,
+.dark .text-gray-400,
+.dark .text-gray-500,
+.dark .text-gray-600,
+.dark .text-gray-700,
+.dark .text-gray-800,
+.dark .text-white,
+.dark .text-white\/70,
 .dark .text-white\/80 {
-  color: rgba(255, 255, 255, 0.8) !important; /* Semi-transparent white for dark backgrounds */
+  color: rgb(229, 231, 235) !important;
+}
+
+/* Force specific card text visibility */
+.bg-white p,
+.bg-white span,
+.bg-white div {
+  color: rgb(17, 24, 39) !important;
+}
+
+.dark .bg-white p,
+.dark .bg-white span,
+.dark .bg-white div {
+  color: rgb(17, 24, 39) !important;
 }
 
 @layer utilities {
