@@ -52,7 +52,9 @@ export function RecentEntries() {
   const isToday = (date: string | Date) => {
     const entryDate = new Date(date);
     const today = new Date();
-    return entryDate.toDateString() === today.toDateString();
+    const isToday = entryDate.toDateString() === today.toDateString();
+    console.log(`Checking entry date: ${entryDate.toDateString()} vs today: ${today.toDateString()}, isToday: ${isToday}`);
+    return isToday;
   };
 
   if (isLoading) {
@@ -120,12 +122,14 @@ export function RecentEntries() {
               >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    {isToday(entry.createdAt) && (
+                    {(isToday(entry.createdAt) || true) && (
                       <img 
                         src="/compass-icon.png" 
                         alt="Today's entry" 
                         className="w-5 h-5 opacity-80"
                         title="Today's Entry"
+                        onError={(e) => console.log('Image failed to load:', e)}
+                        onLoad={() => console.log('Image loaded successfully')}
                       />
                     )}
                     <span className="text-sm text-gray-800 dark:text-gray-400" style={{ color: 'rgb(17, 24, 39)' }}>
