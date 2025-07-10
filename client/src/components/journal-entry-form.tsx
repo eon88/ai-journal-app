@@ -161,12 +161,28 @@ export function JournalEntryForm() {
         <div className="glass-card-transparent rounded-xl shadow-sm p-8">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <img 
-                src="/today-compass-icon.png" 
-                alt="Today's Entry" 
-                className="w-7 h-7 opacity-90"
+              <svg 
+                className="w-7 h-7 opacity-90" 
+                viewBox="0 0 100 100" 
+                fill="none"
                 title="Today's Entry"
-              />
+              >
+                {/* Scroll background */}
+                <path d="M20 15 L80 15 Q85 15 85 20 L85 80 Q85 85 80 85 L20 85 Q15 85 15 80 L15 20 Q15 15 20 15 Z" 
+                      fill="#F5F1E8" stroke="#8B7355" strokeWidth="1"/>
+                {/* Scroll curls */}
+                <path d="M15 20 Q10 20 10 15 Q10 10 15 10" fill="none" stroke="#8B7355" strokeWidth="1"/>
+                <path d="M85 80 Q90 80 90 85 Q90 90 85 90" fill="none" stroke="#8B7355" strokeWidth="1"/>
+                {/* Compass circle */}
+                <circle cx="50" cy="50" r="25" fill="none" stroke="#8B4513" strokeWidth="2"/>
+                {/* Compass points */}
+                <path d="M50 30 L55 45 L50 40 L45 45 Z" fill="#8B4513"/>
+                <path d="M50 70 L45 55 L50 60 L55 55 Z" fill="#8B4513"/>
+                <path d="M30 50 L45 45 L40 50 L45 55 Z" fill="#8B4513"/>
+                <path d="M70 50 L55 55 L60 50 L55 45 Z" fill="#8B4513"/>
+                {/* Center dot */}
+                <circle cx="50" cy="50" r="3" fill="#8B4513"/>
+              </svg>
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Today's Entry</h2>
             </div>
             <div className="flex items-center space-x-2 text-sm text-gray-900 dark:text-white">
