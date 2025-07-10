@@ -1774,9 +1774,14 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
     }
   });
 
-  // Enhanced admin endpoint with detailed user data for marketing/promotion
-  app.get("/api/admin/users-detailed", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+  // Enhanced admin endpoint with detailed user data for marketing/promotion (EON ONLY)
+  app.get("/api/admin/users-detailed", isAuthenticated, async (req: any, res: Response) => {
     try {
+      // Restrict to EON user only for user database access
+      if (req.user.id !== 2) { // EON's user ID
+        return res.status(403).json({ message: "Access denied - owner access only" });
+      }
+      
       const detailedUsers = await storage.getAllUsersWithDetails();
       res.json(detailedUsers);
     } catch (error) {
