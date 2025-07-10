@@ -7,14 +7,18 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { MessageSquare, Users, TrendingUp, Clock, Search, Shield, Pin, Heart, Brain, Trophy } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { MessageSquare, Users, TrendingUp, Clock, Search, Shield, Pin, Heart, Brain, Trophy, MoreVertical, Edit3 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { NewPostDialog } from "@/components/new-post-dialog";
 import { ForumRankBadge } from "@/components/forum-rank-badge";
+import { EditPostDialog } from "@/components/edit-post-dialog";
+import { useAuth } from "@/hooks/useAuth";
 import type { ForumCategory, ForumPost } from "@shared/schema";
 
 export default function Forum() {
   const [searchQuery, setSearchQuery] = useState("");
+  const { user } = useAuth();
   
   // Check if current user is admin
   const { data: adminCheck } = useQuery({
@@ -249,6 +253,35 @@ export default function Forum() {
                               )}
                             </div>
                           </div>
+                          
+                          {/* Three-dot menu for post owner or admin */}
+                          {user && (user.id === post.authorId || user.role === 'admin') && (
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="text-gray-400 hover:text-white h-8 w-8 p-0"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <MoreVertical className="w-4 h-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="bg-gray-800 border-gray-600">
+                                <DropdownMenuItem asChild>
+                                  <EditPostDialog 
+                                    post={post} 
+                                    trigger={
+                                      <div className="flex items-center w-full cursor-pointer">
+                                        <Edit3 className="w-4 h-4 mr-2" />
+                                        Edit Post
+                                      </div>
+                                    }
+                                  />
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          )}
                         </div>
                         <p className="text-gray-300 text-sm mb-3">
                           {post.content.substring(0, 150)}...
@@ -302,7 +335,38 @@ export default function Forum() {
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
-                        <h4 className="font-medium text-white mb-1">{post.title}</h4>
+                        <div className="flex items-center justify-between mb-1">
+                          <h4 className="font-medium text-white">{post.title}</h4>
+                          
+                          {/* Three-dot menu for post owner or admin */}
+                          {user && (user.id === post.authorId || user.role === 'admin') && (
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="text-gray-400 hover:text-white h-6 w-6 p-0"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <MoreVertical className="w-3 h-3" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="bg-gray-800 border-gray-600">
+                                <DropdownMenuItem asChild>
+                                  <EditPostDialog 
+                                    post={post} 
+                                    trigger={
+                                      <div className="flex items-center w-full cursor-pointer">
+                                        <Edit3 className="w-4 h-4 mr-2" />
+                                        Edit Post
+                                      </div>
+                                    }
+                                  />
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          )}
+                        </div>
                         <div className="flex items-center gap-2 text-xs text-gray-400 mb-2">
                           <span>{post.author?.username}</span>
                           {post.author?.xpPoints !== undefined && (

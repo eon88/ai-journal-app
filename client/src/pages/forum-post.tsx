@@ -7,11 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { ArrowLeft, Heart, Reply, MessageSquare, Clock, Pin, Lock } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { ArrowLeft, Heart, Reply, MessageSquare, Clock, Pin, Lock, MoreVertical, Edit3 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ForumRankBadge } from "@/components/forum-rank-badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { EditPostDialog } from "@/components/edit-post-dialog";
+import { useAuth } from "@/hooks/useAuth";
 import type { ForumPost, ForumReply } from "@shared/schema";
 
 export default function ForumPostPage() {
@@ -21,6 +24,7 @@ export default function ForumPostPage() {
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   // Get post data
   const { data: post, isLoading: loadingPost } = useQuery({
@@ -189,6 +193,30 @@ export default function ForumPostPage() {
                       )}
                     </div>
                   </div>
+                  
+                  {/* Three-dot menu for post owner or admin */}
+                  {user && (user.id === post.authorId || user.role === 'admin') && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white h-8 w-8 p-0">
+                          <MoreVertical className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="bg-gray-800 border-gray-600">
+                        <DropdownMenuItem asChild>
+                          <EditPostDialog 
+                            post={post} 
+                            trigger={
+                              <div className="flex items-center w-full cursor-pointer">
+                                <Edit3 className="w-4 h-4 mr-2" />
+                                Edit Post
+                              </div>
+                            }
+                          />
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
                 </div>
                 
                 <div className="prose prose-invert max-w-none mb-4">

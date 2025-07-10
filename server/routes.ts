@@ -1947,6 +1947,47 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
     }
   });
 
+  // Edit forum post (users can edit their own posts)
+  app.patch("/api/forum/posts/:id", isAuthenticated, async (req: any, res: Response) => {
+    try {
+      const postId = parseInt(req.params.id);
+      const { title, content } = req.body;
+      const userId = req.user.id;
+      
+      if (!title || !content) {
+        return res.status(400).json({ message: "Title and content are required" });
+      }
+      
+      // Get the post to check ownership
+      const existingPost = await db.select().from(forumPosts).where(eq(forumPosts.id, postId));
+      
+      if (!existingPost.length) {
+        return res.status(404).json({ message: "Post not found" });
+      }
+      
+      // Check if user owns the post or is admin
+      const isUserAdmin = await storage.isUserAdmin(userId);
+      if (existingPost[0].authorId !== userId && !isUserAdmin) {
+        return res.status(403).json({ message: "You can only edit your own posts" });
+      }
+      
+      // Update the post
+      const [updatedPost] = await db.update(forumPosts)
+        .set({ 
+          title, 
+          content, 
+          updatedAt: new Date() 
+        })
+        .where(eq(forumPosts.id, postId))
+        .returning();
+      
+      res.json({ success: true, post: updatedPost });
+    } catch (error) {
+      console.error("Error editing forum post:", error);
+      res.status(500).json({ message: "Failed to edit post" });
+    }
+  });
+
   // Get forum replies
   app.get("/api/forum/posts/:id/replies", async (req: Request, res: Response) => {
     try {
