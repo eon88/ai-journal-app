@@ -154,42 +154,49 @@ export function Header() {
                   </Link>
                 )}
                 
-                {/* Level Switcher for testing */}
-                <div className="px-2 py-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Settings className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Level Testing</span>
-                  </div>
-                  {progress && (
-                    <div className="mb-2 text-xs text-gray-600 dark:text-gray-400">
-                      Current: Level {progress.currentLevel} - {LEVEL_DESCRIPTIONS[progress.currentLevel as keyof typeof LEVEL_DESCRIPTIONS]?.title}
+                {/* Level Switcher for testing - EON ONLY */}
+                {user?.id === 2 && (
+                  <div className="px-2 py-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Settings className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Level Testing</span>
                     </div>
-                  )}
-                  <Select value={selectedLevel} onValueChange={setSelectedLevel}>
-                    <SelectTrigger className="w-full h-8 text-xs">
-                      <SelectValue placeholder="Switch to level..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(LEVEL_DESCRIPTIONS).map(([level, desc]) => (
-                        <SelectItem key={level} value={level}>
-                          <div className="flex items-center gap-2">
-                            <div className={`w-2 h-2 rounded-full ${desc.color}`} />
-                            <span className="text-xs">Level {level}: {desc.title}</span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {selectedLevel && (
-                    <Button 
-                      onClick={() => handleLevelChange(selectedLevel)}
-                      disabled={setLevelMutation.isPending}
-                      className="w-full mt-2 h-8 text-xs bg-indigo-600 hover:bg-indigo-700"
-                    >
-                      {setLevelMutation.isPending ? "Switching..." : `Switch to Level ${selectedLevel}`}
-                    </Button>
-                  )}
-                </div>
+                    {progress && (
+                      <div className="mb-2 text-xs text-gray-600 dark:text-gray-400">
+                        Current: Level {progress.currentLevel} - {LEVEL_DESCRIPTIONS[progress.currentLevel as keyof typeof LEVEL_DESCRIPTIONS]?.title}
+                      </div>
+                    )}
+                    <Select value={selectedLevel} onValueChange={setSelectedLevel}>
+                      <SelectTrigger className="w-full h-8 text-xs">
+                        <SelectValue placeholder="Switch to level..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.entries(LEVEL_DESCRIPTIONS).map(([level, desc]) => (
+                          <SelectItem key={level} value={level}>
+                            <div className="flex items-center gap-2">
+                              <div className={`w-2 h-2 rounded-full ${desc.color}`} />
+                              <span className="text-xs">Level {level}: {desc.title}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {selectedLevel && (
+                      <Button 
+                        onClick={() => handleLevelChange(selectedLevel)}
+                        disabled={setLevelMutation.isPending}
+                        className="w-full mt-2 h-8 text-xs bg-indigo-600 hover:bg-indigo-700"
+                      >
+                        {setLevelMutation.isPending ? "Switching..." : `Switch to Level ${selectedLevel}`}
+                      </Button>
+                    )}
+                    <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-600">
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Owner testing tool
+                      </p>
+                    </div>
+                  </div>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem 
                   className="cursor-pointer text-red-600 focus:text-red-600"

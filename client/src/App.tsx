@@ -7,7 +7,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { UserProvider } from "@/components/user-provider";
 import { PWAInstallPrompt } from "@/components/pwa-install-prompt";
 import { ScrollToTopButton } from "@/components/scroll-to-top-button";
-import { LevelSwitcher } from "@/components/level-switcher";
+
 import { useAuth } from "@/hooks/useAuth";
 import { useScrollToTop } from "@/hooks/useScrollToTop";
 import NotFound from "@/pages/not-found";

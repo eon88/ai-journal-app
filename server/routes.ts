@@ -1837,15 +1837,14 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
   app.post("/api/admin/set-level", isAuthenticated, async (req: any, res: Response) => {
     try {
       const { level } = req.body;
-      const userId = req.user.id; // Use direct user ID from auth middleware
+      const userId = req.user.id;
+      
+      // SECURITY: Only allow eon (user ID 2) to use level testing
+      if (userId !== 2) {
+        return res.status(403).json({ message: "Access denied - owner testing only" });
+      }
       
       console.log(`Setting level ${level} for user ${userId}`);
-      
-      // Allow for admin testing (temporarily enabled for all users)
-      // const user = await storage.getUser(userId);
-      // if (!user || (!user.email?.toLowerCase().includes("eon") && user.username?.toLowerCase() !== "eon")) {
-      //   return res.status(403).json({ message: "Access denied - admin testing only" });
-      // }
       
       if (level < 1 || level > 10) {
         return res.status(400).json({ message: "Level must be between 1 and 10" });

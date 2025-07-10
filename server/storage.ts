@@ -564,7 +564,7 @@ export class DatabaseStorage implements IStorage {
   async createGoal(userId: number, goalData: InsertUserGoal): Promise<UserGoal> {
     const [goal] = await db
       .insert(userGoals)
-      .values(goalData)
+      .values({ ...goalData, userId })
       .returning();
     return goal;
   }
@@ -573,6 +573,7 @@ export class DatabaseStorage implements IStorage {
     return await db
       .select()
       .from(userGoals)
+      .where(eq(userGoals.userId, userId))
       .orderBy(desc(userGoals.createdAt));
   }
 
@@ -580,7 +581,7 @@ export class DatabaseStorage implements IStorage {
     const [goal] = await db
       .select()
       .from(userGoals)
-      .where(eq(userGoals.id, id))
+      .where(and(eq(userGoals.id, id), eq(userGoals.userId, userId)))
       .limit(1);
     return goal;
   }
@@ -592,7 +593,7 @@ export class DatabaseStorage implements IStorage {
         ...updates,
         updatedAt: new Date(),
       })
-      .where(eq(userGoals.id, id))
+      .where(and(eq(userGoals.id, id), eq(userGoals.userId, userId)))
       .returning();
     return goal;
   }
@@ -600,7 +601,7 @@ export class DatabaseStorage implements IStorage {
   async deleteGoal(userId: number, id: number): Promise<void> {
     await db
       .delete(userGoals)
-      .where(eq(userGoals.id, id));
+      .where(and(eq(userGoals.id, id), eq(userGoals.userId, userId)));
   }
 
   // User operations

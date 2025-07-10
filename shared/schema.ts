@@ -211,6 +211,7 @@ export const subscriptionPlans = pgTable("subscription_plans", {
 // User goals table for paid subscribers
 export const userGoals = pgTable("user_goals", {
   id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
   title: varchar("title", { length: 200 }).notNull(),
   description: text("description"),
   category: varchar("category", { length: 100 }).notNull(),
