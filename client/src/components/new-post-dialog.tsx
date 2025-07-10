@@ -99,7 +99,7 @@ export function NewPostDialog({ defaultCategoryId }: NewPostDialogProps = {}) {
               <Label htmlFor="category" className="text-white">Category</Label>
               <Select value={categoryId} onValueChange={setCategoryId}>
                 <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
-                  <SelectValue placeholder="Select a category" />
+                  <SelectValue placeholder="Select a category" className="text-gray-400" />
                 </SelectTrigger>
                 <SelectContent className="bg-gray-800 border-gray-600">
                   {categories.map((category: ForumCategory) => (
@@ -118,7 +118,7 @@ export function NewPostDialog({ defaultCategoryId }: NewPostDialogProps = {}) {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="What's your discussion about?"
-                className="bg-gray-800 border-gray-600 text-white"
+                className="bg-gray-800 border-gray-600 text-white placeholder:text-gray-400"
                 maxLength={200}
               />
             </div>
@@ -130,7 +130,7 @@ export function NewPostDialog({ defaultCategoryId }: NewPostDialogProps = {}) {
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 placeholder="Share your thoughts, experiences, or questions..."
-                className="bg-gray-800 border-gray-600 text-white min-h-[120px] resize-none"
+                className="bg-gray-800 border-gray-600 text-white placeholder:text-gray-400 min-h-[120px] resize-none"
                 rows={6}
               />
             </div>
