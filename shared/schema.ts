@@ -171,6 +171,7 @@ export const dailyChallenges = pgTable("daily_challenges", {
 
 export const savedInsights = pgTable("saved_insights", {
   id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
   title: text("title").notNull(),
   content: text("content").notNull(),
   category: text("category").notNull(), // 'insight', 'lesson', 'goal'

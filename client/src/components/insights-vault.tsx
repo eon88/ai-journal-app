@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { Lightbulb, Target, BookOpen, Trash2, Plus } from "lucide-react";
+import { Lightbulb, Target, BookOpen, Trash2, Plus, Vault } from "lucide-react";
 import { AdventureIcons } from "@/components/icons/adventure-icons";
 import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
