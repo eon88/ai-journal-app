@@ -149,12 +149,20 @@ export function Header() {
                   </DropdownMenuItem>
                 </Link>
                 {adminCheck?.isAdmin && (
-                  <Link href="/admin">
-                    <DropdownMenuItem className="cursor-pointer">
-                      <Shield className="mr-2 h-4 w-4" />
-                      Admin Panel
-                    </DropdownMenuItem>
-                  </Link>
+                  <>
+                    <Link href="/admin">
+                      <DropdownMenuItem className="cursor-pointer">
+                        <Shield className="mr-2 h-4 w-4" />
+                        Admin Panel
+                      </DropdownMenuItem>
+                    </Link>
+                    <Link href="/admin/dashboard">
+                      <DropdownMenuItem className="cursor-pointer">
+                        <Crown className="mr-2 h-4 w-4" />
+                        Admin Dashboard
+                      </DropdownMenuItem>
+                    </Link>
+                  </>
                 )}
                 
                 {/* Level Switcher for testing - EON ONLY */}
