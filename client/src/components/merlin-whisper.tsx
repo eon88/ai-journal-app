@@ -66,19 +66,17 @@ export function MerlinWhisper() {
     if (!checkDesktop()) return;
 
     const whisperInterval = setInterval(() => {
-      // 20% chance to show a whisper every 20-40 seconds
-      if (Math.random() < 0.2) {
-        const randomWhisper = MERLIN_WHISPERS[Math.floor(Math.random() * MERLIN_WHISPERS.length)];
-        setCurrentWhisper(randomWhisper);
-        setIsVisible(true);
-        
-        // Show for 9 seconds, then fade out
-        setTimeout(() => {
-          setIsVisible(false);
-          setTimeout(() => setCurrentWhisper(null), 1000);
-        }, 9000);
-      }
-    }, Math.random() * 20000 + 20000); // 20-40 seconds
+      // Show a whisper every 7 minutes
+      const randomWhisper = MERLIN_WHISPERS[Math.floor(Math.random() * MERLIN_WHISPERS.length)];
+      setCurrentWhisper(randomWhisper);
+      setIsVisible(true);
+      
+      // Show for 9 seconds, then fade out
+      setTimeout(() => {
+        setIsVisible(false);
+        setTimeout(() => setCurrentWhisper(null), 1000);
+      }, 9000);
+    }, 7 * 60 * 1000); // 7 minutes
 
     return () => clearInterval(whisperInterval);
   }, []);
