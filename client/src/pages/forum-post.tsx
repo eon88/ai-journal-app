@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams } from "wouter";
+import { useParams, useLocation } from "wouter";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Card, CardContent } from "@/components/ui/card";
@@ -25,6 +25,7 @@ export default function ForumPostPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { user } = useAuth();
+  const [, setLocation] = useLocation();
 
   // Get post data
   const { data: post, isLoading: loadingPost } = useQuery({
@@ -125,7 +126,7 @@ export default function ForumPostPage() {
             <h1 className="text-xl font-semibold text-white mb-2">Post not found</h1>
             <Button 
               variant="outline" 
-              onClick={() => window.location.href = '/forum'}
+              onClick={() => setLocation('/forum')}
               className="border-gray-600 text-gray-300 hover:bg-gray-700"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -147,7 +148,7 @@ export default function ForumPostPage() {
         <div className="mb-6">
           <Button 
             variant="outline" 
-            onClick={() => window.location.href = '/forum'}
+            onClick={() => setLocation('/forum')}
             className="border-gray-600 text-gray-300 hover:bg-gray-700"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />

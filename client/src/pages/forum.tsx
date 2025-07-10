@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "wouter";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Card, CardContent } from "@/components/ui/card";
@@ -19,6 +20,7 @@ import type { ForumCategory, ForumPost } from "@shared/schema";
 export default function Forum() {
   const [searchQuery, setSearchQuery] = useState("");
   const { user } = useAuth();
+  const [, setLocation] = useLocation();
   
   // Check if current user is admin
   const { data: adminCheck } = useQuery({
@@ -177,7 +179,7 @@ export default function Forum() {
                   <Card 
                     key={category.id} 
                     className="glass-card hover:bg-gray-800/60 transition-colors cursor-pointer"
-                    onClick={() => window.location.href = `/forum/category/${category.id}`}
+                    onClick={() => setLocation(`/forum/category/${category.id}`)}
                   >
                     <CardContent className="p-6">
                       <div className="flex items-start gap-4">
@@ -221,7 +223,7 @@ export default function Forum() {
                 <Card 
                   key={post.id} 
                   className="glass-card hover:bg-gray-800/60 transition-colors cursor-pointer"
-                  onClick={() => window.location.href = `/forum/post/${post.id}`}
+                  onClick={() => setLocation(`/forum/post/${post.id}`)}
                 >
                   <CardContent className="p-6">
                     <div className="flex items-start gap-4">
@@ -325,7 +327,7 @@ export default function Forum() {
                 <Card 
                   key={post.id} 
                   className="glass-card hover:bg-gray-800/60 transition-colors cursor-pointer"
-                  onClick={() => window.location.href = `/forum/post/${post.id}`}
+                  onClick={() => setLocation(`/forum/post/${post.id}`)}
                 >
                   <CardContent className="p-4">
                     <div className="flex items-start gap-3">
