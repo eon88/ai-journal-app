@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Pin, PinOff, Download, FolderOpen, MoreVertical, Search, Filter, Calendar, Folder } from "lucide-react";
 
@@ -545,45 +546,42 @@ function EntryCard({
               {new Date(entry.createdAt).toLocaleDateString()}
             </span>
           </div>
-          <DropdownMenu modal={false}>
-            <DropdownMenuTrigger asChild>
+          <Popover>
+            <PopoverTrigger asChild>
               <Button variant="ghost" size="sm" className="px-2">
                 <span className="text-lg leading-none">⋯</span>
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent 
-              align="end" 
-              className="w-48"
-              onCloseAutoFocus={(e) => e.preventDefault()}
-            >
-              <DropdownMenuItem onClick={() => onPin(entry)}>
-                {entry.isPinned ? "📌 Unpin Entry" : "📌 Pin Entry"}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onDownloadSingle(entry.id)}>
-                ⬇ Download Entry
-              </DropdownMenuItem>
-              <DropdownMenuItem 
-                onSelect={(e) => e.preventDefault()}
-                asChild
-              >
-                <div className="flex items-center justify-between w-full">
-                  <span>🗂 Move to Folder</span>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-48 p-1">
+              <div className="space-y-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start text-left h-8"
+                  onClick={() => onPin(entry)}
+                >
+                  {entry.isPinned ? "📌 Unpin Entry" : "📌 Pin Entry"}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start text-left h-8"
+                  onClick={() => onDownloadSingle(entry.id)}
+                >
+                  ⬇ Download Entry
+                </Button>
+                <div className="flex items-center justify-between px-2 py-1">
+                  <span className="text-sm">🗂 Move to Folder</span>
                   <Select
                     value={entry.folderId?.toString() || "none"}
                     onValueChange={(value) => 
                       onMoveToFolder(entry.id, value === "none" ? null : parseInt(value))
                     }
                   >
-                    <SelectTrigger 
-                      className="h-6 text-xs border-none p-0 focus:ring-0 w-20"
-                      onClick={(e) => e.stopPropagation()}
-                    >
+                    <SelectTrigger className="h-7 text-xs w-20">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent 
-                      side="right"
-                      onCloseAutoFocus={(e) => e.preventDefault()}
-                    >
+                    <SelectContent>
                       <SelectItem value="none">None</SelectItem>
                       {folders?.map((folder: Folder) => (
                         <SelectItem key={folder.id} value={folder.id.toString()}>
@@ -599,9 +597,9 @@ function EntryCard({
                     </SelectContent>
                   </Select>
                 </div>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
 
         <p className="text-gray-900 dark:text-gray-100 mb-3 line-clamp-3 break-words">
