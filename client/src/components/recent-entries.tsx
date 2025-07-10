@@ -109,7 +109,7 @@ export function RecentEntries() {
                 className="bg-white rounded-lg shadow-sm border border-journal-border p-4 hover:shadow-md transition-all duration-200 cursor-pointer hover:border-journal-primary group"
               >
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gray-500">
+                  <span className="text-sm text-gray-800 dark:text-gray-400">
                     {formatDate(entry.createdAt)}
                   </span>
                   <div className="flex items-center space-x-2">
@@ -120,17 +120,17 @@ export function RecentEntries() {
                     )}
                     <div className="flex items-center space-x-1">
                       <div className={`w-2 h-2 ${getMoodColor(entry.mood)} rounded-full`}></div>
-                      <span className="text-xs text-gray-400">
+                      <span className="text-xs text-gray-800 dark:text-gray-400">
                         {entry.mood || 'No mood'}
                       </span>
                     </div>
                   </div>
                 </div>
-                <p className="text-sm text-gray-700 line-clamp-3 mb-3">
+                <p className="text-sm text-gray-900 dark:text-gray-200 line-clamp-3 mb-3">
                   {entry.symbol ? `${entry.symbol} ` : ''}{truncateText(entry.content)}
                 </p>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-1 text-xs text-gray-400">
+                  <div className="flex items-center space-x-1 text-xs text-gray-800 dark:text-gray-400">
                     <MessageCircle className="w-3 h-3" />
                     <span>
                       {entry.aiReflection ? 'AI Reflection' : 'No reflection'}
@@ -149,7 +149,7 @@ export function RecentEntries() {
           ))}
         </div>
       ) : (
-        <div className="text-center py-12 text-white">
+        <div className="text-center py-12 text-gray-900 dark:text-white">
           <p>No journal entries yet. Start writing your first entry above!</p>
         </div>
       )}
