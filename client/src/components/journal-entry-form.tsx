@@ -152,22 +152,7 @@ export function JournalEntryForm() {
         </div>
       )}
 
-      {/* Progress Indicator */}
-      {progress && !hasReachedEntryLimit() && (
-        <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-blue-600" />
-              <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
-                Level {progress.currentLevel} Progress
-              </span>
-            </div>
-            <span className="text-sm text-blue-600 dark:text-blue-400">
-              {entryCount} / {getMaxEntriesForLevel() === Infinity ? "∞" : getMaxEntriesForLevel()} entries
-            </span>
-          </div>
-        </div>
-      )}
+
 
       <EntryLimitGate 
         currentCount={entryCount} 

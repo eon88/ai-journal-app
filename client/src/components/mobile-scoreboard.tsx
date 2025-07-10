@@ -89,20 +89,26 @@ export function MobileScoreboard() {
                 </div>
               </div>
 
-              {/* XP Progress Bar */}
+              {/* Combined Level & XP Progress */}
               <div className="mb-4">
-                <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400 mb-2">
-                  <span>Experience Points</span>
-                  <span>{stats.xpPoints}</span>
+                <div className="flex items-center justify-between text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">
+                  <div className="flex items-center gap-2">
+                    <Trophy className="w-4 h-4 text-yellow-500" />
+                    <span>Level {stats.level} Progress</span>
+                  </div>
+                  <span className="text-xs text-gray-600 dark:text-gray-400">{stats.xpPoints} XP</span>
                 </div>
-                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
                   <div 
-                    className="bg-gradient-to-r from-purple-500 to-blue-500 h-2 rounded-full transition-all duration-300"
+                    className="bg-gradient-to-r from-purple-500 to-blue-500 h-3 rounded-full transition-all duration-300 flex items-center justify-end pr-2"
                     style={{ width: `${progress}%` }}
-                  ></div>
+                  >
+                    <span className="text-xs text-white font-medium">{Math.round(progress)}%</span>
+                  </div>
                 </div>
-                <div className="text-xs text-gray-600 dark:text-gray-400 mt-1 text-center">
-                  {1000 - (stats.xpPoints % 1000)} XP to next level
+                <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mt-2">
+                  <span>{stats.xpPoints % 1000} / 1000 XP</span>
+                  <span>{1000 - (stats.xpPoints % 1000)} XP to Lv. {stats.level + 1}</span>
                 </div>
               </div>
 
