@@ -160,7 +160,17 @@ export function JournalEntryForm() {
       >
         <div className="glass-card-transparent rounded-xl shadow-sm p-8">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Today's Entry</h2>
+            <div className="flex items-center gap-2">
+              <svg 
+                className="w-6 h-6 opacity-80 text-amber-600" 
+                fill="currentColor" 
+                viewBox="0 0 24 24"
+                title="Today's Entry"
+              >
+                <path d="M12 2L13.09 6.26L18 5L16.74 9.74L22 12L16.74 14.26L18 19L13.09 17.74L12 22L10.91 17.74L6 19L7.26 14.26L2 12L7.26 9.74L6 5L10.91 6.26L12 2Z"/>
+              </svg>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Today's Entry</h2>
+            </div>
             <div className="flex items-center space-x-2 text-sm text-gray-900 dark:text-white">
               <Clock className="w-4 h-4" />
               <span>{formatTime()}</span>
