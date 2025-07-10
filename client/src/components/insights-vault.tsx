@@ -105,10 +105,12 @@ export function InsightsVault() {
   return (
     <div className="bg-gray-100/80 dark:bg-gray-800/80 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-          <Vault className="w-5 h-5 text-purple-500" />
-          The Vault
-        </h2>
+        <Link href="/vault">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2 hover:text-purple-600 dark:hover:text-purple-400 transition-colors cursor-pointer">
+            <Vault className="w-5 h-5 text-purple-500" />
+            The Vault
+          </h2>
+        </Link>
         <Link href="/vault">
           <button className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/30 rounded-lg transition-colors">
             View All
