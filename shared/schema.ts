@@ -164,8 +164,10 @@ export const dailyChallenges = pgTable("daily_challenges", {
   description: text("description").notNull(),
   prompt: text("prompt").notNull(),
   xpReward: integer("xp_reward").default(15).notNull(),
-  completed: boolean("completed").default(false).notNull(),
+  status: text("status").default("not_started").notNull(), // 'not_started', 'accepted', 'completed'
+  acceptedAt: timestamp("accepted_at"),
   completedAt: timestamp("completed_at"),
+  acceptedUserId: integer("accepted_user_id").references(() => users.id), // Track which user accepted
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

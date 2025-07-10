@@ -79,6 +79,7 @@ export interface IStorage {
   // Daily challenges
   getTodaysChallenge(userId: number): Promise<DailyChallenge | null>;
   generateDailyChallenge(userId: number, date: string): Promise<DailyChallenge>;
+  acceptChallenge(userId: number, challengeId: number): Promise<DailyChallenge>;
   completeChallenge(userId: number, challengeId: number): Promise<DailyChallenge>;
   
   // Goals management (Premium feature)
@@ -503,14 +504,14 @@ export class DatabaseStorage implements IStorage {
 
   async getTodaysChallenge(userId: number): Promise<DailyChallenge | null> {
     const today = new Date().toISOString().split('T')[0];
-    const [challenge] = await db
+    let [challenge] = await db
       .select()
       .from(dailyChallenges)
       .where(eq(dailyChallenges.date, today))
       .limit(1);
     
     if (!challenge) {
-      return await this.generateDailyChallenge(userId, today);
+      challenge = await this.generateDailyChallenge(userId, today);
     }
     
     return challenge;
@@ -551,19 +552,63 @@ export class DatabaseStorage implements IStorage {
       .values({
         date,
         ...randomChallenge,
-        completed: false,
+        status: 'not_started',
+        acceptedAt: null,
         completedAt: null,
+        acceptedUserId: null,
       })
       .returning();
     
     return challenge;
   }
 
-  async completeChallenge(userId: number, challengeId: number): Promise<DailyChallenge> {
+  async acceptChallenge(userId: number, challengeId: number): Promise<DailyChallenge> {
     const [challenge] = await db
       .update(dailyChallenges)
       .set({
-        completed: true,
+        status: 'accepted',
+        acceptedAt: new Date(),
+        acceptedUserId: userId,
+      })
+      .where(eq(dailyChallenges.id, challengeId))
+      .returning();
+
+    return challenge;
+  }
+
+  async completeChallenge(userId: number, challengeId: number): Promise<DailyChallenge> {
+    // Verify the user has written a journal entry today
+    const today = new Date().toISOString().split('T')[0];
+    const todayEntries = await db
+      .select()
+      .from(journalEntries)
+      .where(and(
+        eq(journalEntries.userId, userId),
+        sql`DATE(${journalEntries.createdAt}) = ${today}`
+      ));
+
+    if (todayEntries.length === 0) {
+      throw new Error("You must write a journal entry today to complete the challenge");
+    }
+
+    // Check if challenge was accepted by this user
+    const [existingChallenge] = await db
+      .select()
+      .from(dailyChallenges)
+      .where(eq(dailyChallenges.id, challengeId));
+
+    if (!existingChallenge) {
+      throw new Error("Challenge not found");
+    }
+
+    if (existingChallenge.status !== 'accepted' || existingChallenge.acceptedUserId !== userId) {
+      throw new Error("Challenge must be accepted before it can be completed");
+    }
+
+    const [challenge] = await db
+      .update(dailyChallenges)
+      .set({
+        status: 'completed',
         completedAt: new Date(),
       })
       .where(eq(dailyChallenges.id, challengeId))

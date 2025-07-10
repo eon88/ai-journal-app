@@ -14,8 +14,10 @@ interface DailyChallenge {
   description: string;
   prompt: string;
   xpReward: number;
-  completed: boolean;
+  status: 'not_started' | 'accepted' | 'completed';
+  acceptedAt: string | null;
   completedAt: string | null;
+  acceptedUserId: number | null;
   createdAt: string;
 }
 
@@ -25,6 +27,16 @@ export function DailyChallenge() {
 
   const { data: challenge, isLoading } = useQuery<DailyChallenge>({
     queryKey: ["/api/challenge/today"],
+  });
+
+  const acceptMutation = useMutation({
+    mutationFn: async (challengeId: number) => {
+      const response = await apiRequest(`/api/challenge/${challengeId}/accept`, "POST");
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/challenge/today"] });
+    },
   });
 
   const completeMutation = useMutation({
@@ -66,29 +78,47 @@ export function DailyChallenge() {
     );
   }
 
+  const handleAccept = () => {
+    acceptMutation.mutate(challenge.id);
+  };
+
   const handleComplete = () => {
     completeMutation.mutate(challenge.id);
   };
 
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
+  };
+
+  const isCompleted = challenge.status === 'completed';
+  const isAccepted = challenge.status === 'accepted';
+  const isNotStarted = challenge.status === 'not_started';
+
   return (
-    <Card className={challenge.completed ? "bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20" : ""}>
+    <Card className={isCompleted ? "bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20" : ""}>
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
-            {challenge.completed ? (
+            {isCompleted ? (
               <CheckCircle className="h-5 w-5 text-green-600" />
+            ) : isAccepted ? (
+              <Clock className="h-5 w-5 text-blue-600" />
             ) : (
               <AdventureIcons.Sword size={20} className="" />
             )}
             Today's Challenge
           </CardTitle>
-          <Badge variant={challenge.completed ? "default" : "secondary"} className="flex items-center gap-1">
+          <Badge variant={isCompleted ? "default" : isAccepted ? "outline" : "secondary"} className="flex items-center gap-1">
             <Star className="h-3 w-3" />
             +{challenge.xpReward} XP
           </Badge>
         </div>
         <CardDescription>
-          {challenge.completed ? "Completed!" : "Complete today's micro-quest"}
+          {isCompleted ? "Completed!" : isAccepted ? "Accepted - Write a journal entry to complete" : "Accept the challenge to begin"}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -100,39 +130,62 @@ export function DailyChallenge() {
             </p>
           </div>
 
-          {!challenge.completed && (
+          {!isCompleted && (
             <div className="space-y-3">
-              {!showPrompt ? (
+              {isNotStarted && (
                 <Button
-                  variant="outline"
-                  onClick={() => setShowPrompt(true)}
+                  variant="default"
+                  onClick={handleAccept}
+                  disabled={acceptMutation.isPending}
                   className="w-full"
                 >
-                  View Challenge Prompt
+                  {acceptMutation.isPending ? "Accepting..." : "Accept Challenge"}
                 </Button>
-              ) : (
-                <div className="p-4 rounded-lg bg-muted/50 border-l-4 border-primary">
-                  <div className="flex items-start gap-2 mb-2">
-                    <AdventureIcons.Sword size={16} className="mt-0.5 text-primary" />
-                    <span className="font-medium text-sm">Challenge Prompt</span>
-                  </div>
-                  <p className="text-sm leading-relaxed">
-                    {challenge.prompt}
-                  </p>
-                </div>
               )}
+              
+              {isAccepted && (
+                <>
+                  {!showPrompt ? (
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowPrompt(true)}
+                      className="w-full"
+                    >
+                      View Challenge Prompt
+                    </Button>
+                  ) : (
+                    <div className="p-4 rounded-lg bg-muted/50 border-l-4 border-primary">
+                      <div className="flex items-start gap-2 mb-2">
+                        <AdventureIcons.Sword size={16} className="mt-0.5 text-primary" />
+                        <span className="font-medium text-sm">Challenge Prompt</span>
+                      </div>
+                      <p className="text-sm leading-relaxed">
+                        {challenge.prompt}
+                      </p>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => copyToClipboard(challenge.prompt)}
+                        className="mt-3"
+                      >
+                        Copy to Journal Entry
+                      </Button>
+                    </div>
+                  )}
 
-              <Button
-                onClick={handleComplete}
-                disabled={completeMutation.isPending}
-                className="w-full"
-              >
-                {completeMutation.isPending ? "Completing..." : "Mark as Complete"}
-              </Button>
+                  <Button
+                    onClick={handleComplete}
+                    disabled={completeMutation.isPending}
+                    className="w-full"
+                  >
+                    {completeMutation.isPending ? "Completing..." : "Mark as Complete"}
+                  </Button>
+                </>
+              )}
             </div>
           )}
 
-          {challenge.completed && challenge.completedAt && (
+          {isCompleted && challenge.completedAt && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Clock className="h-4 w-4" />
               Completed {new Date(challenge.completedAt).toLocaleString()}

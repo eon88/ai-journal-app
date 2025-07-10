@@ -1105,38 +1105,30 @@ Wrap these practical steps with mystical language, but the actions must be concr
     }
   });
 
+  // Accept daily challenge
+  app.post("/api/challenge/:id/accept", isAuthenticated, async (req: any, res: Response) => {
+    try {
+      const userId = req.user.id;
+      const id = parseInt(req.params.id);
+      
+      const challenge = await storage.acceptChallenge(userId, id);
+      res.json(challenge);
+    } catch (error) {
+      console.error("Error accepting challenge:", error);
+      res.status(500).json({ error: "Failed to accept challenge" });
+    }
+  });
+
   app.post("/api/challenge/:id/complete", isAuthenticated, async (req: any, res: Response) => {
     try {
       const userId = req.user.id;
       const id = parseInt(req.params.id);
       
-      // First, get the challenge to validate it exists and isn't already completed
-      const existingChallenge = await storage.getTodaysChallenge(userId);
-      
-      if (!existingChallenge || existingChallenge.id !== id) {
-        return res.status(404).json({ error: "Challenge not found or invalid" });
-      }
-      
-      if (existingChallenge.completed) {
-        return res.status(400).json({ error: "Challenge already completed today" });
-      }
-      
-      // Validate user has actually created content today to earn the challenge
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const todayEntries = await storage.getEntriesByDateRange(userId, today, new Date());
-      
-      if (todayEntries.length === 0) {
-        return res.status(400).json({ 
-          error: "Complete your daily journaling first to claim this challenge" 
-        });
-      }
-      
       const challenge = await storage.completeChallenge(userId, id);
       res.json(challenge);
     } catch (error) {
       console.error("Error completing challenge:", error);
-      res.status(500).json({ error: "Failed to complete challenge" });
+      res.status(400).json({ error: error.message || "Failed to complete challenge" });
     }
   });
 
