@@ -1774,6 +1774,17 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
     }
   });
 
+  // Enhanced admin endpoint with detailed user data for marketing/promotion
+  app.get("/api/admin/users-detailed", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+    try {
+      const detailedUsers = await storage.getAllUsersWithDetails();
+      res.json(detailedUsers);
+    } catch (error) {
+      console.error("Error fetching detailed user data:", error);
+      res.status(500).json({ message: "Failed to fetch detailed user data" });
+    }
+  });
+
   // Update user role (promote/demote admin)
   app.patch("/api/admin/users/:id/role", isAuthenticated, isAdmin, async (req: any, res: Response) => {
     try {

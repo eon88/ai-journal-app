@@ -22,6 +22,7 @@ import ForumPost from "@/pages/forum-post";
 import ForumLeaderboard from "@/pages/forum-leaderboard";
 import ForumAdmin from "@/pages/forum-admin";
 import AdminPanel from "@/pages/admin-panel";
+import AdminDashboard from "@/pages/admin-dashboard";
 import EntryDetail from "@/pages/entry-detail";
 import Entries from "@/pages/entries";
 import Landing from "@/pages/landing";
@@ -50,6 +51,7 @@ function Router() {
           <Route path="/forum/leaderboard" component={ForumLeaderboard} />
           <Route path="/forum/admin" component={ForumAdmin} />
           <Route path="/admin" component={AdminPanel} />
+        <Route path="/admin/dashboard" component={AdminDashboard} />
         </>
       )}
       <Route path="/about" component={About} />

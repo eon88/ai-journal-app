@@ -635,6 +635,86 @@ export class DatabaseStorage implements IStorage {
     return user?.role === 'admin';
   }
 
+  async getAllUsersWithDetails(): Promise<any[]> {
+    const LEVEL_TITLES = [
+      "Reflective Wanderer",
+      "Mindful Seeker", 
+      "Insight Student",
+      "Growth Climber",
+      "Wisdom Builder",
+      "Path Navigator", 
+      "Soul Architect",
+      "Life Guardian",
+      "Inner Sage",
+      "Legendary Oracle"
+    ];
+
+    // Get all users with their progress and stats
+    const allUsers = await db.select({
+      id: users.id,
+      username: users.username,
+      email: users.email,
+      firstName: users.firstName,
+      lastName: users.lastName,
+      role: users.role,
+      createdAt: users.createdAt
+    }).from(users).orderBy(users.createdAt);
+
+    const detailedUsers = [];
+
+    for (const user of allUsers) {
+      // Get user progress
+      const [progress] = await db.select()
+        .from(userProgress)
+        .where(eq(userProgress.userId, user.id));
+
+      // Get user stats
+      const [stats] = await db.select()
+        .from(userStats)
+        .where(eq(userStats.userId, user.id));
+
+      // Get badge count
+      const badgeCount = await db.select({ count: sql<number>`count(*)` })
+        .from(badges)
+        .where(and(eq(badges.userId, user.id), isNotNull(badges.unlockedAt)));
+
+      // Get last active date from latest journal entry
+      const [lastEntry] = await db.select({ createdAt: journalEntries.createdAt })
+        .from(journalEntries)
+        .where(eq(journalEntries.userId, user.id))
+        .orderBy(desc(journalEntries.createdAt))
+        .limit(1);
+
+      const currentLevel = progress?.currentLevel || 1;
+      const levelTitle = LEVEL_TITLES[currentLevel - 1] || "Reflective Wanderer";
+
+      detailedUsers.push({
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        createdAt: user.createdAt,
+        isAdmin: user.role === 'admin',
+        progress: {
+          currentLevel,
+          xpPoints: progress?.xpPoints || 0,
+          unlockedFeatures: progress?.unlockedFeatures || [],
+          levelTitle
+        },
+        stats: {
+          totalEntries: stats?.totalEntries || 0,
+          currentStreak: stats?.currentStreak || 0,
+          longestStreak: stats?.longestStreak || 0,
+          lastActiveDate: lastEntry?.createdAt || null
+        },
+        badges: badgeCount[0]?.count || 0
+      });
+    }
+
+    return detailedUsers;
+  }
+
   // Forum operations
   async getForumCategories(): Promise<ForumCategory[]> {
     return await db.select().from(forumCategories).where(eq(forumCategories.isActive, true)).orderBy(forumCategories.createdAt);

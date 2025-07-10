@@ -15,6 +15,7 @@ import {
   UserX,
   Calendar
 } from "lucide-react";
+import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -116,10 +117,18 @@ export default function AdminPanel() {
               Manage users and forum permissions
             </p>
           </div>
-          <Badge variant="outline" className="border-journal-primary text-journal-primary">
-            <Crown className="w-3 h-3 mr-1" />
-            Admin Access
-          </Badge>
+          <div className="flex items-center gap-4">
+            <Link href="/admin/dashboard">
+              <Button variant="outline" className="border-purple-500 text-purple-400 hover:bg-purple-500/10">
+                <Users className="w-4 h-4 mr-2" />
+                User Dashboard
+              </Button>
+            </Link>
+            <Badge variant="outline" className="border-journal-primary text-journal-primary">
+              <Crown className="w-3 h-3 mr-1" />
+              Admin Access
+            </Badge>
+          </div>
         </div>
 
         <Tabs defaultValue="users" className="space-y-6">
