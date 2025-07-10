@@ -13,7 +13,6 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Mail, Clock, User, MessageSquare, MoreVertical, Trash2, Archive, Pin, ArchiveX, PinOff } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { useEffect } from "react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -34,37 +33,10 @@ export default function ContactMessages() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Redirect to home if not authenticated or not admin
-  useEffect(() => {
-    if (!isLoading && (!isAuthenticated || user?.username !== 'eon')) {
-      window.location.href = '/';
-    }
-  }, [isAuthenticated, isLoading, user]);
-
   const { data: response, isLoading: messagesLoading } = useQuery({
     queryKey: ["/api/admin/contact-messages"],
     enabled: isAuthenticated && user?.username === 'eon',
   });
-
-  if (isLoading || messagesLoading) {
-    return (
-      <div className="min-h-screen">
-        <Header />
-        <main className="max-w-6xl mx-auto px-4 py-8">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading contact messages...</p>
-          </div>
-        </main>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated || user?.username !== 'eon') {
-    return null;
-  }
-
-  const allMessages = response?.messages || [];
 
   // Message management mutations
   const deleteMutation = useMutation({
@@ -130,6 +102,36 @@ export default function ContactMessages() {
     },
   });
 
+  if (isLoading || messagesLoading) {
+    return (
+      <div className="min-h-screen">
+        <Header />
+        <main className="max-w-6xl mx-auto px-4 py-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading contact messages...</p>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated || user?.username !== 'eon') {
+    return (
+      <div className="min-h-screen">
+        <Header />
+        <main className="max-w-6xl mx-auto px-4 py-8">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-red-600 mb-4">Access Denied</h1>
+            <p className="text-gray-600">You don't have permission to view this page.</p>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  const allMessages = response?.messages || [];
+
   // Filter messages based on active tab
   const filterMessages = (messages: ContactMessage[]) => {
     switch (activeTab) {
@@ -158,37 +160,22 @@ export default function ContactMessages() {
   // Parse content to extract structured data
   const parseMessage = (content: string) => {
     const lines = content.split('\n');
-    const result = {
-      name: '',
-      email: '',
-      subject: '',
-      message: '',
-      timestamp: ''
-    };
-
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
+    const data: any = {};
+    
+    for (const line of lines) {
       if (line.startsWith('Name: ')) {
-        result.name = line.substring(6);
+        data.name = line.substring(6);
       } else if (line.startsWith('Email: ')) {
-        result.email = line.substring(7);
-      } else if (line.startsWith('Subject: ')) {
-        result.subject = line.substring(9);
-      } else if (line.startsWith('Time: ')) {
-        result.timestamp = line.substring(6);
-      } else if (line === 'Message:' && i + 1 < lines.length) {
-        // Take everything after "Message:" until "--"
-        const messageLines = [];
-        for (let j = i + 1; j < lines.length; j++) {
-          if (lines[j] === '--') break;
-          messageLines.push(lines[j]);
-        }
-        result.message = messageLines.join('\n');
-        break;
+        data.email = line.substring(7);
+      } else if (line.startsWith('Message:')) {
+        const messageIndex = lines.indexOf(line);
+        data.message = lines.slice(messageIndex + 1)
+          .filter(l => !l.startsWith('--') && l.trim())
+          .join('\n');
       }
     }
-
-    return result;
+    
+    return data;
   };
 
   return (
@@ -247,7 +234,7 @@ export default function ContactMessages() {
               </CardContent>
             </Card>
           ) : (
-            messages.map((msg: ContactMessage, index: number) => {
+            messages.map((msg: ContactMessage) => {
               const parsed = parseMessage(msg.content);
               const date = new Date(msg.timestamp);
               
@@ -339,28 +326,28 @@ export default function ContactMessages() {
                       </div>
                     </div>
                   </CardHeader>
-                  
+
                   <CardContent>
-                    {parsed.subject && parsed.subject !== 'No subject provided' && (
-                      <div className="mb-4">
-                        <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
-                          Subject
-                        </h4>
+                    <div className="space-y-4">
+                      {/* Subject */}
+                      <div>
+                        <h4 className="font-semibold text-gray-900 dark:text-white mb-1">Subject</h4>
                         <p className="text-gray-700 dark:text-gray-300">
-                          {parsed.subject}
+                          {msg.subject.replace('Contact Form: ', '')}
                         </p>
                       </div>
-                    )}
-                    
-                    <div>
-                      <h4 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                        <MessageSquare className="w-4 h-4" />
-                        Message
-                      </h4>
-                      <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                        <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-                          {parsed.message || 'No message content'}
-                        </p>
+
+                      {/* Message */}
+                      <div>
+                        <h4 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                          <MessageSquare className="w-4 h-4" />
+                          Message
+                        </h4>
+                        <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                          <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                            {parsed.message || 'No message content'}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </CardContent>

@@ -2018,10 +2018,13 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
   // Admin contact messages endpoint (owner only)
   app.get("/api/admin/contact-messages", isAuthenticated, isAdmin, async (req: any, res: Response) => {
     try {
+      console.log("Contact messages endpoint called by user:", req.user?.username);
       const fs = await import('fs/promises');
       
       try {
         const logContent = await fs.readFile('contact-messages.log', 'utf8');
+        console.log("Raw log content:", logContent);
+        
         const messages = logContent
           .trim()
           .split('\n')
@@ -2031,14 +2034,17 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
               const msg = JSON.parse(line);
               return { ...msg, id: index };
             } catch {
+              console.log("Failed to parse line:", line);
               return null;
             }
           })
           .filter(msg => msg !== null)
           .reverse(); // Most recent first
         
+        console.log("Processed messages:", messages.length);
         res.json({ success: true, messages });
       } catch (fileError) {
+        console.log("File read error:", fileError);
         // If file doesn't exist or can't be read, return empty array
         res.json({ success: true, messages: [] });
       }
