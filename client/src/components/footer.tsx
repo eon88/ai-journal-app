@@ -11,7 +11,7 @@ export function Footer() {
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-6 text-sm text-gray-600 dark:text-gray-500">
-            <Link href="/profile">
+            <Link to="/profile">
               <Button 
                 variant="ghost" 
                 size="sm" 
@@ -21,7 +21,7 @@ export function Footer() {
                 User Profile
               </Button>
             </Link>
-            <Link href="/contact">
+            <Link to="/contact">
               <Button 
                 variant="ghost" 
                 size="sm" 
@@ -31,7 +31,7 @@ export function Footer() {
                 Contact Us
               </Button>
             </Link>
-            <Link href="/about">
+            <Link to="/about">
               <Button 
                 variant="ghost" 
                 size="sm" 
