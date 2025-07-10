@@ -132,6 +132,7 @@ export interface MonthlyReflection {
 
 export const userStats = pgTable("user_stats", {
   id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
   totalEntries: integer("total_entries").default(0).notNull(),
   currentStreak: integer("current_streak").default(0).notNull(),
   longestStreak: integer("longest_streak").default(0).notNull(),
@@ -146,6 +147,7 @@ export const userStats = pgTable("user_stats", {
 
 export const badges = pgTable("badges", {
   id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
   name: text("name").notNull(),
   description: text("description").notNull(),
   icon: text("icon").notNull(),

@@ -697,10 +697,10 @@ export class DatabaseStorage implements IStorage {
         .from(userStats)
         .where(eq(userStats.userId, user.id));
 
-      // Get badge count
+      // Get badge count (only unlocked badges)
       const badgeCount = await db.select({ count: sql<number>`count(*)` })
         .from(badges)
-        .where(and(eq(badges.userId, user.id), isNotNull(badges.unlockedAt)));
+        .where(and(eq(badges.userId, user.id), sql`unlocked_at IS NOT NULL`));
 
       // Get last active date from latest journal entry
       const [lastEntry] = await db.select({ createdAt: journalEntries.createdAt })
