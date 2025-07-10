@@ -133,12 +133,12 @@ export function EntrySearchFilters({ onSearch, onClear }: EntrySearchFiltersProp
       {/* Mood Filter */}
       <div className="space-y-2">
         <label className="text-sm font-medium">Mood</label>
-        <Select value={filters.mood} onValueChange={(value) => setFilters({ ...filters, mood: value })}>
+        <Select value={filters.mood || "all"} onValueChange={(value) => setFilters({ ...filters, mood: value === "all" ? "" : value })}>
           <SelectTrigger>
             <SelectValue placeholder="Select mood" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All moods</SelectItem>
+            <SelectItem value="all">All moods</SelectItem>
             {MOOD_OPTIONS.map((mood) => (
               <SelectItem key={mood} value={mood}>
                 {mood.charAt(0).toUpperCase() + mood.slice(1)}
@@ -151,12 +151,12 @@ export function EntrySearchFilters({ onSearch, onClear }: EntrySearchFiltersProp
       {/* Folder Filter */}
       <div className="space-y-2">
         <label className="text-sm font-medium">Folder</label>
-        <Select value={filters.folderId} onValueChange={(value) => setFilters({ ...filters, folderId: value })}>
+        <Select value={filters.folderId || "all"} onValueChange={(value) => setFilters({ ...filters, folderId: value === "all" ? "" : value })}>
           <SelectTrigger>
             <SelectValue placeholder="Select folder" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All folders</SelectItem>
+            <SelectItem value="all">All folders</SelectItem>
             <SelectItem value="none">No folder</SelectItem>
             {folders?.map((folder: any) => (
               <SelectItem key={folder.id} value={folder.id.toString()}>
