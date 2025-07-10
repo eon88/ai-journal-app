@@ -545,20 +545,27 @@ function EntryCard({
               {new Date(entry.createdAt).toLocaleDateString()}
             </span>
           </div>
-          <DropdownMenu>
+          <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="px-2">
                 <span className="text-lg leading-none">⋯</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuContent 
+              align="end" 
+              className="w-48"
+              onCloseAutoFocus={(e) => e.preventDefault()}
+            >
               <DropdownMenuItem onClick={() => onPin(entry)}>
                 {entry.isPinned ? "📌 Unpin Entry" : "📌 Pin Entry"}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onDownloadSingle(entry.id)}>
                 ⬇ Download Entry
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
+              <DropdownMenuItem 
+                onSelect={(e) => e.preventDefault()}
+                asChild
+              >
                 <div className="flex items-center justify-between w-full">
                   <span>🗂 Move to Folder</span>
                   <Select
@@ -567,14 +574,26 @@ function EntryCard({
                       onMoveToFolder(entry.id, value === "none" ? null : parseInt(value))
                     }
                   >
-                    <SelectTrigger className="h-6 text-xs border-none p-0 focus:ring-0 w-20">
+                    <SelectTrigger 
+                      className="h-6 text-xs border-none p-0 focus:ring-0 w-20"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent 
+                      side="right"
+                      onCloseAutoFocus={(e) => e.preventDefault()}
+                    >
                       <SelectItem value="none">None</SelectItem>
                       {folders?.map((folder: Folder) => (
                         <SelectItem key={folder.id} value={folder.id.toString()}>
-                          {folder.name}
+                          <div className="flex items-center gap-2">
+                            <div
+                              className="w-3 h-3 rounded-full"
+                              style={{ backgroundColor: folder.color }}
+                            />
+                            {folder.name}
+                          </div>
                         </SelectItem>
                       ))}
                     </SelectContent>
