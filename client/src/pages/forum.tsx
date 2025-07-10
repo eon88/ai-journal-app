@@ -99,12 +99,12 @@ export default function Forum() {
           {/* Search and Actions - Mobile Responsive */}
           <div className="flex flex-col gap-3">
             <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 w-4 h-4" />
               <Input
                 placeholder="Search discussions..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-gray-800 border-gray-600 text-white w-full"
+                className="pl-10 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 w-full"
               />
             </div>
             <div className="flex flex-wrap gap-2">
@@ -146,16 +146,16 @@ export default function Forum() {
         </div>
 
         <Tabs defaultValue="categories" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 bg-gray-800">
-            <TabsTrigger value="categories" className="text-xs sm:text-sm">
+          <TabsList className="grid w-full grid-cols-3 bg-gray-100 dark:bg-gray-800">
+            <TabsTrigger value="categories" className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 data-[state=active]:text-gray-900 dark:data-[state=active]:text-white data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700">
               <span className="hidden sm:inline">Categories</span>
               <span className="sm:hidden">Categories</span>
             </TabsTrigger>
-            <TabsTrigger value="featured" className="text-xs sm:text-sm">
+            <TabsTrigger value="featured" className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 data-[state=active]:text-gray-900 dark:data-[state=active]:text-white data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700">
               <span className="hidden sm:inline">Featured Posts</span>
               <span className="sm:hidden">Featured</span>
             </TabsTrigger>
-            <TabsTrigger value="recent" className="text-xs sm:text-sm">
+            <TabsTrigger value="recent" className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 data-[state=active]:text-gray-900 dark:data-[state=active]:text-white data-[state=active]:bg-white dark:data-[state=active]:bg-gray-700">
               <span className="hidden sm:inline">Recent Discussions</span>
               <span className="sm:hidden">Recent</span>
             </TabsTrigger>
