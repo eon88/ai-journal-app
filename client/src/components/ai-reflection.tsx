@@ -122,34 +122,34 @@ export function AIReflectionComponent({
       </div>
 
       <div className="prose prose-gray max-w-none leading-relaxed">
-        <div className="bg-white rounded-lg p-6 border border-journal-border">
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-journal-border dark:border-gray-600">
           <div className="space-y-4">
             <div>
-              <h3 className="text-lg font-medium text-journal-text mb-2 flex items-center">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2 flex items-center">
                 <Lightbulb className="text-journal-accent mr-2 w-5 h-5" />
                 Key Insights
               </h3>
-              <p className="text-gray-700">
+              <p className="text-gray-700 dark:text-gray-300">
                 {reflection.insights}
               </p>
             </div>
 
             <div>
-              <h3 className="text-lg font-medium text-journal-text mb-2 flex items-center">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2 flex items-center">
                 <HelpCircle className="text-journal-primary mr-2 w-5 h-5" />
                 Reflection Question
               </h3>
-              <p className="text-gray-700 italic bg-journal-light p-3 rounded-lg border-l-4 border-journal-primary">
+              <p className="text-gray-700 dark:text-gray-300 italic bg-journal-light dark:bg-gray-700 p-3 rounded-lg border-l-4 border-journal-primary">
                 "{reflection.reflectionQuestion}"
               </p>
             </div>
 
             <div>
-              <h3 className="text-lg font-medium text-journal-text mb-2 flex items-center">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2 flex items-center">
                 <TrendingUp className="text-green-500 mr-2 w-5 h-5" />
                 Growth Pattern
               </h3>
-              <p className="text-gray-700">
+              <p className="text-gray-700 dark:text-gray-300">
                 {reflection.growthPattern}
               </p>
             </div>
