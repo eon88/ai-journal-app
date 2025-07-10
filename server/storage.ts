@@ -279,43 +279,78 @@ export class DatabaseStorage implements IStorage {
       return { currentStreak: 0, longestStreak: 0 };
     }
 
-    let currentStreak = 0;
-    let longestStreak = 0;
-    let tempStreak = 1;
-    let lastDate = new Date(entries[0].createdAt);
-    
-    // Normalize to start of day for comparison
-    lastDate.setHours(0, 0, 0, 0);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    // Check if the most recent entry was today or yesterday
-    const daysDiff = Math.floor((today.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
-    if (daysDiff <= 1) {
-      currentStreak = 1;
+    // Group entries by date to handle multiple entries per day
+    const entriesByDate = new Map<string, Date>();
+    for (const entry of entries) {
+      const dateKey = entry.createdAt.toISOString().split('T')[0];
+      if (!entriesByDate.has(dateKey)) {
+        entriesByDate.set(dateKey, entry.createdAt);
+      }
     }
 
-    // Calculate streaks
-    for (let i = 1; i < entries.length; i++) {
-      const currentDate = new Date(entries[i].createdAt);
-      currentDate.setHours(0, 0, 0, 0);
+    // Convert to sorted array of unique dates
+    const uniqueDates = Array.from(entriesByDate.keys()).sort().reverse();
+    
+    if (uniqueDates.length === 0) {
+      return { currentStreak: 0, longestStreak: 0 };
+    }
+
+    let currentStreak = 0;
+    let longestStreak = 0;
+    let tempStreak = 0;
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayStr = today.toISOString().split('T')[0];
+    
+    // Check if we have an entry today
+    const mostRecentDate = uniqueDates[0];
+    const mostRecent = new Date(mostRecentDate);
+    mostRecent.setHours(0, 0, 0, 0);
+    
+    const daysSinceLastEntry = Math.floor((today.getTime() - mostRecent.getTime()) / (1000 * 60 * 60 * 24));
+    
+    // Only count current streak if last entry was today or yesterday
+    if (daysSinceLastEntry <= 1) {
+      tempStreak = 1;
+      currentStreak = 1;
       
-      const prevDate = new Date(entries[i - 1].createdAt);
+      // Calculate current streak by checking consecutive days backwards
+      for (let i = 1; i < uniqueDates.length; i++) {
+        const currentDate = new Date(uniqueDates[i]);
+        const prevDate = new Date(uniqueDates[i - 1]);
+        
+        currentDate.setHours(0, 0, 0, 0);
+        prevDate.setHours(0, 0, 0, 0);
+        
+        const dayDiff = Math.floor((prevDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24));
+        
+        if (dayDiff === 1) {
+          currentStreak++;
+        } else {
+          break; // Streak broken
+        }
+      }
+    }
+
+    // Calculate longest streak by checking all consecutive sequences
+    tempStreak = 1;
+    for (let i = 1; i < uniqueDates.length; i++) {
+      const currentDate = new Date(uniqueDates[i]);
+      const prevDate = new Date(uniqueDates[i - 1]);
+      
+      currentDate.setHours(0, 0, 0, 0);
       prevDate.setHours(0, 0, 0, 0);
       
-      const diff = Math.floor((prevDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24));
+      const dayDiff = Math.floor((prevDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24));
       
-      if (diff === 1) {
+      if (dayDiff === 1) {
         tempStreak++;
-        if (daysDiff <= 1 && i < currentStreak + daysDiff) {
-          currentStreak = tempStreak;
-        }
       } else {
         longestStreak = Math.max(longestStreak, tempStreak);
         tempStreak = 1;
       }
     }
-    
     longestStreak = Math.max(longestStreak, tempStreak);
     
     return { currentStreak, longestStreak };
@@ -380,7 +415,7 @@ export class DatabaseStorage implements IStorage {
   async saveInsight(userId: number, insight: InsertSavedInsight): Promise<SavedInsight> {
     const [savedInsight] = await db
       .insert(savedInsights)
-      .values(insight)
+      .values({ ...insight, userId })
       .returning();
     return savedInsight;
   }
@@ -389,13 +424,14 @@ export class DatabaseStorage implements IStorage {
     return await db
       .select()
       .from(savedInsights)
+      .where(eq(savedInsights.userId, userId))
       .orderBy(desc(savedInsights.createdAt));
   }
 
   async deleteSavedInsight(userId: number, id: number): Promise<void> {
     await db
       .delete(savedInsights)
-      .where(eq(savedInsights.id, id));
+      .where(and(eq(savedInsights.id, id), eq(savedInsights.userId, userId)));
   }
 
   async getBadges(userId: number): Promise<Badge[]> {

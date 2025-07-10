@@ -1109,6 +1109,29 @@ Wrap these practical steps with mystical language, but the actions must be concr
     try {
       const userId = req.user.id;
       const id = parseInt(req.params.id);
+      
+      // First, get the challenge to validate it exists and isn't already completed
+      const existingChallenge = await storage.getTodaysChallenge(userId);
+      
+      if (!existingChallenge || existingChallenge.id !== id) {
+        return res.status(404).json({ error: "Challenge not found or invalid" });
+      }
+      
+      if (existingChallenge.completed) {
+        return res.status(400).json({ error: "Challenge already completed today" });
+      }
+      
+      // Validate user has actually created content today to earn the challenge
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const todayEntries = await storage.getEntriesByDateRange(userId, today, new Date());
+      
+      if (todayEntries.length === 0) {
+        return res.status(400).json({ 
+          error: "Complete your daily journaling first to claim this challenge" 
+        });
+      }
+      
       const challenge = await storage.completeChallenge(userId, id);
       res.json(challenge);
     } catch (error) {
