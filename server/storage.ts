@@ -231,14 +231,14 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserStats(userId: number): Promise<UserStats> {
-    const [stats] = await db.select().from(userStats).where(eq(userStats.id, userId));
+    const [stats] = await db.select().from(userStats).where(eq(userStats.userId, userId));
     
     if (!stats) {
       // Create default stats for new user
       const [newStats] = await db
         .insert(userStats)
         .values({
-          id: userId,
+          userId: userId,
           totalEntries: 0,
           currentStreak: 0,
           longestStreak: 0,
@@ -262,7 +262,7 @@ export class DatabaseStorage implements IStorage {
         ...updateData,
         updatedAt: new Date(),
       })
-      .where(eq(userStats.id, userId))
+      .where(eq(userStats.userId, userId))
       .returning();
     
     return updatedStats;
@@ -279,51 +279,56 @@ export class DatabaseStorage implements IStorage {
       return { currentStreak: 0, longestStreak: 0 };
     }
 
-    // Group entries by date to handle multiple entries per day
-    const entriesByDate = new Map<string, Date>();
+    // Group entries by date (YYYY-MM-DD) to handle multiple entries per day
+    const entriesByDate = new Set<string>();
     for (const entry of entries) {
       const dateKey = entry.createdAt.toISOString().split('T')[0];
-      if (!entriesByDate.has(dateKey)) {
-        entriesByDate.set(dateKey, entry.createdAt);
-      }
+      entriesByDate.add(dateKey);
     }
 
-    // Convert to sorted array of unique dates
-    const uniqueDates = Array.from(entriesByDate.keys()).sort().reverse();
+    // Convert to sorted array of unique dates (most recent first)
+    const uniqueDates = Array.from(entriesByDate).sort().reverse();
     
     if (uniqueDates.length === 0) {
       return { currentStreak: 0, longestStreak: 0 };
     }
 
+    // Calculate current streak starting from today/yesterday
     let currentStreak = 0;
-    let longestStreak = 0;
-    let tempStreak = 0;
-    
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
     const todayStr = today.toISOString().split('T')[0];
-    
-    // Check if we have an entry today
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+    // Start counting from the most recent entry date
     const mostRecentDate = uniqueDates[0];
-    const mostRecent = new Date(mostRecentDate);
-    mostRecent.setHours(0, 0, 0, 0);
     
-    const daysSinceLastEntry = Math.floor((today.getTime() - mostRecent.getTime()) / (1000 * 60 * 60 * 24));
-    
-    // Only count current streak if last entry was today or yesterday
-    if (daysSinceLastEntry <= 1) {
-      tempStreak = 1;
-      currentStreak = 1;
+    // Current streak only counts if last entry was today or yesterday
+    if (mostRecentDate === todayStr || mostRecentDate === yesterdayStr) {
+      // Find the starting point for current streak calculation
+      let streakStartIndex = 0;
       
-      // Calculate current streak by checking consecutive days backwards
-      for (let i = 1; i < uniqueDates.length; i++) {
-        const currentDate = new Date(uniqueDates[i]);
-        const prevDate = new Date(uniqueDates[i - 1]);
+      // If most recent is yesterday and today has no entry, start from yesterday
+      if (mostRecentDate === yesterdayStr && !entriesByDate.has(todayStr)) {
+        streakStartIndex = 0;
+      } else if (mostRecentDate === todayStr) {
+        streakStartIndex = 0;
+      }
+
+      // Calculate consecutive days from the starting point
+      for (let i = streakStartIndex; i < uniqueDates.length; i++) {
+        const currentDate = uniqueDates[i];
         
-        currentDate.setHours(0, 0, 0, 0);
-        prevDate.setHours(0, 0, 0, 0);
+        if (i === 0) {
+          currentStreak = 1;
+          continue;
+        }
         
-        const dayDiff = Math.floor((prevDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24));
+        // Check if current date is exactly one day before the previous date
+        const currentDateObj = new Date(currentDate);
+        const prevDateObj = new Date(uniqueDates[i - 1]);
+        const dayDiff = Math.floor((prevDateObj.getTime() - currentDateObj.getTime()) / (1000 * 60 * 60 * 24));
         
         if (dayDiff === 1) {
           currentStreak++;
@@ -333,14 +338,13 @@ export class DatabaseStorage implements IStorage {
       }
     }
 
-    // Calculate longest streak by checking all consecutive sequences
-    tempStreak = 1;
+    // Calculate longest streak by checking all possible consecutive sequences
+    let longestStreak = 0;
+    let tempStreak = 1;
+    
     for (let i = 1; i < uniqueDates.length; i++) {
       const currentDate = new Date(uniqueDates[i]);
       const prevDate = new Date(uniqueDates[i - 1]);
-      
-      currentDate.setHours(0, 0, 0, 0);
-      prevDate.setHours(0, 0, 0, 0);
       
       const dayDiff = Math.floor((prevDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24));
       
@@ -352,6 +356,16 @@ export class DatabaseStorage implements IStorage {
       }
     }
     longestStreak = Math.max(longestStreak, tempStreak);
+    
+    // If we only have one date, both streaks should be 1
+    if (uniqueDates.length === 1) {
+      if (mostRecentDate === todayStr || mostRecentDate === yesterdayStr) {
+        currentStreak = 1;
+      }
+      longestStreak = 1;
+    }
+
+
     
     return { currentStreak, longestStreak };
   }
