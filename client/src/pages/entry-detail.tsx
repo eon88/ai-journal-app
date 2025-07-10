@@ -303,6 +303,7 @@ export default function EntryDetail() {
                 onRegenerate={() => {
                   reflectionMutation.mutate();
                 }}
+                entryId={entryId}
               />
             </CardContent>
           </Card>

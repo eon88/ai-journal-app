@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 import { 
   Bot, 
   Lightbulb, 
@@ -18,19 +21,61 @@ interface AIReflectionProps {
   isLoading: boolean;
   error: string | null;
   onRegenerate: () => void;
+  entryId?: string;
 }
 
 export function AIReflectionComponent({ 
   reflection, 
   isLoading, 
   error, 
-  onRegenerate 
+  onRegenerate,
+  entryId 
 }: AIReflectionProps) {
   const [isSaved, setIsSaved] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const saveInsightMutation = useMutation({
+    mutationFn: async () => {
+      if (!reflection) return;
+      
+      const insight = {
+        title: "AI Reflection Insights",
+        content: `Key Insights: ${reflection.insights}\n\nReflection Question: ${reflection.reflectionQuestion}\n\nGrowth Pattern: ${reflection.growthPattern}`,
+        category: 'insight' as const,
+        source: 'daily' as const,
+        entryId: entryId ? parseInt(entryId) : undefined
+      };
+      
+      const response = await apiRequest("/api/insights", "POST", insight);
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/insights"] });
+      setIsSaved(true);
+      toast({
+        title: "Insight Bookmarked!",
+        description: "Saved to 'Your Inner Library' section on the home page. Scroll down to view all bookmarked insights.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to bookmark insight",
+        variant: "destructive",
+      });
+    },
+  });
 
   const handleSave = () => {
-    setIsSaved(!isSaved);
-    // TODO: Implement save functionality
+    if (isSaved) {
+      toast({
+        title: "Already bookmarked",
+        description: "This insight is already in your vault.",
+      });
+      return;
+    }
+    saveInsightMutation.mutate();
   };
 
   const handleShare = () => {
@@ -152,9 +197,11 @@ export function AIReflectionComponent({
           variant="ghost"
           size="sm"
           onClick={handleSave}
-          className="text-sm text-gray-500 hover:text-journal-primary"
+          disabled={saveInsightMutation.isPending}
+          className={`text-sm hover:text-journal-primary ${isSaved ? 'text-journal-primary' : 'text-gray-500'}`}
+          title="Bookmark AI Insights"
         >
-          <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-current' : ''}`} />
+          <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-current text-journal-primary' : ''}`} />
         </Button>
       </div>
 
