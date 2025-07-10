@@ -219,7 +219,13 @@ export function EnhancedEntriesList() {
                 <SelectItem value="no-folder">🗂 No Folder</SelectItem>
                 {folders?.map((folder: Folder) => (
                   <SelectItem key={folder.id} value={`folder-${folder.id}`}>
-                    {folder.name}
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: folder.color }}
+                      />
+                      {folder.name}
+                    </div>
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -410,6 +416,20 @@ export function EnhancedEntriesList() {
               <Search className="w-4 h-4 mr-2" />
               {showSearchFilters ? "Hide Filters" : "Search & Filter"}
             </Button>
+            <Dialog open={showFolderManager} onOpenChange={setShowFolderManager}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm" className="w-full">
+                  <FolderOpen className="w-4 h-4 mr-2" />
+                  Manage Folders
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Folder Manager</DialogTitle>
+                </DialogHeader>
+                <FolderManager />
+              </DialogContent>
+            </Dialog>
             {selectedEntries.length > 0 && (
               <Button
                 onClick={handleDownloadSelected}
