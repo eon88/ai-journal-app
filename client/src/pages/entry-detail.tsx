@@ -171,7 +171,7 @@ export default function EntryDetail() {
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Entry Not Found</h1>
             <p className="text-gray-700 dark:text-gray-300 mb-6">The journal entry you're looking for doesn't exist or has been removed.</p>
-            <Link href="/">
+            <Link to="/">
               <Button className="bg-journal-primary hover:bg-indigo-700">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Home
@@ -191,7 +191,7 @@ export default function EntryDetail() {
       <main className="max-w-4xl mx-auto px-4 py-8">
         {/* Back Navigation */}
         <div className="mb-6">
-          <Link href="/">
+          <Link to="/">
             <Button variant="ghost" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Home

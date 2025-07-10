@@ -85,7 +85,7 @@ export function LevelSidebar() {
       
       {/* Rules Link */}
       <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-        <Link href="/rules">
+        <Link to="/rules">
           <Button variant="outline" size="sm" className="w-full text-xs">
             <HelpCircle className="w-3 h-3 mr-2" />
             Game Rules

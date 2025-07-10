@@ -95,7 +95,7 @@ export function RecentEntries() {
           <AdventureIcons.CompassMap size={20} className="text-mobile-enhanced" />
           <h2 className="text-xl font-semibold text-mobile-enhanced">Recent Entries</h2>
         </div>
-        <Link href="/entries">
+        <Link to="/entries">
           <Button 
             variant="ghost"
             className="text-sm text-mobile-enhanced hover:text-blue-200 font-medium"
@@ -108,7 +108,7 @@ export function RecentEntries() {
       {entries && entries.length > 0 ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {entries.map((entry) => (
-            <Link href={`/entry/${entry.id}`} key={entry.id}>
+            <Link to={`/entry/${entry.id}`} key={entry.id}>
               <div 
                 className="bg-white rounded-lg shadow-sm border border-journal-border p-4 hover:shadow-md transition-all duration-200 cursor-pointer hover:border-journal-primary group"
               >
@@ -160,7 +160,7 @@ export function RecentEntries() {
       
       {/* Advanced Entry Management Link */}
       <div className="text-center mt-8 pt-6 border-t border-white/20">
-        <Link href="/entries">
+        <Link to="/entries">
           <button className="bg-gray-800/10 hover:bg-gray-800/20 dark:bg-white/20 dark:hover:bg-white/30 text-gray-900 dark:text-white px-6 py-3 rounded-lg font-medium transition-colors inline-flex items-center gap-2 backdrop-blur-sm">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />

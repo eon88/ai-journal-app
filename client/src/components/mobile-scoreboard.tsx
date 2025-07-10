@@ -146,7 +146,7 @@ export function MobileScoreboard() {
               )}
 
               {/* Game Rules Button */}
-              <Link href="/rules">
+              <Link to="/rules">
                 <Button variant="outline" size="sm" className="w-full">
                   <HelpCircle className="w-4 h-4 mr-2" />
                   Game Rules & XP System

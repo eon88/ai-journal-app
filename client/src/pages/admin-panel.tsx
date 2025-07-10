@@ -118,7 +118,7 @@ export default function AdminPanel() {
             </p>
           </div>
           <div className="flex items-center gap-4">
-            <Link href="/admin/dashboard">
+            <Link to="/admin/dashboard">
               <Button variant="outline" className="border-purple-500 text-purple-400 hover:bg-purple-500/10">
                 <Users className="w-4 h-4 mr-2" />
                 User Dashboard

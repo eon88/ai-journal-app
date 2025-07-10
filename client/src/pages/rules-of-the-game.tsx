@@ -27,7 +27,7 @@ export default function RulesOfTheGame() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <Link href="/">
+          <Link to="/">
             <Button variant="ghost" className="mb-4">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Home
@@ -330,7 +330,7 @@ export default function RulesOfTheGame() {
 
         {/* Call to Action */}
         <div className="text-center mt-12">
-          <Link href="/">
+          <Link to="/">
             <Button size="lg" className="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white">
               Back to Homepage
             </Button>

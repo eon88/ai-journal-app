@@ -120,7 +120,7 @@ export function Header() {
             </div>
 {/* Upgrade button temporarily hidden - payment system is properly configured but in test mode */}
             <ThemeToggle />
-            <Link href="/">
+            <Link to="/">
               <div 
                 className="w-8 h-8 bg-accent rounded-full flex items-center justify-center cursor-pointer hover:bg-accent/80 transition-colors"
                 onClick={() => window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })}
@@ -135,21 +135,21 @@ export function Header() {
                 </div>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
-                <Link href="/entries">
+                <Link to="/entries">
                   <DropdownMenuItem className="cursor-pointer">
                     <Calendar className="mr-2 h-4 w-4" />
                     Browse Entries
                   </DropdownMenuItem>
                 </Link>
 
-                <Link href="/profile">
+                <Link to="/profile">
                   <DropdownMenuItem className="cursor-pointer">
                     <UserCircle className="mr-2 h-4 w-4" />
                     Profile
                   </DropdownMenuItem>
                 </Link>
                 {adminCheck?.isAdmin && (
-                  <Link href="/admin/dashboard">
+                  <Link to="/admin/dashboard">
                     <DropdownMenuItem className="cursor-pointer">
                       <Crown className="mr-2 h-4 w-4" />
                       Admin Dashboard
