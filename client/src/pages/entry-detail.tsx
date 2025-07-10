@@ -5,7 +5,7 @@ import { Footer } from "@/components/footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Calendar, Tag, MessageCircle, Heart, RotateCcw } from "lucide-react";
+import { ArrowLeft, Calendar, Tag, MessageCircle, Heart, RotateCcw, Download } from "lucide-react";
 import { AIReflectionComponent } from "@/components/ai-reflection";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -59,6 +59,46 @@ export default function EntryDetail() {
       console.error("Reflection generation error:", error);
     },
   });
+
+  // Download single entry mutation
+  const downloadMutation = useMutation({
+    mutationFn: async (entryId: string) => {
+      const response = await apiRequest("/api/entries/download", "POST", {
+        entryIds: [parseInt(entryId)]
+      });
+      return await response.blob();
+    },
+    onSuccess: (blob, entryId) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = `journal-entry-${entryId}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast({
+        title: "Download Complete",
+        description: "Your journal entry has been downloaded.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Download Failed",
+        description: "Unable to download the entry. Please try again.",
+        variant: "destructive",
+      });
+      console.error("Download error:", error);
+    },
+  });
+
+  const handleDownload = () => {
+    if (entryId) {
+      downloadMutation.mutate(entryId);
+    }
+  };
 
   const formatDate = (date: string | Date) => {
     return new Date(date).toLocaleDateString('en-US', { 
@@ -177,11 +217,32 @@ export default function EntryDetail() {
                   Journal Entry
                 </CardTitle>
               </div>
-              {entry.mood && (
-                <Badge className={getMoodColor(entry.mood)}>
-                  {entry.mood}
-                </Badge>
-              )}
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleDownload}
+                  disabled={downloadMutation.isPending}
+                  className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                >
+                  {downloadMutation.isPending ? (
+                    <>
+                      <RotateCcw className="w-4 h-4 mr-2 animate-spin" />
+                      Downloading...
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-4 h-4 mr-2" />
+                      Download
+                    </>
+                  )}
+                </Button>
+                {entry.mood && (
+                  <Badge className={getMoodColor(entry.mood)}>
+                    {entry.mood}
+                  </Badge>
+                )}
+              </div>
             </div>
           </CardHeader>
         </Card>
