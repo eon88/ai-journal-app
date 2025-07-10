@@ -530,6 +530,12 @@ function EntryCard({
   getFolderName, 
   getFolderColor 
 }: EntryCardProps) {
+  const isToday = (date: string | Date) => {
+    const entryDate = new Date(date);
+    const today = new Date();
+    return entryDate.toDateString() === today.toDateString();
+  };
+
   return (
     <Card className={`cursor-pointer transition-all duration-200 ${
       isSelected ? 'ring-2 ring-blue-500' : ''
@@ -542,6 +548,14 @@ function EntryCard({
               onCheckedChange={() => onSelect(entry.id)}
             />
             {entry.isPinned && <Pin className="w-4 h-4 text-blue-500" />}
+            {isToday(entry.createdAt) && (
+              <img 
+                src="/compass-icon.png" 
+                alt="Today's entry" 
+                className="w-4 h-4 opacity-80"
+                title="Today's Entry"
+              />
+            )}
             <span className="text-sm text-gray-800 dark:text-gray-300">
               {new Date(entry.createdAt).toLocaleDateString()}
             </span>

@@ -49,6 +49,12 @@ export function RecentEntries() {
     }
   };
 
+  const isToday = (date: string | Date) => {
+    const entryDate = new Date(date);
+    const today = new Date();
+    return entryDate.toDateString() === today.toDateString();
+  };
+
   if (isLoading) {
     return (
       <div className="mt-8">
@@ -113,9 +119,19 @@ export function RecentEntries() {
                 className="bg-white rounded-lg shadow-sm border border-journal-border p-4 hover:shadow-md transition-all duration-200 cursor-pointer hover:border-journal-primary group"
               >
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gray-800 dark:text-gray-400" style={{ color: 'rgb(17, 24, 39)' }}>
-                    {formatDate(entry.createdAt)}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    {isToday(entry.createdAt) && (
+                      <img 
+                        src="/compass-icon.png" 
+                        alt="Today's entry" 
+                        className="w-5 h-5 opacity-80"
+                        title="Today's Entry"
+                      />
+                    )}
+                    <span className="text-sm text-gray-800 dark:text-gray-400" style={{ color: 'rgb(17, 24, 39)' }}>
+                      {formatDate(entry.createdAt)}
+                    </span>
+                  </div>
                   <div className="flex items-center space-x-2">
                     {entry.symbol && (
                       <Badge variant="outline" className="text-xs px-2 py-1">
