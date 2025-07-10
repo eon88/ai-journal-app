@@ -91,8 +91,15 @@ export default function AdminDashboard() {
   const [engagementFilter, setEngagementFilter] = useState<string>("all");
   const { toast } = useToast();
 
+  // Check if current user is admin first
+  const { data: adminCheck, isLoading: checkingAdmin } = useQuery({
+    queryKey: ["/api/admin/check"],
+    retry: false,
+  });
+
   const { data: users, isLoading, error } = useQuery<UserData[]>({
     queryKey: ["/api/admin/users-detailed"],
+    enabled: adminCheck?.isAdmin === true,
     retry: false,
   });
 
@@ -156,7 +163,21 @@ export default function AdminDashboard() {
     });
   };
 
-  if (error) {
+  if (checkingAdmin) {
+    return (
+      <div className="min-h-screen font-inter">
+        <Header />
+        <main className="max-w-6xl mx-auto px-4 py-8">
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-4"></div>
+            <p className="text-gray-600 dark:text-gray-400">Checking admin permissions...</p>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (!adminCheck?.isAdmin) {
     return (
       <div className="min-h-screen font-inter">
         <Header />
@@ -172,6 +193,9 @@ export default function AdminDashboard() {
               <p className="text-gray-600 dark:text-gray-400">
                 You don't have permission to access the admin dashboard.
               </p>
+              <div className="mt-4 text-sm text-gray-500">
+                <p>Debug: Admin check result: {JSON.stringify(adminCheck)}</p>
+              </div>
             </CardContent>
           </Card>
         </main>
