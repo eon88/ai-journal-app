@@ -208,9 +208,34 @@ export function EnhancedEntriesList() {
   }
 
   return (
-    <div className="flex gap-6">
-      {/* Sidebar */}
-      <div className="w-64 space-y-4">
+    <div className="space-y-6">
+      {/* Mobile Filter Dropdown */}
+      <div className="md:hidden">
+        <Card>
+          <CardContent className="p-4">
+            <Select value={sidebarFilter} onValueChange={setSidebarFilter}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Filter entries..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">📚 All Entries</SelectItem>
+                <SelectItem value="pinned">📌 Pinned Entries</SelectItem>
+                <SelectItem value="no-folder">🗂 No Folder</SelectItem>
+                {folders?.map((folder: Folder) => (
+                  <SelectItem key={folder.id} value={`folder-${folder.id}`}>
+                    {folder.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Desktop Layout */}
+      <div className="hidden md:flex gap-6">
+        {/* Desktop Sidebar */}
+        <div className="w-64 space-y-4">
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-lg">Quick Access</CardTitle>
@@ -287,8 +312,8 @@ export function EnhancedEntriesList() {
         </Card>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 space-y-6">
+        {/* Desktop Main Content */}
+        <div className="flex-1 space-y-6">
         {/* Header with actions */}
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold">Journal Entries</h2>
@@ -371,6 +396,95 @@ export function EnhancedEntriesList() {
             </CardContent>
           </Card>
         )}
+        </div>
+      </div>
+
+      {/* Mobile Main Content */}
+      <div className="md:hidden space-y-6">
+        {/* Mobile Header */}
+        <div className="flex flex-col space-y-4">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Journal Entries</h2>
+          <div className="flex flex-col space-y-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowSearchFilters(!showSearchFilters)}
+              className="w-full"
+            >
+              <Search className="w-4 h-4 mr-2" />
+              {showSearchFilters ? "Hide Filters" : "Search & Filter"}
+            </Button>
+            {selectedEntries.length > 0 && (
+              <Button
+                onClick={handleDownloadSelected}
+                disabled={downloadMutation.isPending}
+                size="sm"
+                className="w-full"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Download Selected ({selectedEntries.length})
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {/* Mobile Search Filters */}
+        {showSearchFilters && (
+          <EntrySearchFilters 
+            onSearch={handleSearch}
+            onClear={handleClearSearch}
+          />
+        )}
+
+        {/* Mobile Bulk Selection */}
+        {filteredEntries && filteredEntries.length > 0 && (
+          <div className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+            <Checkbox
+              checked={selectedEntries.length === filteredEntries.length}
+              onCheckedChange={handleSelectAll}
+            />
+            <span className="text-sm text-gray-900 dark:text-white">
+              {selectedEntries.length === filteredEntries.length 
+                ? "Deselect all" 
+                : `Select all (${filteredEntries.length})`}
+            </span>
+            {selectedEntries.length > 0 && (
+              <span className="text-sm text-gray-600 dark:text-gray-400">
+                {selectedEntries.length} selected
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Mobile Entries List */}
+        {filteredEntries && filteredEntries.length > 0 ? (
+          <div className="space-y-3">
+            {filteredEntries.map((entry: JournalEntry) => (
+              <EntryCard
+                key={entry.id}
+                entry={entry}
+                isSelected={selectedEntries.includes(entry.id)}
+                onSelect={handleSelectEntry}
+                onPin={handlePin}
+                onMoveToFolder={handleMoveToFolder}
+                onDownloadSingle={handleDownloadSingle}
+                folders={folders}
+                getFolderName={getFolderName}
+                getFolderColor={getFolderColor}
+              />
+            ))}
+          </div>
+        ) : (
+          <Card>
+            <CardContent className="text-center py-8">
+              <p className="text-gray-500">
+                {sidebarFilter ? "No entries found in this category." : 
+                 searchFilters ? "No entries found matching your search criteria." : 
+                 "No journal entries yet."}
+              </p>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
@@ -405,13 +519,13 @@ function EntryCard({
     } ${entry.isPinned ? 'border-blue-300 bg-blue-50 dark:bg-blue-950' : ''}`}>
       <CardContent className="p-4">
         <div className="flex items-start justify-between mb-3">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
             <Checkbox
               checked={isSelected}
               onCheckedChange={() => onSelect(entry.id)}
             />
             {entry.isPinned && <Pin className="w-4 h-4 text-blue-500" />}
-            <span className="text-sm text-gray-500">
+            <span className="text-sm text-gray-800 dark:text-gray-400" style={{ color: 'rgb(17, 24, 39)' }}>
               {new Date(entry.createdAt).toLocaleDateString()}
             </span>
           </div>
@@ -455,7 +569,7 @@ function EntryCard({
           </DropdownMenu>
         </div>
 
-        <p className="text-gray-700 dark:text-gray-300 mb-3 line-clamp-3">
+        <p className="text-gray-900 dark:text-gray-200 mb-3 line-clamp-3 break-words" style={{ color: 'rgb(17, 24, 39)' }}>
           {entry.content}
         </p>
 
@@ -486,7 +600,7 @@ function EntryCard({
               className="w-3 h-3 rounded-full"
               style={{ backgroundColor: getFolderColor(entry.folderId) }}
             />
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-gray-800 dark:text-gray-400" style={{ color: 'rgb(17, 24, 39)' }}>
               {getFolderName(entry.folderId)}
             </span>
           </div>
