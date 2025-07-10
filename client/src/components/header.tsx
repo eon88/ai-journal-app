@@ -14,6 +14,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useProgressiveFeatures } from "@/hooks/useProgressiveFeatures";
+import { useAuth } from "@/hooks/useAuth";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 const LEVEL_DESCRIPTIONS = {
   1: { title: "Reflective Wanderer", color: "bg-gray-500" },
@@ -34,6 +35,7 @@ export function Header() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { progress } = useProgressiveFeatures();
+  const { user } = useAuth();
 
   // Check if current user is admin
   const { data: adminCheck } = useQuery({
