@@ -87,7 +87,6 @@ function Router() {
           <Route path="/rules" component={RulesOfTheGame} />
           <Route path="/login" component={Login} />
           <Route path="/register" component={Register} />
-          <Route component={NotFound} />
         </>
       )}
     </Switch>
