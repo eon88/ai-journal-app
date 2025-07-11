@@ -73,16 +73,20 @@ export function BulletSymbolSelector({ selectedSymbol, onSymbolSelect, inline = 
         {commonSymbols.map((symbol) => {
           const config = BULLET_SYMBOLS[symbol as keyof typeof BULLET_SYMBOLS];
           return (
-            <Button
-              key={symbol}
-              variant={selectedSymbol === symbol ? "default" : "outline"}
-              size="sm"
-              className="h-8 w-8 p-0 text-sm flex-shrink-0"
-              onClick={() => onSymbolSelect(symbol)}
-              title={config?.name}
-            >
-              {symbol}
-            </Button>
+            <div key={symbol} className="flex flex-col items-center gap-1">
+              <Button
+                variant={selectedSymbol === symbol ? "default" : "outline"}
+                size="sm"
+                className="h-8 w-8 p-0 text-sm flex-shrink-0"
+                onClick={() => onSymbolSelect(symbol)}
+                title={config?.name}
+              >
+                {symbol}
+              </Button>
+              <span className="text-[10px] text-gray-500 dark:text-gray-400 text-center leading-none">
+                {getSymbolLabel(symbol)}
+              </span>
+            </div>
           );
         })}
         
@@ -99,7 +103,7 @@ export function BulletSymbolSelector({ selectedSymbol, onSymbolSelect, inline = 
                 <ChevronDown className="h-3 w-3" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-96 p-4" side="bottom" align="start">
+            <PopoverContent className="w-80 md:w-96 p-4 max-h-96 overflow-y-auto" side="bottom" align="end" sideOffset={4}>
               <div className="space-y-4">
                 <div className="text-sm font-medium">Additional symbols:</div>
                 
@@ -174,7 +178,7 @@ export function BulletSymbolSelector({ selectedSymbol, onSymbolSelect, inline = 
                 <ChevronDown className="h-3 w-3" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-96 p-4" side="bottom" align="start">
+            <PopoverContent className="w-80 md:w-96 p-4 max-h-96 overflow-y-auto" side="bottom" align="end" sideOffset={4}>
               <div className="space-y-4">
                 <div className="text-sm font-medium">Additional symbols:</div>
                 
