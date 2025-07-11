@@ -94,26 +94,37 @@ export default function ForumLeaderboard() {
                       return (
                         <div
                           key={user.id}
-                          className={`flex items-center gap-4 p-4 rounded-lg transition-all hover:scale-[1.02] ${getPodiumClass(position)}`}
+                          className={`p-4 rounded-lg transition-all hover:scale-[1.02] ${getPodiumClass(position)}`}
                         >
-                          <div className="flex items-center gap-3">
-                            {getPodiumIcon(position)}
-                            <Avatar className="w-12 h-12">
-                              <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
-                                {user.username.charAt(0).toUpperCase()}
-                              </AvatarFallback>
-                            </Avatar>
-                          </div>
-                          
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <h3 className="font-semibold text-gray-900 dark:text-white">
-                                {user.username}
-                              </h3>
-                              <ForumRankBadge xpPoints={user.xpPoints} size="sm" />
+                          {/* Mobile Layout */}
+                          <div className="md:hidden">
+                            <div className="flex items-center gap-3 mb-3">
+                              {getPodiumIcon(position)}
+                              <Avatar className="w-12 h-12">
+                                <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+                                  {user.username.charAt(0).toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1">
+                                <h3 className="font-semibold text-gray-900 dark:text-white">
+                                  {user.username}
+                                </h3>
+                                <ForumRankBadge xpPoints={user.xpPoints} size="sm" />
+                              </div>
+                              {position <= 3 && (
+                                <Badge 
+                                  variant="outline" 
+                                  className={`text-xs ${
+                                    position === 1 ? 'border-yellow-400 text-yellow-600 bg-yellow-50 dark:bg-yellow-900/20' :
+                                    position === 2 ? 'border-gray-400 text-gray-600 bg-gray-50 dark:bg-gray-900/20' :
+                                    'border-amber-400 text-amber-600 bg-amber-50 dark:bg-amber-900/20'
+                                  }`}
+                                >
+                                  {position === 1 ? 'Champion' : position === 2 ? 'Runner-up' : 'Third Place'}
+                                </Badge>
+                              )}
                             </div>
-                            
-                            <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                            <div className="grid grid-cols-2 gap-2 text-sm text-gray-600 dark:text-gray-400">
                               <span className="font-medium text-blue-600 dark:text-blue-400">
                                 {user.xpPoints} XP
                               </span>
@@ -122,19 +133,49 @@ export default function ForumLeaderboard() {
                               <span>{user.currentStreak} day streak</span>
                             </div>
                           </div>
-                          
-                          {position <= 3 && (
-                            <Badge 
-                              variant="outline" 
-                              className={`text-xs ${
-                                position === 1 ? 'border-yellow-400 text-yellow-600 bg-yellow-50 dark:bg-yellow-900/20' :
-                                position === 2 ? 'border-gray-400 text-gray-600 bg-gray-50 dark:bg-gray-900/20' :
-                                'border-amber-400 text-amber-600 bg-amber-50 dark:bg-amber-900/20'
-                              }`}
-                            >
-                              {position === 1 ? 'Champion' : position === 2 ? 'Runner-up' : 'Third Place'}
-                            </Badge>
-                          )}
+
+                          {/* Desktop Layout */}
+                          <div className="hidden md:flex items-center gap-4">
+                            <div className="flex items-center gap-3">
+                              {getPodiumIcon(position)}
+                              <Avatar className="w-12 h-12">
+                                <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+                                  {user.username.charAt(0).toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
+                            </div>
+                            
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <h3 className="font-semibold text-gray-900 dark:text-white">
+                                  {user.username}
+                                </h3>
+                                <ForumRankBadge xpPoints={user.xpPoints} size="sm" />
+                              </div>
+                              
+                              <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                                <span className="font-medium text-blue-600 dark:text-blue-400">
+                                  {user.xpPoints} XP
+                                </span>
+                                <span>Level {user.level}</span>
+                                <span>{user.totalEntries} entries</span>
+                                <span>{user.currentStreak} day streak</span>
+                              </div>
+                            </div>
+                            
+                            {position <= 3 && (
+                              <Badge 
+                                variant="outline" 
+                                className={`text-xs ${
+                                  position === 1 ? 'border-yellow-400 text-yellow-600 bg-yellow-50 dark:bg-yellow-900/20' :
+                                  position === 2 ? 'border-gray-400 text-gray-600 bg-gray-50 dark:bg-gray-900/20' :
+                                  'border-amber-400 text-amber-600 bg-amber-50 dark:bg-amber-900/20'
+                                }`}
+                              >
+                                {position === 1 ? 'Champion' : position === 2 ? 'Runner-up' : 'Third Place'}
+                              </Badge>
+                            )}
+                          </div>
                         </div>
                       );
                     })}
