@@ -2437,7 +2437,7 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
           currentStreak: userStats.currentStreak,
         })
         .from(users)
-        .innerJoin(userStats, eq(users.id, userStats.id))
+        .innerJoin(userStats, eq(users.id, userStats.userId))
         .orderBy(desc(userStats.xpPoints), desc(userStats.totalEntries))
         .limit(limit);
 

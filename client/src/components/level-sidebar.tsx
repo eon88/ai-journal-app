@@ -85,7 +85,7 @@ export function LevelSidebar() {
       
       {/* Links */}
       <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
-        <Link to="/forum-leaderboard">
+        <Link to="/forum/leaderboard">
           <Button variant="outline" size="sm" className="w-full text-xs">
             <Trophy className="w-3 h-3 mr-2" />
             Leaderboard

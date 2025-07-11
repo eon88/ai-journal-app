@@ -147,7 +147,7 @@ export function MobileScoreboard() {
 
               {/* Links */}
               <div className="space-y-2">
-                <Link to="/forum-leaderboard">
+                <Link to="/forum/leaderboard">
                   <Button variant="outline" size="sm" className="w-full">
                     <Trophy className="w-4 h-4 mr-2" />
                     Leaderboard
