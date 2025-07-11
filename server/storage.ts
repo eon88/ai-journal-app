@@ -616,6 +616,10 @@ export class DatabaseStorage implements IStorage {
       return total + effectiveContent.length;
     }, 0);
 
+    console.log(`DEBUG: Challenge prompt: "${challengePrompt}"`);
+    console.log(`DEBUG: Entry content: "${todayEntries[0]?.content}"`);
+    console.log(`DEBUG: Characters beyond prompt: ${totalCharacters}`);
+
     if (totalCharacters < 100) {
       throw new Error(`You must write at least 100 characters beyond the challenge prompt to complete the challenge. Currently: ${totalCharacters}/100 characters.`);
     }
