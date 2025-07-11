@@ -76,7 +76,7 @@ export function CustomTagsSelector({
             trigger={
               <Button variant="outline" size="sm" className="gap-2">
                 <Settings className="h-4 w-4" />
-                Manage
+                Create Tag Buttons
               </Button>
             }
           />
@@ -149,7 +149,7 @@ export function CustomTagsSelector({
       {/* Empty state */}
       {customTags.length === 0 && (
         <div className="text-sm text-muted-foreground">
-          No custom tags yet. Create your first custom tag to get started!
+          No custom tag buttons yet. Click "Manage" above to create reusable tag buttons, or use the text input below for one-time tags.
         </div>
       )}
     </div>
