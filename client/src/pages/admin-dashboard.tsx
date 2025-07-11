@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Header } from "@/components/header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -30,9 +30,13 @@ import {
   TrendingUp,
   Calendar,
   Mail,
-  User
+  User,
+  Gift,
+  Zap
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
+import { Textarea } from "@/components/ui/textarea";
 
 interface UserData {
   id: number;
@@ -89,7 +93,14 @@ export default function AdminDashboard() {
   const [searchTerm, setSearchTerm] = useState("");
   const [levelFilter, setLevelFilter] = useState<string>("all");
   const [engagementFilter, setEngagementFilter] = useState<string>("all");
+  
+  // XP Gifting state
+  const [selectedUserId, setSelectedUserId] = useState<string>("");
+  const [xpAmount, setXpAmount] = useState<string>("");
+  const [giftReason, setGiftReason] = useState<string>("");
+  
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   // Check if current user is admin first
   const { data: adminCheck, isLoading: checkingAdmin } = useQuery({
@@ -160,6 +171,52 @@ export default function AdminDashboard() {
     toast({
       title: "Export completed",
       description: `Exported ${filteredUsers.length} users to CSV`,
+    });
+  };
+
+  // XP Gifting mutation
+  const giftXPMutation = useMutation({
+    mutationFn: async ({ userId, xpAmount, reason }: { userId: number; xpAmount: number; reason: string }) => {
+      return await apiRequest("/api/admin/gift-xp", {
+        method: "POST",
+        body: { userId, xpAmount, reason },
+      });
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "XP Gifted Successfully!",
+        description: data.message + (data.levelUp ? ` They leveled up to ${data.levelUp.newLevel}!` : ""),
+      });
+      // Reset form
+      setSelectedUserId("");
+      setXpAmount("");
+      setGiftReason("");
+      // Refresh user data
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users-detailed"] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Failed to gift XP",
+        description: error.message || "An error occurred while gifting XP",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleGiftXP = () => {
+    if (!selectedUserId || !xpAmount || parseInt(xpAmount) <= 0) {
+      toast({
+        title: "Invalid input",
+        description: "Please select a user and enter a valid XP amount",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    giftXPMutation.mutate({
+      userId: parseInt(selectedUserId),
+      xpAmount: parseInt(xpAmount),
+      reason: giftReason || "Admin gift",
     });
   };
 
@@ -241,6 +298,75 @@ export default function AdminDashboard() {
             </Button>
           </div>
         </div>
+
+        {/* XP Gifting Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Gift className="w-5 h-5 text-yellow-500" />
+              Gift XP to Users
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Select User
+                </label>
+                <Select value={selectedUserId} onValueChange={setSelectedUserId}>
+                  <SelectTrigger className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600">
+                    <SelectValue placeholder="Choose a user" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {users?.map((user) => (
+                      <SelectItem key={user.id} value={user.id.toString()}>
+                        {user.username} - Level {user.progress.currentLevel} ({user.progress.xpPoints} XP)
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  XP Amount
+                </label>
+                <Input
+                  type="number"
+                  value={xpAmount}
+                  onChange={(e) => setXpAmount(e.target.value)}
+                  placeholder="Enter XP amount"
+                  min="1"
+                  max="10000"
+                  className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Reason (Optional)
+                </label>
+                <Input
+                  value={giftReason}
+                  onChange={(e) => setGiftReason(e.target.value)}
+                  placeholder="e.g., Community contribution"
+                  className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
+                />
+              </div>
+              
+              <div className="flex items-end">
+                <Button 
+                  onClick={handleGiftXP}
+                  disabled={giftXPMutation.isPending}
+                  className="w-full flex items-center gap-2"
+                >
+                  <Zap className="w-4 h-4" />
+                  {giftXPMutation.isPending ? "Gifting..." : "Gift XP"}
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Summary Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

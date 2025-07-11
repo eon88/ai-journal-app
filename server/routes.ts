@@ -2034,6 +2034,47 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
     }
   });
 
+  // Admin XP Gifting endpoint (Admin only)
+  app.post("/api/admin/gift-xp", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+    try {
+      const { userId, xpAmount, reason } = req.body;
+      
+      if (!userId || !xpAmount || xpAmount <= 0) {
+        return res.status(400).json({ message: "Valid user ID and positive XP amount required" });
+      }
+      
+      // Get current user stats
+      const currentStats = await storage.getUserStats(userId);
+      const newXP = currentStats.xpPoints + xpAmount;
+      
+      // Update user stats with new XP
+      const updatedStats = await storage.updateUserStats(userId, {
+        xpPoints: newXP
+      });
+      
+      // Check if user should level up
+      const levelUpResult = await storage.checkAndUpdateUserLevel(userId, newXP);
+      
+      // Get user info for response
+      const user = await storage.getUser(userId);
+      
+      res.json({
+        success: true,
+        message: `Successfully gifted ${xpAmount} XP to ${user?.username}`,
+        newXP: newXP,
+        xpGifted: xpAmount,
+        reason: reason || "Admin gift",
+        levelUp: levelUpResult.leveledUp ? {
+          newLevel: levelUpResult.newLevel,
+          unlockedFeatures: levelUpResult.unlockedFeatures
+        } : null
+      });
+    } catch (error) {
+      console.error("Error gifting XP:", error);
+      res.status(500).json({ message: "Failed to gift XP" });
+    }
+  });
+
   // Forum API routes
   
   // Get forum categories
