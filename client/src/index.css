@@ -63,6 +63,7 @@
 @layer base {
   * {
     @apply border-border;
+    text-shadow: none !important;
   }
 
   body {
@@ -338,23 +339,18 @@ html:not(.dark) .text-yellow-500 {
   /* Strong white text for dark mode */
   .text-white-strong {
     color: rgba(255, 255, 255, 0.95) !important;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 
-                 1px 1px 2px rgba(0, 0, 0, 0.6);
+    text-shadow: none !important;
   }
   
-  /* Enhanced text visibility with shadows */
+  /* Enhanced text visibility without shadows */
   .text-shadow-strong {
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 
-                 1px 1px 2px rgba(0, 0, 0, 0.6),
-                 0 0 8px rgba(0, 0, 0, 0.4);
+    text-shadow: none !important;
   }
   
   /* Mobile-specific text enhancements for better visibility */
   .text-mobile-enhanced {
     color: #ffffff;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8), 
-                 0 0 8px rgba(0, 0, 0, 0.6),
-                 1px 1px 2px rgba(0, 0, 0, 0.9);
+    text-shadow: none !important;
     font-weight: 600;
   }
   
@@ -554,6 +550,7 @@ html:not(.dark) .text-yellow-500 {
         background-clip: unset !important;
         -webkit-text-fill-color: white !important;
         color: white !important;
+        text-shadow: none !important;
       }
     }
     
@@ -591,5 +588,15 @@ html:not(.dark) .text-yellow-500 {
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+  
+  /* Global text shadow removal */
+  * {
+    text-shadow: none !important;
+  }
+  
+  /* All text elements should never have shadows */
+  h1, h2, h3, h4, h5, h6, p, span, div, a, button, label, input, textarea, select {
+    text-shadow: none !important;
   }
 }
