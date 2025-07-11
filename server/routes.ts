@@ -295,7 +295,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const challengeTag = "Daily Challenge";
         const existingTags = tags || [];
         if (!existingTags.includes(challengeTag)) {
-          tags = [...existingTags, challengeTag];
+          req.body.tags = [...existingTags, challengeTag];
         }
       }
       
@@ -322,7 +322,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const entryData = {
         content: cleanContent || content, // Use cleaned content if symbol was found
         mood,
-        tags,
+        tags: req.body.tags || tags, // Use updated tags if modified, otherwise original tags
         type,
         status,
         symbol
