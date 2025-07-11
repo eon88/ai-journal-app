@@ -27,10 +27,10 @@ export default function Login() {
       });
       // CRITICAL: Clear ALL cached data to prevent privacy issues when switching users
       queryClient.clear();
+      // Invalidate auth query and redirect
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       // Force a page refresh to update auth state
-      setTimeout(() => {
-        window.location.href = '/';
-      }, 1000);
+      window.location.href = '/';
     },
     onError: (error: any) => {
       toast({
