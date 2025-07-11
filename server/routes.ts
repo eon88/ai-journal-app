@@ -419,6 +419,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update journal entry (protected)
+  app.put("/api/entries/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const entryId = parseInt(req.params.id);
+      const { content, mood, tags } = req.body;
+      
+      if (isNaN(entryId)) {
+        return res.status(400).json({ message: "Invalid entry ID" });
+      }
+
+      // Verify the entry belongs to the user
+      const existingEntry = await storage.getJournalEntry(userId, entryId);
+      if (!existingEntry) {
+        return res.status(404).json({ message: "Entry not found" });
+      }
+
+      // Parse bullet symbols from the content
+      const { symbol, type, status, cleanContent } = parseBulletSymbol(content || "");
+      
+      // Prepare the entry data with parsed bullet symbol information
+      const entryData = {
+        content: cleanContent || content,
+        mood,
+        tags,
+        type,
+        status,
+        symbol
+      };
+
+      const validatedData = insertJournalEntrySchema.partial().parse(entryData);
+      const updatedEntry = await storage.updateJournalEntry(userId, entryId, validatedData);
+      
+      if (!updatedEntry) {
+        return res.status(500).json({ message: "Failed to update entry" });
+      }
+
+      res.json(updatedEntry);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid entry data", errors: error.errors });
+      }
+      console.error("Update entry error:", error);
+      res.status(500).json({ message: "Failed to update entry" });
+    }
+  });
+
+  // Delete journal entry (protected)
+  app.delete("/api/entries/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const entryId = parseInt(req.params.id);
+      
+      if (isNaN(entryId)) {
+        return res.status(400).json({ message: "Invalid entry ID" });
+      }
+
+      // Verify the entry belongs to the user
+      const existingEntry = await storage.getJournalEntry(userId, entryId);
+      if (!existingEntry) {
+        return res.status(404).json({ message: "Entry not found" });
+      }
+
+      const deleted = await storage.deleteJournalEntry(userId, entryId);
+      
+      if (!deleted) {
+        return res.status(500).json({ message: "Failed to delete entry" });
+      }
+
+      res.json({ message: "Entry deleted successfully" });
+    } catch (error) {
+      console.error("Delete entry error:", error);
+      res.status(500).json({ message: "Failed to delete entry" });
+    }
+  });
+
   // Analyze journal entry with AI (legacy endpoint for compatibility)
   app.post("/api/analyze", isAuthenticated, async (req: any, res) => {
     try {

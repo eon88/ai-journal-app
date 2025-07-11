@@ -7,6 +7,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Pin, PinOff, Download, FolderOpen, MoreVertical, Search, Filter, Calendar, Folder } from "lucide-react";
 
 import { EntrySearchFilters } from "@/components/entry-search-filters";
@@ -37,12 +41,87 @@ const MOOD_EMOJIS: Record<string, string> = {
   sad: "😢", anxious: "😰", frustrated: "😤", calm: "😎", energetic: "⚡"
 };
 
+interface EditEntryFormProps {
+  entry: JournalEntry;
+  onSave: (updates: Partial<JournalEntry>) => void;
+  onCancel: () => void;
+}
+
+function EditEntryForm({ entry, onSave, onCancel }: EditEntryFormProps) {
+  const [content, setContent] = useState(entry.content);
+  const [mood, setMood] = useState(entry.mood || "");
+  const [tags, setTags] = useState(entry.tags ? entry.tags.join(", ") : "");
+
+  const handleSave = () => {
+    const updates: Partial<JournalEntry> = {
+      content,
+      mood: mood || undefined,
+      tags: tags ? tags.split(",").map(tag => tag.trim()).filter(Boolean) : undefined,
+    };
+    onSave(updates);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <Label htmlFor="content">Content</Label>
+        <Textarea
+          id="content"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          rows={6}
+          className="mt-1"
+        />
+      </div>
+      
+      <div>
+        <Label htmlFor="mood">Mood</Label>
+        <Select value={mood} onValueChange={setMood}>
+          <SelectTrigger className="mt-1">
+            <SelectValue placeholder="Select mood..." />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">No mood</SelectItem>
+            {Object.entries(MOOD_EMOJIS).map(([moodKey, emoji]) => (
+              <SelectItem key={moodKey} value={moodKey}>
+                {emoji} {moodKey.charAt(0).toUpperCase() + moodKey.slice(1)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div>
+        <Label htmlFor="tags">Tags (comma-separated)</Label>
+        <Input
+          id="tags"
+          value={tags}
+          onChange={(e) => setTags(e.target.value)}
+          placeholder="work, personal, growth..."
+          className="mt-1"
+        />
+      </div>
+
+      <div className="flex justify-end gap-2">
+        <Button variant="outline" onClick={onCancel}>
+          Cancel
+        </Button>
+        <Button onClick={handleSave}>
+          Save Changes
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export function EnhancedEntriesList() {
   const [selectedEntries, setSelectedEntries] = useState<number[]>([]);
   const [showSearchFilters, setShowSearchFilters] = useState(false);
   const [showFolderManager, setShowFolderManager] = useState(false);
   const [searchFilters, setSearchFilters] = useState<any>(null);
   const [sidebarFilter, setSidebarFilter] = useState<string>("all");
+  const [editingEntry, setEditingEntry] = useState<JournalEntry | null>(null);
+  const [deletingEntryId, setDeletingEntryId] = useState<number | null>(null);
 
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -142,6 +221,52 @@ export function EnhancedEntriesList() {
     },
   });
 
+  // Edit mutation
+  const editMutation = useMutation({
+    mutationFn: async ({ id, updates }: { id: number; updates: Partial<JournalEntry> }) => {
+      await apiRequest(`/api/entries/${id}`, "PUT", updates);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/entries"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/entries/search"] });
+      setEditingEntry(null);
+      toast({
+        title: "Entry updated",
+        description: "Entry has been updated successfully.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Failed to update entry",
+        description: error.message || "An error occurred while updating the entry.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Delete mutation
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await apiRequest(`/api/entries/${id}`, "DELETE");
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/entries"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/entries/search"] });
+      setDeletingEntryId(null);
+      toast({
+        title: "Entry deleted",
+        description: "Entry has been deleted successfully.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Failed to delete entry",
+        description: error.message || "An error occurred while deleting the entry.",
+        variant: "destructive",
+      });
+    },
+  });
+
   // Filter entries based on sidebar selection
   const filteredEntries = (() => {
     if (!entries) return [];
@@ -202,6 +327,26 @@ export function EnhancedEntriesList() {
 
   const handleDownloadSingle = (entryId: number) => {
     downloadMutation.mutate([entryId]);
+  };
+
+  const handleEdit = (entry: JournalEntry) => {
+    setEditingEntry(entry);
+  };
+
+  const handleDelete = (entryId: number) => {
+    setDeletingEntryId(entryId);
+  };
+
+  const confirmDelete = () => {
+    if (deletingEntryId) {
+      deleteMutation.mutate(deletingEntryId);
+    }
+  };
+
+  const handleSaveEdit = (updates: Partial<JournalEntry>) => {
+    if (editingEntry) {
+      editMutation.mutate({ id: editingEntry.id, updates });
+    }
   };
 
   const getFolderName = (folderId?: number) => {
@@ -395,6 +540,8 @@ export function EnhancedEntriesList() {
                 entry={entry}
                 isSelected={selectedEntries.includes(entry.id)}
                 onSelect={handleSelectEntry}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
                 onPin={handlePin}
                 onMoveToFolder={handleMoveToFolder}
                 onDownloadSingle={handleDownloadSingle}
@@ -498,6 +645,8 @@ export function EnhancedEntriesList() {
                 entry={entry}
                 isSelected={selectedEntries.includes(entry.id)}
                 onSelect={handleSelectEntry}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
                 onPin={handlePin}
                 onMoveToFolder={handleMoveToFolder}
                 onDownloadSingle={handleDownloadSingle}
@@ -519,6 +668,37 @@ export function EnhancedEntriesList() {
           </Card>
         )}
       </div>
+
+      {/* Edit Entry Dialog */}
+      <Dialog open={!!editingEntry} onOpenChange={() => setEditingEntry(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Edit Entry</DialogTitle>
+          </DialogHeader>
+          {editingEntry && <EditEntryForm entry={editingEntry} onSave={handleSaveEdit} onCancel={() => setEditingEntry(null)} />}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deletingEntryId} onOpenChange={() => setDeletingEntryId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Entry</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this journal entry? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setDeletingEntryId(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDelete}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Delete Entry
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
@@ -527,6 +707,8 @@ interface EntryCardProps {
   entry: JournalEntry;
   isSelected: boolean;
   onSelect: (id: number) => void;
+  onEdit: (entry: JournalEntry) => void;
+  onDelete: (id: number) => void;
   onPin: (entry: JournalEntry) => void;
   onMoveToFolder: (id: number, folderId: number | null) => void;
   onDownloadSingle: (id: number) => void;
@@ -539,6 +721,8 @@ function EntryCard({
   entry, 
   isSelected, 
   onSelect, 
+  onEdit,
+  onDelete,
   onPin, 
   onMoveToFolder, 
   onDownloadSingle,
@@ -586,6 +770,23 @@ function EntryCard({
             </PopoverTrigger>
             <PopoverContent align="end" className="w-48 p-1">
               <div className="space-y-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start text-left h-8"
+                  onClick={() => onEdit(entry)}
+                >
+                  ✏️ Edit Entry
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start text-left h-8 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
+                  onClick={() => onDelete(entry.id)}
+                >
+                  🗑️ Delete Entry
+                </Button>
+                <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
                 <Button
                   variant="ghost"
                   size="sm"

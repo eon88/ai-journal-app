@@ -64,6 +64,8 @@ export interface IStorage {
   getAllJournalEntries(userId: number): Promise<JournalEntry[]>;
   getRecentJournalEntries(userId: number, limit: number): Promise<JournalEntry[]>;
   getEntriesByDateRange(userId: number, startDate: Date, endDate: Date): Promise<JournalEntry[]>;
+  updateJournalEntry(userId: number, id: number, updates: Partial<InsertJournalEntry>): Promise<JournalEntry | undefined>;
+  deleteJournalEntry(userId: number, id: number): Promise<boolean>;
   updateJournalEntryReflection(userId: number, id: number, reflection: AIReflection): Promise<JournalEntry | undefined>;
   
   // Stats and gamification
@@ -233,6 +235,23 @@ export class DatabaseStorage implements IStorage {
         )
       )
       .orderBy(desc(journalEntries.createdAt));
+  }
+
+  async updateJournalEntry(userId: number, id: number, updates: Partial<InsertJournalEntry>): Promise<JournalEntry | undefined> {
+    const [entry] = await db
+      .update(journalEntries)
+      .set(updates)
+      .where(and(eq(journalEntries.id, id), eq(journalEntries.userId, userId)))
+      .returning();
+    return entry;
+  }
+
+  async deleteJournalEntry(userId: number, id: number): Promise<boolean> {
+    const result = await db
+      .delete(journalEntries)
+      .where(and(eq(journalEntries.id, id), eq(journalEntries.userId, userId)))
+      .returning();
+    return result.length > 0;
   }
 
   async updateJournalEntryReflection(userId: number, id: number, reflection: AIReflection): Promise<JournalEntry | undefined> {
