@@ -55,39 +55,51 @@ export function GrowthDashboard() {
       </h2>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        {/* Mood Trends Chart */}
+        {/* Emotional Landscape Cards */}
         <div>
           <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
             <Calendar className="w-4 h-4" />
             Emotional Landscape
           </h3>
           {metrics.moodTrends.length > 0 ? (
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={metrics.moodTrends}>
-                <XAxis 
-                  dataKey="mood" 
-                  fontSize={12}
-                  angle={-45}
-                  textAnchor="end"
-                  height={60}
-                />
-                <YAxis fontSize={12} />
-                <Tooltip 
-                  formatter={(value: number, name: string, props: any) => [
-                    `${value} entries (${props.payload.percentage}%)`,
-                    'Count'
-                  ]}
-                />
-                <Bar dataKey="count" radius={4}>
-                  {metrics.moodTrends.map((entry, index) => (
-                    <Cell 
-                      key={`cell-${index}`} 
-                      fill={moodColors[entry.mood.toLowerCase()] || "#6b7280"} 
-                    />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+            <div className="space-y-3">
+              {metrics.moodTrends.slice(0, 3).map((mood, index) => {
+                const moodColor = moodColors[mood.mood.toLowerCase()] || "#6b7280";
+                const bgColor = index === 0 ? "from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20" :
+                               index === 1 ? "from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20" :
+                               "from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20";
+                const borderColor = index === 0 ? "border-emerald-200 dark:border-emerald-700" :
+                                   index === 1 ? "border-blue-200 dark:border-blue-700" :
+                                   "border-purple-200 dark:border-purple-700";
+                const textColor = index === 0 ? "text-emerald-700 dark:text-emerald-300" :
+                                 index === 1 ? "text-blue-700 dark:text-blue-300" :
+                                 "text-purple-700 dark:text-purple-300";
+                const iconBg = index === 0 ? "bg-emerald-100 dark:bg-emerald-800" :
+                              index === 1 ? "bg-blue-100 dark:bg-blue-800" :
+                              "bg-purple-100 dark:bg-purple-800";
+                const iconColor = index === 0 ? "text-emerald-600 dark:text-emerald-400" :
+                                 index === 1 ? "text-blue-600 dark:text-blue-400" :
+                                 "text-purple-600 dark:text-purple-400";
+                
+                return (
+                  <div key={mood.mood} className={`bg-gradient-to-r ${bgColor} p-4 rounded-lg border ${borderColor}`}>
+                    <div className="flex items-center gap-3">
+                      <div className={`p-2 ${iconBg} rounded-lg`}>
+                        <div className={`w-5 h-5 rounded-full ${iconColor}`} style={{ backgroundColor: moodColor }} />
+                      </div>
+                      <div>
+                        <div className={`text-2xl font-bold ${textColor}`}>
+                          {mood.percentage}%
+                        </div>
+                        <div className={`text-sm capitalize ${iconColor}`}>
+                          {mood.mood} ({mood.count} entries)
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           ) : (
             <div className="h-48 flex items-center justify-center text-gray-500 dark:text-gray-400 text-sm">
               No mood data yet. Start adding moods to your entries!
