@@ -266,10 +266,41 @@ export class DatabaseStorage implements IStorage {
       return newStats;
     }
     
+    // SAFEGUARD: Verify level consistency on every stats fetch
+    const calculatedLevel = this.calculateLevel(stats.xpPoints);
+    const calculatedTitle = this.calculateLevelTitle(calculatedLevel);
+    
+    if (stats.level !== calculatedLevel || stats.title !== calculatedTitle) {
+      console.warn(`Level inconsistency detected for user ${userId}: DB level ${stats.level} vs calculated ${calculatedLevel}`);
+      
+      // Auto-correct the inconsistency
+      const [correctedStats] = await db
+        .update(userStats)
+        .set({
+          level: calculatedLevel,
+          title: calculatedTitle,
+          updatedAt: new Date(),
+        })
+        .where(eq(userStats.userId, userId))
+        .returning();
+      
+      return correctedStats;
+    }
+    
     return stats;
   }
 
   async updateUserStats(userId: number, updateData: Partial<UserStats>): Promise<UserStats> {
+    // SAFEGUARD: Always recalculate level and title when XP changes
+    if (updateData.xpPoints !== undefined) {
+      const calculatedLevel = this.calculateLevel(updateData.xpPoints);
+      const calculatedTitle = this.calculateLevelTitle(calculatedLevel);
+      
+      // Override level and title with calculated values to prevent inconsistencies
+      updateData.level = calculatedLevel;
+      updateData.title = calculatedTitle;
+    }
+    
     const [updatedStats] = await db
       .update(userStats)
       .set({
@@ -753,6 +784,36 @@ export class DatabaseStorage implements IStorage {
     }
     
     return level;
+  }
+  
+  // SAFEGUARD: Database integrity check to fix level inconsistencies
+  async verifyAndFixLevelConsistency(): Promise<{ checkedUsers: number; fixedUsers: number }> {
+    const allStats = await db.select().from(userStats);
+    let checkedUsers = 0;
+    let fixedUsers = 0;
+    
+    for (const stats of allStats) {
+      checkedUsers++;
+      const calculatedLevel = this.calculateLevel(stats.xpPoints);
+      const calculatedTitle = this.calculateLevelTitle(calculatedLevel);
+      
+      if (stats.level !== calculatedLevel || stats.title !== calculatedTitle) {
+        console.log(`Fixing level inconsistency for user ${stats.userId}: ${stats.level} → ${calculatedLevel}`);
+        
+        await db
+          .update(userStats)
+          .set({
+            level: calculatedLevel,
+            title: calculatedTitle,
+            updatedAt: new Date(),
+          })
+          .where(eq(userStats.userId, stats.userId));
+        
+        fixedUsers++;
+      }
+    }
+    
+    return { checkedUsers, fixedUsers };
   }
 
   calculateLevelTitle(level: number): string {

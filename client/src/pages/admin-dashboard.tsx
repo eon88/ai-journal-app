@@ -32,7 +32,8 @@ import {
   Mail,
   User,
   Gift,
-  Zap
+  Zap,
+  Shield
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -201,6 +202,29 @@ export default function AdminDashboard() {
     },
   });
 
+  // Level integrity check mutation
+  const levelCheckMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest("/api/admin/fix-level-consistency", "POST", {});
+      return await response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Level Integrity Check Completed!",
+        description: data.report,
+      });
+      // Refresh user data to see any fixes
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users-detailed"] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Failed to run level check",
+        description: error.message || "An error occurred during the level integrity check",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleGiftXP = () => {
     if (!selectedUserId || !xpAmount || parseInt(xpAmount) <= 0) {
       toast({
@@ -297,14 +321,16 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* XP Gifting Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Gift className="w-5 h-5 text-yellow-500" />
-              Gift XP to Users
-            </CardTitle>
-          </CardHeader>
+        {/* Admin Tools Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* XP Gifting Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Gift className="w-5 h-5 text-yellow-500" />
+                Gift XP to Users
+              </CardTitle>
+            </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
@@ -364,7 +390,45 @@ export default function AdminDashboard() {
               </div>
             </div>
           </CardContent>
-        </Card>
+          </Card>
+
+          {/* Level Integrity Check Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Shield className="w-5 h-5 text-blue-500" />
+                Level Integrity Check
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Scan all users for level/XP inconsistencies and automatically fix them. This ensures users have the correct level based on their XP points.
+                </p>
+                
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                  <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2">What this does:</h4>
+                  <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
+                    <li>• Checks all user stats for level consistency</li>
+                    <li>• Recalculates proper level based on XP points</li>
+                    <li>• Updates incorrect titles to match levels</li>
+                    <li>• Reports how many users were fixed</li>
+                  </ul>
+                </div>
+                
+                <Button 
+                  onClick={() => levelCheckMutation.mutate()}
+                  disabled={levelCheckMutation.isPending}
+                  className="w-full flex items-center gap-2"
+                  variant="outline"
+                >
+                  <Shield className="w-4 h-4" />
+                  {levelCheckMutation.isPending ? "Checking..." : "Run Level Integrity Check"}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Summary Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

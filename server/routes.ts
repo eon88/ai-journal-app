@@ -2075,6 +2075,29 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
     }
   });
 
+  // Admin Level Integrity Check endpoint (Admin only)
+  app.post("/api/admin/fix-level-consistency", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+    try {
+      console.log(`Admin ${req.user.username} initiated level consistency check`);
+      
+      // Run the integrity check
+      const result = await storage.verifyAndFixLevelConsistency();
+      
+      res.json({
+        success: true,
+        message: `Level consistency check completed`,
+        checkedUsers: result.checkedUsers,
+        fixedUsers: result.fixedUsers,
+        report: result.fixedUsers > 0 
+          ? `Fixed ${result.fixedUsers} out of ${result.checkedUsers} users with level inconsistencies`
+          : `All ${result.checkedUsers} users have consistent levels`
+      });
+    } catch (error) {
+      console.error("Error in level consistency check:", error);
+      res.status(500).json({ message: "Failed to run level consistency check" });
+    }
+  });
+
   // Forum API routes
   
   // Get forum categories
