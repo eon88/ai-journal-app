@@ -95,39 +95,78 @@ export function GrowthDashboard() {
           )}
         </div>
 
-        {/* Writing Frequency */}
+        {/* Achievement Summary */}
         <div>
           <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
-            <Calendar className="w-4 h-4" />
-            Writing Activity
+            <AdventureIcons.Trophy size={16} className="text-yellow-500" />
+            Your Journey Stats
           </h3>
-          {metrics.writingFrequency.length > 0 ? (
-            <ResponsiveContainer width="100%" height={200}>
-              <LineChart data={metrics.writingFrequency.slice(-14)}>
-                <XAxis 
-                  dataKey="date" 
-                  fontSize={12}
-                  tickFormatter={(date) => new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                />
-                <YAxis fontSize={12} />
-                <Tooltip 
-                  labelFormatter={(date) => new Date(date).toLocaleDateString()}
-                  formatter={(value: number) => [`${value} entries`, 'Count']}
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="count" 
-                  stroke="#3b82f6" 
-                  strokeWidth={2}
-                  dot={{ fill: "#3b82f6", strokeWidth: 2, r: 4 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          ) : (
-            <div className="h-48 flex items-center justify-center text-gray-500 dark:text-gray-400 text-sm">
-              Keep writing to see your activity patterns!
+          <div className="space-y-4">
+            {/* Total Entries */}
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-100 dark:bg-blue-800 rounded-lg">
+                  <AdventureIcons.Scroll size={20} className="text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-blue-700 dark:text-blue-300">
+                    {metrics.totalEntries}
+                  </div>
+                  <div className="text-sm text-blue-600 dark:text-blue-400">
+                    Total Journal Entries
+                  </div>
+                </div>
+              </div>
             </div>
-          )}
+
+            {/* Streak Achievement */}
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 p-4 rounded-lg border border-green-200 dark:border-green-700">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-green-100 dark:bg-green-800 rounded-lg">
+                  <AdventureIcons.Fire size={20} className="text-green-600 dark:text-green-400" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-green-700 dark:text-green-300">
+                    {metrics.longestStreak}
+                  </div>
+                  <div className="text-sm text-green-600 dark:text-green-400">
+                    Best Writing Streak (days)
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* XP Achievement */}
+            <div className="bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20 p-4 rounded-lg border border-purple-200 dark:border-purple-700">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-purple-100 dark:bg-purple-800 rounded-lg">
+                  <AdventureIcons.Star size={20} className="text-purple-600 dark:text-purple-400" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-purple-700 dark:text-purple-300">
+                    {metrics.xpPoints}
+                  </div>
+                  <div className="text-sm text-purple-600 dark:text-purple-400">
+                    Experience Points Earned
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Encouragement Message */}
+            <div className="text-center pt-2">
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                {metrics.totalEntries === 0 
+                  ? "Start your journey today!" 
+                  : metrics.totalEntries < 5 
+                  ? "Great start! Keep building your practice 📝" 
+                  : metrics.totalEntries < 20 
+                  ? "You're building momentum! 🚀" 
+                  : "Impressive dedication to self-reflection! 🌟"
+                }
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
