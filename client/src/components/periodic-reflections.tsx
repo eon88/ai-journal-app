@@ -84,13 +84,13 @@ export function PeriodicReflections() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div className="text-center">
-        <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">Periodic Reflections</h2>
+        <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-3">Periodic Reflections</h2>
         <p className="text-gray-900 dark:text-white">Get AI-powered insights about your journaling patterns over time</p>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid md:grid-cols-2 gap-8">
         {/* Weekly Reflection */}
         <div className="glass-card-transparent rounded-xl shadow-sm p-6">
           <div className="mb-6">

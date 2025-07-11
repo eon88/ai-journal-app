@@ -79,8 +79,12 @@ export default function Home() {
           {/* Main Content Grid */}
           <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left Column - Journal Entry */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-8">
               <JournalEntryForm />
+              
+              {/* Spacer for better visual separation */}
+              <div className="h-4"></div>
+              
               <PeriodicReflections />
             </div>
             
@@ -94,7 +98,7 @@ export default function Home() {
         </div>
         
         {/* Community Link Section */}
-        <div className="text-center py-8">
+        <div className="text-center py-12">
           <div className="glass-card-transparent rounded-xl p-8 max-w-md mx-auto">
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Join Our Community</h3>
             <p className="text-gray-700 dark:text-gray-300 mb-6">
