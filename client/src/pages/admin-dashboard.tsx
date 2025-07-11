@@ -177,10 +177,8 @@ export default function AdminDashboard() {
   // XP Gifting mutation
   const giftXPMutation = useMutation({
     mutationFn: async ({ userId, xpAmount, reason }: { userId: number; xpAmount: number; reason: string }) => {
-      return await apiRequest("/api/admin/gift-xp", {
-        method: "POST",
-        body: { userId, xpAmount, reason },
-      });
+      const response = await apiRequest("/api/admin/gift-xp", "POST", { userId, xpAmount, reason });
+      return await response.json();
     },
     onSuccess: (data) => {
       toast({
