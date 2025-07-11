@@ -577,6 +577,20 @@ export class DatabaseStorage implements IStorage {
   }
 
   async completeChallenge(userId: number, challengeId: number): Promise<DailyChallenge> {
+    // Get the challenge first to access the prompt
+    const [existingChallenge] = await db
+      .select()
+      .from(dailyChallenges)
+      .where(eq(dailyChallenges.id, challengeId));
+
+    if (!existingChallenge) {
+      throw new Error("Challenge not found");
+    }
+
+    if (existingChallenge.status !== 'accepted' || existingChallenge.acceptedUserId !== userId) {
+      throw new Error("Challenge must be accepted before it can be completed");
+    }
+
     // Verify the user has written a journal entry today
     const today = new Date().toISOString().split('T')[0];
     const todayEntries = await db
@@ -591,24 +605,19 @@ export class DatabaseStorage implements IStorage {
       throw new Error("You must write a journal entry today to complete the challenge");
     }
 
-    // Verify the journal entry has at least 100 characters
-    const totalCharacters = todayEntries.reduce((total, entry) => total + entry.content.length, 0);
+    // Calculate total characters excluding the challenge prompt
+    const challengePrompt = existingChallenge.prompt;
+    const totalCharacters = todayEntries.reduce((total, entry) => {
+      // If the entry contains the challenge prompt, subtract it from the count
+      let effectiveContent = entry.content;
+      if (effectiveContent.includes(challengePrompt)) {
+        effectiveContent = effectiveContent.replace(challengePrompt, '').trim();
+      }
+      return total + effectiveContent.length;
+    }, 0);
+
     if (totalCharacters < 100) {
-      throw new Error(`Your journal entry must be at least 100 characters long to complete the challenge. Currently: ${totalCharacters}/100 characters.`);
-    }
-
-    // Check if challenge was accepted by this user
-    const [existingChallenge] = await db
-      .select()
-      .from(dailyChallenges)
-      .where(eq(dailyChallenges.id, challengeId));
-
-    if (!existingChallenge) {
-      throw new Error("Challenge not found");
-    }
-
-    if (existingChallenge.status !== 'accepted' || existingChallenge.acceptedUserId !== userId) {
-      throw new Error("Challenge must be accepted before it can be completed");
+      throw new Error(`You must write at least 100 characters beyond the challenge prompt to complete the challenge. Currently: ${totalCharacters}/100 characters.`);
     }
 
     const [challenge] = await db

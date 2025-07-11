@@ -162,7 +162,7 @@ export function DailyChallenge() {
           </Badge>
         </div>
         <CardDescription>
-          {isCompleted ? "Completed!" : isAccepted ? "Accepted - Write a journal entry (minimum 100 characters) to complete" : "Accept the challenge to begin"}
+          {isCompleted ? "Completed!" : isAccepted ? "Accepted - Write a journal entry (minimum 100 characters beyond the challenge prompt) to complete" : "Accept the challenge to begin"}
         </CardDescription>
       </CardHeader>
       <CardContent>
