@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { HelpCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { HelpCircle, ChevronDown, ChevronUp, Trophy } from "lucide-react";
 import { AdventureIcons } from "@/components/icons/adventure-icons";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -145,13 +145,21 @@ export function MobileScoreboard() {
                 </div>
               )}
 
-              {/* Game Rules Button */}
-              <Link to="/rules">
-                <Button variant="outline" size="sm" className="w-full">
-                  <HelpCircle className="w-4 h-4 mr-2" />
-                  Game Rules & XP System
-                </Button>
-              </Link>
+              {/* Links */}
+              <div className="space-y-2">
+                <Link to="/forum-leaderboard">
+                  <Button variant="outline" size="sm" className="w-full">
+                    <Trophy className="w-4 h-4 mr-2" />
+                    Leaderboard
+                  </Button>
+                </Link>
+                <Link to="/rules">
+                  <Button variant="outline" size="sm" className="w-full">
+                    <HelpCircle className="w-4 h-4 mr-2" />
+                    Game Rules & XP System
+                  </Button>
+                </Link>
+              </div>
             </CardContent>
           </Card>
         </CollapsibleContent>

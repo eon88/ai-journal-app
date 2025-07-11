@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { HelpCircle } from "lucide-react";
+import { HelpCircle, Trophy } from "lucide-react";
 import { AdventureIcons } from "@/components/icons/adventure-icons";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -83,8 +83,14 @@ export function LevelSidebar() {
         </div>
       </div>
       
-      {/* Rules Link */}
-      <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+      {/* Links */}
+      <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 space-y-2">
+        <Link to="/forum-leaderboard">
+          <Button variant="outline" size="sm" className="w-full text-xs">
+            <Trophy className="w-3 h-3 mr-2" />
+            Leaderboard
+          </Button>
+        </Link>
         <Link to="/rules">
           <Button variant="outline" size="sm" className="w-full text-xs">
             <HelpCircle className="w-3 h-3 mr-2" />
