@@ -58,7 +58,7 @@ export default function VaultPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: insights, isLoading } = useQuery<SavedInsight[]>({
+  const { data: insights, isLoading, error } = useQuery<SavedInsight[]>({
     queryKey: ["/api/insights"],
   });
 
@@ -132,6 +132,26 @@ export default function VaultPage() {
               {[1, 2, 3, 4, 5, 6].map((i) => (
                 <div key={i} className="h-32 bg-gray-200 rounded"></div>
               ))}
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error) {
+    console.error("Vault page error:", error);
+    return (
+      <div className="min-h-screen font-inter">
+        <Header />
+        <main className="max-w-6xl mx-auto px-4 py-8">
+          <div className="text-center py-12">
+            <div className="text-red-500 mb-4">
+              <Archive className="w-12 h-12 mx-auto mb-2" />
+              <h2 className="text-xl font-semibold">Unable to load vault</h2>
+              <p className="text-sm mt-2">Please try refreshing the page or logging in again</p>
+              <p className="text-xs mt-2 text-gray-500">Error: {error.message}</p>
             </div>
           </div>
         </main>
