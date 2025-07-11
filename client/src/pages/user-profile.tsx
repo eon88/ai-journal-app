@@ -391,11 +391,11 @@ export default function UserProfile() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground mb-4">
+                <p className="text-gray-600 dark:text-white mb-4">
                   Your journal entries and personal reflections are stored securely in our encrypted database. 
                   You maintain full ownership and control over your data at all times.
                 </p>
-                <div className="space-y-3 text-muted-foreground">
+                <div className="space-y-3 text-gray-600 dark:text-white">
                   <div className="flex items-start gap-3">
                     <div className="w-2 h-2 bg-journal-primary rounded-full mt-2"></div>
                     <div>All entries are encrypted at rest and in transit</div>
@@ -422,7 +422,7 @@ export default function UserProfile() {
                   Information about how your data is protected
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-3 text-muted-foreground">
+              <CardContent className="space-y-3 text-gray-600 dark:text-white">
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
                   <div>Your journal entries are encrypted and stored securely</div>
@@ -454,21 +454,21 @@ export default function UserProfile() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-muted-foreground mb-1">
+                  <label className="block text-sm font-medium text-gray-600 dark:text-white mb-1">
                     Display Name
                   </label>
-                  <div className="text-foreground">{userName}</div>
+                  <div className="text-gray-900 dark:text-white">{userName}</div>
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-muted-foreground mb-1">
+                  <label className="block text-sm font-medium text-gray-600 dark:text-white mb-1">
                     Member Since
                   </label>
-                  <div className="text-foreground">{joinDate}</div>
+                  <div className="text-gray-900 dark:text-white">{joinDate}</div>
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-muted-foreground mb-1">
+                  <label className="block text-sm font-medium text-gray-600 dark:text-white mb-1">
                     Account Type
                   </label>
                   <Badge variant="secondary" className="bg-gradient-to-r from-amber-500 to-orange-500 text-white">
@@ -484,12 +484,12 @@ export default function UserProfile() {
                   <Trash2 className="w-5 h-5" />
                   Danger Zone
                 </CardTitle>
-                <CardDescription className="text-muted-foreground">
+                <CardDescription className="text-gray-600 dark:text-white">
                   Irreversible actions for your account
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground mb-4">
+                <p className="text-gray-600 dark:text-white mb-4">
                   Deleting your account will permanently remove all your journal entries, 
                   insights, and progress. This action cannot be undone.
                 </p>
