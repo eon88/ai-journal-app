@@ -178,6 +178,15 @@ export const userChallengeCompletions = pgTable("user_challenge_completions", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// User custom tags for quick selection
+export const userCustomTags = pgTable("user_custom_tags", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  tagName: varchar("tag_name", { length: 50 }).notNull(),
+  displayOrder: integer("display_order").default(0).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const savedInsights = pgTable("saved_insights", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id).notNull(),
@@ -249,6 +258,9 @@ export type InsertDailyChallenge = typeof dailyChallenges.$inferInsert;
 
 export type UserChallengeCompletion = typeof userChallengeCompletions.$inferSelect;
 export type InsertUserChallengeCompletion = typeof userChallengeCompletions.$inferInsert;
+
+export type UserCustomTag = typeof userCustomTags.$inferSelect;
+export type InsertUserCustomTag = typeof userCustomTags.$inferInsert;
 
 export type UserAccount = typeof userAccounts.$inferSelect;
 export type InsertUserAccount = typeof userAccounts.$inferInsert;

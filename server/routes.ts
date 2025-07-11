@@ -1,7 +1,7 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertJournalEntrySchema, insertFolderSchema, type AIReflection, type WeeklyReflection, type MonthlyReflection, type JournalEntry, type Folder, parseBulletSymbol, users, folders, journalEntries, LEVEL_UNLOCKS, getUnlockedFeatures, forumCategories, forumPosts, forumReplies, forumLikes, forumModerators, userStats, dailyChallenges, userChallengeCompletions } from "@shared/schema";
+import { insertJournalEntrySchema, insertFolderSchema, type AIReflection, type WeeklyReflection, type MonthlyReflection, type JournalEntry, type Folder, parseBulletSymbol, users, folders, journalEntries, LEVEL_UNLOCKS, getUnlockedFeatures, forumCategories, forumPosts, forumReplies, forumLikes, forumModerators, userStats, dailyChallenges, userChallengeCompletions, userCustomTags } from "@shared/schema";
 import { db } from "./db";
 import { z } from "zod";
 import { eq, and, desc, asc, like, or, inArray } from "drizzle-orm";
@@ -1140,6 +1140,121 @@ Wrap these practical steps with mystical language, but the actions must be concr
     } catch (error) {
       console.error("Error accepting challenge:", error);
       res.status(500).json({ error: "Failed to accept challenge" });
+    }
+  });
+
+  // Custom tags routes
+  app.get("/api/custom-tags", isAuthenticated, async (req: any, res: Response) => {
+    try {
+      const userId = req.user.id;
+      const tags = await storage.getUserCustomTags(userId);
+      res.json(tags);
+    } catch (error) {
+      console.error("Error fetching custom tags:", error);
+      res.status(500).json({ error: "Failed to fetch custom tags" });
+    }
+  });
+
+  app.post("/api/custom-tags", isAuthenticated, async (req: any, res: Response) => {
+    try {
+      const userId = req.user.id;
+      const { tagName, displayOrder } = req.body;
+      
+      if (!tagName || typeof tagName !== 'string' || tagName.trim().length === 0) {
+        return res.status(400).json({ error: "Tag name is required" });
+      }
+      
+      if (tagName.length > 50) {
+        return res.status(400).json({ error: "Tag name must be 50 characters or less" });
+      }
+      
+      // Get user's current level to check tag limit
+      const progress = await storage.getUserProgress(userId);
+      const currentTags = await storage.getUserCustomTags(userId);
+      const tagLimit = storage.getCustomTagLimit(progress.currentLevel);
+      
+      if (currentTags.length >= tagLimit) {
+        return res.status(400).json({ 
+          error: "Tag limit reached", 
+          limit: tagLimit, 
+          currentLevel: progress.currentLevel 
+        });
+      }
+      
+      // Check for duplicate tag names
+      const isDuplicate = currentTags.some(tag => 
+        tag.tagName.toLowerCase() === tagName.trim().toLowerCase()
+      );
+      
+      if (isDuplicate) {
+        return res.status(400).json({ error: "Tag name already exists" });
+      }
+      
+      const tag = await storage.createCustomTag(userId, {
+        tagName: tagName.trim(),
+        displayOrder: displayOrder || currentTags.length
+      });
+      
+      res.json(tag);
+    } catch (error) {
+      console.error("Error creating custom tag:", error);
+      res.status(500).json({ error: "Failed to create custom tag" });
+    }
+  });
+
+  app.put("/api/custom-tags/:id", isAuthenticated, async (req: any, res: Response) => {
+    try {
+      const userId = req.user.id;
+      const tagId = parseInt(req.params.id);
+      const { tagName, displayOrder } = req.body;
+      
+      if (tagName && (typeof tagName !== 'string' || tagName.trim().length === 0)) {
+        return res.status(400).json({ error: "Tag name cannot be empty" });
+      }
+      
+      if (tagName && tagName.length > 50) {
+        return res.status(400).json({ error: "Tag name must be 50 characters or less" });
+      }
+      
+      // Check for duplicate tag names (excluding current tag)
+      if (tagName) {
+        const currentTags = await storage.getUserCustomTags(userId);
+        const isDuplicate = currentTags.some(tag => 
+          tag.id !== tagId && tag.tagName.toLowerCase() === tagName.trim().toLowerCase()
+        );
+        
+        if (isDuplicate) {
+          return res.status(400).json({ error: "Tag name already exists" });
+        }
+      }
+      
+      const updates: any = {};
+      if (tagName) updates.tagName = tagName.trim();
+      if (displayOrder !== undefined) updates.displayOrder = displayOrder;
+      
+      const tag = await storage.updateCustomTag(userId, tagId, updates);
+      
+      if (!tag) {
+        return res.status(404).json({ error: "Tag not found" });
+      }
+      
+      res.json(tag);
+    } catch (error) {
+      console.error("Error updating custom tag:", error);
+      res.status(500).json({ error: "Failed to update custom tag" });
+    }
+  });
+
+  app.delete("/api/custom-tags/:id", isAuthenticated, async (req: any, res: Response) => {
+    try {
+      const userId = req.user.id;
+      const tagId = parseInt(req.params.id);
+      
+      await storage.deleteCustomTag(userId, tagId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting custom tag:", error);
+      res.status(500).json({ error: "Failed to delete custom tag" });
     }
   });
 

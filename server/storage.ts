@@ -17,6 +17,9 @@ import {
   userChallengeCompletions,
   type UserChallengeCompletion,
   type InsertUserChallengeCompletion,
+  userCustomTags,
+  type UserCustomTag,
+  type InsertUserCustomTag,
   userGoals,
   type UserGoal,
   type InsertUserGoal,
@@ -80,10 +83,17 @@ export interface IStorage {
   checkAndUnlockBadges(userId: number): Promise<Badge[]>;
   
   // Daily challenges
-  getTodaysChallenge(userId: number): Promise<DailyChallenge | null>;
+  getTodaysChallenge(userId: number): Promise<any | null>;
   generateDailyChallenge(userId: number, date: string): Promise<DailyChallenge>;
-  acceptChallenge(userId: number, challengeId: number): Promise<DailyChallenge>;
-  completeChallenge(userId: number, challengeId: number): Promise<DailyChallenge>;
+  acceptChallenge(userId: number, challengeId: number): Promise<any>;
+  completeChallenge(userId: number, challengeId: number): Promise<any>;
+  
+  // Custom tags
+  getUserCustomTags(userId: number): Promise<UserCustomTag[]>;
+  createCustomTag(userId: number, tagData: InsertUserCustomTag): Promise<UserCustomTag>;
+  updateCustomTag(userId: number, tagId: number, updates: Partial<InsertUserCustomTag>): Promise<UserCustomTag | undefined>;
+  deleteCustomTag(userId: number, tagId: number): Promise<void>;
+  getCustomTagLimit(userLevel: number): number;
   
   // Goals management (Premium feature)
   createGoal(userId: number, goal: InsertUserGoal): Promise<UserGoal>;
@@ -859,6 +869,45 @@ export class DatabaseStorage implements IStorage {
   async removeForumModerator(userId: number): Promise<void> {
     await db.delete(forumModerators)
       .where(eq(forumModerators.userId, userId));
+  }
+
+  // Custom tags methods
+  async getUserCustomTags(userId: number): Promise<UserCustomTag[]> {
+    return await db
+      .select()
+      .from(userCustomTags)
+      .where(eq(userCustomTags.userId, userId))
+      .orderBy(userCustomTags.displayOrder);
+  }
+
+  async createCustomTag(userId: number, tagData: InsertUserCustomTag): Promise<UserCustomTag> {
+    const [tag] = await db
+      .insert(userCustomTags)
+      .values({ ...tagData, userId })
+      .returning();
+    return tag;
+  }
+
+  async updateCustomTag(userId: number, tagId: number, updates: Partial<InsertUserCustomTag>): Promise<UserCustomTag | undefined> {
+    const [tag] = await db
+      .update(userCustomTags)
+      .set(updates)
+      .where(and(eq(userCustomTags.id, tagId), eq(userCustomTags.userId, userId)))
+      .returning();
+    return tag;
+  }
+
+  async deleteCustomTag(userId: number, tagId: number): Promise<void> {
+    await db
+      .delete(userCustomTags)
+      .where(and(eq(userCustomTags.id, tagId), eq(userCustomTags.userId, userId)));
+  }
+
+  getCustomTagLimit(userLevel: number): number {
+    // Levels 1-3: 5 tags, Levels 4-7: 10 tags, Levels 8-10: 15 tags
+    if (userLevel <= 3) return 5;
+    if (userLevel <= 7) return 10;
+    return 15;
   }
 
   async getAllUsersWithDetails(): Promise<any[]> {

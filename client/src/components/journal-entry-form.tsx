@@ -8,7 +8,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { BULLET_SYMBOLS } from "@shared/schema";
 import { BulletSymbolSelector } from "@/components/bullet-symbol-selector";
-import { TagSuggestions } from "@/components/tag-suggestions";
+import { CustomTagsSelector } from "@/components/custom-tags-selector";
 import { useProgressiveFeatures } from "@/hooks/useProgressiveFeatures";
 import { EntryLimitGate } from "@/components/feature-gate";
 import { LevelUpModal } from "@/components/level-up-modal";
@@ -20,6 +20,7 @@ export function JournalEntryForm() {
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [selectedSymbol, setSelectedSymbol] = useState<string>("");
   const [tags, setTags] = useState<string[]>([]);
+  const [manualTag, setManualTag] = useState("");
   const [showLevelUpModal, setShowLevelUpModal] = useState(false);
   const [levelUpData, setLevelUpData] = useState<{
     newLevel: number;
@@ -77,6 +78,7 @@ export function JournalEntryForm() {
       setSelectedMood(null);
       setSelectedSymbol("");
       setTags([]);
+      setManualTag("");
       
       // Check for level up
       if (result.levelUpdate) {
@@ -278,7 +280,12 @@ export function JournalEntryForm() {
                 </select>
               </div>
 
-              <TagSuggestions tags={tags} onTagsChange={setTags} />
+              <CustomTagsSelector
+                selectedTags={tags}
+                onTagsChange={setTags}
+                manualTag={manualTag}
+                onManualTagChange={setManualTag}
+              />
             </div>
 
             <div className="flex items-center justify-between pt-4">
