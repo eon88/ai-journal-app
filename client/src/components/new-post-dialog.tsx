@@ -85,25 +85,25 @@ export function NewPostDialog({ defaultCategoryId }: NewPostDialogProps = {}) {
           New Discussion
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] bg-gray-900 border-gray-700">
+      <DialogContent className="sm:max-w-[600px] bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle className="text-white">Start a New Discussion</DialogTitle>
-            <DialogDescription className="text-gray-300">
+            <DialogTitle className="text-gray-900 dark:text-white">Start a New Discussion</DialogTitle>
+            <DialogDescription className="text-gray-600 dark:text-gray-300">
               Share your thoughts, ask questions, or start a meaningful conversation with the community.
             </DialogDescription>
           </DialogHeader>
           
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="category" className="text-white">Category</Label>
+              <Label htmlFor="category" className="text-gray-900 dark:text-white">Category</Label>
               <Select value={categoryId} onValueChange={setCategoryId}>
-                <SelectTrigger className="bg-gray-800 border-gray-600 text-white">
-                  <SelectValue placeholder="Select a category" className="text-gray-400" />
+                <SelectTrigger className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
+                  <SelectValue placeholder="Select a category" className="text-gray-500 dark:text-gray-400" />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-gray-600">
+                <SelectContent className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600">
                   {categories.map((category: ForumCategory) => (
-                    <SelectItem key={category.id} value={category.id.toString()} className="text-white">
+                    <SelectItem key={category.id} value={category.id.toString()} className="text-gray-900 dark:text-white">
                       {category.name}
                     </SelectItem>
                   ))}
@@ -112,25 +112,25 @@ export function NewPostDialog({ defaultCategoryId }: NewPostDialogProps = {}) {
             </div>
             
             <div className="grid gap-2">
-              <Label htmlFor="title" className="text-white">Title</Label>
+              <Label htmlFor="title" className="text-gray-900 dark:text-white">Title</Label>
               <Input
                 id="title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="What's your discussion about?"
-                className="bg-gray-800 border-gray-600 text-white placeholder:text-gray-400"
+                className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
                 maxLength={200}
               />
             </div>
             
             <div className="grid gap-2">
-              <Label htmlFor="content" className="text-white">Content</Label>
+              <Label htmlFor="content" className="text-gray-900 dark:text-white">Content</Label>
               <Textarea
                 id="content"
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 placeholder="Share your thoughts, experiences, or questions..."
-                className="bg-gray-800 border-gray-600 text-white placeholder:text-gray-400 min-h-[120px] resize-none"
+                className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 min-h-[120px] resize-none"
                 rows={6}
               />
             </div>
@@ -141,7 +141,7 @@ export function NewPostDialog({ defaultCategoryId }: NewPostDialogProps = {}) {
               type="button"
               variant="outline"
               onClick={() => setOpen(false)}
-              className="border-gray-600 text-gray-300 hover:bg-gray-800"
+              className="border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
             >
               Cancel
             </Button>
