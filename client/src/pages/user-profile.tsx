@@ -197,8 +197,8 @@ export default function UserProfile() {
                       <Compass className="w-6 h-6 text-journal-primary" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-foreground">Life Path Discovery</h3>
-                      <p className="text-sm text-muted-foreground">Take the questionnaire to discover your unique path</p>
+                      <h3 className="font-semibold text-gray-900 dark:text-white">Life Path Discovery</h3>
+                      <p className="text-sm text-gray-600 dark:text-white">Take the questionnaire to discover your unique path</p>
                     </div>
                   </div>
                   <Button 
@@ -217,7 +217,7 @@ export default function UserProfile() {
                   <div className="text-lg sm:text-xl md:text-2xl font-bold text-journal-primary mb-1">
                     {userStats?.totalEntries || 0}
                   </div>
-                  <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">Journal Entries</div>
+                  <div className="text-xs sm:text-sm text-gray-600 dark:text-white">Journal Entries</div>
                 </CardContent>
               </Card>
               
@@ -226,7 +226,7 @@ export default function UserProfile() {
                   <div className="text-lg sm:text-xl md:text-2xl font-bold text-journal-primary mb-1">
                     {userStats?.currentStreak || 0}
                   </div>
-                  <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">Current Streak</div>
+                  <div className="text-xs sm:text-sm text-gray-600 dark:text-white">Current Streak</div>
                 </CardContent>
               </Card>
               
@@ -235,15 +235,15 @@ export default function UserProfile() {
                   <div className="text-lg sm:text-xl md:text-2xl font-bold text-journal-primary mb-1">
                     {totalWords.toLocaleString()}
                   </div>
-                  <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">Words Written</div>
+                  <div className="text-xs sm:text-sm text-gray-600 dark:text-white">Words Written</div>
                 </CardContent>
               </Card>
             </div>
 
             <Card className="glass-card">
               <CardHeader className="pb-3 sm:pb-6">
-                <CardTitle className="text-foreground text-base sm:text-lg">Recent Activity</CardTitle>
-                <CardDescription className="text-muted-foreground text-xs sm:text-sm">
+                <CardTitle className="text-gray-900 dark:text-white text-base sm:text-lg">Recent Activity</CardTitle>
+                <CardDescription className="text-gray-600 dark:text-white text-xs sm:text-sm">
                   Your journaling journey at a glance
                 </CardDescription>
               </CardHeader>
@@ -251,15 +251,15 @@ export default function UserProfile() {
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
                     <div className="w-2 h-2 bg-journal-primary rounded-full"></div>
-                    <span className="text-foreground">Longest streak: {userStats?.longestStreak || 0} days</span>
+                    <span className="text-gray-900 dark:text-white">Longest streak: {userStats?.longestStreak || 0} days</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-foreground">XP Points: {userStats?.xpPoints || 0}</span>
+                    <span className="text-gray-900 dark:text-white">XP Points: {userStats?.xpPoints || 0}</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                    <span className="text-foreground">Achievement level: {userStats?.level || 1}</span>
+                    <span className="text-gray-900 dark:text-white">Achievement level: {userStats?.level || 1}</span>
                   </div>
                 </div>
               </CardContent>
@@ -270,11 +270,11 @@ export default function UserProfile() {
             <TabsContent value="analysis" className="space-y-4 sm:space-y-6">
             <Card className="glass-card">
               <CardHeader>
-                <CardTitle className="text-foreground flex items-center gap-2">
+                <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2">
                   <Target className="w-5 h-5" />
                   Life Path Analysis
                 </CardTitle>
-                <CardDescription className="text-muted-foreground">
+                <CardDescription className="text-gray-600 dark:text-white">
                   View your personalized AI-generated life path insights based on your questionnaire responses
                 </CardDescription>
               </CardHeader>
@@ -293,19 +293,19 @@ export default function UserProfile() {
             <TabsContent value="settings" className="space-y-4 sm:space-y-6">
             <Card className="glass-card">
               <CardHeader>
-                <CardTitle className="text-foreground flex items-center gap-2">
+                <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2">
                   <Bell className="w-5 h-5" />
                   Notifications
                 </CardTitle>
-                <CardDescription className="text-muted-foreground">
+                <CardDescription className="text-gray-600 dark:text-white">
                   Manage how you want to be notified
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="font-medium text-foreground">Email Notifications</div>
-                    <div className="text-sm text-muted-foreground">Receive updates via email</div>
+                    <div className="font-medium text-gray-900 dark:text-white">Email Notifications</div>
+                    <div className="text-sm text-gray-600 dark:text-white">Receive updates via email</div>
                   </div>
                   <Switch 
                     checked={settings.emailNotifications}
@@ -315,8 +315,8 @@ export default function UserProfile() {
                 
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="font-medium text-foreground">Weekly Reflections</div>
-                    <div className="text-sm text-muted-foreground">Get notified about weekly insights</div>
+                    <div className="font-medium text-gray-900 dark:text-white">Weekly Reflections</div>
+                    <div className="text-sm text-gray-600 dark:text-white">Get notified about weekly insights</div>
                   </div>
                   <Switch 
                     checked={settings.weeklyReflections}
@@ -326,8 +326,8 @@ export default function UserProfile() {
                 
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="font-medium text-foreground">Daily Challenges</div>
-                    <div className="text-sm text-muted-foreground">Receive daily journaling prompts</div>
+                    <div className="font-medium text-gray-900 dark:text-white">Daily Challenges</div>
+                    <div className="text-sm text-gray-600 dark:text-white">Receive daily journaling prompts</div>
                   </div>
                   <Switch 
                     checked={settings.dailyChallenges}
@@ -337,8 +337,8 @@ export default function UserProfile() {
                 
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="font-medium text-foreground">Progress Reminders</div>
-                    <div className="text-sm text-muted-foreground">Gentle reminders to journal</div>
+                    <div className="font-medium text-gray-900 dark:text-white">Progress Reminders</div>
+                    <div className="text-sm text-gray-600 dark:text-white">Gentle reminders to journal</div>
                   </div>
                   <Switch 
                     checked={settings.progressReminders}
@@ -350,19 +350,19 @@ export default function UserProfile() {
 
             <Card className="glass-card">
               <CardHeader>
-                <CardTitle className="text-foreground flex items-center gap-2">
+                <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2">
                   <Palette className="w-5 h-5" />
                   Appearance
                 </CardTitle>
-                <CardDescription className="text-muted-foreground">
+                <CardDescription className="text-gray-600 dark:text-white">
                   Customize your journaling experience
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="font-medium text-foreground">Dark Mode</div>
-                    <div className="text-sm text-muted-foreground">Use dark theme (recommended)</div>
+                    <div className="font-medium text-gray-900 dark:text-white">Dark Mode</div>
+                    <div className="text-sm text-gray-600 dark:text-white">Use dark theme (recommended)</div>
                   </div>
                   <Switch 
                     checked={settings.darkMode}
@@ -382,11 +382,11 @@ export default function UserProfile() {
             <TabsContent value="data" className="space-y-4 sm:space-y-6">
             <Card className="glass-card">
               <CardHeader>
-                <CardTitle className="text-foreground flex items-center gap-2">
+                <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2">
                   <Shield className="w-5 h-5" />
                   Data Management
                 </CardTitle>
-                <CardDescription className="text-muted-foreground">
+                <CardDescription className="text-gray-600 dark:text-white">
                   Information about your data and storage
                 </CardDescription>
               </CardHeader>
@@ -414,11 +414,11 @@ export default function UserProfile() {
 
             <Card className="glass-card">
               <CardHeader>
-                <CardTitle className="text-foreground flex items-center gap-2">
+                <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2">
                   <Shield className="w-5 h-5" />
                   Privacy & Security
                 </CardTitle>
-                <CardDescription className="text-muted-foreground">
+                <CardDescription className="text-gray-600 dark:text-white">
                   Information about how your data is protected
                 </CardDescription>
               </CardHeader>
@@ -447,8 +447,8 @@ export default function UserProfile() {
             <TabsContent value="account" className="space-y-4 sm:space-y-6">
             <Card className="glass-card">
               <CardHeader>
-                <CardTitle className="text-foreground">Account Information</CardTitle>
-                <CardDescription className="text-muted-foreground">
+                <CardTitle className="text-gray-900 dark:text-white">Account Information</CardTitle>
+                <CardDescription className="text-gray-600 dark:text-white">
                   Manage your account settings
                 </CardDescription>
               </CardHeader>

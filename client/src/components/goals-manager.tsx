@@ -160,7 +160,7 @@ export function GoalsManager() {
       case "high": return "text-red-600 dark:text-red-400";
       case "medium": return "text-yellow-600 dark:text-yellow-400";
       case "low": return "text-green-600 dark:text-green-400";
-      default: return "text-muted-foreground";
+      default: return "text-gray-600 dark:text-white";
     }
   };
 
@@ -188,11 +188,11 @@ export function GoalsManager() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
             <Target className="w-6 h-6 text-purple-500" />
             Personal Goals
           </h2>
-          <p className="text-muted-foreground">
+          <p className="text-gray-600 dark:text-white">
             Set and track your life goals with AI-powered progress assessment
           </p>
         </div>
@@ -371,11 +371,11 @@ export function GoalsManager() {
       {goals.length === 0 ? (
         <Card className="glass-card">
           <CardContent className="flex flex-col items-center justify-center py-12">
-            <Target className="w-12 h-12 text-muted-foreground mb-4" />
-            <CardTitle className="text-xl text-center text-muted-foreground mb-2">
+            <Target className="w-12 h-12 text-gray-600 dark:text-white mb-4" />
+            <CardTitle className="text-xl text-center text-gray-900 dark:text-white mb-2">
               No Goals Yet
             </CardTitle>
-            <CardDescription className="text-center mb-4">
+            <CardDescription className="text-center text-gray-600 dark:text-white mb-4">
               Start your journey by creating your first personal goal. AI will help track your progress in weekly and monthly reflections.
             </CardDescription>
             <Button 
@@ -395,7 +395,7 @@ export function GoalsManager() {
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2">
                     {getStatusIcon(goal.status)}
-                    <CardTitle className="text-lg text-foreground">{goal.title}</CardTitle>
+                    <CardTitle className="text-lg text-gray-900 dark:text-white">{goal.title}</CardTitle>
                   </div>
                   <div className="flex items-center gap-2">
                     <Badge variant="outline" className={getPriorityColor(goal.priority)}>
@@ -404,7 +404,7 @@ export function GoalsManager() {
                   </div>
                 </div>
                 {goal.description && (
-                  <CardDescription className="text-muted-foreground">
+                  <CardDescription className="text-gray-600 dark:text-white">
                     {goal.description}
                   </CardDescription>
                 )}
@@ -412,14 +412,14 @@ export function GoalsManager() {
               
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Category:</span>
+                  <span className="text-gray-600 dark:text-white">Category:</span>
                   <Badge variant="secondary">{goal.category}</Badge>
                 </div>
                 
                 {goal.targetDate && (
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Target Date:</span>
-                    <div className="flex items-center gap-1 text-foreground">
+                    <span className="text-gray-600 dark:text-white">Target Date:</span>
+                    <div className="flex items-center gap-1 text-gray-900 dark:text-white">
                       <Calendar className="w-4 h-4" />
                       {new Date(goal.targetDate).toLocaleDateString()}
                     </div>
@@ -428,8 +428,8 @@ export function GoalsManager() {
                 
                 {goal.progressNotes && (
                   <div>
-                    <p className="text-sm text-muted-foreground mb-1">Progress Notes:</p>
-                    <p className="text-sm text-foreground bg-muted p-2 rounded-md">
+                    <p className="text-sm text-gray-600 dark:text-white mb-1">Progress Notes:</p>
+                    <p className="text-sm text-gray-900 dark:text-white bg-muted p-2 rounded-md">
                       {goal.progressNotes}
                     </p>
                   </div>

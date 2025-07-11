@@ -116,7 +116,7 @@ export function SubscriptionManager() {
       {/* Current Account Status */}
       <Card className="glass-card">
         <CardHeader>
-          <CardTitle className="text-foreground flex items-center gap-2">
+          <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2">
             {account?.accountType === "free" ? (
               <User className="w-5 h-5 text-blue-500" />
             ) : (
@@ -124,17 +124,17 @@ export function SubscriptionManager() {
             )}
             Current Plan
           </CardTitle>
-          <CardDescription className="text-muted-foreground">
+          <CardDescription className="text-gray-600 dark:text-white">
             Your current subscription and features
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-semibold text-foreground">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                 {account?.accountType === "free" ? "Free Account" : "Premium Account"}
               </h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-gray-600 dark:text-white">
                 {account?.accountType === "free" 
                   ? "Limited features - upgrade for full access" 
                   : "Full premium features"}
@@ -153,10 +153,10 @@ export function SubscriptionManager() {
           <Separator />
 
           <div>
-            <h4 className="font-medium text-foreground mb-2">Current Features:</h4>
+            <h4 className="font-medium text-gray-900 dark:text-white mb-2">Current Features:</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               {account?.features?.map((feature, index) => (
-                <div key={index} className="flex items-center gap-2 text-sm text-muted-foreground">
+                <div key={index} className="flex items-center gap-2 text-sm text-gray-600 dark:text-white">
                   <Check className="w-4 h-4 text-green-500" />
                   {feature}
                 </div>
@@ -183,8 +183,8 @@ export function SubscriptionManager() {
       {account?.accountType === "free_beta" && (
         <div className="space-y-4">
           <div>
-            <h2 className="text-xl font-semibold text-foreground">Upgrade Options</h2>
-            <p className="text-muted-foreground">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Upgrade Options</h2>
+            <p className="text-gray-600 dark:text-white">
               Choose a plan to continue your journey after the beta period
             </p>
           </div>
@@ -204,14 +204,14 @@ export function SubscriptionManager() {
                 )}
 
                 <CardHeader>
-                  <CardTitle className="text-foreground flex items-center gap-2">
+                  <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2">
                     <Zap className="w-5 h-5 text-purple-500" />
                     {plan.name}
                   </CardTitle>
-                  <CardDescription className="text-muted-foreground">
+                  <CardDescription className="text-gray-600 dark:text-white">
                     {plan.description}
                   </CardDescription>
-                  <div className="text-2xl font-bold text-foreground">
+                  <div className="text-2xl font-bold text-gray-900 dark:text-white">
                     {formatPrice(plan.price, plan.currency, plan.interval)}
                     {plan.interval === "year" && (
                       <span className="text-sm font-normal text-green-600 ml-2">
@@ -226,7 +226,7 @@ export function SubscriptionManager() {
                     {plan.features.map((feature, index) => (
                       <div key={index} className="flex items-center gap-2 text-sm">
                         <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
-                        <span className="text-muted-foreground">{feature}</span>
+                        <span className="text-gray-600 dark:text-white">{feature}</span>
                       </div>
                     ))}
                   </div>
