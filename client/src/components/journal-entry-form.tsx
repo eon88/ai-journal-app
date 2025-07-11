@@ -223,55 +223,57 @@ export function JournalEntryForm() {
               </div>
             </div>
 
-            {/* Bullet Symbol Selector */}
-            <div className="mb-4">
-              <div className="flex items-center gap-3 mb-3">
-                <PenTool className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Choose Entry Symbol:</span>
+            {/* Selected Items Display */}
+            {(selectedMood || tags.length > 0 || selectedSymbol) && (
+              <div className="flex flex-wrap gap-2 mb-4 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
                 {selectedSymbol && (
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    Selected: {selectedSymbol} {BULLET_SYMBOLS[selectedSymbol as keyof typeof BULLET_SYMBOLS]?.name}
-                  </span>
+                  <Badge variant="outline" className="flex items-center gap-1">
+                    {selectedSymbol} Symbol
+                    <X 
+                      className="h-3 w-3 cursor-pointer" 
+                      onClick={() => setSelectedSymbol("")}
+                    />
+                  </Badge>
                 )}
+                {selectedMood && (
+                  <Badge variant="secondary" className="flex items-center gap-1">
+                    {moodOptions.find(m => m.value === selectedMood)?.label}
+                    <X 
+                      className="h-3 w-3 cursor-pointer" 
+                      onClick={() => setSelectedMood(null)}
+                    />
+                  </Badge>
+                )}
+                {tags.map((tag) => (
+                  <Badge key={tag} variant="outline" className="flex items-center gap-1">
+                    #{tag}
+                    <X 
+                      className="h-3 w-3 cursor-pointer" 
+                      onClick={() => setTags(tags.filter(t => t !== tag))}
+                    />
+                  </Badge>
+                ))}
               </div>
-              <BulletSymbolSelector 
-                selectedSymbol={selectedSymbol}
-                onSymbolSelect={setSelectedSymbol}
-              />
-            </div>
+            )}
 
-            {/* Mood and Tags Section */}
-            <div className="flex flex-wrap gap-2 mb-4">
-              {selectedMood && (
-                <Badge variant="secondary" className="flex items-center gap-1">
-                  {moodOptions.find(m => m.value === selectedMood)?.label}
-                  <X 
-                    className="h-3 w-3 cursor-pointer" 
-                    onClick={() => setSelectedMood(null)}
-                  />
-                </Badge>
-              )}
-              {tags.map((tag) => (
-                <Badge key={tag} variant="outline" className="flex items-center gap-1">
-                  #{tag}
-                  <X 
-                    className="h-3 w-3 cursor-pointer" 
-                    onClick={() => setTags(tags.filter(t => t !== tag))}
-                  />
-                </Badge>
-              ))}
-            </div>
+            {/* Simple Controls Row */}
+            <div className="flex flex-wrap gap-3 mb-4">
+              {/* Symbol Selector */}
+              <div className="flex-1 min-w-[200px]">
+                <BulletSymbolSelector 
+                  selectedSymbol={selectedSymbol}
+                  onSymbolSelect={setSelectedSymbol}
+                />
+              </div>
 
-            {/* Mood and Tags Controls */}
-            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 space-y-3 mb-4">
-              <div className="flex items-center gap-3">
-                <Smile className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+              {/* Mood Selector */}
+              <div className="flex-1 min-w-[200px]">
                 <select 
                   value={selectedMood || ""} 
                   onChange={(e) => setSelectedMood(e.target.value || null)}
-                  className="w-48 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-journal-primary bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-journal-primary bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
                 >
-                  <option value="">Select mood...</option>
+                  <option value="">How are you feeling?</option>
                   {moodOptions.map((mood) => (
                     <option key={mood.value} value={mood.value}>
                       {mood.label}
@@ -279,7 +281,10 @@ export function JournalEntryForm() {
                   ))}
                 </select>
               </div>
+            </div>
 
+            {/* Tags Section */}
+            <div className="mb-4">
               <CustomTagsSelector
                 selectedTags={tags}
                 onTagsChange={setTags}

@@ -69,87 +69,58 @@ export function CustomTagsSelector({
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <Label>Tags</Label>
-        <div className="flex gap-2">
-          <ManageTagsModal
-            trigger={
-              <Button variant="outline" size="sm" className="gap-2">
-                <Settings className="h-4 w-4" />
-                Create Tag Buttons
-              </Button>
-            }
-          />
-        </div>
-      </div>
-
-      {/* Custom tag buttons */}
-      {customTags.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {customTags.map((tag) => (
-            <Button
-              key={tag.id}
-              variant={selectedTags.includes(tag.tagName) ? "default" : "outline"}
-              size="sm"
-              onClick={() => handleTagToggle(tag.tagName)}
-              className="h-8 text-sm"
-            >
-              {tag.tagName}
-            </Button>
-          ))}
-        </div>
-      )}
-
-      {/* Manual tag input - always visible */}
-      <div className="space-y-2">
-        <Label className="text-sm">Add a tag manually:</Label>
-        <div className="flex gap-2">
-          <Input
-            placeholder="Type a tag and press Enter"
-            value={manualTag}
-            onChange={(e) => onManualTagChange(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleManualTagAdd();
-              }
-            }}
-            className="h-9"
-          />
+      {/* Tag buttons and management */}
+      <div className="flex flex-wrap items-center gap-2">
+        {customTags.map((tag) => (
           <Button
-            onClick={handleManualTagAdd}
+            key={tag.id}
+            variant={selectedTags.includes(tag.tagName) ? "default" : "outline"}
             size="sm"
-            className="h-9"
-            disabled={!manualTag.trim()}
+            onClick={() => handleTagToggle(tag.tagName)}
+            className="h-8 text-sm"
           >
-            <Plus className="h-4 w-4" />
+            {tag.tagName}
           </Button>
-        </div>
+        ))}
+        
+        <ManageTagsModal
+          trigger={
+            <Button variant="ghost" size="sm" className="gap-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+              <Settings className="h-4 w-4" />
+              Manage Tags
+            </Button>
+          }
+        />
       </div>
 
-      {/* Selected tags display */}
-      {selectedTags.length > 0 && (
-        <div className="space-y-2">
-          <Label className="text-sm">Selected Tags:</Label>
-          <div className="flex flex-wrap gap-2">
-            {selectedTags.map((tag) => (
-              <Badge
-                key={tag}
-                variant="secondary"
-                className="cursor-pointer"
-                onClick={() => handleRemoveTag(tag)}
-              >
-                {tag}
-                <span className="ml-1 text-xs opacity-60">×</span>
-              </Badge>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* Simple manual input */}
+      <div className="flex gap-2">
+        <Input
+          placeholder="Add a tag and press Enter"
+          value={manualTag}
+          onChange={(e) => onManualTagChange(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleManualTagAdd();
+            }
+          }}
+          className="h-9 text-sm"
+        />
+        <Button
+          onClick={handleManualTagAdd}
+          size="sm"
+          variant="outline"
+          className="h-9"
+          disabled={!manualTag.trim()}
+        >
+          <Plus className="h-4 w-4" />
+        </Button>
+      </div>
 
       {/* Empty state */}
       {customTags.length === 0 && (
         <div className="text-sm text-muted-foreground">
-          No custom tag buttons yet. Click "Manage" above to create reusable tag buttons, or use the text input below for one-time tags.
+          No custom tag buttons yet. Click "Manage Tags" to create reusable tag buttons.
         </div>
       )}
     </div>
