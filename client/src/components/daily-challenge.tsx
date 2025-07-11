@@ -217,18 +217,13 @@ export function DailyChallenge() {
                     </div>
                   )}
 
-                  <div className="space-y-2">
-                    <div className="text-xs text-muted-foreground text-center">
-                      💡 Tip: Your journal entry must be at least 100 characters long to complete this challenge
-                    </div>
-                    <Button
-                      onClick={handleComplete}
-                      disabled={completeMutation.isPending}
-                      className="w-full"
-                    >
-                      {completeMutation.isPending ? "Completing..." : "Mark as Complete"}
-                    </Button>
-                  </div>
+                  <Button
+                    onClick={handleComplete}
+                    disabled={completeMutation.isPending}
+                    className="w-full"
+                  >
+                    {completeMutation.isPending ? "Completing..." : "Mark as Complete"}
+                  </Button>
                 </>
               )}
             </div>
