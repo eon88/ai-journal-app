@@ -420,7 +420,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Analyze journal entry with AI (legacy endpoint for compatibility)
-  app.post("/api/analyze", async (req, res) => {
+  app.post("/api/analyze", isAuthenticated, async (req: any, res) => {
     try {
       const { entry } = req.body;
       
@@ -922,7 +922,7 @@ Keep it encouraging but honest, focusing on patterns and momentum.`;
   });
 
   // Life Path Analysis endpoint
-  app.post("/api/life-path-analysis", async (req: Request, res: Response) => {
+  app.post("/api/life-path-analysis", isAuthenticated, async (req: any, res: Response) => {
     try {
       console.log("Life path analysis request received:", req.body);
       const { answers } = req.body;
@@ -1016,7 +1016,7 @@ IMPORTANT: All values must be strings only. No nested objects or arrays allowed.
   });
 
   // Merlin AI Assistant endpoint
-  app.post("/api/merlin/consult", async (req: Request, res: Response) => {
+  app.post("/api/merlin/consult", isAuthenticated, async (req: any, res: Response) => {
     try {
       const { mode, context, question, userName = "friend" } = req.body;
       
@@ -1505,7 +1505,7 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
   });
 
   // User settings endpoint
-  app.post("/api/user/settings", async (req: Request, res: Response) => {
+  app.post("/api/user/settings", isAuthenticated, async (req: any, res: Response) => {
     try {
       const { settingType, settings } = req.body;
       
@@ -1541,7 +1541,7 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
   });
 
   // Get user settings endpoint
-  app.get("/api/user/settings", async (req: Request, res: Response) => {
+  app.get("/api/user/settings", isAuthenticated, async (req: any, res: Response) => {
     try {
       // In production, this would fetch from database
       // For now, return default settings
@@ -1570,7 +1570,7 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
   });
 
   // Account management routes
-  app.get("/api/account/status", async (req: Request, res: Response) => {
+  app.get("/api/account/status", isAuthenticated, async (req: any, res: Response) => {
     try {
       // Check if user has completed upgrade simulation
       // In production, this would check actual subscription status from database
