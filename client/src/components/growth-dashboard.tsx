@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, LineChart, Line, Tooltip } from "recharts";
-import { Hash, Calendar } from "lucide-react";
+import { Hash, Calendar, Trophy, ScrollText, Flame, Star } from "lucide-react";
 import { AdventureIcons } from "@/components/icons/adventure-icons";
 
 interface GrowthMetrics {
@@ -50,7 +50,7 @@ export function GrowthDashboard() {
   return (
     <div className="bg-gray-100/80 dark:bg-gray-800/50 rounded-lg shadow-sm border p-6">
       <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-        <AdventureIcons.TreeGrowth size={20} className="text-green-500" />
+        <Trophy size={20} className="text-green-500" />
         Growth Map
       </h2>
 
@@ -98,7 +98,7 @@ export function GrowthDashboard() {
         {/* Achievement Summary */}
         <div>
           <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
-            <AdventureIcons.Trophy size={16} className="text-yellow-500" />
+            <Trophy size={16} className="text-yellow-500" />
             Your Journey Stats
           </h3>
           <div className="space-y-4">
@@ -106,7 +106,7 @@ export function GrowthDashboard() {
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-blue-100 dark:bg-blue-800 rounded-lg">
-                  <AdventureIcons.Scroll size={20} className="text-blue-600 dark:text-blue-400" />
+                  <ScrollText size={20} className="text-blue-600 dark:text-blue-400" />
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-blue-700 dark:text-blue-300">
@@ -123,7 +123,7 @@ export function GrowthDashboard() {
             <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 p-4 rounded-lg border border-green-200 dark:border-green-700">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-green-100 dark:bg-green-800 rounded-lg">
-                  <AdventureIcons.Fire size={20} className="text-green-600 dark:text-green-400" />
+                  <Flame size={20} className="text-green-600 dark:text-green-400" />
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-green-700 dark:text-green-300">
@@ -140,7 +140,7 @@ export function GrowthDashboard() {
             <div className="bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20 p-4 rounded-lg border border-purple-200 dark:border-purple-700">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-purple-100 dark:bg-purple-800 rounded-lg">
-                  <AdventureIcons.Star size={20} className="text-purple-600 dark:text-purple-400" />
+                  <Star size={20} className="text-purple-600 dark:text-purple-400" />
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-purple-700 dark:text-purple-300">
