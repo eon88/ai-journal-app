@@ -591,6 +591,12 @@ export class DatabaseStorage implements IStorage {
       throw new Error("You must write a journal entry today to complete the challenge");
     }
 
+    // Verify the journal entry has at least 100 characters
+    const totalCharacters = todayEntries.reduce((total, entry) => total + entry.content.length, 0);
+    if (totalCharacters < 100) {
+      throw new Error(`Your journal entry must be at least 100 characters long to complete the challenge. Currently: ${totalCharacters}/100 characters.`);
+    }
+
     // Check if challenge was accepted by this user
     const [existingChallenge] = await db
       .select()

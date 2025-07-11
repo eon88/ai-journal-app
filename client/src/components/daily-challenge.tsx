@@ -50,6 +50,17 @@ export function DailyChallenge() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/challenge/today"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+      toast({
+        title: "Challenge Completed!",
+        description: `Congratulations! You've earned +${challenge?.xpReward} XP for completing today's challenge.`,
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Challenge Not Complete",
+        description: error.message || "Unable to complete challenge. Please ensure you've written a substantial journal entry.",
+        variant: "destructive",
+      });
     },
   });
 
@@ -151,7 +162,7 @@ export function DailyChallenge() {
           </Badge>
         </div>
         <CardDescription>
-          {isCompleted ? "Completed!" : isAccepted ? "Accepted - Write a journal entry to complete" : "Accept the challenge to begin"}
+          {isCompleted ? "Completed!" : isAccepted ? "Accepted - Write a journal entry (minimum 100 characters) to complete" : "Accept the challenge to begin"}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -206,13 +217,18 @@ export function DailyChallenge() {
                     </div>
                   )}
 
-                  <Button
-                    onClick={handleComplete}
-                    disabled={completeMutation.isPending}
-                    className="w-full"
-                  >
-                    {completeMutation.isPending ? "Completing..." : "Mark as Complete"}
-                  </Button>
+                  <div className="space-y-2">
+                    <div className="text-xs text-muted-foreground text-center">
+                      💡 Tip: Your journal entry must be at least 100 characters long to complete this challenge
+                    </div>
+                    <Button
+                      onClick={handleComplete}
+                      disabled={completeMutation.isPending}
+                      className="w-full"
+                    >
+                      {completeMutation.isPending ? "Completing..." : "Mark as Complete"}
+                    </Button>
+                  </div>
                 </>
               )}
             </div>
