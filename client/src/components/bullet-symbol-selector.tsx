@@ -8,9 +8,10 @@ import { useProgressiveFeatures } from "@/hooks/useProgressiveFeatures";
 interface BulletSymbolSelectorProps {
   selectedSymbol?: string;
   onSymbolSelect: (symbol: string) => void;
+  inline?: boolean;
 }
 
-export function BulletSymbolSelector({ selectedSymbol, onSymbolSelect }: BulletSymbolSelectorProps) {
+export function BulletSymbolSelector({ selectedSymbol, onSymbolSelect, inline = false }: BulletSymbolSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const { progress } = useProgressiveFeatures();
 
@@ -64,6 +65,77 @@ export function BulletSymbolSelector({ selectedSymbol, onSymbolSelect }: BulletS
       default: return "";
     }
   };
+
+  if (inline) {
+    return (
+      <div className="flex items-center gap-2">
+        {/* Common symbols - inline without labels */}
+        {commonSymbols.map((symbol) => {
+          const config = BULLET_SYMBOLS[symbol as keyof typeof BULLET_SYMBOLS];
+          return (
+            <Button
+              key={symbol}
+              variant={selectedSymbol === symbol ? "default" : "outline"}
+              size="sm"
+              className="h-8 w-8 p-0 text-sm flex-shrink-0"
+              onClick={() => onSymbolSelect(symbol)}
+              title={config?.name}
+            >
+              {symbol}
+            </Button>
+          );
+        })}
+        
+        {/* More symbols dropdown - only show if there are additional symbols */}
+        {additionalSymbols.length > 0 && (
+          <Popover open={isOpen} onOpenChange={setIsOpen}>
+            <PopoverTrigger asChild>
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="flex items-center gap-2 h-8 px-3 text-xs whitespace-nowrap"
+              >
+                More symbols
+                <ChevronDown className="h-3 w-3" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-96 p-4" side="bottom" align="start">
+              <div className="space-y-4">
+                <div className="text-sm font-medium">Additional symbols:</div>
+                
+                {Object.entries(filteredCategories).map(([category, symbols]) => (
+                  <div key={category} className="space-y-2">
+                    <div className="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">
+                      {category}
+                    </div>
+                    <div className="grid grid-cols-1 gap-1">
+                      {symbols.map((symbol) => {
+                        const config = BULLET_SYMBOLS[symbol as keyof typeof BULLET_SYMBOLS];
+                        return (
+                          <Button
+                            key={symbol}
+                            variant={selectedSymbol === symbol ? "default" : "ghost"}
+                            size="sm"
+                            className="flex items-center gap-2 h-auto px-3 py-2 text-left justify-start"
+                            onClick={() => handleSymbolClick(symbol)}
+                          >
+                            <span className="text-base flex-shrink-0">{symbol}</span>
+                            <span className="text-sm text-gray-600 dark:text-gray-400">
+                              {config?.name}
+                            </span>
+                          </Button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-3">

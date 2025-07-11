@@ -256,18 +256,17 @@ export function JournalEntryForm() {
               </div>
             )}
 
-            {/* Simple Controls - Stacked Vertically */}
-            <div className="space-y-3 mb-4">
-              {/* Symbol Selector */}
-              <div>
-                <BulletSymbolSelector 
-                  selectedSymbol={selectedSymbol}
-                  onSymbolSelect={setSelectedSymbol}
-                />
-              </div>
+            {/* Simple Controls - Single Line */}
+            <div className="flex items-center gap-3 mb-4 flex-wrap">
+              {/* Symbol Selector - Inline Version */}
+              <BulletSymbolSelector 
+                selectedSymbol={selectedSymbol}
+                onSymbolSelect={setSelectedSymbol}
+                inline={true}
+              />
 
               {/* Mood Selector */}
-              <div className="max-w-xs">
+              <div className="min-w-[120px]">
                 <select 
                   value={selectedMood || ""} 
                   onChange={(e) => setSelectedMood(e.target.value || null)}
