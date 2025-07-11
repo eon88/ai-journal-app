@@ -217,7 +217,8 @@ button,
 :not(.dark) .text-gray-800,
 :not(.dark) .text-white,
 :not(.dark) .text-white\/70,
-:not(.dark) .text-white\/80 {
+:not(.dark) .text-white\/80,
+:not(.dark) .font-medium {
   color: rgb(17, 24, 39) !important;
 }
 
@@ -230,7 +231,8 @@ button,
 .dark .text-gray-800,
 .dark .text-white,
 .dark .text-white\/70,
-.dark .text-white\/80 {
+.dark .text-white\/80,
+.dark .font-medium {
   color: rgb(229, 231, 235) !important;
 }
 
@@ -245,6 +247,67 @@ button,
 .dark .bg-white span,
 .dark .bg-white div {
   color: rgb(17, 24, 39) !important;
+}
+
+/* NUCLEAR OPTION: Force all text in Settings tab to be visible */
+[value="settings"] .font-medium,
+[value="settings"] .text-sm,
+[value="settings"] div,
+[data-state="active"][data-value="settings"] ~ div .font-medium,
+[data-state="active"][data-value="settings"] ~ div .text-sm,
+[data-state="active"][data-value="settings"] ~ div div {
+  color: rgb(17, 24, 39) !important;
+}
+
+.dark [value="settings"] .font-medium,
+.dark [value="settings"] .text-sm,
+.dark [value="settings"] div,
+.dark [data-state="active"][data-value="settings"] ~ div .font-medium,
+.dark [data-state="active"][data-value="settings"] ~ div .text-sm,
+.dark [data-state="active"][data-value="settings"] ~ div div {
+  color: rgb(229, 231, 235) !important;
+}
+
+/* Force all user profile tab content text to be visible */
+.user-profile-tabs *,
+.user-profile-tabs div,
+.user-profile-tabs span,
+.user-profile-tabs p,
+.user-profile-tabs .font-medium,
+.user-profile-tabs .text-sm {
+  color: rgb(17, 24, 39) !important;
+}
+
+.dark .user-profile-tabs *,
+.dark .user-profile-tabs div,
+.dark .user-profile-tabs span,
+.dark .user-profile-tabs p,
+.dark .user-profile-tabs .font-medium,
+.dark .user-profile-tabs .text-sm {
+  color: rgb(229, 231, 235) !important;
+}
+
+/* Absolute nuclear option - override ALL text in dark mode */
+html.dark body * {
+  color: rgb(229, 231, 235) !important;
+}
+
+html:not(.dark) body * {
+  color: rgb(17, 24, 39) !important;
+}
+
+/* Allow certain elements to keep their original colors */
+html.dark .text-blue-500,
+html.dark .text-green-500,
+html.dark .text-purple-500,
+html.dark .text-red-500,
+html.dark .text-yellow-500,
+html:not(.dark) .text-blue-500,
+html:not(.dark) .text-green-500,
+html:not(.dark) .text-purple-500,
+html:not(.dark) .text-red-500,
+html:not(.dark) .text-yellow-500 {
+  color: revert !important;
 }
 
 @layer utilities {

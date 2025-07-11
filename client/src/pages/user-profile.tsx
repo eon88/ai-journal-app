@@ -183,7 +183,7 @@ export default function UserProfile() {
           </div>
           
           {/* Tab Content Container */}
-          <div className="bg-white dark:bg-black border border-gray-200 dark:border-gray-700 rounded-lg p-6 sm:p-8 shadow-sm min-h-[500px] mt-12 sm:mt-16">
+          <div className="user-profile-tabs bg-white dark:bg-black border border-gray-200 dark:border-gray-700 rounded-lg p-6 sm:p-8 shadow-sm min-h-[500px] mt-12 sm:mt-16">
 
             {/* Overview Tab */}
             <TabsContent value="overview" className="space-y-4 sm:space-y-6">
