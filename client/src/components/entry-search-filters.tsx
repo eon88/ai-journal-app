@@ -100,6 +100,7 @@ export function EntrySearchFilters({ onSearch, onClear }: EntrySearchFiltersProp
           value={filters.query}
           onChange={(e) => setFilters({ ...filters, query: e.target.value })}
           onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+          className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
         />
       </div>
 
@@ -112,6 +113,7 @@ export function EntrySearchFilters({ onSearch, onClear }: EntrySearchFiltersProp
             value={tagInput}
             onChange={(e) => setTagInput(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleAddTag()}
+            className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
           />
           <Button onClick={handleAddTag} size="sm">Add</Button>
         </div>
@@ -175,6 +177,7 @@ export function EntrySearchFilters({ onSearch, onClear }: EntrySearchFiltersProp
             type="date"
             value={filters.dateFrom}
             onChange={(e) => setFilters({ ...filters, dateFrom: e.target.value })}
+            className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
           />
         </div>
         <div className="space-y-2">
@@ -183,6 +186,7 @@ export function EntrySearchFilters({ onSearch, onClear }: EntrySearchFiltersProp
             type="date"
             value={filters.dateTo}
             onChange={(e) => setFilters({ ...filters, dateTo: e.target.value })}
+            className="bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white"
           />
         </div>
       </div>
