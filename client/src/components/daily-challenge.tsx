@@ -7,6 +7,7 @@ import { CheckCircle, Star, Clock } from "lucide-react";
 import { AdventureIcons } from "@/components/icons/adventure-icons";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { setGlobalJournalText } from "@/hooks/useJournalEntry";
 
 interface DailyChallenge {
   id: number;
@@ -98,37 +99,24 @@ export function DailyChallenge() {
 
   const copyToJournalEntry = (text: string) => {
     try {
-      // First copy to clipboard as backup
+      // Copy to clipboard as backup
       navigator.clipboard.writeText(text);
       
-      // Try to find and populate the journal entry textarea
+      // Set the global journal text state
+      setGlobalJournalText(text);
+      
+      // Scroll to the journal entry form
       const textArea = document.querySelector('textarea[placeholder*="Write about your day"]') as HTMLTextAreaElement;
       if (textArea) {
-        // Set the value directly
-        textArea.value = text;
-        textArea.focus();
-        
-        // Trigger multiple events to ensure React picks up the change
-        const inputEvent = new Event('input', { bubbles: true });
-        const changeEvent = new Event('change', { bubbles: true });
-        textArea.dispatchEvent(inputEvent);
-        textArea.dispatchEvent(changeEvent);
-        
-        // Scroll to the journal entry form
         textArea.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        
-        // Show success message
-        toast({
-          title: "Challenge Prompt Added",
-          description: "The challenge prompt has been added to your journal entry!",
-        });
-      } else {
-        // If we can't find the textarea, just copy to clipboard
-        toast({
-          title: "Copied to Clipboard",
-          description: "Challenge prompt copied! Paste it into your journal entry.",
-        });
+        textArea.focus();
       }
+      
+      // Show success message
+      toast({
+        title: "Challenge Prompt Added",
+        description: "The challenge prompt has been added to your journal entry!",
+      });
     } catch (error) {
       console.error('Failed to copy challenge prompt:', error);
       toast({

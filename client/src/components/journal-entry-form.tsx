@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -12,8 +12,10 @@ import { TagSuggestions } from "@/components/tag-suggestions";
 import { useProgressiveFeatures } from "@/hooks/useProgressiveFeatures";
 import { EntryLimitGate } from "@/components/feature-gate";
 import { LevelUpModal } from "@/components/level-up-modal";
+import { useJournalEntry } from "@/hooks/useJournalEntry";
 
 export function JournalEntryForm() {
+  const { text: globalEntry, updateText } = useJournalEntry();
   const [entry, setEntry] = useState("");
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [selectedSymbol, setSelectedSymbol] = useState<string>("");
@@ -24,6 +26,13 @@ export function JournalEntryForm() {
     unlockedFeatures: string[];
     motivation: string;
   } | null>(null);
+
+  // Sync with global journal entry state
+  useEffect(() => {
+    if (globalEntry && globalEntry !== entry) {
+      setEntry(globalEntry);
+    }
+  }, [globalEntry]);
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -199,7 +208,10 @@ export function JournalEntryForm() {
               <Textarea 
                 id="entry"
                 value={entry}
-                onChange={(e) => setEntry(e.target.value)}
+                onChange={(e) => {
+                  setEntry(e.target.value);
+                  updateText(e.target.value);
+                }}
                 placeholder="Write about your day, thoughts, goals, or anything that comes to mind. The AI will help you reflect on your entry..."
                 rows={12}
                 className="w-full p-4 border border-journal-border rounded-lg focus:ring-2 focus:ring-journal-primary focus:border-transparent resize-none text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 leading-relaxed bg-transparent"
