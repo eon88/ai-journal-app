@@ -632,8 +632,15 @@ function EntryCard({
             {entry.tags && entry.tags.length > 0 && (
               <>
                 {entry.tags.slice(0, 3).map((tag, index) => (
-                  <Badge key={index} variant="outline" className="text-xs">
-                    {tag}
+                  <Badge 
+                    key={index} 
+                    variant={tag === "Daily Challenge" ? "default" : "outline"} 
+                    className={tag === "Daily Challenge" ? 
+                      "text-xs bg-yellow-500 text-yellow-900 hover:bg-yellow-600" : 
+                      "text-xs"
+                    }
+                  >
+                    {tag === "Daily Challenge" ? "🎯 " + tag : tag}
                   </Badge>
                 ))}
                 {entry.tags.length > 3 && (

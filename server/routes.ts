@@ -290,6 +290,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
             error: `When using a challenge prompt, you must write at least 100 characters beyond the prompt. Currently: ${effectiveContent.length}/100 characters.`
           });
         }
+        
+        // Automatically add "Daily Challenge" tag if not already present
+        const challengeTag = "Daily Challenge";
+        const existingTags = tags || [];
+        if (!existingTags.includes(challengeTag)) {
+          tags = [...existingTags, challengeTag];
+        }
       }
       
       // Check progressive gamification limits

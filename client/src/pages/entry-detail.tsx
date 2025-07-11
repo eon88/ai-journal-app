@@ -262,8 +262,15 @@ export default function EntryDetail() {
                 <div className="flex items-center gap-2 flex-wrap">
                   <Tag className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                   {entry.tags.map((tag, index) => (
-                    <Badge key={index} variant="outline" className="text-gray-700 dark:text-gray-300 border-gray-400 dark:border-gray-600">
-                      {tag}
+                    <Badge 
+                      key={index} 
+                      variant={tag === "Daily Challenge" ? "default" : "outline"} 
+                      className={tag === "Daily Challenge" ? 
+                        "bg-yellow-500 text-yellow-900 hover:bg-yellow-600 border-yellow-600" : 
+                        "text-gray-700 dark:text-gray-300 border-gray-400 dark:border-gray-600"
+                      }
+                    >
+                      {tag === "Daily Challenge" ? "🎯 " + tag : tag}
                     </Badge>
                   ))}
                 </div>
