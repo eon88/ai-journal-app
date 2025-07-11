@@ -406,7 +406,7 @@ export default function VaultPage() {
         ) : (
           <Card>
             <CardContent className="p-12 text-center">
-              <Vault className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+              <AdventureIcons.Vault className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                 {searchTerm || selectedCategory !== "all" || selectedSource !== "all" 
                   ? "No insights found" 
