@@ -256,10 +256,10 @@ export function JournalEntryForm() {
               </div>
             )}
 
-            {/* Simple Controls Row */}
-            <div className="flex flex-wrap gap-3 mb-4">
+            {/* Simple Controls - Stacked Vertically */}
+            <div className="space-y-3 mb-4">
               {/* Symbol Selector */}
-              <div className="flex-1 min-w-[200px]">
+              <div>
                 <BulletSymbolSelector 
                   selectedSymbol={selectedSymbol}
                   onSymbolSelect={setSelectedSymbol}
@@ -267,13 +267,13 @@ export function JournalEntryForm() {
               </div>
 
               {/* Mood Selector */}
-              <div className="flex-1 min-w-[200px]">
+              <div className="max-w-xs">
                 <select 
                   value={selectedMood || ""} 
                   onChange={(e) => setSelectedMood(e.target.value || null)}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-journal-primary bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
                 >
-                  <option value="">How are you feeling?</option>
+                  <option value="">Mood</option>
                   {moodOptions.map((mood) => (
                     <option key={mood.value} value={mood.value}>
                       {mood.label}

@@ -76,7 +76,7 @@ export function BulletSymbolSelector({ selectedSymbol, onSymbolSelect }: BulletS
               <Button
                 variant={selectedSymbol === symbol ? "default" : "outline"}
                 size="sm"
-                className="h-10 w-10 md:h-12 md:w-12 p-0 text-lg md:text-xl flex-shrink-0"
+                className="h-8 w-8 p-0 text-sm flex-shrink-0"
                 onClick={() => onSymbolSelect(symbol)}
                 title={config?.name}
               >
