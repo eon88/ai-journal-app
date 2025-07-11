@@ -68,41 +68,44 @@ export function BulletSymbolSelector({ selectedSymbol, onSymbolSelect, inline = 
 
   if (inline) {
     return (
-      <div className="flex items-center gap-2">
-        {/* Common symbols - inline without labels */}
-        {commonSymbols.map((symbol) => {
-          const config = BULLET_SYMBOLS[symbol as keyof typeof BULLET_SYMBOLS];
-          return (
-            <div key={symbol} className="flex flex-col items-center gap-1">
-              <Button
-                variant={selectedSymbol === symbol ? "default" : "outline"}
-                size="sm"
-                className="h-8 w-8 p-0 text-sm flex-shrink-0"
-                onClick={() => onSymbolSelect(symbol)}
-                title={config?.name}
-              >
-                {symbol}
-              </Button>
-              <span className="text-[10px] text-gray-500 dark:text-gray-400 text-center leading-none">
-                {getSymbolLabel(symbol)}
-              </span>
-            </div>
-          );
-        })}
+      <div className="flex items-start justify-between w-full">
+        {/* Left side: Common symbols equally spaced */}
+        <div className="flex items-center justify-start gap-2 flex-1">
+          {commonSymbols.map((symbol) => {
+            const config = BULLET_SYMBOLS[symbol as keyof typeof BULLET_SYMBOLS];
+            return (
+              <div key={symbol} className="flex flex-col items-center gap-1">
+                <Button
+                  variant={selectedSymbol === symbol ? "default" : "outline"}
+                  size="sm"
+                  className="h-8 w-8 p-0 text-sm flex-shrink-0"
+                  onClick={() => onSymbolSelect(symbol)}
+                  title={config?.name}
+                >
+                  {symbol}
+                </Button>
+                <span className="text-[10px] text-gray-500 dark:text-gray-400 text-center leading-none">
+                  {getSymbolLabel(symbol)}
+                </span>
+              </div>
+            );
+          })}
+        </div>
         
-        {/* More symbols dropdown - only show if there are additional symbols */}
+        {/* Right side: More symbols dropdown */}
         {additionalSymbols.length > 0 && (
-          <Popover open={isOpen} onOpenChange={setIsOpen}>
-            <PopoverTrigger asChild>
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="flex items-center gap-2 h-8 px-3 text-xs whitespace-nowrap"
-              >
-                More symbols
-                <ChevronDown className="h-3 w-3" />
-              </Button>
-            </PopoverTrigger>
+          <div className="flex flex-col items-center gap-1">
+            <Popover open={isOpen} onOpenChange={setIsOpen}>
+              <PopoverTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="h-8 px-3 text-xs whitespace-nowrap flex items-center gap-2"
+                >
+                  More symbols
+                  <ChevronDown className="h-3 w-3" />
+                </Button>
+              </PopoverTrigger>
             <PopoverContent className="w-80 md:w-96 p-4 max-h-96 overflow-y-auto" side="bottom" align="end" sideOffset={4}>
               <div className="space-y-4">
                 <div className="text-sm font-medium">Additional symbols:</div>
@@ -136,6 +139,10 @@ export function BulletSymbolSelector({ selectedSymbol, onSymbolSelect, inline = 
               </div>
             </PopoverContent>
           </Popover>
+            <span className="text-[10px] text-gray-500 dark:text-gray-400 text-center leading-none invisible">
+              Menu
+            </span>
+          </div>
         )}
       </div>
     );
