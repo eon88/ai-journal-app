@@ -14,6 +14,9 @@ import {
   dailyChallenges,
   type DailyChallenge,
   type InsertDailyChallenge,
+  userChallengeCompletions,
+  type UserChallengeCompletion,
+  type InsertUserChallengeCompletion,
   userGoals,
   type UserGoal,
   type InsertUserGoal,
@@ -502,8 +505,10 @@ export class DatabaseStorage implements IStorage {
     return unlockedBadges;
   }
 
-  async getTodaysChallenge(userId: number): Promise<DailyChallenge | null> {
+  async getTodaysChallenge(userId: number): Promise<any | null> {
     const today = new Date().toISOString().split('T')[0];
+    
+    // Get or create today's challenge
     let [challenge] = await db
       .select()
       .from(dailyChallenges)
@@ -514,7 +519,44 @@ export class DatabaseStorage implements IStorage {
       challenge = await this.generateDailyChallenge(userId, today);
     }
     
-    return challenge;
+    // Get user-specific completion status
+    let [userCompletion] = await db
+      .select()
+      .from(userChallengeCompletions)
+      .where(and(
+        eq(userChallengeCompletions.userId, userId),
+        eq(userChallengeCompletions.challengeId, challenge.id)
+      ))
+      .limit(1);
+    
+    // If no completion record exists, create one
+    if (!userCompletion) {
+      [userCompletion] = await db
+        .insert(userChallengeCompletions)
+        .values({
+          userId,
+          challengeId: challenge.id,
+          status: 'not_started',
+          acceptedAt: null,
+          completedAt: null,
+        })
+        .returning();
+    }
+    
+    // Return combined challenge and user completion data
+    return {
+      id: challenge.id,
+      date: challenge.date,
+      title: challenge.title,
+      description: challenge.description,
+      prompt: challenge.prompt,
+      xpReward: challenge.xpReward,
+      createdAt: challenge.createdAt,
+      status: userCompletion.status,
+      acceptedAt: userCompletion.acceptedAt,
+      completedAt: userCompletion.completedAt,
+      acceptedUserId: userCompletion.status === 'accepted' || userCompletion.status === 'completed' ? userId : null,
+    };
   }
 
   async generateDailyChallenge(userId: number, date: string): Promise<DailyChallenge> {
@@ -552,31 +594,50 @@ export class DatabaseStorage implements IStorage {
       .values({
         date,
         ...randomChallenge,
-        status: 'not_started',
-        acceptedAt: null,
-        completedAt: null,
-        acceptedUserId: null,
       })
       .returning();
     
     return challenge;
   }
 
-  async acceptChallenge(userId: number, challengeId: number): Promise<DailyChallenge> {
-    const [challenge] = await db
-      .update(dailyChallenges)
+  async acceptChallenge(userId: number, challengeId: number): Promise<any> {
+    // Update user-specific completion status
+    const [userCompletion] = await db
+      .update(userChallengeCompletions)
       .set({
         status: 'accepted',
         acceptedAt: new Date(),
-        acceptedUserId: userId,
       })
-      .where(eq(dailyChallenges.id, challengeId))
+      .where(and(
+        eq(userChallengeCompletions.userId, userId),
+        eq(userChallengeCompletions.challengeId, challengeId)
+      ))
       .returning();
 
-    return challenge;
+    // Get the challenge details
+    const [challenge] = await db
+      .select()
+      .from(dailyChallenges)
+      .where(eq(dailyChallenges.id, challengeId))
+      .limit(1);
+
+    // Return combined data
+    return {
+      id: challenge.id,
+      date: challenge.date,
+      title: challenge.title,
+      description: challenge.description,
+      prompt: challenge.prompt,
+      xpReward: challenge.xpReward,
+      createdAt: challenge.createdAt,
+      status: userCompletion.status,
+      acceptedAt: userCompletion.acceptedAt,
+      completedAt: userCompletion.completedAt,
+      acceptedUserId: userId,
+    };
   }
 
-  async completeChallenge(userId: number, challengeId: number): Promise<DailyChallenge> {
+  async completeChallenge(userId: number, challengeId: number): Promise<any> {
     // Get the challenge first to access the prompt
     const [existingChallenge] = await db
       .select()
@@ -587,7 +648,17 @@ export class DatabaseStorage implements IStorage {
       throw new Error("Challenge not found");
     }
 
-    if (existingChallenge.status !== 'accepted' || existingChallenge.acceptedUserId !== userId) {
+    // Get user-specific completion status
+    const [userCompletion] = await db
+      .select()
+      .from(userChallengeCompletions)
+      .where(and(
+        eq(userChallengeCompletions.userId, userId),
+        eq(userChallengeCompletions.challengeId, challengeId)
+      ))
+      .limit(1);
+
+    if (!userCompletion || userCompletion.status !== 'accepted') {
       throw new Error("Challenge must be accepted before it can be completed");
     }
 
@@ -624,22 +695,39 @@ export class DatabaseStorage implements IStorage {
       throw new Error(`You must write at least 100 characters beyond the challenge prompt to complete the challenge. Currently: ${totalCharacters}/100 characters.`);
     }
 
-    const [challenge] = await db
-      .update(dailyChallenges)
+    // Update user-specific completion status
+    const [updatedCompletion] = await db
+      .update(userChallengeCompletions)
       .set({
         status: 'completed',
         completedAt: new Date(),
       })
-      .where(eq(dailyChallenges.id, challengeId))
+      .where(and(
+        eq(userChallengeCompletions.userId, userId),
+        eq(userChallengeCompletions.challengeId, challengeId)
+      ))
       .returning();
 
     // Award XP for completing challenge
     const stats = await this.getUserStats(userId);
     await this.updateUserStats(userId, {
-      xpPoints: stats.xpPoints + challenge.xpReward,
+      xpPoints: stats.xpPoints + existingChallenge.xpReward,
     });
 
-    return challenge;
+    // Return combined data
+    return {
+      id: existingChallenge.id,
+      date: existingChallenge.date,
+      title: existingChallenge.title,
+      description: existingChallenge.description,
+      prompt: existingChallenge.prompt,
+      xpReward: existingChallenge.xpReward,
+      createdAt: existingChallenge.createdAt,
+      status: updatedCompletion.status,
+      acceptedAt: updatedCompletion.acceptedAt,
+      completedAt: updatedCompletion.completedAt,
+      acceptedUserId: userId,
+    };
   }
 
   calculateLevel(xp: number): number {

@@ -1,7 +1,7 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertJournalEntrySchema, insertFolderSchema, type AIReflection, type WeeklyReflection, type MonthlyReflection, type JournalEntry, type Folder, parseBulletSymbol, users, folders, journalEntries, LEVEL_UNLOCKS, getUnlockedFeatures, forumCategories, forumPosts, forumReplies, forumLikes, forumModerators, userStats, dailyChallenges } from "@shared/schema";
+import { insertJournalEntrySchema, insertFolderSchema, type AIReflection, type WeeklyReflection, type MonthlyReflection, type JournalEntry, type Folder, parseBulletSymbol, users, folders, journalEntries, LEVEL_UNLOCKS, getUnlockedFeatures, forumCategories, forumPosts, forumReplies, forumLikes, forumModerators, userStats, dailyChallenges, userChallengeCompletions } from "@shared/schema";
 import { db } from "./db";
 import { z } from "zod";
 import { eq, and, desc, asc, like, or, inArray } from "drizzle-orm";

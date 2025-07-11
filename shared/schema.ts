@@ -164,10 +164,17 @@ export const dailyChallenges = pgTable("daily_challenges", {
   description: text("description").notNull(),
   prompt: text("prompt").notNull(),
   xpReward: integer("xp_reward").default(15).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// User-specific challenge completion tracking
+export const userChallengeCompletions = pgTable("user_challenge_completions", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  challengeId: integer("challenge_id").references(() => dailyChallenges.id).notNull(),
   status: text("status").default("not_started").notNull(), // 'not_started', 'accepted', 'completed'
   acceptedAt: timestamp("accepted_at"),
   completedAt: timestamp("completed_at"),
-  acceptedUserId: integer("accepted_user_id").references(() => users.id), // Track which user accepted
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -239,6 +246,9 @@ export type InsertBadge = typeof badges.$inferInsert;
 
 export type DailyChallenge = typeof dailyChallenges.$inferSelect;
 export type InsertDailyChallenge = typeof dailyChallenges.$inferInsert;
+
+export type UserChallengeCompletion = typeof userChallengeCompletions.$inferSelect;
+export type InsertUserChallengeCompletion = typeof userChallengeCompletions.$inferInsert;
 
 export type UserAccount = typeof userAccounts.$inferSelect;
 export type InsertUserAccount = typeof userAccounts.$inferInsert;
