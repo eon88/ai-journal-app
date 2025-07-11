@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Star, Clock } from "lucide-react";
 import { AdventureIcons } from "@/components/icons/adventure-icons";
 import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 interface DailyChallenge {
   id: number;
@@ -24,6 +25,7 @@ interface DailyChallenge {
 export function DailyChallenge() {
   const queryClient = useQueryClient();
   const [showPrompt, setShowPrompt] = useState(false);
+  const { toast } = useToast();
 
   const { data: challenge, isLoading } = useQuery<DailyChallenge>({
     queryKey: ["/api/challenge/today"],
@@ -91,6 +93,49 @@ export function DailyChallenge() {
       await navigator.clipboard.writeText(text);
     } catch (err) {
       console.error('Failed to copy text: ', err);
+    }
+  };
+
+  const copyToJournalEntry = (text: string) => {
+    try {
+      // First copy to clipboard as backup
+      navigator.clipboard.writeText(text);
+      
+      // Try to find and populate the journal entry textarea
+      const textArea = document.querySelector('textarea[placeholder*="Write about your day"]') as HTMLTextAreaElement;
+      if (textArea) {
+        // Set the value directly
+        textArea.value = text;
+        textArea.focus();
+        
+        // Trigger multiple events to ensure React picks up the change
+        const inputEvent = new Event('input', { bubbles: true });
+        const changeEvent = new Event('change', { bubbles: true });
+        textArea.dispatchEvent(inputEvent);
+        textArea.dispatchEvent(changeEvent);
+        
+        // Scroll to the journal entry form
+        textArea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        // Show success message
+        toast({
+          title: "Challenge Prompt Added",
+          description: "The challenge prompt has been added to your journal entry!",
+        });
+      } else {
+        // If we can't find the textarea, just copy to clipboard
+        toast({
+          title: "Copied to Clipboard",
+          description: "Challenge prompt copied! Paste it into your journal entry.",
+        });
+      }
+    } catch (error) {
+      console.error('Failed to copy challenge prompt:', error);
+      toast({
+        title: "Copy Failed",
+        description: "Please manually copy the challenge prompt to your journal entry.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -165,7 +210,7 @@ export function DailyChallenge() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => copyToClipboard(challenge.prompt)}
+                        onClick={() => copyToJournalEntry(challenge.prompt)}
                         className="mt-3"
                       >
                         Copy to Journal Entry
