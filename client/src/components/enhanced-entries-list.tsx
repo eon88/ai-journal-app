@@ -49,13 +49,13 @@ interface EditEntryFormProps {
 
 function EditEntryForm({ entry, onSave, onCancel }: EditEntryFormProps) {
   const [content, setContent] = useState(entry.content);
-  const [mood, setMood] = useState(entry.mood || "");
+  const [mood, setMood] = useState(entry.mood || "none");
   const [tags, setTags] = useState(entry.tags ? entry.tags.join(", ") : "");
 
   const handleSave = () => {
     const updates: Partial<JournalEntry> = {
       content,
-      mood: mood || undefined,
+      mood: mood === "none" ? undefined : mood || undefined,
       tags: tags ? tags.split(",").map(tag => tag.trim()).filter(Boolean) : undefined,
     };
     onSave(updates);
@@ -81,7 +81,7 @@ function EditEntryForm({ entry, onSave, onCancel }: EditEntryFormProps) {
             <SelectValue placeholder="Select mood..." />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">No mood</SelectItem>
+            <SelectItem value="none">No mood</SelectItem>
             {Object.entries(MOOD_EMOJIS).map(([moodKey, emoji]) => (
               <SelectItem key={moodKey} value={moodKey}>
                 {emoji} {moodKey.charAt(0).toUpperCase() + moodKey.slice(1)}
