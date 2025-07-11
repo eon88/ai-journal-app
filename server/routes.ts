@@ -1,7 +1,7 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertJournalEntrySchema, insertFolderSchema, type AIReflection, type WeeklyReflection, type MonthlyReflection, type JournalEntry, type Folder, parseBulletSymbol, users, folders, journalEntries, LEVEL_UNLOCKS, getUnlockedFeatures, forumCategories, forumPosts, forumReplies, forumLikes, forumModerators, userStats } from "@shared/schema";
+import { insertJournalEntrySchema, insertFolderSchema, type AIReflection, type WeeklyReflection, type MonthlyReflection, type JournalEntry, type Folder, parseBulletSymbol, users, folders, journalEntries, LEVEL_UNLOCKS, getUnlockedFeatures, forumCategories, forumPosts, forumReplies, forumLikes, forumModerators, userStats, dailyChallenges } from "@shared/schema";
 import { db } from "./db";
 import { z } from "zod";
 import { eq, and, desc, asc, like, or, inArray } from "drizzle-orm";
@@ -274,6 +274,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.user.id;
       const { content, mood, tags } = req.body;
+      
+      // Check if entry contains a challenge prompt and validate character requirement
+      const today = new Date().toISOString().split('T')[0];
+      const [todaysChallenge] = await db.select()
+        .from(dailyChallenges)
+        .where(eq(dailyChallenges.date, today))
+        .limit(1);
+      
+      if (todaysChallenge && content && content.includes(todaysChallenge.prompt)) {
+        // This entry contains a challenge prompt, validate 100 extra characters
+        const effectiveContent = content.replace(todaysChallenge.prompt, '').trim();
+        if (effectiveContent.length < 100) {
+          return res.status(400).json({ 
+            error: `When using a challenge prompt, you must write at least 100 characters beyond the prompt. Currently: ${effectiveContent.length}/100 characters.`
+          });
+        }
+      }
       
       // Check progressive gamification limits
       const progress = await storage.getUserProgress(userId);
