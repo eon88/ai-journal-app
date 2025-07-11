@@ -100,55 +100,30 @@ export function CustomTagsSelector({
         </div>
       )}
 
-      {/* Manual tag input */}
+      {/* Manual tag input - always visible */}
       <div className="space-y-2">
-        {showManualInput ? (
-          <div className="flex gap-2">
-            <Input
-              placeholder="Enter custom tag"
-              value={manualTag}
-              onChange={(e) => onManualTagChange(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  handleManualTagAdd();
-                } else if (e.key === "Escape") {
-                  setShowManualInput(false);
-                  onManualTagChange("");
-                }
-              }}
-              className="h-8"
-              autoFocus
-            />
-            <Button
-              onClick={handleManualTagAdd}
-              size="sm"
-              className="h-8"
-            >
-              Add
-            </Button>
-            <Button
-              onClick={() => {
-                setShowManualInput(false);
-                onManualTagChange("");
-              }}
-              variant="outline"
-              size="sm"
-              className="h-8"
-            >
-              Cancel
-            </Button>
-          </div>
-        ) : (
+        <Label className="text-sm">Add a tag manually:</Label>
+        <div className="flex gap-2">
+          <Input
+            placeholder="Type a tag and press Enter"
+            value={manualTag}
+            onChange={(e) => onManualTagChange(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleManualTagAdd();
+              }
+            }}
+            className="h-9"
+          />
           <Button
-            variant="outline"
+            onClick={handleManualTagAdd}
             size="sm"
-            onClick={() => setShowManualInput(true)}
-            className="gap-2 h-8"
+            className="h-9"
+            disabled={!manualTag.trim()}
           >
             <Plus className="h-4 w-4" />
-            Add Custom Tag
           </Button>
-        )}
+        </div>
       </div>
 
       {/* Selected tags display */}
