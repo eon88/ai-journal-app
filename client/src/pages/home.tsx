@@ -81,6 +81,7 @@ export default function Home() {
             {/* Left Column - Journal Entry */}
             <div className="lg:col-span-2 space-y-6">
               <JournalEntryForm />
+              <PeriodicReflections />
             </div>
             
             {/* Right Column - Gamification Features */}
@@ -91,9 +92,6 @@ export default function Home() {
             </div>
           </div>
         </div>
-        
-        {/* Periodic Reflections */}
-        <PeriodicReflections />
         
         {/* Community Link Section */}
         <div className="text-center py-8">
