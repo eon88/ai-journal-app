@@ -69,7 +69,12 @@ export function JournalEntryForm() {
       return response.json();
     },
     onSuccess: (result) => {
+      // Invalidate all entry-related queries with different parameters
       queryClient.invalidateQueries({ queryKey: ["/api/entries"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/entries", { limit: 6 }] });
+      queryClient.invalidateQueries({ queryKey: ["/api/entries", { limit: 1 }] });
+      queryClient.invalidateQueries({ queryKey: ["/api/entries", { limit: "all" }] });
+      queryClient.invalidateQueries({ queryKey: ["/api/entries/search"] });
       queryClient.invalidateQueries({ queryKey: ["/api/user/progress"] });
       queryClient.invalidateQueries({ queryKey: ["/api/user/entry-count"] });
       

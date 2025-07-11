@@ -30,8 +30,12 @@ export default function Home() {
 
   // Fetch recent entry for Merlin context
   const { data: recentEntries } = useQuery({
-    queryKey: ["/api/entries"],
-    queryFn: () => fetch("/api/entries?limit=1").then(res => res.json()),
+    queryKey: ["/api/entries", { limit: 1 }],
+    queryFn: () => fetch("/api/entries?limit=1", {
+      credentials: "include"
+    }).then(res => res.json()),
+    staleTime: 0, // Always fetch fresh data
+    retry: 1,
   });
 
   const todaysEntry = recentEntries?.[0];

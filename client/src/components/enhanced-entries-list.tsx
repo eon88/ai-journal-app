@@ -49,17 +49,23 @@ export function EnhancedEntriesList() {
 
   // Query for entries
   const { data: entries, isLoading } = useQuery({
-    queryKey: searchFilters ? ["/api/entries/search", searchFilters] : ["/api/entries"],
+    queryKey: searchFilters ? ["/api/entries/search", searchFilters] : ["/api/entries", { limit: "all" }],
     queryFn: () => {
       if (searchFilters) {
         const params = new URLSearchParams();
         Object.entries(searchFilters).forEach(([key, value]) => {
           if (value) params.append(key, value as string);
         });
-        return fetch(`/api/entries/search?${params}`).then(res => res.json());
+        return fetch(`/api/entries/search?${params}`, {
+          credentials: "include"
+        }).then(res => res.json());
       }
-      return fetch("/api/entries").then(res => res.json());
+      return fetch("/api/entries", {
+        credentials: "include"
+      }).then(res => res.json());
     },
+    staleTime: 0, // Always fetch fresh data
+    retry: 1,
   });
 
   // Query for folders
@@ -73,7 +79,12 @@ export function EnhancedEntriesList() {
       await apiRequest(`/api/entries/${entry.id}/pin`, "PATCH", { isPinned: !entry.isPinned });
     },
     onSuccess: () => {
+      // Invalidate all entry-related queries with different parameters
       queryClient.invalidateQueries({ queryKey: ["/api/entries"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/entries", { limit: 6 }] });
+      queryClient.invalidateQueries({ queryKey: ["/api/entries", { limit: 1 }] });
+      queryClient.invalidateQueries({ queryKey: ["/api/entries", { limit: "all" }] });
+      queryClient.invalidateQueries({ queryKey: ["/api/entries/search"] });
       toast({
         title: "Entry updated",
         description: "Entry pinned status updated successfully.",
@@ -87,7 +98,12 @@ export function EnhancedEntriesList() {
       await apiRequest(`/api/entries/${id}/folder`, "PATCH", { folderId });
     },
     onSuccess: () => {
+      // Invalidate all entry-related queries with different parameters
       queryClient.invalidateQueries({ queryKey: ["/api/entries"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/entries", { limit: 6 }] });
+      queryClient.invalidateQueries({ queryKey: ["/api/entries", { limit: 1 }] });
+      queryClient.invalidateQueries({ queryKey: ["/api/entries", { limit: "all" }] });
+      queryClient.invalidateQueries({ queryKey: ["/api/entries/search"] });
       toast({
         title: "Entry moved",
         description: "Entry moved to folder successfully.",

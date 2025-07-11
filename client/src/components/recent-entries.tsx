@@ -9,14 +9,18 @@ import { BULLET_SYMBOLS } from "@shared/schema";
 
 export function RecentEntries() {
   const { data: entries, isLoading, error } = useQuery<JournalEntry[]>({
-    queryKey: ["/api/entries"],
+    queryKey: ["/api/entries", { limit: 6 }],
     queryFn: async () => {
-      const response = await fetch("/api/entries?limit=6");
+      const response = await fetch("/api/entries?limit=6", {
+        credentials: "include"
+      });
       if (!response.ok) {
         throw new Error("Failed to fetch entries");
       }
       return response.json();
     },
+    staleTime: 0, // Always fetch fresh data
+    retry: 1,
   });
 
   const formatDate = (date: string | Date) => {
