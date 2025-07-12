@@ -19,6 +19,8 @@ interface VisionData {
     title: string;
     phrase: string;
     milestones: string[];
+    icon?: string;
+    color?: string;
   }>;
   commitmentTime: string;
   phase: 'chat' | 'board' | 'commitment';
@@ -109,6 +111,39 @@ export default function VisionArchitect() {
 
   const startVisionBoard = () => {
     setVisionData(prev => ({ ...prev, phase: 'board' }));
+  };
+
+  const generateVisionMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest('/api/vision-architect/generate', 'POST', {
+        messages,
+        visionData
+      });
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setVisionData(prev => ({
+        ...prev,
+        categories: data.ultimateGoals,
+        phase: 'board'
+      }));
+      toast({
+        title: "Vision Generated!",
+        description: "Your complete life vision with goals and milestones has been created.",
+      });
+    },
+    onError: (error: any) => {
+      console.error("Vision generation error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to generate vision. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const generateCompleteVision = () => {
+    generateVisionMutation.mutate();
   };
 
   if (visionData.phase === 'board') {
@@ -216,7 +251,44 @@ export default function VisionArchitect() {
             </CardContent>
           </Card>
 
-          {/* Progress Indicator */}
+          {/* Progress Indicator & Actions */}
+          {messages.length >= 6 && (
+            <Card className="mt-6 bg-white/95 backdrop-blur-sm border-slate-300">
+              <CardContent className="p-6">
+                <div className="text-center space-y-4">
+                  <div className="flex items-center justify-center gap-2">
+                    <Sparkles className="h-5 w-5 text-purple-500" />
+                    <span className="text-lg font-semibold">
+                      Ready to Transform Your Vision Into Action
+                    </span>
+                  </div>
+                  
+                  <p className="text-gray-600 text-sm">
+                    You've shared deep insights about your ideal life. Let me analyze everything and create your personalized vision with concrete goals, milestones, and visual representations.
+                  </p>
+                  
+                  <Button
+                    onClick={generateCompleteVision}
+                    disabled={generateVisionMutation.isPending}
+                    className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-3 px-8 text-lg"
+                  >
+                    {generateVisionMutation.isPending ? (
+                      <div className="flex items-center space-x-2">
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span>Generating Your Vision...</span>
+                      </div>
+                    ) : (
+                      <>
+                        🎨 Generate My Complete Vision
+                        <ArrowRight className="h-5 w-5 ml-2" />
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+          
           {Object.keys(visionData.categories).length > 0 && (
             <Card className="mt-6 bg-white/95 backdrop-blur-sm border-slate-300">
               <CardContent className="p-4">
@@ -227,15 +299,13 @@ export default function VisionArchitect() {
                       Vision Categories Discovered: {Object.keys(visionData.categories).length}
                     </span>
                   </div>
-                  {Object.keys(visionData.categories).length >= 3 && (
-                    <Button
-                      onClick={startVisionBoard}
-                      className="bg-green-600 hover:bg-green-700 text-white"
-                    >
-                      Create Vision Board
-                      <ArrowRight className="h-4 w-4 ml-2" />
-                    </Button>
-                  )}
+                  <Button
+                    onClick={startVisionBoard}
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    View Vision Board
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -328,13 +398,44 @@ function VisionBoard({ visionData, setVisionData }: {
                 transform: draggedCard === category ? 'rotate(5deg)' : 'none'
               }}
             >
-              <Card className="w-64 bg-white/95 backdrop-blur-sm border-2 border-gray-300 shadow-xl hover:shadow-2xl transition-shadow">
+              <Card 
+                className="w-72 bg-white/95 backdrop-blur-sm border-2 shadow-xl hover:shadow-2xl transition-all duration-200 hover:scale-105"
+                style={{ borderColor: data.color || '#6B7280' }}
+              >
                 <CardContent className="p-4">
-                  <div className="h-32 bg-gradient-to-br from-blue-50 to-purple-50 rounded mb-3 flex items-center justify-center">
-                    <div className="text-6xl opacity-30">📋</div>
+                  <div 
+                    className="h-20 rounded-lg mb-3 flex items-center justify-center relative overflow-hidden"
+                    style={{ backgroundColor: data.color ? `${data.color}20` : '#F3F4F6' }}
+                  >
+                    <div className="text-4xl">{data.icon || '🎯'}</div>
+                    <div 
+                      className="absolute inset-0 opacity-10"
+                      style={{ backgroundColor: data.color || '#6B7280' }}
+                    />
                   </div>
-                  <h3 className="font-bold text-lg mb-2">{data.title}</h3>
-                  <p className="text-sm text-gray-600 leading-relaxed">{data.phrase}</p>
+                  
+                  <h3 className="font-bold text-lg mb-2 text-gray-900">{data.title}</h3>
+                  <p className="text-sm text-gray-600 leading-relaxed mb-3">{data.phrase}</p>
+                  
+                  {data.milestones && data.milestones.length > 0 && (
+                    <div className="space-y-1">
+                      <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Milestones:</div>
+                      {data.milestones.slice(0, 3).map((milestone, idx) => (
+                        <div key={idx} className="flex items-start gap-2">
+                          <div 
+                            className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0"
+                            style={{ backgroundColor: data.color || '#6B7280' }}
+                          />
+                          <span className="text-xs text-gray-700 leading-relaxed">{milestone}</span>
+                        </div>
+                      ))}
+                      {data.milestones.length > 3 && (
+                        <div className="text-xs text-gray-500 italic">
+                          +{data.milestones.length - 3} more...
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>

@@ -677,6 +677,72 @@ Respond as their mentor, continuing the natural flow of discovery.`;
     }
   });
 
+  // Vision Architect complete vision generation (beta feature)
+  app.post("/api/vision-architect/generate", isAuthenticated, requireBetaTester, async (req: any, res) => {
+    try {
+      const { messages, visionData } = req.body;
+      
+      if (!messages || !Array.isArray(messages)) {
+        return res.status(400).json({ message: "Invalid messages format" });
+      }
+
+      const userId = req.user.id;
+      const userDisplayName = req.user.displayName || req.user.firstName || req.user.username;
+      
+      // Extract conversation content for analysis
+      const conversationContent = messages.map(m => `${m.role}: ${m.content}`).join('\n\n');
+      
+      const systemPrompt = `You are analyzing a deep life design conversation with ${userDisplayName} to create their complete life vision. Based on their responses, generate 3-7 ultimate life goals with specific milestones and visual representations.
+
+IMPORTANT: Respond with valid JSON in this exact format:
+{
+  "ultimateGoals": {
+    "health": {
+      "title": "Vibrant Health & Energy",
+      "phrase": "I wake up energized and strong, taking care of my body with joy",
+      "milestones": ["Exercise 4x per week", "Meal prep every Sunday", "Sleep 8 hours nightly"],
+      "icon": "💪",
+      "color": "#10B981"
+    }
+  }
+}
+
+GUIDELINES:
+- Create 3-7 meaningful life categories based on their conversation
+- Each goal should have a powerful, personal title and vision phrase
+- Include 3-5 specific, actionable milestones for each goal
+- Choose appropriate emojis as icons
+- Use hex colors that feel inspiring for each category
+- Base everything on their actual responses, not generic advice
+- Make milestones specific and measurable
+- Categories might include: health, relationships, career, creativity, spirituality, family, finances, adventure, service, learning, etc.
+
+CONVERSATION TO ANALYZE:
+${conversationContent}
+
+Generate their personalized ultimate life goals with milestones:`;
+
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          { role: "system", content: systemPrompt }
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.7,
+      });
+
+      const generatedVision = JSON.parse(response.choices[0].message.content || "{}");
+      
+      res.json(generatedVision);
+    } catch (error) {
+      console.error("Vision generation error:", error);
+      res.status(500).json({ 
+        message: "Failed to generate complete vision. Please try again.",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   // FOLDER MANAGEMENT ROUTES
 
   // Get user folders (protected)
