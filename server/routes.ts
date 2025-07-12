@@ -84,9 +84,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Set up session
       (req.session as any).userId = user.id;
       
-      // Return user without password hash
-      const { passwordHash: _, ...userResponse } = user;
-      res.json({ success: true, user: userResponse });
+      // Ensure session is saved before responding
+      req.session.save((err) => {
+        if (err) {
+          console.error("Session save error:", err);
+          return res.status(500).json({ message: "Failed to save session" });
+        }
+        
+        // Return user without password hash
+        const { passwordHash: _, ...userResponse } = user;
+        res.json({ success: true, user: userResponse });
+      });
       
     } catch (error) {
       console.error("Registration error:", error);
@@ -128,9 +136,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Set up session
       (req.session as any).userId = user.id;
       
-      // Return user without password hash
-      const { passwordHash: _, ...userResponse } = user;
-      res.json({ success: true, user: userResponse });
+      // Ensure session is saved before responding
+      req.session.save((err) => {
+        if (err) {
+          console.error("Session save error:", err);
+          return res.status(500).json({ message: "Failed to save session" });
+        }
+        
+        // Return user without password hash
+        const { passwordHash: _, ...userResponse } = user;
+        res.json({ success: true, user: userResponse });
+      });
       
     } catch (error) {
       console.error("Login error:", error);

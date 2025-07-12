@@ -51,9 +51,12 @@ function Router() {
     );
   }
 
+  // Additional check: if we have a user object, we're authenticated
+  const finalIsAuthenticated = isAuthenticated || !!user;
+
   return (
     <Switch>
-      {!isAuthenticated ? (
+      {!finalIsAuthenticated ? (
         <>
           <Route path="/" component={Landing} />
           <Route path="/about" component={About} />

@@ -8,6 +8,8 @@ export function useAuth() {
     queryFn: getQueryFn({ on401: "returnNull" }),
     retry: false,
     staleTime: 0, // Always fresh check for auth
+    refetchInterval: false,
+    refetchOnWindowFocus: false,
   });
 
   const queryClient = useQueryClient();
@@ -22,6 +24,10 @@ export function useAuth() {
       console.log("Login successful, clearing cache and refetching auth");
       // Clear all cached data for privacy
       queryClient.clear();
+      
+      // Wait a moment for session to be established
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       // Refetch auth data to get the logged-in user
       const authResult = await refetch();
       console.log("Auth refetch result:", authResult);
@@ -32,9 +38,13 @@ export function useAuth() {
         description: "You're now logged in to Life Path Companion.",
       });
       
-      // Force navigation to home page
-      console.log("Navigating to home page");
-      window.location.replace('/');
+      // Only redirect if we have a valid user
+      if (authResult.data) {
+        console.log("Navigating to home page");
+        window.location.replace('/');
+      } else {
+        console.warn("Auth refetch failed, staying on login page");
+      }
     },
     onError: (error: any) => {
       console.error("Login error:", error);
@@ -55,6 +65,10 @@ export function useAuth() {
       console.log("Registration successful, clearing cache and refetching auth");
       // Clear all cached data for privacy
       queryClient.clear();
+      
+      // Wait a moment for session to be established
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       // Refetch auth data to get the registered user
       const authResult = await refetch();
       console.log("Auth refetch result:", authResult);
@@ -65,9 +79,13 @@ export function useAuth() {
         description: "Welcome to Life Path Companion. You're now logged in.",
       });
       
-      // Force navigation to home page
-      console.log("Navigating to home page");
-      window.location.replace('/');
+      // Only redirect if we have a valid user
+      if (authResult.data) {
+        console.log("Navigating to home page");
+        window.location.replace('/');
+      } else {
+        console.warn("Auth refetch failed, staying on registration page");
+      }
     },
     onError: (error: any) => {
       console.error("Registration error:", error);
