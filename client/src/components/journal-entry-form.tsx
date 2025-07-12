@@ -208,7 +208,7 @@ export function JournalEntryForm() {
           </div>
     
           <div className="space-y-4">
-            <div className="relative">
+            <div>
               <label htmlFor="entry" className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
                 What's on your mind today?
               </label>
@@ -223,7 +223,7 @@ export function JournalEntryForm() {
                 rows={12}
                 className="w-full p-4 border border-journal-border rounded-lg focus:ring-2 focus:ring-journal-primary focus:border-transparent resize-none text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 leading-relaxed bg-transparent"
               />
-              <div className="absolute bottom-3 right-3 text-xs text-gray-500 dark:text-gray-400">
+              <div className="text-right mt-1 text-xs text-gray-500 dark:text-gray-400">
                 {entry.length} characters
               </div>
             </div>

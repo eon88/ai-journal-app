@@ -72,6 +72,9 @@ function EditEntryForm({ entry, onSave, onCancel }: EditEntryFormProps) {
           rows={6}
           className="mt-1"
         />
+        <div className="text-right mt-1 text-xs text-gray-500 dark:text-gray-400">
+          {content.length} characters
+        </div>
       </div>
       
       <div>
