@@ -104,6 +104,34 @@ export default function VisionBoard() {
     }
   });
 
+  // Update vision area mutation
+  const updateAreaMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: any }) => 
+      apiRequest(`/api/vision-board/areas/${id}`, "PATCH", data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/vision-board"] });
+      setEditingArea(null);
+      setFormData({ title: "", description: "", category: "", colorCode: "#3B82F6" });
+      toast({ title: "Vision area updated successfully!" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message || "Failed to update vision area", variant: "destructive" });
+    }
+  });
+
+  // Delete vision area mutation
+  const deleteAreaMutation = useMutation({
+    mutationFn: (id: number) => apiRequest(`/api/vision-board/areas/${id}`, "DELETE"),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/vision-board"] });
+      setSelectedArea(null);
+      toast({ title: "Vision area deleted successfully!" });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message || "Failed to delete vision area", variant: "destructive" });
+    }
+  });
+
   // Generate AI suggestions mutation
   const generateAISuggestions = useMutation({
     mutationFn: () => apiRequest("/api/vision-board/ai-suggestions", "POST"),
@@ -151,6 +179,38 @@ export default function VisionBoard() {
       colorCode: selectedCategory?.color || formData.colorCode,
       position: visionBoard.length
     });
+  };
+
+  const handleEditArea = (area: VisionArea) => {
+    setEditingArea(area);
+    setFormData({
+      title: area.title,
+      description: area.description || "",
+      category: area.category,
+      colorCode: area.colorCode
+    });
+  };
+
+  const handleUpdateArea = () => {
+    if (!editingArea || !formData.title.trim() || !formData.category) {
+      toast({ title: "Error", description: "Please fill in all required fields", variant: "destructive" });
+      return;
+    }
+
+    const selectedCategory = categories.find(cat => cat.id === formData.category);
+    updateAreaMutation.mutate({
+      id: editingArea.id,
+      data: {
+        ...formData,
+        colorCode: selectedCategory?.color || formData.colorCode,
+      }
+    });
+  };
+
+  const handleDeleteArea = (area: VisionArea) => {
+    if (window.confirm(`Are you sure you want to delete "${area.title}"? This action cannot be undone.`)) {
+      deleteAreaMutation.mutate(area.id);
+    }
   };
 
   const handleApplyAISuggestion = (suggestion: AISuggestion) => {
@@ -292,9 +352,35 @@ export default function VisionBoard() {
                         <span className="text-2xl">{getCategoryIcon(area.category)}</span>
                         <CardTitle className="text-lg">{area.title}</CardTitle>
                       </div>
-                      <Badge variant="outline" style={{ color: area.colorCode }}>
-                        {area.category}
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" style={{ color: area.colorCode }}>
+                          {area.category}
+                        </Badge>
+                        <div className="flex gap-1">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEditArea(area);
+                            }}
+                            className="h-8 w-8 p-0"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteArea(area);
+                            }}
+                            className="h-8 w-8 p-0 text-red-500 hover:text-red-600"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
                     </div>
                   </CardHeader>
                   <CardContent>
@@ -326,11 +412,20 @@ export default function VisionBoard() {
             </div>
           )}
 
-          {/* Create Vision Area Dialog */}
-          <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+          {/* Create/Edit Vision Area Dialog */}
+          <Dialog open={showCreateDialog || editingArea !== null} onOpenChange={(open) => {
+            if (!open) {
+              setShowCreateDialog(false);
+              setEditingArea(null);
+              setFormData({ title: "", description: "", category: "", colorCode: "#3B82F6" });
+            }
+          }}>
             <DialogContent className="max-w-md">
               <DialogHeader>
-                <DialogTitle>Create Vision Area</DialogTitle>
+                <DialogTitle className="flex items-center gap-2">
+                  {editingArea ? <Edit className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
+                  {editingArea ? "Edit Vision Area" : "Create Vision Area"}
+                </DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
                 <div>
@@ -386,14 +481,21 @@ export default function VisionBoard() {
                 </div>
                 
                 <div className="flex justify-end gap-2">
-                  <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
+                  <Button variant="outline" onClick={() => {
+                    setShowCreateDialog(false);
+                    setEditingArea(null);
+                    setFormData({ title: "", description: "", category: "", colorCode: "#3B82F6" });
+                  }}>
                     Cancel
                   </Button>
                   <Button 
-                    onClick={handleCreateArea}
-                    disabled={createAreaMutation.isPending}
+                    onClick={editingArea ? handleUpdateArea : handleCreateArea}
+                    disabled={createAreaMutation.isPending || updateAreaMutation.isPending}
                   >
-                    {createAreaMutation.isPending ? "Creating..." : "Create Vision Area"}
+                    {editingArea ? 
+                      (updateAreaMutation.isPending ? "Updating..." : "Update Vision Area") :
+                      (createAreaMutation.isPending ? "Creating..." : "Create Vision Area")
+                    }
                   </Button>
                 </div>
               </div>
