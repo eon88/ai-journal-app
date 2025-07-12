@@ -1,4 +1,4 @@
-import { Calendar, User, Crown, LogOut, UserCircle, Home, Shield, Settings } from "lucide-react";
+import { Calendar, User, Crown, LogOut, UserCircle, Home, Shield, Settings, Map } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Link } from "wouter";
@@ -15,6 +15,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useProgressiveFeatures } from "@/hooks/useProgressiveFeatures";
 import { useAuth } from "@/hooks/useAuth";
+import { useBetaAccess } from "@/hooks/useBetaAccess";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 const LEVEL_DESCRIPTIONS = {
   1: { title: "Reflective Wanderer", color: "bg-gray-500" },
@@ -36,6 +37,7 @@ export function Header() {
   const queryClient = useQueryClient();
   const { progress } = useProgressiveFeatures();
   const { user } = useAuth();
+  const { isBetaTester } = useBetaAccess();
 
   // Check if current user is admin
   const { data: adminCheck } = useQuery({
@@ -141,6 +143,15 @@ export function Header() {
                     Browse Entries
                   </DropdownMenuItem>
                 </Link>
+
+                {isBetaTester && (
+                  <Link to="/vision-board">
+                    <DropdownMenuItem className="cursor-pointer">
+                      <Map className="mr-2 h-4 w-4" />
+                      Vision Board
+                    </DropdownMenuItem>
+                  </Link>
+                )}
 
                 <Link to="/profile">
                   <DropdownMenuItem className="cursor-pointer">

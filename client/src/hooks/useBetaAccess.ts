@@ -30,7 +30,7 @@ export function BetaFeature({
   const { isBetaTester, isLoading } = useBetaAccess();
   
   if (isLoading) return null;
-  if (!isBetaTester) return <>{fallback}</>;
+  if (!isBetaTester) return fallback;
   
-  return <>{children}</>;
+  return children;
 }

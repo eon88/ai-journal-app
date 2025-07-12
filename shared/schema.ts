@@ -1,4 +1,4 @@
-import { pgTable, text, serial, timestamp, jsonb, integer, boolean, varchar, index } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, timestamp, jsonb, integer, boolean, varchar, index, date } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -721,6 +721,83 @@ export const userProgress = pgTable("user_progress", {
 
 export type UserProgress = typeof userProgress.$inferSelect;
 export type InsertUserProgress = typeof userProgress.$inferInsert;
+
+// Vision Board System - 5-3-1 Formula Implementation
+export const visionAreas = pgTable("vision_areas", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  title: varchar("title", { length: 100 }).notNull(),
+  description: text("description"),
+  category: varchar("category", { length: 50 }).notNull(), // Career, Health, Relationships, Personal Growth, Adventure
+  colorCode: varchar("color_code", { length: 7 }).default("#3B82F6").notNull(),
+  position: integer("position").default(0).notNull(), // For ordering (0-4)
+  isActive: boolean("is_active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const visionMilestones = pgTable("vision_milestones", {
+  id: serial("id").primaryKey(),
+  visionAreaId: integer("vision_area_id").notNull().references(() => visionAreas.id, { onDelete: "cascade" }),
+  title: varchar("title", { length: 150 }).notNull(),
+  description: text("description"),
+  targetDate: date("target_date"),
+  isCompleted: boolean("is_completed").default(false).notNull(),
+  position: integer("position").default(0).notNull(), // For ordering (0-2)
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const visionNextSteps = pgTable("vision_next_steps", {
+  id: serial("id").primaryKey(),
+  milestoneId: integer("milestone_id").notNull().references(() => visionMilestones.id, { onDelete: "cascade" }),
+  title: varchar("title", { length: 200 }).notNull(),
+  description: text("description"),
+  isCompleted: boolean("is_completed").default(false).notNull(),
+  dueDate: date("due_date"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export type VisionArea = typeof visionAreas.$inferSelect;
+export type InsertVisionArea = typeof visionAreas.$inferInsert;
+export type VisionMilestone = typeof visionMilestones.$inferSelect;
+export type InsertVisionMilestone = typeof visionMilestones.$inferInsert;
+export type VisionNextStep = typeof visionNextSteps.$inferSelect;
+export type InsertVisionNextStep = typeof visionNextSteps.$inferInsert;
+
+// Create schemas for validation
+export const insertVisionAreaSchema = createInsertSchema(visionAreas).omit({
+  id: true,
+  userId: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertVisionMilestoneSchema = createInsertSchema(visionMilestones).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertVisionNextStepSchema = createInsertSchema(visionNextSteps).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertVisionAreaType = z.infer<typeof insertVisionAreaSchema>;
+export type InsertVisionMilestoneType = z.infer<typeof insertVisionMilestoneSchema>;
+export type InsertVisionNextStepType = z.infer<typeof insertVisionNextStepSchema>;
+
+// Vision Board Categories
+export const VISION_CATEGORIES = [
+  { id: 'career', name: 'Career & Purpose', color: '#3B82F6', icon: '🎯' },
+  { id: 'health', name: 'Health & Wellness', color: '#10B981', icon: '🌱' },
+  { id: 'relationships', name: 'Relationships', color: '#F59E0B', icon: '💝' },
+  { id: 'growth', name: 'Personal Growth', color: '#8B5CF6', icon: '🧠' },
+  { id: 'adventure', name: 'Adventure & Experiences', color: '#EF4444', icon: '🗺️' },
+] as const;
 
 // Quest system for guided journeys
 export const quests = pgTable("quests", {

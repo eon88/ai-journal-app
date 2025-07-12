@@ -1,7 +1,7 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertJournalEntrySchema, insertFolderSchema, type AIReflection, type WeeklyReflection, type MonthlyReflection, type JournalEntry, type Folder, parseBulletSymbol, users, folders, journalEntries, LEVEL_UNLOCKS, getUnlockedFeatures, forumCategories, forumPosts, forumReplies, forumLikes, forumModerators, userStats, dailyChallenges, userChallengeCompletions, userCustomTags, isBetaTester, requireBetaAccess } from "@shared/schema";
+import { insertJournalEntrySchema, insertFolderSchema, type AIReflection, type WeeklyReflection, type MonthlyReflection, type JournalEntry, type Folder, parseBulletSymbol, users, folders, journalEntries, LEVEL_UNLOCKS, getUnlockedFeatures, forumCategories, forumPosts, forumReplies, forumLikes, forumModerators, userStats, dailyChallenges, userChallengeCompletions, userCustomTags, isBetaTester, requireBetaAccess, insertVisionAreaSchema, insertVisionMilestoneSchema, insertVisionNextStepSchema, VISION_CATEGORIES } from "@shared/schema";
 import { db } from "./db";
 import { z } from "zod";
 import { eq, and, desc, asc, like, or, inArray } from "drizzle-orm";
@@ -2875,6 +2875,222 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
     } catch (error) {
       console.error("Moderator removal error:", error);
       res.status(500).json({ success: false, message: "Failed to remove moderator" });
+    }
+  });
+
+  // Vision Board API Routes - Beta Feature
+  
+  // Get user's vision board
+  app.get("/api/vision-board", isAuthenticated, requireBetaTester, async (req: any, res: Response) => {
+    try {
+      const userId = req.user.id;
+      const visionBoard = await storage.getUserVisionBoard(userId);
+      res.json(visionBoard);
+    } catch (error) {
+      console.error("Vision board fetch error:", error);
+      res.status(500).json({ message: "Failed to fetch vision board" });
+    }
+  });
+
+  // Get vision board categories
+  app.get("/api/vision-board/categories", isAuthenticated, requireBetaTester, async (req: any, res: Response) => {
+    try {
+      res.json(VISION_CATEGORIES);
+    } catch (error) {
+      console.error("Vision categories fetch error:", error);
+      res.status(500).json({ message: "Failed to fetch vision categories" });
+    }
+  });
+
+  // Create vision area
+  app.post("/api/vision-board/areas", isAuthenticated, requireBetaTester, async (req: any, res: Response) => {
+    try {
+      const userId = req.user.id;
+      const validatedData = insertVisionAreaSchema.parse(req.body);
+      
+      // Check if user already has 5 vision areas (max limit)
+      const existingAreas = await storage.getUserVisionBoard(userId);
+      if (existingAreas.length >= 5) {
+        return res.status(400).json({ message: "Maximum 5 vision areas allowed" });
+      }
+      
+      const visionArea = await storage.createVisionArea(userId, validatedData);
+      res.json(visionArea);
+    } catch (error) {
+      console.error("Vision area creation error:", error);
+      res.status(500).json({ message: "Failed to create vision area" });
+    }
+  });
+
+  // Update vision area
+  app.patch("/api/vision-board/areas/:id", isAuthenticated, requireBetaTester, async (req: any, res: Response) => {
+    try {
+      const userId = req.user.id;
+      const areaId = parseInt(req.params.id);
+      const updates = req.body;
+      
+      const visionArea = await storage.updateVisionArea(userId, areaId, updates);
+      if (!visionArea) {
+        return res.status(404).json({ message: "Vision area not found" });
+      }
+      
+      res.json(visionArea);
+    } catch (error) {
+      console.error("Vision area update error:", error);
+      res.status(500).json({ message: "Failed to update vision area" });
+    }
+  });
+
+  // Delete vision area
+  app.delete("/api/vision-board/areas/:id", isAuthenticated, requireBetaTester, async (req: any, res: Response) => {
+    try {
+      const userId = req.user.id;
+      const areaId = parseInt(req.params.id);
+      
+      const success = await storage.deleteVisionArea(userId, areaId);
+      if (!success) {
+        return res.status(404).json({ message: "Vision area not found" });
+      }
+      
+      res.json({ message: "Vision area deleted successfully" });
+    } catch (error) {
+      console.error("Vision area deletion error:", error);
+      res.status(500).json({ message: "Failed to delete vision area" });
+    }
+  });
+
+  // Create milestone
+  app.post("/api/vision-board/milestones", isAuthenticated, requireBetaTester, async (req: any, res: Response) => {
+    try {
+      const validatedData = insertVisionMilestoneSchema.parse(req.body);
+      const milestone = await storage.createVisionMilestone(validatedData);
+      res.json(milestone);
+    } catch (error) {
+      console.error("Milestone creation error:", error);
+      res.status(500).json({ message: "Failed to create milestone" });
+    }
+  });
+
+  // Update milestone
+  app.patch("/api/vision-board/milestones/:id", isAuthenticated, requireBetaTester, async (req: any, res: Response) => {
+    try {
+      const milestoneId = parseInt(req.params.id);
+      const updates = req.body;
+      
+      const milestone = await storage.updateVisionMilestone(milestoneId, updates);
+      if (!milestone) {
+        return res.status(404).json({ message: "Milestone not found" });
+      }
+      
+      res.json(milestone);
+    } catch (error) {
+      console.error("Milestone update error:", error);
+      res.status(500).json({ message: "Failed to update milestone" });
+    }
+  });
+
+  // Delete milestone
+  app.delete("/api/vision-board/milestones/:id", isAuthenticated, requireBetaTester, async (req: any, res: Response) => {
+    try {
+      const milestoneId = parseInt(req.params.id);
+      
+      const success = await storage.deleteVisionMilestone(milestoneId);
+      if (!success) {
+        return res.status(404).json({ message: "Milestone not found" });
+      }
+      
+      res.json({ message: "Milestone deleted successfully" });
+    } catch (error) {
+      console.error("Milestone deletion error:", error);
+      res.status(500).json({ message: "Failed to delete milestone" });
+    }
+  });
+
+  // Create next step
+  app.post("/api/vision-board/next-steps", isAuthenticated, requireBetaTester, async (req: any, res: Response) => {
+    try {
+      const validatedData = insertVisionNextStepSchema.parse(req.body);
+      const nextStep = await storage.createVisionNextStep(validatedData);
+      res.json(nextStep);
+    } catch (error) {
+      console.error("Next step creation error:", error);
+      res.status(500).json({ message: "Failed to create next step" });
+    }
+  });
+
+  // Update next step
+  app.patch("/api/vision-board/next-steps/:id", isAuthenticated, requireBetaTester, async (req: any, res: Response) => {
+    try {
+      const nextStepId = parseInt(req.params.id);
+      const updates = req.body;
+      
+      const nextStep = await storage.updateVisionNextStep(nextStepId, updates);
+      if (!nextStep) {
+        return res.status(404).json({ message: "Next step not found" });
+      }
+      
+      res.json(nextStep);
+    } catch (error) {
+      console.error("Next step update error:", error);
+      res.status(500).json({ message: "Failed to update next step" });
+    }
+  });
+
+  // Delete next step
+  app.delete("/api/vision-board/next-steps/:id", isAuthenticated, requireBetaTester, async (req: any, res: Response) => {
+    try {
+      const nextStepId = parseInt(req.params.id);
+      
+      const success = await storage.deleteVisionNextStep(nextStepId);
+      if (!success) {
+        return res.status(404).json({ message: "Next step not found" });
+      }
+      
+      res.json({ message: "Next step deleted successfully" });
+    } catch (error) {
+      console.error("Next step deletion error:", error);
+      res.status(500).json({ message: "Failed to delete next step" });
+    }
+  });
+
+  // Generate AI vision suggestions
+  app.post("/api/vision-board/ai-suggestions", isAuthenticated, requireBetaTester, async (req: any, res: Response) => {
+    try {
+      const userId = req.user.id;
+      const suggestions = await storage.generateAIVisionSuggestions(userId);
+      
+      // Use OpenAI to generate actual suggestions
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          {
+            role: "system",
+            content: "You are a life coach AI helping users create vision boards. Analyze their journal entries and provide personalized vision area suggestions following the 5-3-1 formula."
+          },
+          {
+            role: "user",
+            content: suggestions.prompt
+          }
+        ],
+        temperature: 0.7,
+      });
+
+      let aiSuggestions;
+      try {
+        aiSuggestions = JSON.parse(completion.choices[0].message.content || '{}');
+      } catch (parseError) {
+        console.error("Failed to parse AI response:", parseError);
+        aiSuggestions = { suggestedAreas: [] };
+      }
+
+      res.json({
+        suggestions: aiSuggestions,
+        entriesAnalyzed: suggestions.entriesAnalyzed,
+        insightsAnalyzed: suggestions.insightsAnalyzed
+      });
+    } catch (error) {
+      console.error("AI suggestions error:", error);
+      res.status(500).json({ message: "Failed to generate AI suggestions" });
     }
   });
 

@@ -55,7 +55,17 @@ import {
   getNextUnlock,
   LEVEL_UNLOCKS,
   isBetaTester,
-  requireBetaAccess
+  requireBetaAccess,
+  visionAreas,
+  visionMilestones,
+  visionNextSteps,
+  type VisionArea,
+  type VisionMilestone,
+  type VisionNextStep,
+  type InsertVisionArea,
+  type InsertVisionMilestone,
+  type InsertVisionNextStep,
+  VISION_CATEGORIES
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, sql, and, gte, lte, count, isNotNull } from "drizzle-orm";
@@ -153,6 +163,22 @@ export interface IStorage {
   toggleForumLike(userId: number, postId?: number, replyId?: number): Promise<boolean>;
   incrementPostViews(postId: number): Promise<void>;
   getForumStats(): Promise<{ totalPosts: number; totalCategories: number; activeMembers: number; onlineNow: number }>;
+  
+  // Vision Board - 5-3-1 Formula
+  getUserVisionBoard(userId: number): Promise<VisionArea[]>;
+  createVisionArea(userId: number, area: InsertVisionArea): Promise<VisionArea>;
+  updateVisionArea(userId: number, areaId: number, updates: Partial<InsertVisionArea>): Promise<VisionArea | undefined>;
+  deleteVisionArea(userId: number, areaId: number): Promise<boolean>;
+  
+  createVisionMilestone(milestone: InsertVisionMilestone): Promise<VisionMilestone>;
+  updateVisionMilestone(milestoneId: number, updates: Partial<InsertVisionMilestone>): Promise<VisionMilestone | undefined>;
+  deleteVisionMilestone(milestoneId: number): Promise<boolean>;
+  
+  createVisionNextStep(nextStep: InsertVisionNextStep): Promise<VisionNextStep>;
+  updateVisionNextStep(nextStepId: number, updates: Partial<InsertVisionNextStep>): Promise<VisionNextStep | undefined>;
+  deleteVisionNextStep(nextStepId: number): Promise<boolean>;
+  
+  generateAIVisionSuggestions(userId: number): Promise<any>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1461,6 +1487,186 @@ export class DatabaseStorage implements IStorage {
       .returning();
     
     return userQuest;
+  }
+
+  // Vision Board - 5-3-1 Formula Implementation
+  async getUserVisionBoard(userId: number): Promise<VisionArea[]> {
+    const areas = await db
+      .select()
+      .from(visionAreas)
+      .where(and(
+        eq(visionAreas.userId, userId),
+        eq(visionAreas.isActive, true)
+      ))
+      .orderBy(visionAreas.position);
+    
+    // Get milestones and next steps for each area
+    const visionBoard = await Promise.all(
+      areas.map(async (area) => {
+        const milestones = await db
+          .select()
+          .from(visionMilestones)
+          .where(eq(visionMilestones.visionAreaId, area.id))
+          .orderBy(visionMilestones.position);
+        
+        const milestonesWithSteps = await Promise.all(
+          milestones.map(async (milestone) => {
+            const nextSteps = await db
+              .select()
+              .from(visionNextSteps)
+              .where(eq(visionNextSteps.milestoneId, milestone.id))
+              .orderBy(visionNextSteps.createdAt);
+            
+            return { ...milestone, nextSteps };
+          })
+        );
+        
+        return { ...area, milestones: milestonesWithSteps };
+      })
+    );
+    
+    return visionBoard as VisionArea[];
+  }
+
+  async createVisionArea(userId: number, area: InsertVisionArea): Promise<VisionArea> {
+    const [visionArea] = await db
+      .insert(visionAreas)
+      .values({
+        userId,
+        ...area,
+      })
+      .returning();
+    
+    return visionArea;
+  }
+
+  async updateVisionArea(userId: number, areaId: number, updates: Partial<InsertVisionArea>): Promise<VisionArea | undefined> {
+    const [visionArea] = await db
+      .update(visionAreas)
+      .set(updates)
+      .where(and(
+        eq(visionAreas.id, areaId),
+        eq(visionAreas.userId, userId)
+      ))
+      .returning();
+    
+    return visionArea;
+  }
+
+  async deleteVisionArea(userId: number, areaId: number): Promise<boolean> {
+    const result = await db
+      .delete(visionAreas)
+      .where(and(
+        eq(visionAreas.id, areaId),
+        eq(visionAreas.userId, userId)
+      ));
+    
+    return result.rowCount > 0;
+  }
+
+  async createVisionMilestone(milestone: InsertVisionMilestone): Promise<VisionMilestone> {
+    const [visionMilestone] = await db
+      .insert(visionMilestones)
+      .values(milestone)
+      .returning();
+    
+    return visionMilestone;
+  }
+
+  async updateVisionMilestone(milestoneId: number, updates: Partial<InsertVisionMilestone>): Promise<VisionMilestone | undefined> {
+    const [visionMilestone] = await db
+      .update(visionMilestones)
+      .set(updates)
+      .where(eq(visionMilestones.id, milestoneId))
+      .returning();
+    
+    return visionMilestone;
+  }
+
+  async deleteVisionMilestone(milestoneId: number): Promise<boolean> {
+    const result = await db
+      .delete(visionMilestones)
+      .where(eq(visionMilestones.id, milestoneId));
+    
+    return result.rowCount > 0;
+  }
+
+  async createVisionNextStep(nextStep: InsertVisionNextStep): Promise<VisionNextStep> {
+    const [visionNextStep] = await db
+      .insert(visionNextSteps)
+      .values(nextStep)
+      .returning();
+    
+    return visionNextStep;
+  }
+
+  async updateVisionNextStep(nextStepId: number, updates: Partial<InsertVisionNextStep>): Promise<VisionNextStep | undefined> {
+    const [visionNextStep] = await db
+      .update(visionNextSteps)
+      .set(updates)
+      .where(eq(visionNextSteps.id, nextStepId))
+      .returning();
+    
+    return visionNextStep;
+  }
+
+  async deleteVisionNextStep(nextStepId: number): Promise<boolean> {
+    const result = await db
+      .delete(visionNextSteps)
+      .where(eq(visionNextSteps.id, nextStepId));
+    
+    return result.rowCount > 0;
+  }
+
+  async generateAIVisionSuggestions(userId: number): Promise<any> {
+    // Get user's recent journal entries for AI analysis
+    const recentEntries = await this.getRecentJournalEntries(userId, 20);
+    const insights = await this.getSavedInsights(userId);
+    
+    // Analyze patterns and suggest vision areas
+    const entryTexts = recentEntries.map(entry => entry.content).join('\n\n');
+    const insightTexts = insights.map(insight => insight.content).join('\n\n');
+    
+    const analysisPrompt = `
+Based on the following journal entries and insights, suggest 3-5 major life areas for a vision board following the 5-3-1 formula:
+
+Journal Entries:
+${entryTexts}
+
+Saved Insights:
+${insightTexts}
+
+For each suggested area, provide:
+1. Title (clear, motivating)
+2. Description (why this matters)
+3. Category (career, health, relationships, growth, adventure)
+4. 3 realistic milestones
+5. 1 immediate next step for each milestone
+
+Format as JSON with structure:
+{
+  "suggestedAreas": [
+    {
+      "title": "string",
+      "description": "string", 
+      "category": "string",
+      "milestones": [
+        {
+          "title": "string",
+          "description": "string",
+          "nextStep": "string"
+        }
+      ]
+    }
+  ]
+}
+`;
+
+    return {
+      prompt: analysisPrompt,
+      entriesAnalyzed: recentEntries.length,
+      insightsAnalyzed: insights.length
+    };
   }
 }
 
