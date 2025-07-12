@@ -87,7 +87,7 @@ export function CustomTagsSelector({
           trigger={
             <Button variant="ghost" size="sm" className="gap-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
               <Settings className="h-4 w-4" />
-              Manage Tags
+              <span className="hidden sm:inline">Manage Tags</span>
             </Button>
           }
         />
