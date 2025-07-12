@@ -22,29 +22,47 @@ export function useAuth() {
     },
     onSuccess: async () => {
       console.log("Login successful, clearing cache and refetching auth");
-      // Clear all cached data for privacy
-      queryClient.clear();
       
-      // Wait a moment for session to be established
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      // Refetch auth data to get the logged-in user
-      const authResult = await refetch();
-      console.log("Auth refetch result:", authResult);
-      
-      // Show success toast
+      // Show success toast first
       toast({
         title: "Welcome Back!",
         description: "You're now logged in to Life Path Companion.",
       });
       
-      // Only redirect if we have a valid user
-      if (authResult.data) {
-        console.log("Navigating to home page");
-        window.location.replace('/');
-      } else {
-        console.warn("Auth refetch failed, staying on login page");
+      // Clear all cached data for privacy
+      queryClient.clear();
+      
+      // Wait a moment for session to be established
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
+      // Try to refetch auth data multiple times to ensure it works
+      let authResult;
+      let attempts = 0;
+      const maxAttempts = 3;
+      
+      while (attempts < maxAttempts) {
+        try {
+          authResult = await refetch();
+          console.log(`Auth refetch attempt ${attempts + 1}:`, authResult);
+          
+          if (authResult.data) {
+            console.log("Auth refetch successful, navigating to home page");
+            window.location.replace('/');
+            return;
+          }
+        } catch (error) {
+          console.error(`Auth refetch attempt ${attempts + 1} failed:`, error);
+        }
+        
+        attempts++;
+        if (attempts < maxAttempts) {
+          await new Promise(resolve => setTimeout(resolve, 300));
+        }
       }
+      
+      // If all attempts failed, force redirect anyway since login was successful
+      console.warn("Auth refetch failed after multiple attempts, forcing redirect");
+      window.location.replace('/');
     },
     onError: (error: any) => {
       console.error("Login error:", error);
@@ -63,29 +81,47 @@ export function useAuth() {
     },
     onSuccess: async () => {
       console.log("Registration successful, clearing cache and refetching auth");
-      // Clear all cached data for privacy
-      queryClient.clear();
       
-      // Wait a moment for session to be established
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      // Refetch auth data to get the registered user
-      const authResult = await refetch();
-      console.log("Auth refetch result:", authResult);
-      
-      // Show success toast
+      // Show success toast first
       toast({
         title: "Account Created!",
         description: "Welcome to Life Path Companion. You're now logged in.",
       });
       
-      // Only redirect if we have a valid user
-      if (authResult.data) {
-        console.log("Navigating to home page");
-        window.location.replace('/');
-      } else {
-        console.warn("Auth refetch failed, staying on registration page");
+      // Clear all cached data for privacy
+      queryClient.clear();
+      
+      // Wait a moment for session to be established
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
+      // Try to refetch auth data multiple times to ensure it works
+      let authResult;
+      let attempts = 0;
+      const maxAttempts = 3;
+      
+      while (attempts < maxAttempts) {
+        try {
+          authResult = await refetch();
+          console.log(`Auth refetch attempt ${attempts + 1}:`, authResult);
+          
+          if (authResult.data) {
+            console.log("Auth refetch successful, navigating to home page");
+            window.location.replace('/');
+            return;
+          }
+        } catch (error) {
+          console.error(`Auth refetch attempt ${attempts + 1} failed:`, error);
+        }
+        
+        attempts++;
+        if (attempts < maxAttempts) {
+          await new Promise(resolve => setTimeout(resolve, 300));
+        }
       }
+      
+      // If all attempts failed, force redirect anyway since registration was successful
+      console.warn("Auth refetch failed after multiple attempts, forcing redirect");
+      window.location.replace('/');
     },
     onError: (error: any) => {
       console.error("Registration error:", error);
