@@ -498,6 +498,46 @@ export class DatabaseStorage implements IStorage {
     return savedInsight;
   }
 
+  async saveReflectionToVault(
+    userId: number, 
+    reflectionType: 'weekly' | 'monthly', 
+    reflectionPeriod: string,
+    title: string,
+    content: string
+  ): Promise<SavedInsight | null> {
+    // Check if this reflection already exists
+    const [existing] = await db
+      .select()
+      .from(savedInsights)
+      .where(and(
+        eq(savedInsights.userId, userId),
+        eq(savedInsights.reflectionType, reflectionType),
+        eq(savedInsights.reflectionPeriod, reflectionPeriod)
+      ));
+
+    if (existing) {
+      console.log(`${reflectionType} reflection for ${reflectionPeriod} already exists in vault`);
+      return existing;
+    }
+
+    // Save new reflection to vault
+    const [savedInsight] = await db
+      .insert(savedInsights)
+      .values({
+        userId,
+        title,
+        content,
+        category: 'insight',
+        source: reflectionType,
+        reflectionType,
+        reflectionPeriod
+      })
+      .returning();
+
+    console.log(`Auto-saved ${reflectionType} reflection for ${reflectionPeriod} to vault`);
+    return savedInsight;
+  }
+
   async getSavedInsights(userId: number): Promise<SavedInsight[]> {
     return await db
       .select()

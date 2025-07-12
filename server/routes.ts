@@ -901,6 +901,43 @@ Keep it encouraging but honest, focusing on patterns and momentum.`;
         processingTime
       };
 
+      // Auto-save weekly reflection to vault
+      try {
+        const reflectionContent = `Weekly Period: ${weekStart} to ${endDate.toISOString().split('T')[0]}
+Entries Analyzed: ${entries.length}
+
+📊 DOMINANT MOODS
+${Array.isArray(weeklyReflection.dominantMoods) ? weeklyReflection.dominantMoods.join(', ') : weeklyReflection.dominantMoods}
+
+🎯 COMMON THEMES
+${weeklyReflection.commonThemes}
+
+🌱 GROWTH OBSERVATIONS
+${weeklyReflection.growthObservations}
+
+💡 WEEKLY INSIGHT
+${weeklyReflection.weeklyInsight}
+
+🧭 DIRECTION & MOMENTUM
+${weeklyReflection.directionAndMomentum}
+
+🎯 EMERGING GOALS
+${Array.isArray(weeklyReflection.emergingGoals) ? weeklyReflection.emergingGoals.map(goal => `• ${goal}`).join('\n') : weeklyReflection.emergingGoals}
+
+${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessment}` : ''}`;
+
+        await storage.saveReflectionToVault(
+          userId,
+          'weekly',
+          weekStart,
+          `Weekly Reflection: ${weekStart}`,
+          reflectionContent
+        );
+      } catch (vaultError) {
+        console.error("Error saving weekly reflection to vault:", vaultError);
+        // Continue without failing the main request
+      }
+
       res.json({ summary: weeklyReflection });
     } catch (error) {
       console.error("Weekly reflection error:", error);
@@ -1460,6 +1497,47 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
         goalProgressAssessment,
         processingTime
       };
+
+      // Auto-save monthly reflection to vault
+      try {
+        const monthYear = `${year}-${String(new Date(`${month} 1, ${year}`).getMonth() + 1).padStart(2, '0')}`;
+        const reflectionContent = `Monthly Period: ${month} ${year}
+Entries Analyzed: ${entries.length}
+
+📈 MOOD TRENDS
+${monthlyReflection.moodTrends}
+
+🎯 KEY THEMES
+${monthlyReflection.keyThemes}
+
+🌱 GROWTH JOURNEY
+${monthlyReflection.growthJourney}
+
+💡 MONTHLY WISDOM
+${monthlyReflection.monthlyWisdom}
+
+🧭 LIFE DIRECTION
+${monthlyReflection.lifeDirection}
+
+🎯 EMERGING GOALS
+${Array.isArray(monthlyReflection.emergingGoals) ? monthlyReflection.emergingGoals.map(goal => `• ${goal}`).join('\n') : monthlyReflection.emergingGoals}
+
+💪 GOAL ACHIEVEMENT SUGGESTIONS
+${Array.isArray(monthlyReflection.goalAchievementSuggestions) ? monthlyReflection.goalAchievementSuggestions.map(suggestion => `• ${suggestion}`).join('\n') : monthlyReflection.goalAchievementSuggestions}
+
+${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessment}` : ''}`;
+
+        await storage.saveReflectionToVault(
+          userId,
+          'monthly',
+          monthYear,
+          `Monthly Reflection: ${month} ${year}`,
+          reflectionContent
+        );
+      } catch (vaultError) {
+        console.error("Error saving monthly reflection to vault:", vaultError);
+        // Continue without failing the main request
+      }
 
       res.json({ summary: monthlyReflection });
     } catch (error) {

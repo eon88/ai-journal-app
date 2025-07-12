@@ -39,7 +39,7 @@ export function PeriodicReflections() {
       setWeeklyReflection(result.summary);
       toast({
         title: "Weekly reflection generated!",
-        description: "Your AI-powered weekly insights are ready.",
+        description: "Your insights are ready and auto-saved to The Vault for future reference.",
       });
     },
     onError: (error) => {
@@ -61,7 +61,7 @@ export function PeriodicReflections() {
       setMonthlyReflection(result.summary);
       toast({
         title: "Monthly reflection generated!",
-        description: "Your AI-powered monthly insights are ready.",
+        description: "Your insights are ready and auto-saved to The Vault for future reference.",
       });
     },
     onError: (error) => {

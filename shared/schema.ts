@@ -194,6 +194,8 @@ export const savedInsights = pgTable("saved_insights", {
   content: text("content").notNull(),
   category: text("category").notNull(), // 'insight', 'lesson', 'goal'
   source: text("source").notNull(), // 'daily', 'weekly', 'monthly'
+  reflectionType: text("reflection_type"), // 'weekly', 'monthly' for auto-saved reflections
+  reflectionPeriod: text("reflection_period"), // e.g., '2025-07-07', '2025-07' for deduplication
   entryId: integer("entry_id").references(() => journalEntries.id),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
