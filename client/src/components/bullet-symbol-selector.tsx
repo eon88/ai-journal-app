@@ -68,12 +68,12 @@ export function BulletSymbolSelector({ selectedSymbol, onSymbolSelect, inline = 
 
   if (inline) {
     return (
-      <div className="flex items-start gap-1 w-full">
+      <div className="flex items-start gap-0.5 w-full">
         {/* Common symbols - tightly spaced */}
         {commonSymbols.map((symbol) => {
           const config = BULLET_SYMBOLS[symbol as keyof typeof BULLET_SYMBOLS];
           return (
-            <div key={symbol} className="flex flex-col items-center gap-1">
+            <div key={symbol} className="flex flex-col items-center gap-0.5 flex-1">
               <Button
                 variant={selectedSymbol === symbol ? "default" : "outline"}
                 size="sm"
@@ -83,7 +83,7 @@ export function BulletSymbolSelector({ selectedSymbol, onSymbolSelect, inline = 
               >
                 {symbol}
               </Button>
-              <span className="text-[10px] text-gray-500 dark:text-gray-400 text-center leading-none">
+              <span className="text-[8px] text-gray-500 dark:text-gray-400 text-center leading-none">
                 {getSymbolLabel(symbol)}
               </span>
             </div>
@@ -92,7 +92,7 @@ export function BulletSymbolSelector({ selectedSymbol, onSymbolSelect, inline = 
         
         {/* More symbols dropdown - fits in remaining space */}
         {additionalSymbols.length > 0 && (
-          <div className="flex flex-col items-center gap-1">
+          <div className="flex flex-col items-center gap-0.5">
             <Popover open={isOpen} onOpenChange={setIsOpen}>
               <PopoverTrigger asChild>
                 <Button 
@@ -137,7 +137,7 @@ export function BulletSymbolSelector({ selectedSymbol, onSymbolSelect, inline = 
               </div>
             </PopoverContent>
           </Popover>
-            <span className="text-[10px] text-gray-500 dark:text-gray-400 text-center leading-none invisible">
+            <span className="text-[8px] text-gray-500 dark:text-gray-400 text-center leading-none invisible">
               Menu
             </span>
           </div>
