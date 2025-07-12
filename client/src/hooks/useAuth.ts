@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getQueryFn, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { useLocation } from "wouter";
 
 export function useAuth() {
   const { data: user, isLoading, error, refetch } = useQuery({
@@ -13,7 +12,6 @@ export function useAuth() {
 
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const [, navigate] = useLocation();
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: { username: string; password: string }) => {
@@ -21,18 +19,25 @@ export function useAuth() {
       return response.json();
     },
     onSuccess: async () => {
+      console.log("Login successful, clearing cache and refetching auth");
       // Clear all cached data for privacy
       queryClient.clear();
       // Refetch auth data to get the logged-in user
-      await refetch();
-      // Navigate to home page
-      navigate('/');
+      const authResult = await refetch();
+      console.log("Auth refetch result:", authResult);
+      
+      // Show success toast
       toast({
         title: "Welcome Back!",
         description: "You're now logged in to Life Path Companion.",
       });
+      
+      // Force navigation to home page
+      console.log("Navigating to home page");
+      window.location.replace('/');
     },
     onError: (error: any) => {
+      console.error("Login error:", error);
       toast({
         title: "Login Failed",
         description: error.message || "Invalid credentials. Please try again.",
@@ -47,18 +52,25 @@ export function useAuth() {
       return response.json();
     },
     onSuccess: async () => {
+      console.log("Registration successful, clearing cache and refetching auth");
       // Clear all cached data for privacy
       queryClient.clear();
       // Refetch auth data to get the registered user
-      await refetch();
-      // Navigate to home page
-      navigate('/');
+      const authResult = await refetch();
+      console.log("Auth refetch result:", authResult);
+      
+      // Show success toast
       toast({
         title: "Account Created!",
         description: "Welcome to Life Path Companion. You're now logged in.",
       });
+      
+      // Force navigation to home page
+      console.log("Navigating to home page");
+      window.location.replace('/');
     },
     onError: (error: any) => {
+      console.error("Registration error:", error);
       toast({
         title: "Registration Failed",
         description: error.message || "Failed to create account. Please try again.",
@@ -75,7 +87,7 @@ export function useAuth() {
       // Clear all cached data
       queryClient.clear();
       // Navigate to landing page
-      navigate('/');
+      window.location.replace('/');
       toast({
         title: "Logged Out",
         description: "You've been successfully logged out.",
