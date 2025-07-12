@@ -5,8 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { BookOpen, User, Mail, Lock, UserPlus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -18,34 +17,7 @@ export default function Register() {
     lastName: ""
   });
   const { toast } = useToast();
-  const queryClient = useQueryClient();
-
-  const registerMutation = useMutation({
-    mutationFn: async (data: typeof formData) => {
-      return apiRequest('/api/register', 'POST', data);
-    },
-    onSuccess: async () => {
-      toast({
-        title: "Account Created!",
-        description: "Welcome to Life Path Companion. You're now logged in.",
-      });
-      // CRITICAL: Clear ALL cached data to prevent privacy issues when switching users
-      queryClient.clear();
-      // Refetch auth data to update state
-      await queryClient.refetchQueries({ queryKey: ["/api/auth/user"] });
-      // Small delay to ensure auth state is updated before redirect
-      setTimeout(() => {
-        window.location.href = '/';
-      }, 100);
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Registration Failed",
-        description: error.message || "Failed to create account. Please try again.",
-        variant: "destructive",
-      });
-    },
-  });
+  const { register, isRegistering } = useAuth();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,7 +49,7 @@ export default function Register() {
       return;
     }
 
-    registerMutation.mutate(formData);
+    register(formData);
   };
 
   const handleInputChange = (field: keyof typeof formData, value: string) => {
@@ -201,9 +173,9 @@ export default function Register() {
               <Button 
                 type="submit" 
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                disabled={registerMutation.isPending}
+                disabled={isRegistering}
               >
-                {registerMutation.isPending ? "Creating Account..." : "Create Account"}
+                {isRegistering ? "Creating Account..." : "Create Account"}
               </Button>
 
               <div className="text-center pt-4">

@@ -5,8 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { BookOpen, User, Lock, LogIn } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -14,34 +13,7 @@ export default function Login() {
     password: ""
   });
   const { toast } = useToast();
-  const queryClient = useQueryClient();
-
-  const loginMutation = useMutation({
-    mutationFn: async (data: typeof formData) => {
-      return apiRequest('/api/login', 'POST', data);
-    },
-    onSuccess: async () => {
-      toast({
-        title: "Welcome Back!",
-        description: "You're now logged in to Life Path Companion.",
-      });
-      // CRITICAL: Clear ALL cached data to prevent privacy issues when switching users
-      queryClient.clear();
-      // Refetch auth data to update state
-      await queryClient.refetchQueries({ queryKey: ["/api/auth/user"] });
-      // Small delay to ensure auth state is updated before redirect
-      setTimeout(() => {
-        window.location.href = '/';
-      }, 100);
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Login Failed",
-        description: error.message || "Invalid credentials. Please try again.",
-        variant: "destructive",
-      });
-    },
-  });
+  const { login, isLoggingIn } = useAuth();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,7 +27,7 @@ export default function Login() {
       return;
     }
 
-    loginMutation.mutate(formData);
+    login(formData);
   };
 
   const handleInputChange = (field: keyof typeof formData, value: string) => {
@@ -122,9 +94,9 @@ export default function Login() {
               <Button 
                 type="submit" 
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                disabled={loginMutation.isPending}
+                disabled={isLoggingIn}
               >
-                {loginMutation.isPending ? "Signing In..." : "Sign In"}
+                {isLoggingIn ? "Signing In..." : "Sign In"}
               </Button>
 
               <div className="text-center pt-4">
