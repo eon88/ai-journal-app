@@ -1,7 +1,7 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertJournalEntrySchema, insertFolderSchema, type AIReflection, type WeeklyReflection, type MonthlyReflection, type JournalEntry, type Folder, parseBulletSymbol, users, folders, journalEntries, LEVEL_UNLOCKS, getUnlockedFeatures, forumCategories, forumPosts, forumReplies, forumLikes, forumModerators, userStats, dailyChallenges, userChallengeCompletions, userCustomTags } from "@shared/schema";
+import { insertJournalEntrySchema, insertFolderSchema, type AIReflection, type WeeklyReflection, type MonthlyReflection, type JournalEntry, type Folder, parseBulletSymbol, users, folders, journalEntries, LEVEL_UNLOCKS, getUnlockedFeatures, forumCategories, forumPosts, forumReplies, forumLikes, forumModerators, userStats, dailyChallenges, userChallengeCompletions, userCustomTags, isBetaTester, requireBetaAccess } from "@shared/schema";
 import { db } from "./db";
 import { z } from "zod";
 import { eq, and, desc, asc, like, or, inArray } from "drizzle-orm";
@@ -26,6 +26,25 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 function getLevelMotivation(level: number): string {
   const unlock = LEVEL_UNLOCKS.find(u => u.level === level);
   return unlock?.motivation || "Keep growing and exploring your inner world!";
+}
+
+// Beta tester middleware - Only allows eon (ID: 2) and Noony (ID: 4)
+function requireBetaTester(req: any, res: Response, next: NextFunction) {
+  try {
+    const userId = req.user?.id;
+    if (!userId || !isBetaTester(userId)) {
+      return res.status(403).json({ 
+        error: "Beta access required", 
+        message: "This feature is only available to beta testers" 
+      });
+    }
+    next();
+  } catch (error) {
+    res.status(403).json({ 
+      error: "Beta access required", 
+      message: "This feature is only available to beta testers" 
+    });
+  }
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -184,6 +203,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching entry count:", error);
       res.status(500).json({ message: "Failed to fetch entry count" });
+    }
+  });
+
+  // Check if user is a beta tester
+  app.get('/api/user/beta-status', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const isBeta = isBetaTester(userId);
+      res.json({ isBetaTester: isBeta, userId });
+    } catch (error) {
+      console.error("Error checking beta status:", error);
+      res.status(500).json({ message: "Failed to check beta status" });
     }
   });
 

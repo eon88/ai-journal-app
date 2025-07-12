@@ -691,6 +691,20 @@ export function getNextUnlock(userLevel: number): FeatureUnlock | null {
   return nextUnlock || null;
 }
 
+// Beta tester system - Only eon (ID: 2) and Noony (ID: 4) have beta access
+export const BETA_TESTER_IDS = [2, 4];
+
+export function isBetaTester(userId: number): boolean {
+  return BETA_TESTER_IDS.includes(userId);
+}
+
+export function requireBetaAccess(userId: number): boolean {
+  if (!isBetaTester(userId)) {
+    throw new Error("This feature is only available to beta testers");
+  }
+  return true;
+}
+
 // User progress tracking
 export const userProgress = pgTable("user_progress", {
   id: serial("id").primaryKey(),

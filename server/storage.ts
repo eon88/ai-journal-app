@@ -53,7 +53,9 @@ import {
   isFeatureUnlocked,
   getUnlockedFeatures,
   getNextUnlock,
-  LEVEL_UNLOCKS
+  LEVEL_UNLOCKS,
+  isBetaTester,
+  requireBetaAccess
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, sql, and, gte, lte, count, isNotNull } from "drizzle-orm";
