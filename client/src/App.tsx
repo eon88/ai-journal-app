@@ -34,6 +34,7 @@ import Register from "@/pages/register";
 import Questionnaire from "@/pages/questionnaire";
 import RulesOfTheGame from "@/pages/rules-of-the-game";
 import VisionBoard from "@/pages/vision-board";
+import VisionArchitect from "@/pages/vision-architect";
 
 function Router() {
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -74,6 +75,7 @@ function Router() {
           <Route path="/entries" component={Entries} />
           <Route path="/vault" component={Vault} />
           <Route path="/vision-board" component={VisionBoard} />
+          <Route path="/vision-architect" component={VisionArchitect} />
           <Route path="/entry/:id" component={EntryDetail} />
           <Route path="/profile" component={UserProfile} />
           <Route path="/forum" component={Forum} />

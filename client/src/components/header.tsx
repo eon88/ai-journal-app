@@ -1,4 +1,4 @@
-import { Calendar, User, Crown, LogOut, UserCircle, Home, Shield, Settings, Map } from "lucide-react";
+import { Calendar, User, Crown, LogOut, UserCircle, Home, Shield, Settings, Map, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Link } from "wouter";
@@ -149,6 +149,15 @@ export function Header() {
                     <DropdownMenuItem className="cursor-pointer">
                       <Map className="mr-2 h-4 w-4" />
                       Vision Board
+                    </DropdownMenuItem>
+                  </Link>
+                )}
+
+                {isBetaTester && (
+                  <Link to="/vision-architect">
+                    <DropdownMenuItem className="cursor-pointer">
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      Vision Architect
                     </DropdownMenuItem>
                   </Link>
                 )}

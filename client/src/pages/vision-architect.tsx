@@ -1,0 +1,437 @@
+import { useState, useRef, useEffect } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
+import { BetaFeature } from "@/hooks/useBetaAccess";
+import { apiRequest } from "@/lib/queryClient";
+import { Send, Sparkles, ArrowRight } from "lucide-react";
+
+interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: Date;
+}
+
+interface VisionData {
+  categories: Record<string, {
+    title: string;
+    phrase: string;
+    milestones: string[];
+  }>;
+  commitmentTime: string;
+  phase: 'chat' | 'board' | 'commitment';
+}
+
+export default function VisionArchitect() {
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    {
+      role: 'assistant',
+      content: "Hello! I'm your Vision Architect - think of me as your personal life design mentor. I'm here to guide you through a journey of deep self-reflection to help you clarify your ideal life and create a visual roadmap for achieving it.\n\nLet's start with something fundamental: When you imagine your ideal life 5-10 years from now, what does it *feel* like? Don't worry about specifics yet - just describe the emotions, the sense of fulfillment, the overall atmosphere of that life.",
+      timestamp: new Date()
+    }
+  ]);
+  
+  const [currentInput, setCurrentInput] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
+  const [visionData, setVisionData] = useState<VisionData>({
+    categories: {},
+    commitmentTime: "",
+    phase: 'chat'
+  });
+  
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const chatMutation = useMutation({
+    mutationFn: async (userMessage: string) => {
+      const response = await apiRequest('/api/vision-architect/chat', 'POST', {
+        messages: [...messages, { role: 'user', content: userMessage }],
+        visionData
+      });
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setMessages(prev => [...prev, {
+        role: 'assistant',
+        content: data.message,
+        timestamp: new Date()
+      }]);
+      
+      if (data.visionData) {
+        setVisionData(data.visionData);
+      }
+      
+      setIsTyping(false);
+    },
+    onError: (error: any) => {
+      console.error("Chat error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to get response. Please try again.",
+        variant: "destructive",
+      });
+      setIsTyping(false);
+    },
+  });
+
+  const handleSendMessage = () => {
+    if (!currentInput.trim() || isTyping) return;
+
+    const userMessage = {
+      role: 'user' as const,
+      content: currentInput,
+      timestamp: new Date()
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setCurrentInput("");
+    setIsTyping(true);
+    
+    chatMutation.mutate(currentInput);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  const startVisionBoard = () => {
+    setVisionData(prev => ({ ...prev, phase: 'board' }));
+  };
+
+  if (visionData.phase === 'board') {
+    return <VisionBoard visionData={visionData} setVisionData={setVisionData} />;
+  }
+
+  if (visionData.phase === 'commitment') {
+    return <CommitmentSystem visionData={visionData} setVisionData={setVisionData} />;
+  }
+
+  return (
+    <BetaFeature fallback={
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4">
+        <Card className="max-w-2xl mx-auto">
+          <CardContent className="text-center py-12">
+            <Sparkles className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-2">
+              Vision Architect
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300">
+              Vision Architect is currently in beta testing. This feature will be available soon for all users.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    }>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
+        <div className="max-w-4xl mx-auto">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold text-white mb-2 flex items-center justify-center gap-3">
+              <Sparkles className="h-10 w-10 text-blue-400" />
+              Vision Architect
+            </h1>
+            <p className="text-slate-300">
+              Your AI-powered life design mentor
+            </p>
+          </div>
+
+          {/* Chat Interface */}
+          <Card className="bg-white/95 backdrop-blur-sm border-slate-300 shadow-2xl">
+            <CardContent className="p-0">
+              {/* Messages */}
+              <div className="h-96 overflow-y-auto p-6 space-y-4">
+                {messages.map((message, index) => (
+                  <div
+                    key={index}
+                    className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div
+                      className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                        message.role === 'user'
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-gray-100 text-gray-900'
+                      }`}
+                    >
+                      <p className="whitespace-pre-wrap text-sm leading-relaxed">
+                        {message.content}
+                      </p>
+                      <div className="text-xs opacity-70 mt-1">
+                        {message.timestamp.toLocaleTimeString([], { 
+                          hour: '2-digit', 
+                          minute: '2-digit' 
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                
+                {isTyping && (
+                  <div className="flex justify-start">
+                    <div className="bg-gray-100 rounded-2xl px-4 py-3">
+                      <div className="flex space-x-1">
+                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                <div ref={messagesEndRef} />
+              </div>
+
+              {/* Input */}
+              <div className="border-t border-gray-200 p-4">
+                <div className="flex gap-2">
+                  <Input
+                    value={currentInput}
+                    onChange={(e) => setCurrentInput(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Share your thoughts..."
+                    className="flex-1"
+                    disabled={isTyping}
+                  />
+                  <Button
+                    onClick={handleSendMessage}
+                    disabled={!currentInput.trim() || isTyping}
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Progress Indicator */}
+          {Object.keys(visionData.categories).length > 0 && (
+            <Card className="mt-6 bg-white/95 backdrop-blur-sm border-slate-300">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-blue-500" />
+                    <span className="text-sm font-medium">
+                      Vision Categories Discovered: {Object.keys(visionData.categories).length}
+                    </span>
+                  </div>
+                  {Object.keys(visionData.categories).length >= 3 && (
+                    <Button
+                      onClick={startVisionBoard}
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                    >
+                      Create Vision Board
+                      <ArrowRight className="h-4 w-4 ml-2" />
+                    </Button>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </div>
+    </BetaFeature>
+  );
+}
+
+// Vision Board Component
+function VisionBoard({ visionData, setVisionData }: { 
+  visionData: VisionData, 
+  setVisionData: (data: VisionData) => void 
+}) {
+  const [draggedCard, setDraggedCard] = useState<string | null>(null);
+  const [cardPositions, setCardPositions] = useState<Record<string, { x: number, y: number }>>({});
+
+  useEffect(() => {
+    // Initialize random positions for cards
+    const positions: Record<string, { x: number, y: number }> = {};
+    Object.keys(visionData.categories).forEach((category, index) => {
+      positions[category] = {
+        x: 100 + (index % 3) * 300,
+        y: 100 + Math.floor(index / 3) * 200
+      };
+    });
+    setCardPositions(positions);
+  }, [visionData.categories]);
+
+  const handleDragStart = (e: React.DragEvent, category: string) => {
+    setDraggedCard(category);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    if (draggedCard) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      setCardPositions(prev => ({
+        ...prev,
+        [draggedCard]: { x, y }
+      }));
+      setDraggedCard(null);
+    }
+  };
+
+  const proceedToCommitment = () => {
+    setVisionData(prev => ({ ...prev, phase: 'commitment' }));
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-900 p-4">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-white mb-2">Your Vision Board</h1>
+          <p className="text-slate-300">Drag the cards to arrange your life vision</p>
+        </div>
+
+        {/* Canvas */}
+        <div 
+          className="relative bg-slate-800 rounded-lg border-2 border-slate-600 shadow-2xl overflow-hidden"
+          style={{
+            height: '600px',
+            backgroundImage: `
+              linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px)
+            `,
+            backgroundSize: '40px 40px'
+          }}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+        >
+          {Object.entries(visionData.categories).map(([category, data]) => (
+            <div
+              key={category}
+              draggable
+              onDragStart={(e) => handleDragStart(e, category)}
+              className="absolute cursor-move"
+              style={{
+                left: `${cardPositions[category]?.x || 0}px`,
+                top: `${cardPositions[category]?.y || 0}px`,
+                transform: draggedCard === category ? 'rotate(5deg)' : 'none'
+              }}
+            >
+              <Card className="w-64 bg-white/95 backdrop-blur-sm border-2 border-gray-300 shadow-xl hover:shadow-2xl transition-shadow">
+                <CardContent className="p-4">
+                  <div className="h-32 bg-gradient-to-br from-blue-50 to-purple-50 rounded mb-3 flex items-center justify-center">
+                    <div className="text-6xl opacity-30">📋</div>
+                  </div>
+                  <h3 className="font-bold text-lg mb-2">{data.title}</h3>
+                  <p className="text-sm text-gray-600 leading-relaxed">{data.phrase}</p>
+                </CardContent>
+              </Card>
+            </div>
+          ))}
+        </div>
+
+        <div className="text-center mt-8">
+          <Button
+            onClick={proceedToCommitment}
+            className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 text-lg"
+          >
+            I'm Ready to Commit
+            <ArrowRight className="h-5 w-5 ml-2" />
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Commitment System Component
+function CommitmentSystem({ visionData, setVisionData }: { 
+  visionData: VisionData, 
+  setVisionData: (data: VisionData) => void 
+}) {
+  const [commitmentTime, setCommitmentTime] = useState("08:00");
+  const [isComplete, setIsComplete] = useState(false);
+
+  const handleCommit = () => {
+    const updatedData = { ...visionData, commitmentTime };
+    setVisionData(updatedData);
+    
+    // Save to localStorage
+    localStorage.setItem('visionArchitectData', JSON.stringify(updatedData));
+    
+    setIsComplete(true);
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-green-900 via-green-800 to-green-900 p-4">
+      <div className="max-w-2xl mx-auto">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-white mb-2">Your Daily Commitment</h1>
+          <p className="text-green-200">The final step in your vision journey</p>
+        </div>
+
+        {!isComplete ? (
+          <Card className="bg-white/95 backdrop-blur-sm border-green-300">
+            <CardContent className="p-8">
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-xl font-semibold mb-4">When do you want to reflect on your vision daily?</h3>
+                  <p className="text-gray-600 mb-4">
+                    Choose a time when you can spend 2-3 minutes connecting with your vision and setting a daily intention.
+                  </p>
+                  <Input
+                    type="time"
+                    value={commitmentTime}
+                    onChange={(e) => setCommitmentTime(e.target.value)}
+                    className="w-full text-lg"
+                  />
+                </div>
+
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <h4 className="font-medium mb-2">What happens next:</h4>
+                  <ul className="text-sm space-y-1 text-gray-700">
+                    <li>• A daily reflection modal will appear at your chosen time</li>
+                    <li>• You'll see your vision board briefly</li>
+                    <li>• You'll be asked: "What's one step you can take today?"</li>
+                    <li>• Your responses will be saved to track your progress</li>
+                  </ul>
+                </div>
+
+                <Button
+                  onClick={handleCommit}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white py-3 text-lg"
+                >
+                  I Commit to My Vision
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="bg-white/95 backdrop-blur-sm border-green-300">
+            <CardContent className="p-8 text-center">
+              <div className="text-6xl mb-4">🎉</div>
+              <h3 className="text-2xl font-bold mb-4">Congratulations!</h3>
+              <p className="text-gray-600 mb-6">
+                You've completed your Vision Architect journey. Your vision board and daily commitment have been saved.
+              </p>
+              <p className="text-sm text-gray-500">
+                Starting tomorrow at {commitmentTime}, you'll receive daily reflection prompts to help you stay aligned with your vision.
+              </p>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </div>
+  );
+}

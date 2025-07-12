@@ -589,6 +589,94 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // VISION ARCHITECT ROUTES
+
+  // Vision Architect chat endpoint (beta feature)
+  app.post("/api/vision-architect/chat", isAuthenticated, requireBetaTester, async (req: any, res) => {
+    try {
+      const { messages, visionData } = req.body;
+      
+      if (!messages || !Array.isArray(messages)) {
+        return res.status(400).json({ message: "Invalid messages format" });
+      }
+
+      const userId = req.user.id;
+      const userDisplayName = req.user.displayName || req.user.firstName || req.user.username;
+      
+      // Create system prompt for Vision Architect
+      const systemPrompt = `You are a wise, empathetic Vision Architect - a life design mentor helping ${userDisplayName} discover their ideal life through deep reflection. Your role is to guide them through these phases naturally:
+
+1. PHASE 1 - CLARIFY IDEAL FUTURE: Start by understanding their dream life, values, and how they want to feel. Ask open-ended questions about their vision.
+
+2. PHASE 2 - IDENTIFY CATEGORIES: Help them identify 3-7 key life areas that matter most (e.g., health, relationships, career, creativity, spirituality, family, finances, etc.). Don't force specific categories - let them emerge naturally.
+
+3. PHASE 3 - WRITE PHRASES: For each category, help them craft a meaningful phrase or sentence that captures their vision for that area. These will become captions on their vision board.
+
+4. PHASE 4 - SET MILESTONES: Ask about short-term milestones or goals for each category - concrete steps they can take.
+
+5. PHASE 5 - COMMITMENT: End by asking them to commit to daily reflection and choose their preferred time.
+
+IMPORTANT GUIDELINES:
+- Flow naturally through conversation - don't dump all questions at once
+- Be warm, encouraging, and deeply listening
+- Ask follow-up questions to go deeper
+- Help them discover their own answers rather than giving advice
+- Keep responses conversational and mentor-like
+- When you identify a life category and phrase, indicate this clearly
+- Track their progress through the phases organically
+
+Current conversation context: ${JSON.stringify(visionData)}
+
+Respond as their mentor, continuing the natural flow of discovery.`;
+
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          { role: "system", content: systemPrompt },
+          ...messages.slice(-10) // Keep last 10 messages for context
+        ],
+        temperature: 0.7,
+      });
+
+      const aiMessage = response.choices[0].message.content || "";
+      
+      // Try to extract vision categories from the conversation
+      const updatedVisionData = { ...visionData };
+      
+      // Simple pattern matching to identify when categories are being discussed
+      // This is a basic implementation - could be enhanced with more sophisticated parsing
+      const categoryKeywords = ['health', 'career', 'relationships', 'family', 'finances', 'creativity', 'spirituality', 'personal growth', 'adventure', 'service', 'learning', 'fitness', 'love', 'purpose', 'freedom', 'peace'];
+      
+      // Check if we're in a phase where categories are being identified
+      if (aiMessage.toLowerCase().includes('category') || aiMessage.toLowerCase().includes('area of life')) {
+        // This is a simplified approach - in a full implementation, you'd want more sophisticated NLP
+        const lastUserMessage = messages[messages.length - 1]?.content || '';
+        for (const keyword of categoryKeywords) {
+          if (lastUserMessage.toLowerCase().includes(keyword)) {
+            if (!updatedVisionData.categories[keyword]) {
+              updatedVisionData.categories[keyword] = {
+                title: keyword.charAt(0).toUpperCase() + keyword.slice(1),
+                phrase: '',
+                milestones: []
+              };
+            }
+          }
+        }
+      }
+
+      res.json({ 
+        message: aiMessage,
+        visionData: updatedVisionData
+      });
+    } catch (error) {
+      console.error("Vision Architect chat error:", error);
+      res.status(500).json({ 
+        message: "Failed to get response from Vision Architect. Please try again.",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   // FOLDER MANAGEMENT ROUTES
 
   // Get user folders (protected)
