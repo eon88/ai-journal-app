@@ -1,0 +1,114 @@
+🛠️ Project Brief for Replit
+Project Name: Vision Architect
+Goal: Build an AI-powered life design tool that guides the user through deep self-reflection, organizes their thoughts into a visual vision board, and helps them commit to a long-term journey of execution.
+
+🧩 PART 1: AI REFLECTION AGENT
+Objective:
+Start with a conversational AI interface that feels like talking to a mentor. The agent asks the user a series of meaningful questions to clarify their ideal life.
+
+Implementation:
+
+Use OpenAI API (gpt-4 or gpt-3.5-turbo)
+
+Build a simple web-based chat UI (React or Vanilla JS)
+
+The agent should guide the user through these phases:
+
+Clarify their ideal future (dream life, values, feelings)
+
+Identify key categories in their life (e.g. health, work, relationships)
+
+Help them write a sentence or phrase for each category (to be used later as captions on vision cards)
+
+Ask for short-term milestones for each category
+
+End by asking them to commit to daily reflection and assign a preferred time of day
+
+Important Notes:
+
+Each phase should flow naturally. Don't dump all questions at once.
+
+Capture the user responses in a structured JavaScript object for later use (e.g., { vision: { health: "...", work: "...", ... }, milestones: { ... }, time: "8:00 AM" })
+
+Save to localStorage or Replit DB
+
+🧩 PART 2: AUTO-GENERATED VISIONBOARD
+Objective:
+After the chat is done, the system generates a minimalist vision board from the data.
+
+Implementation:
+
+Display a dark grid canvas with visual “cards” (1 per vision category)
+
+Each card has:
+
+An optional image placeholder (later to be replaced with generated or user-uploaded images)
+
+A title (e.g. “Healthy Life”)
+
+A caption (pulled from the user’s phrase during the chat)
+
+Cards should be draggable so the user can rearrange them
+
+Layout is clean and minimal — think “scrapbook meets tactical map”
+
+Stretch Goal (optional):
+
+Auto-generate icons/images from vision phrases using DALL·E via OpenAI’s image API
+
+Add categories using styled containers (e.g., “Health Zone”, “Creative Zone”)
+
+🧩 PART 3: DAILY COMMITMENT SYSTEM
+Objective:
+Get the user to build a simple daily habit around their vision.
+
+Implementation:
+
+After vision board is built, ask the user:
+
+What time of day do you want to reflect on your vision?
+
+Do you want to write a small goal each morning?
+
+Save that preference
+
+Create a daily modal that appears at their chosen time:
+
+Shows the vision board briefly
+
+Asks: “What’s one step you can take today?”
+
+Store responses locally or in DB to track over time
+
+Optional Upgrade:
+
+Add a journaling field or "daily log" feature
+
+Provide inspirational micro-prompts (e.g. “Who can you serve today?”)
+
+📦 Tech Stack & Tools
+Component	Tech Suggestion	Notes
+Chat Interface	HTML/CSS/JS or React	Lightweight conversational UI
+AI Logic	OpenAI API	GPT-4 or GPT-3.5
+Image Generation	(optional) OpenAI DALL·E	For future visual upgrades
+Storage	Replit DB or localStorage	Save user session and vision
+UI Style	Minimalist, dark-grid	Keep it focused and timeless
+
+📌 Summary Workflow:
+User starts chat with AI
+
+AI guides reflection, gathers responses
+
+System builds visionboard with text + visuals
+
+User confirms, tweaks layout
+
+System asks user to commit to a time of daily vision reflection
+
+Optional daily modal pops up with reflection space
+
+✅ Why This Matters
+This isn’t just a productivity tool. It’s a life design framework.
+The user speaks, the AI listens and structures.
+The system visualizes, and then the user commits.
+It’s simple, deep, and habit-forming.
