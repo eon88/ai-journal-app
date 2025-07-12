@@ -24,17 +24,19 @@ export default function Register() {
     mutationFn: async (data: typeof formData) => {
       return apiRequest('/api/register', 'POST', data);
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast({
         title: "Account Created!",
         description: "Welcome to Life Path Companion. You're now logged in.",
       });
       // CRITICAL: Clear ALL cached data to prevent privacy issues when switching users
       queryClient.clear();
-      // Invalidate auth query and redirect
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-      // Force a page refresh to update auth state
-      window.location.href = '/';
+      // Refetch auth data to update state
+      await queryClient.refetchQueries({ queryKey: ["/api/auth/user"] });
+      // Small delay to ensure auth state is updated before redirect
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 100);
     },
     onError: (error: any) => {
       toast({
