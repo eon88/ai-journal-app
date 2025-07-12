@@ -265,85 +265,121 @@ export default function VisionBoard() {
         </Card>
       </div>
     }>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4">
-        <div className="max-w-7xl mx-auto">
+      <div className="min-h-screen p-4 relative" style={{
+        backgroundColor: '#1a1a1a',
+        backgroundImage: `
+          linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+          linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px)
+        `,
+        backgroundSize: '40px 40px, 40px 40px, 10px 10px, 10px 10px',
+        backgroundPosition: '0 0, 0 0, 0 0, 0 0'
+      }}>
+        <div className="max-w-7xl mx-auto relative">
+          {/* Blueprint-style border */}
+          <div className="absolute inset-0 border-2 border-white/20 pointer-events-none" style={{
+            borderStyle: 'solid',
+            borderImage: 'linear-gradient(45deg, rgba(255,255,255,0.3) 25%, transparent 25%), linear-gradient(-45deg, rgba(255,255,255,0.3) 25%, transparent 25%)',
+            borderImageSize: '20px 20px'
+          }}></div>
+          
           {/* Header */}
-          <div className="mb-8">
+          <div className="mb-8 relative z-10">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                  <Map className="h-8 w-8 text-blue-500" />
-                  Vision Board
-                </h1>
-                <p className="text-gray-600 dark:text-gray-300 mt-1">
-                  Plan your life with the 5-3-1 formula: 5 major areas, 3 milestones each, 1 next step per milestone
-                </p>
+                <div className="bg-white/5 border border-white/20 p-4 rounded-none relative">
+                  <div className="absolute top-0 left-0 w-full h-full border-2 border-white/10 pointer-events-none" style={{
+                    borderStyle: 'dashed',
+                    borderSpacing: '5px'
+                  }}></div>
+                  <h1 className="text-3xl font-bold text-white flex items-center gap-2 font-mono tracking-wide">
+                    <Map className="h-8 w-8 text-blue-400" />
+                    VISION BOARD - BLUEPRINT
+                  </h1>
+                  <p className="text-gray-300 mt-1 font-mono text-sm">
+                    ARCHITECTURAL DESIGN: 5 MAJOR AREAS • 3 MILESTONES EACH • 1 NEXT STEP PER MILESTONE
+                  </p>
+                </div>
               </div>
               <div className="flex gap-2">
                 <Button
                   onClick={() => generateAISuggestions.mutate()}
                   disabled={generateAISuggestions.isPending}
                   variant="outline"
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 bg-white/10 border-white/30 text-white hover:bg-white/20 font-mono"
                 >
                   <Sparkles className="h-4 w-4" />
-                  {generateAISuggestions.isPending ? "Generating..." : "AI Suggestions"}
+                  {generateAISuggestions.isPending ? "GENERATING..." : "AI SUGGESTIONS"}
                 </Button>
                 <Button
                   onClick={() => setShowCreateDialog(true)}
                   disabled={visionBoard.length >= 5}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 bg-blue-600/80 hover:bg-blue-600 text-white font-mono"
                 >
                   <Plus className="h-4 w-4" />
-                  Add Vision Area
+                  ADD VISION AREA
                 </Button>
               </div>
             </div>
             {visionBoard.length >= 5 && (
-              <Badge variant="outline" className="mt-2">
-                Maximum 5 vision areas reached
+              <Badge variant="outline" className="mt-2 bg-orange-500/20 border-orange-500/50 text-orange-200 font-mono">
+                MAXIMUM 5 VISION AREAS REACHED
               </Badge>
             )}
           </div>
 
           {/* Vision Board Grid */}
           {visionBoard.length === 0 ? (
-            <Card className="text-center py-12">
+            <Card className="text-center py-12 bg-white/95 border-2 border-gray-400/50 shadow-lg backdrop-blur-sm relative z-10" style={{
+              backgroundImage: `
+                linear-gradient(rgba(0,0,0,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,0,0,0.02) 1px, transparent 1px)
+              `,
+              backgroundSize: '20px 20px'
+            }}>
               <CardContent>
-                <Map className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-2">
-                  Create Your Vision Board
+                <Map className="h-16 w-16 text-gray-500 mx-auto mb-4" />
+                <h3 className="text-xl font-medium text-gray-900 mb-2 font-mono">
+                  CREATE YOUR VISION BOARD
                 </h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-6">
-                  Start mapping your life goals using our 5-3-1 formula. Let AI analyze your journal entries to suggest personalized vision areas.
+                <p className="text-gray-600 mb-6 font-mono text-sm">
+                  START MAPPING YOUR LIFE GOALS USING OUR 5-3-1 FORMULA. LET AI ANALYZE YOUR JOURNAL ENTRIES TO SUGGEST PERSONALIZED VISION AREAS.
                 </p>
                 <div className="flex gap-2 justify-center">
                   <Button
                     onClick={() => generateAISuggestions.mutate()}
                     disabled={generateAISuggestions.isPending}
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-2 bg-blue-600/80 hover:bg-blue-600 text-white font-mono"
                   >
                     <Sparkles className="h-4 w-4" />
-                    {generateAISuggestions.isPending ? "Analyzing..." : "Get AI Suggestions"}
+                    {generateAISuggestions.isPending ? "ANALYZING..." : "GET AI SUGGESTIONS"}
                   </Button>
                   <Button
                     onClick={() => setShowCreateDialog(true)}
                     variant="outline"
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-2 bg-white/10 border-gray-400/50 text-gray-700 hover:bg-white/20 font-mono"
                   >
                     <Plus className="h-4 w-4" />
-                    Create Manually
+                    CREATE MANUALLY
                   </Button>
                 </div>
               </CardContent>
             </Card>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10">
               {visionBoard.map((area) => (
                 <Card 
                   key={area.id} 
-                  className="cursor-pointer hover:shadow-lg transition-shadow"
-                  style={{ borderLeft: `4px solid ${area.colorCode}` }}
+                  className="cursor-pointer hover:shadow-xl transition-all bg-white/95 border-2 border-gray-400/50 shadow-lg backdrop-blur-sm"
+                  style={{ 
+                    borderLeft: `6px solid ${area.colorCode}`,
+                    backgroundImage: `
+                      linear-gradient(rgba(0,0,0,0.02) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(0,0,0,0.02) 1px, transparent 1px)
+                    `,
+                    backgroundSize: '20px 20px'
+                  }}
                   onClick={() => setSelectedArea(area)}
                 >
                   <CardHeader className="pb-3">
