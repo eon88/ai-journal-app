@@ -682,27 +682,63 @@ Respond as their mentor, continuing the natural flow of discovery.`;
     try {
       const { answers } = req.body;
       
+      console.log("Vision Architect submission received:", { userId: req.user?.id, answersKeys: Object.keys(answers || {}) });
+      
       if (!answers || typeof answers !== 'object') {
         return res.status(400).json({ message: "Invalid answers format" });
       }
 
       const userId = req.user.id;
       
-      // Send directly to n8n workflow
-      const n8nResponse = await fetch('https://primary-production-9d03a.up.railway.app/webhook-test/life-vision', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(answers)
-      });
+      // Try to send to n8n workflow, but provide fallback
+      let lifeVision = "";
+      console.log("Sending to n8n workflow:", answers);
       
-      if (!n8nResponse.ok) {
-        throw new Error(`n8n workflow returned ${n8nResponse.status}`);
+      try {
+        const n8nResponse = await fetch('https://primary-production-9d03a.up.railway.app/webhook-test/life-vision', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(answers)
+        });
+        
+        if (n8nResponse.ok) {
+          const n8nData = await n8nResponse.json();
+          console.log("n8n response received:", n8nData);
+          lifeVision = n8nData.lifeVision || "";
+        } else {
+          console.log("n8n workflow unavailable, using OpenAI fallback");
+        }
+      } catch (n8nError) {
+        console.log("n8n workflow error, using OpenAI fallback:", n8nError);
       }
-      
-      const n8nData = await n8nResponse.json();
-      const lifeVision = n8nData.lifeVision;
+
+      // If n8n didn't work, generate life vision summary with OpenAI
+      if (!lifeVision) {
+        console.log("Generating life vision summary with OpenAI fallback...");
+        const summaryPrompt = `Create a comprehensive life vision summary based on these 7 life category responses:
+
+LEGACY: ${answers.legacy}
+WEALTH: ${answers.wealth}
+LOVE: ${answers.love}
+HEALTH: ${answers.health}
+WISDOM: ${answers.wisdom}
+SPIRITUALITY: ${answers.spirituality}
+CHARACTER: ${answers.character}
+
+Create a cohesive, inspiring life vision summary that weaves together all these elements into a unified vision of their ideal life. Write it in first person as if they are describing their future self. Make it motivational and specific.`;
+
+        const summaryResponse = await openai.chat.completions.create({
+          model: "gpt-4o",
+          messages: [
+            { role: "system", content: summaryPrompt }
+          ],
+          temperature: 0.7,
+        });
+
+        lifeVision = summaryResponse.choices[0].message.content || "Your personalized life vision is being created...";
+      }
       
       // Generate visual elements based on n8n response
       const visualPrompt = `Based on this life vision summary, create 7 visual goal cards with milestones, icons, and colors.
@@ -744,6 +780,7 @@ GUIDELINES:
 - Use distinct, inspiring hex colors
 - Base everything on the life vision summary and user answers`;
 
+      console.log("Generating visual elements with OpenAI...");
       const visualResponse = await openai.chat.completions.create({
         model: "gpt-4o",
         messages: [
@@ -754,6 +791,7 @@ GUIDELINES:
       });
 
       const visualData = JSON.parse(visualResponse.choices[0].message.content || "{}");
+      console.log("Visual data generated successfully");
       
       res.json({
         ...visualData,
@@ -761,9 +799,9 @@ GUIDELINES:
         extractedCategories: answers
       });
     } catch (error) {
-      console.error("n8n workflow error:", error);
+      console.error("Vision Architect error:", error);
       res.status(500).json({ 
-        message: "Failed to process vision through n8n workflow. Please try again.",
+        message: "Failed to create vision. Please try again.",
         error: error instanceof Error ? error.message : "Unknown error"
       });
     }
