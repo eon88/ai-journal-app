@@ -695,12 +695,14 @@ Respond as their mentor, continuing the natural flow of discovery.`;
       console.log("Sending to n8n workflow:", answers);
       
       try {
+        // Option 1: Try test webhook first
         const n8nResponse = await fetch('https://primary-production-9d03a.up.railway.app/webhook-test/life-vision', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(answers)
+          body: JSON.stringify(answers),
+          timeout: 10000
         });
         
         if (n8nResponse.ok) {
@@ -708,7 +710,29 @@ Respond as their mentor, continuing the natural flow of discovery.`;
           console.log("n8n response received:", n8nData);
           lifeVision = n8nData.lifeVision || "";
         } else {
-          console.log("n8n workflow unavailable, using OpenAI fallback");
+          console.log(`n8n workflow returned ${n8nResponse.status}, trying production endpoint...`);
+          
+          // Option 2: Try production webhook
+          try {
+            const prodResponse = await fetch('https://primary-production-9d03a.up.railway.app/webhook/life-vision', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(answers),
+              timeout: 10000
+            });
+            
+            if (prodResponse.ok) {
+              const prodData = await prodResponse.json();
+              console.log("n8n production response received:", prodData);
+              lifeVision = prodData.lifeVision || "";
+            } else {
+              console.log("n8n production workflow also unavailable, using OpenAI fallback");
+            }
+          } catch (prodError) {
+            console.log("n8n production workflow error, using OpenAI fallback:", prodError);
+          }
         }
       } catch (n8nError) {
         console.log("n8n workflow error, using OpenAI fallback:", n8nError);
