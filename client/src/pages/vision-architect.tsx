@@ -24,6 +24,8 @@ interface VisionData {
   }>;
   commitmentTime: string;
   phase: 'chat' | 'board' | 'commitment';
+  lifeVisionSummary?: string;
+  extractedCategories?: Record<string, string>;
 }
 
 export default function VisionArchitect() {
@@ -125,11 +127,13 @@ export default function VisionArchitect() {
       setVisionData(prev => ({
         ...prev,
         categories: data.ultimateGoals,
+        lifeVisionSummary: data.lifeVisionSummary,
+        extractedCategories: data.extractedCategories,
         phase: 'board'
       }));
       toast({
         title: "Vision Generated!",
-        description: "Your complete life vision with goals and milestones has been created.",
+        description: data.lifeVisionSummary ? "Your complete life vision with AI-enhanced insights has been created!" : "Your complete life vision with goals and milestones has been created.",
       });
     },
     onError: (error: any) => {
@@ -370,6 +374,40 @@ function VisionBoard({ visionData, setVisionData }: {
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-white mb-2">Your Vision Board</h1>
           <p className="text-slate-300">Drag the cards to arrange your life vision</p>
+          
+          {visionData.lifeVisionSummary && (
+            <Card className="mt-6 bg-white/95 backdrop-blur-sm border-blue-300 max-w-4xl mx-auto">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
+                  <h3 className="text-lg font-semibold text-gray-900">AI-Enhanced Life Vision Summary</h3>
+                </div>
+                <div className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+                  {visionData.lifeVisionSummary}
+                </div>
+                <div className="mt-4 text-xs text-gray-500 flex items-center gap-1">
+                  <span>🤖</span>
+                  <span>Enhanced by external n8n workflow</span>
+                </div>
+                
+                {visionData.extractedCategories && (
+                  <details className="mt-4">
+                    <summary className="text-sm font-medium text-gray-600 cursor-pointer hover:text-gray-800">
+                      View Extracted Life Categories →
+                    </summary>
+                    <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                      {Object.entries(visionData.extractedCategories).map(([category, value]) => (
+                        <div key={category} className="bg-gray-50 p-3 rounded-lg">
+                          <div className="font-semibold text-gray-700 capitalize mb-1">{category}</div>
+                          <div className="text-gray-600">{value}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </details>
+                )}
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Canvas */}

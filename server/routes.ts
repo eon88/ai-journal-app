@@ -692,7 +692,72 @@ Respond as their mentor, continuing the natural flow of discovery.`;
       // Extract conversation content for analysis
       const conversationContent = messages.map(m => `${m.role}: ${m.content}`).join('\n\n');
       
-      const systemPrompt = `You are analyzing a deep life design conversation with ${userDisplayName} to create their complete life vision. Based on their responses, generate 3-7 ultimate life goals with specific milestones and visual representations.
+      // Step 1: Extract 7 life categories from conversation for n8n workflow
+      const extractionPrompt = `Analyze this life design conversation and extract answers for these 7 categories. Based on what ${userDisplayName} shared, write a 1-2 sentence answer for each category that captures their vision:
+
+CATEGORIES TO EXTRACT:
+1. Legacy - What impact do they want to have? What do they want to be remembered for?
+2. Wealth - Their relationship with money, financial goals, abundance mindset
+3. Love - Relationships, family, romantic life, connections with others
+4. Health - Physical wellness, energy, fitness, self-care approach
+5. Wisdom - Learning, growth, knowledge, personal development goals
+6. Spirituality - Connection to meaning, purpose, spiritual practices, inner life
+7. Character - Values, integrity, who they want to become as a person
+
+CONVERSATION:
+${conversationContent}
+
+Respond with valid JSON in this format:
+{
+  "legacy": "Their vision for impact and legacy...",
+  "wealth": "Their financial and abundance vision...",
+  "love": "Their relationship and connection vision...",
+  "health": "Their health and wellness vision...",
+  "wisdom": "Their learning and growth vision...",
+  "spirituality": "Their spiritual and meaning vision...",
+  "character": "Their character and values vision..."
+}`;
+
+      // Extract the 7 categories using OpenAI
+      const extractionResponse = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          { role: "system", content: extractionPrompt }
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.7,
+      });
+
+      const extractedCategories = JSON.parse(extractionResponse.choices[0].message.content || "{}");
+      
+      // Step 2: Send to n8n workflow
+      let n8nVision = null;
+      try {
+        const n8nResponse = await fetch('https://primary-production-9d03a.up.railway.app/webhook-test/life-vision', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(extractedCategories)
+        });
+        
+        if (n8nResponse.ok) {
+          const n8nData = await n8nResponse.json();
+          n8nVision = n8nData.lifeVision;
+        }
+      } catch (n8nError) {
+        console.log("n8n workflow not available, using fallback:", n8nError);
+      }
+
+      // Step 3: Generate enhanced vision with milestones and visual elements
+      const enhancementPrompt = `Create a complete life vision with goals, milestones, and visual elements. 
+
+${n8nVision ? `LIFE VISION FROM EXTERNAL ANALYSIS:\n${n8nVision}\n\n` : ''}
+
+EXTRACTED CATEGORIES:
+${JSON.stringify(extractedCategories, null, 2)}
+
+Generate a structured response with ultimate goals, milestones, icons, and colors.
 
 IMPORTANT: Respond with valid JSON in this exact format:
 {
@@ -708,32 +773,31 @@ IMPORTANT: Respond with valid JSON in this exact format:
 }
 
 GUIDELINES:
-- Create 3-7 meaningful life categories based on their conversation
+- Create goals for each relevant category (legacy, wealth, love, health, wisdom, spirituality, character)
 - Each goal should have a powerful, personal title and vision phrase
 - Include 3-5 specific, actionable milestones for each goal
 - Choose appropriate emojis as icons
 - Use hex colors that feel inspiring for each category
-- Base everything on their actual responses, not generic advice
-- Make milestones specific and measurable
-- Categories might include: health, relationships, career, creativity, spirituality, family, finances, adventure, service, learning, etc.
+- Base everything on the extracted categories and conversation content
+- Make milestones specific and measurable`;
 
-CONVERSATION TO ANALYZE:
-${conversationContent}
-
-Generate their personalized ultimate life goals with milestones:`;
-
-      const response = await openai.chat.completions.create({
+      const enhancementResponse = await openai.chat.completions.create({
         model: "gpt-4o",
         messages: [
-          { role: "system", content: systemPrompt }
+          { role: "system", content: enhancementPrompt }
         ],
         response_format: { type: "json_object" },
         temperature: 0.7,
       });
 
-      const generatedVision = JSON.parse(response.choices[0].message.content || "{}");
+      const generatedVision = JSON.parse(enhancementResponse.choices[0].message.content || "{}");
       
-      res.json(generatedVision);
+      // Include n8n vision in response for additional context
+      res.json({
+        ...generatedVision,
+        lifeVisionSummary: n8nVision,
+        extractedCategories
+      });
     } catch (error) {
       console.error("Vision generation error:", error);
       res.status(500).json({ 
