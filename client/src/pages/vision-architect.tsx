@@ -150,6 +150,22 @@ export default function VisionArchitect() {
     generateVisionMutation.mutate();
   };
 
+  // Check if conversation is deep enough for vision generation
+  const isConversationReady = () => {
+    if (messages.length < 12) return false;
+    
+    // Check if user has shared substantial content
+    const userMessages = messages.filter(m => m.role === 'user');
+    const totalUserContent = userMessages.join(' ').length;
+    
+    // Look for keywords that indicate deep life exploration
+    const conversationText = userMessages.join(' ').toLowerCase();
+    const lifeKeywords = ['future', 'goal', 'dream', 'want', 'hope', 'feel', 'life', 'career', 'relationship', 'health', 'family', 'meaning', 'purpose', 'value', 'important', 'passionate', 'love', 'grow', 'learn', 'achieve', 'create', 'impact'];
+    const keywordMatches = lifeKeywords.filter(keyword => conversationText.includes(keyword)).length;
+    
+    return totalUserContent > 800 && keywordMatches >= 8;
+  };
+
   if (visionData.phase === 'board') {
     return <VisionBoard visionData={visionData} setVisionData={setVisionData} />;
   }
@@ -256,7 +272,7 @@ export default function VisionArchitect() {
           </Card>
 
           {/* Progress Indicator & Actions */}
-          {messages.length >= 6 && (
+          {isConversationReady() && (
             <Card className="mt-6 bg-white/95 backdrop-blur-sm border-slate-300">
               <CardContent className="p-6">
                 <div className="text-center space-y-4">
