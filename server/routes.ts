@@ -677,131 +677,93 @@ Respond as their mentor, continuing the natural flow of discovery.`;
     }
   });
 
-  // Vision Architect complete vision generation (beta feature)
-  app.post("/api/vision-architect/generate", isAuthenticated, requireBetaTester, async (req: any, res) => {
+  // Vision Architect - Direct submission to n8n workflow (beta feature)
+  app.post("/api/vision-architect/submit", isAuthenticated, requireBetaTester, async (req: any, res) => {
     try {
-      const { messages, visionData } = req.body;
+      const { answers } = req.body;
       
-      if (!messages || !Array.isArray(messages)) {
-        return res.status(400).json({ message: "Invalid messages format" });
+      if (!answers || typeof answers !== 'object') {
+        return res.status(400).json({ message: "Invalid answers format" });
       }
 
       const userId = req.user.id;
-      const userDisplayName = req.user.displayName || req.user.firstName || req.user.username;
       
-      // Extract conversation content for analysis
-      const conversationContent = messages.map(m => `${m.role}: ${m.content}`).join('\n\n');
-      
-      // Step 1: Extract 7 life categories from conversation for n8n workflow
-      const extractionPrompt = `Analyze this life design conversation and extract answers for these 7 categories. Based on what ${userDisplayName} shared, write a 1-2 sentence answer for each category that captures their vision:
-
-CATEGORIES TO EXTRACT:
-1. Legacy - What impact do they want to have? What do they want to be remembered for?
-2. Wealth - Their relationship with money, financial goals, abundance mindset
-3. Love - Relationships, family, romantic life, connections with others
-4. Health - Physical wellness, energy, fitness, self-care approach
-5. Wisdom - Learning, growth, knowledge, personal development goals
-6. Spirituality - Connection to meaning, purpose, spiritual practices, inner life
-7. Character - Values, integrity, who they want to become as a person
-
-CONVERSATION:
-${conversationContent}
-
-Respond with valid JSON in this format:
-{
-  "legacy": "Their vision for impact and legacy...",
-  "wealth": "Their financial and abundance vision...",
-  "love": "Their relationship and connection vision...",
-  "health": "Their health and wellness vision...",
-  "wisdom": "Their learning and growth vision...",
-  "spirituality": "Their spiritual and meaning vision...",
-  "character": "Their character and values vision..."
-}`;
-
-      // Extract the 7 categories using OpenAI
-      const extractionResponse = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
-          { role: "system", content: extractionPrompt }
-        ],
-        response_format: { type: "json_object" },
-        temperature: 0.7,
+      // Send directly to n8n workflow
+      const n8nResponse = await fetch('https://primary-production-9d03a.up.railway.app/webhook-test/life-vision', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(answers)
       });
-
-      const extractedCategories = JSON.parse(extractionResponse.choices[0].message.content || "{}");
       
-      // Step 2: Send to n8n workflow
-      let n8nVision = null;
-      try {
-        const n8nResponse = await fetch('https://primary-production-9d03a.up.railway.app/webhook-test/life-vision', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(extractedCategories)
-        });
-        
-        if (n8nResponse.ok) {
-          const n8nData = await n8nResponse.json();
-          n8nVision = n8nData.lifeVision;
-        }
-      } catch (n8nError) {
-        console.log("n8n workflow not available, using fallback:", n8nError);
+      if (!n8nResponse.ok) {
+        throw new Error(`n8n workflow returned ${n8nResponse.status}`);
       }
+      
+      const n8nData = await n8nResponse.json();
+      const lifeVision = n8nData.lifeVision;
+      
+      // Generate visual elements based on n8n response
+      const visualPrompt = `Based on this life vision summary, create 7 visual goal cards with milestones, icons, and colors.
 
-      // Step 3: Generate enhanced vision with milestones and visual elements
-      const enhancementPrompt = `Create a complete life vision with goals, milestones, and visual elements. 
+LIFE VISION SUMMARY:
+${lifeVision}
 
-${n8nVision ? `LIFE VISION FROM EXTERNAL ANALYSIS:\n${n8nVision}\n\n` : ''}
+USER ANSWERS:
+${JSON.stringify(answers, null, 2)}
 
-EXTRACTED CATEGORIES:
-${JSON.stringify(extractedCategories, null, 2)}
-
-Generate a structured response with ultimate goals, milestones, icons, and colors.
+Create a structured response for each of the 7 categories (legacy, wealth, love, health, wisdom, spirituality, character).
 
 IMPORTANT: Respond with valid JSON in this exact format:
 {
   "ultimateGoals": {
-    "health": {
-      "title": "Vibrant Health & Energy",
-      "phrase": "I wake up energized and strong, taking care of my body with joy",
-      "milestones": ["Exercise 4x per week", "Meal prep every Sunday", "Sleep 8 hours nightly"],
-      "icon": "💪",
+    "legacy": {
+      "title": "Meaningful Impact & Legacy",
+      "phrase": "I create lasting positive change in the world",
+      "milestones": ["Write book", "Mentor 5 people", "Start foundation"],
+      "icon": "🌟",
+      "color": "#8B5CF6"
+    },
+    "wealth": {
+      "title": "Financial Freedom",
+      "phrase": "I have abundant resources to live purposefully",
+      "milestones": ["Save $100K", "Invest in real estate", "Create passive income"],
+      "icon": "💰",
       "color": "#10B981"
     }
   }
 }
 
 GUIDELINES:
-- Create goals for each relevant category (legacy, wealth, love, health, wisdom, spirituality, character)
-- Each goal should have a powerful, personal title and vision phrase
-- Include 3-5 specific, actionable milestones for each goal
-- Choose appropriate emojis as icons
-- Use hex colors that feel inspiring for each category
-- Base everything on the extracted categories and conversation content
-- Make milestones specific and measurable`;
+- Create a goal card for each category based on their specific answers
+- Each title should be inspiring and personal
+- Phrases should be first-person vision statements
+- Include 3-4 specific, actionable milestones
+- Choose meaningful emojis as icons
+- Use distinct, inspiring hex colors
+- Base everything on the life vision summary and user answers`;
 
-      const enhancementResponse = await openai.chat.completions.create({
+      const visualResponse = await openai.chat.completions.create({
         model: "gpt-4o",
         messages: [
-          { role: "system", content: enhancementPrompt }
+          { role: "system", content: visualPrompt }
         ],
         response_format: { type: "json_object" },
         temperature: 0.7,
       });
 
-      const generatedVision = JSON.parse(enhancementResponse.choices[0].message.content || "{}");
+      const visualData = JSON.parse(visualResponse.choices[0].message.content || "{}");
       
-      // Include n8n vision in response for additional context
       res.json({
-        ...generatedVision,
-        lifeVisionSummary: n8nVision,
-        extractedCategories
+        ...visualData,
+        lifeVisionSummary: lifeVision,
+        extractedCategories: answers
       });
     } catch (error) {
-      console.error("Vision generation error:", error);
+      console.error("n8n workflow error:", error);
       res.status(500).json({ 
-        message: "Failed to generate complete vision. Please try again.",
+        message: "Failed to process vision through n8n workflow. Please try again.",
         error: error instanceof Error ? error.message : "Unknown error"
       });
     }

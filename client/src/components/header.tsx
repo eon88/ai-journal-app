@@ -154,7 +154,7 @@ export function Header() {
                 )}
 
                 {isBetaTester && (
-                  <Link to="/vision-architect">
+                  <Link to="/vision-form">
                     <DropdownMenuItem className="cursor-pointer">
                       <Sparkles className="mr-2 h-4 w-4" />
                       Vision Architect

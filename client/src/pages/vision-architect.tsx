@@ -32,7 +32,7 @@ export default function VisionArchitect() {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: 'assistant',
-      content: "Hello! I'm your Vision Architect - think of me as your personal life design mentor. I'm here to guide you through a journey of deep self-reflection to help you clarify your ideal life and create a visual roadmap for achieving it.\n\nLet's start with something fundamental: When you imagine your ideal life 5-10 years from now, what does it *feel* like? Don't worry about specifics yet - just describe the emotions, the sense of fulfillment, the overall atmosphere of that life.",
+      content: "Hello! I'm your Vision Architect. I'll guide you through a structured exploration of 7 key areas of your life to create your complete vision. Instead of free-form conversation, I'll ask you specific questions about legacy, wealth, love, health, wisdom, spirituality, and character.\n\nThis process will be focused and efficient - each question is designed to extract the most meaningful insights for your life design.\n\nAre you ready to begin your structured life vision journey?",
       timestamp: new Date()
     }
   ]);
