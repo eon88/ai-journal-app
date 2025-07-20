@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -17,7 +19,9 @@ import {
   BookOpen,
   Target,
   Calendar,
-  Archive
+  Archive,
+  Eye,
+  X
 } from "lucide-react";
 import { AdventureIcons } from "@/components/icons/adventure-icons";
 
@@ -48,6 +52,7 @@ export default function VaultPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedSource, setSelectedSource] = useState<string>("all");
   const [showAddForm, setShowAddForm] = useState(false);
+  const [selectedInsight, setSelectedInsight] = useState<SavedInsight | null>(null);
   const [newInsight, setNewInsight] = useState({
     title: '',
     content: '',
@@ -370,23 +375,31 @@ export default function VaultPage() {
               const colorClass = categoryColors[insight.category];
               
               return (
-                <Card key={insight.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-6">
+                <Card key={insight.id} className="hover:shadow-md transition-shadow cursor-pointer group">
+                  <CardContent className="p-6" onClick={() => setSelectedInsight(insight)}>
                     <div className="flex items-start justify-between mb-4">
                       <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border ${colorClass}`}>
                         <IconComponent className="w-3 h-3" />
                         {insight.category}
                       </div>
-                      <button
-                        onClick={() => deleteInsightMutation.mutate(insight.id)}
-                        disabled={deleteInsightMutation.isPending}
-                        className="p-1 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      <div className="flex gap-1">
+                        <button className="p-1 text-gray-400 dark:text-gray-500 hover:text-blue-500 dark:hover:text-blue-400 transition-colors opacity-0 group-hover:opacity-100">
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteInsightMutation.mutate(insight.id);
+                          }}
+                          disabled={deleteInsightMutation.isPending}
+                          className="p-1 text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                     
-                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
                       {insight.title}
                     </h3>
                     
@@ -434,6 +447,72 @@ export default function VaultPage() {
       </main>
       
       <Footer />
+
+      {/* Insight Detail Modal */}
+      <Dialog open={selectedInsight !== null} onOpenChange={() => setSelectedInsight(null)}>
+        <DialogContent className="max-w-2xl max-h-[80vh] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
+          <DialogHeader>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                {selectedInsight && (
+                  <>
+                    <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border ${categoryColors[selectedInsight.category]}`}>
+                      {(() => {
+                        const IconComponent = categoryIcons[selectedInsight.category];
+                        return <IconComponent className="w-3 h-3" />;
+                      })()}
+                      {selectedInsight.category}
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                      <Calendar className="w-3 h-3" />
+                      {selectedInsight.source} • {new Date(selectedInsight.createdAt).toLocaleDateString()}
+                    </div>
+                  </>
+                )}
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSelectedInsight(null)}
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+            <DialogTitle className="text-left text-xl font-semibold text-gray-900 dark:text-white mt-4">
+              {selectedInsight?.title}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <ScrollArea className="max-h-[60vh] pr-4">
+            <div className="space-y-4">
+              <div className="prose prose-sm max-w-none dark:prose-invert">
+                <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
+                  {selectedInsight?.content}
+                </p>
+              </div>
+              
+              {selectedInsight?.entryId && (
+                <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Related to:</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-purple-600 hover:text-purple-700 border-purple-200 hover:border-purple-300"
+                    onClick={() => {
+                      // Navigate to related entry - you can implement this navigation
+                      console.log('Navigate to entry:', selectedInsight.entryId);
+                    }}
+                  >
+                    <BookOpen className="w-4 h-4 mr-2" />
+                    View Related Entry
+                  </Button>
+                </div>
+              )}
+            </div>
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
