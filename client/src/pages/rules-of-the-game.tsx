@@ -181,7 +181,7 @@ export default function RulesOfTheGame() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Star className="w-4 h-4 text-yellow-500" />
-                    <span>5 bullet symbols</span>
+                    <span>Custom tags (5 maximum)</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <TrendingUp className="w-4 h-4 text-green-500" />
@@ -209,7 +209,7 @@ export default function RulesOfTheGame() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Book className="w-4 h-4 text-teal-500" />
-                    <span>8 bullet symbols</span>
+                    <span>Custom tags (10 maximum)</span>
                   </div>
                 </div>
               </div>
@@ -249,7 +249,7 @@ export default function RulesOfTheGame() {
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center gap-2">
                     <Book className="w-4 h-4 text-blue-500" />
-                    <span>12 bullet symbols</span>
+                    <span>Custom tags (15 maximum)</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <TrendingUp className="w-4 h-4 text-emerald-500" />
@@ -277,7 +277,7 @@ export default function RulesOfTheGame() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Book className="w-4 h-4 text-blue-500" />
-                    <span>All 18 bullet symbols</span>
+                    <span>Unlimited custom tags</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Crown className="w-4 h-4 text-gold-500" />

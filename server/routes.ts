@@ -1,7 +1,7 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertJournalEntrySchema, insertFolderSchema, type AIReflection, type WeeklyReflection, type MonthlyReflection, type JournalEntry, type Folder, parseBulletSymbol, users, folders, journalEntries, LEVEL_UNLOCKS, getUnlockedFeatures, forumCategories, forumPosts, forumReplies, forumLikes, forumModerators, userStats, dailyChallenges, userChallengeCompletions, userCustomTags, isBetaTester, requireBetaAccess, insertVisionAreaSchema, insertVisionMilestoneSchema, insertVisionNextStepSchema, VISION_CATEGORIES } from "@shared/schema";
+import { insertJournalEntrySchema, insertFolderSchema, type AIReflection, type WeeklyReflection, type MonthlyReflection, type JournalEntry, type Folder, users, folders, journalEntries, LEVEL_UNLOCKS, getUnlockedFeatures, forumCategories, forumPosts, forumReplies, forumLikes, forumModerators, userStats, dailyChallenges, userChallengeCompletions, userCustomTags, isBetaTester, requireBetaAccess, insertVisionAreaSchema, insertVisionMilestoneSchema, insertVisionNextStepSchema, VISION_CATEGORIES } from "@shared/schema";
 import { db } from "./db";
 import { z } from "zod";
 import { eq, and, desc, asc, like, or, inArray } from "drizzle-orm";
@@ -362,17 +362,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      // Parse bullet symbols from the content
-      const { symbol, type, status, cleanContent } = parseBulletSymbol(content || "");
-      
-      // Prepare the entry data with parsed bullet symbol information
+      // Prepare the entry data
       const entryData = {
-        content: cleanContent || content, // Use cleaned content if symbol was found
+        content,
         mood,
         tags: req.body.tags || tags, // Use updated tags if modified, otherwise original tags
-        type,
-        status,
-        symbol
       };
       
       const validatedData = insertJournalEntrySchema.parse(entryData);
@@ -483,17 +477,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Entry not found" });
       }
 
-      // Parse bullet symbols from the content
-      const { symbol, type, status, cleanContent } = parseBulletSymbol(content || "");
-      
-      // Prepare the entry data with parsed bullet symbol information
+      // Prepare the entry data
       const entryData = {
-        content: cleanContent || content,
+        content,
         mood,
         tags,
-        type,
-        status,
-        symbol
       };
 
       const validatedData = insertJournalEntrySchema.partial().parse(entryData);

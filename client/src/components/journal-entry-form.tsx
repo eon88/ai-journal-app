@@ -6,8 +6,7 @@ import { Clock, Smile, Tags, PenTool, X, Lock, TrendingUp } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { BULLET_SYMBOLS } from "@shared/schema";
-import { BulletSymbolSelector } from "@/components/bullet-symbol-selector";
+
 import { CustomTagsSelector } from "@/components/custom-tags-selector";
 import { useProgressiveFeatures } from "@/hooks/useProgressiveFeatures";
 import { EntryLimitGate } from "@/components/feature-gate";
@@ -18,7 +17,7 @@ export function JournalEntryForm() {
   const { text: globalEntry, updateText } = useJournalEntry();
   const [entry, setEntry] = useState("");
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
-  const [selectedSymbol, setSelectedSymbol] = useState<string>("");
+
   const [tags, setTags] = useState<string[]>([]);
   const [manualTag, setManualTag] = useState("");
   const [showLevelUpModal, setShowLevelUpModal] = useState(false);
@@ -65,7 +64,7 @@ export function JournalEntryForm() {
   const moodOptions = allMoodOptions.slice(0, maxMoods);
 
   const createEntryMutation = useMutation({
-    mutationFn: async (data: { content: string; mood?: string | null; tags?: string[] | null; symbol?: string }) => {
+    mutationFn: async (data: { content: string; mood?: string | null; tags?: string[] | null }) => {
       const response = await apiRequest("/api/entries", "POST", data);
       return response.json();
     },
@@ -82,7 +81,7 @@ export function JournalEntryForm() {
       // Clear the form after successful submission
       setEntry("");
       setSelectedMood(null);
-      setSelectedSymbol("");
+
       setTags([]);
       setManualTag("");
       
@@ -129,16 +128,10 @@ export function JournalEntryForm() {
       return;
     }
 
-    // Create the entry with symbol prefix if selected
-    const contentWithSymbol = selectedSymbol && !entry.trim().startsWith(selectedSymbol) 
-      ? `${selectedSymbol} ${entry.trim()}` 
-      : entry.trim();
-
     createEntryMutation.mutate({
-      content: contentWithSymbol,
+      content: entry.trim(),
       mood: selectedMood,
       tags: tags.length > 0 ? tags : null,
-      symbol: selectedSymbol || undefined,
     });
   };
 
@@ -230,17 +223,8 @@ export function JournalEntryForm() {
             </div>
 
             {/* Selected Items Display */}
-            {(selectedMood || tags.length > 0 || selectedSymbol) && (
+            {(selectedMood || tags.length > 0) && (
               <div className="flex flex-wrap gap-2 mb-4 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                {selectedSymbol && (
-                  <Badge variant="outline" className="flex items-center gap-1">
-                    {selectedSymbol} Symbol
-                    <X 
-                      className="h-3 w-3 cursor-pointer" 
-                      onClick={() => setSelectedSymbol("")}
-                    />
-                  </Badge>
-                )}
                 {selectedMood && (
                   <Badge variant="secondary" className="flex items-center gap-1">
                     {moodOptions.find(m => m.value === selectedMood)?.label}
@@ -264,13 +248,6 @@ export function JournalEntryForm() {
 
             {/* Simple Controls - Single Line */}
             <div className="flex items-center gap-3 mb-4 flex-wrap">
-              {/* Symbol Selector - Inline Version */}
-              <BulletSymbolSelector 
-                selectedSymbol={selectedSymbol}
-                onSymbolSelect={setSelectedSymbol}
-                inline={true}
-              />
-
               {/* Mood Selector */}
               <div className="min-w-[120px]">
                 <select 

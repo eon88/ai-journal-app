@@ -10,7 +10,7 @@ import { AIReflectionComponent } from "@/components/ai-reflection";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { JournalEntry } from "@shared/schema";
-import { BULLET_SYMBOLS } from "@shared/schema";
+
 import { Link } from "wouter";
 
 export default function EntryDetail() {
@@ -128,24 +128,7 @@ export default function EntryDetail() {
     }
   };
 
-  const getBulletSymbol = (entry: JournalEntry) => {
-    // Try to get the symbol directly from the entry
-    if (entry.symbol) {
-      return entry.symbol;
-    }
-    
-    // If no symbol but has type/status, try to derive it
-    if (entry.type === 'task') {
-      if (entry.status === 'complete') return '✔';
-      if (entry.status === 'migrated') return '→';
-      if (entry.status === 'cancelled') return '✖';
-      return '•';
-    }
-    if (entry.type === 'event') return '○';
-    if (entry.type === 'note') return '–';
-    
-    return null;
-  };
+
 
   if (isLoading) {
     return (
@@ -210,11 +193,6 @@ export default function EntryDetail() {
                   <span>{formatDate(entry.createdAt)}</span>
                 </div>
                 <CardTitle className="text-gray-900 dark:text-white text-xl">
-                  {getBulletSymbol(entry) && (
-                    <span className="mr-3 text-journal-primary">
-                      {getBulletSymbol(entry)}
-                    </span>
-                  )}
                   Journal Entry
                 </CardTitle>
               </div>

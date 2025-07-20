@@ -5,7 +5,7 @@ import { MessageCircle } from "lucide-react";
 import { AdventureIcons } from "@/components/icons/adventure-icons";
 import { Link } from "wouter";
 import type { JournalEntry } from "@shared/schema";
-import { BULLET_SYMBOLS } from "@shared/schema";
+
 
 export function RecentEntries() {
   const { data: entries, isLoading, error } = useQuery<JournalEntry[]>({
@@ -141,11 +141,6 @@ export function RecentEntries() {
                     </span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    {entry.symbol && (
-                      <Badge variant="outline" className="text-xs px-2 py-1">
-                        {entry.symbol} {BULLET_SYMBOLS[entry.symbol as keyof typeof BULLET_SYMBOLS]?.name}
-                      </Badge>
-                    )}
                     <div className="flex items-center space-x-1">
                       <div className={`w-2 h-2 ${getMoodColor(entry.mood)} rounded-full`}></div>
                       <span className="text-xs text-gray-800 dark:text-gray-400" style={{ color: 'rgb(17, 24, 39)' }}>
@@ -155,7 +150,7 @@ export function RecentEntries() {
                   </div>
                 </div>
                 <p className="text-sm text-gray-900 dark:text-gray-200 line-clamp-3 mb-3" style={{ color: 'rgb(17, 24, 39)' }}>
-                  {entry.symbol ? `${entry.symbol} ` : ''}{truncateText(entry.content)}
+                  {truncateText(entry.content)}
                 </p>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-1 text-xs text-gray-800 dark:text-gray-400" style={{ color: 'rgb(17, 24, 39)' }}>
