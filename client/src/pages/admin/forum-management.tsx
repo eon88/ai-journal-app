@@ -41,7 +41,8 @@ import {
   ShieldOff,
   Eye,
   Search,
-  Filter
+  Filter,
+  Camera
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { apiRequest } from "@/lib/queryClient";
@@ -196,6 +197,18 @@ export default function ForumManagement() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/forum/posts"] });
       toast({ title: "Post Deleted", description: "Post has been deleted successfully." });
+    },
+  });
+
+  // Toggle photo permissions for category
+  const toggleCategoryPhotosMutation = useMutation({
+    mutationFn: async ({ id, allowPhotos }: { id: number; allowPhotos: boolean }) => {
+      const response = await apiRequest(`/api/admin/forum/categories/${id}/photos`, "PATCH", { allowPhotos });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/forum/categories"] });
+      toast({ title: "Photo Settings Updated", description: "Category photo permissions updated successfully." });
     },
   });
 
@@ -365,44 +378,60 @@ export default function ForumManagement() {
                           <CardDescription>{category.description}</CardDescription>
                         </div>
                       </div>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleEditCategory(category)}>
-                            <Edit2 className="mr-2 h-4 w-4" />
-                            Edit Category
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => updateCategoryMutation.mutate({ 
-                              id: category.id, 
-                              data: { isActive: !category.isActive } 
-                            })}
-                          >
-                            {category.isActive ? (
-                              <>
-                                <Eye className="mr-2 h-4 w-4" />
-                                Deactivate
-                              </>
-                            ) : (
-                              <>
-                                <Eye className="mr-2 h-4 w-4" />
-                                Activate
-                              </>
-                            )}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => deleteCategoryMutation.mutate(category.id)}
-                            className="text-red-600 focus:text-red-600"
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Delete Category
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <div className="flex items-center gap-2">
+                        {/* Photo Upload Toggle */}
+                        <div className="flex items-center gap-2">
+                          <Label className="text-sm text-gray-600 dark:text-gray-300">
+                            Photos
+                          </Label>
+                          <Switch
+                            checked={category.allowPhotos}
+                            onCheckedChange={(allowPhotos) => 
+                              toggleCategoryPhotosMutation.mutate({ id: category.id, allowPhotos })
+                            }
+                          />
+                          <Camera className={`w-4 h-4 ${category.allowPhotos ? 'text-green-500' : 'text-gray-400'}`} />
+                        </div>
+                        
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleEditCategory(category)}>
+                              <Edit2 className="mr-2 h-4 w-4" />
+                              Edit Category
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => updateCategoryMutation.mutate({ 
+                                id: category.id, 
+                                data: { isActive: !category.isActive } 
+                              })}
+                            >
+                              {category.isActive ? (
+                                <>
+                                  <Eye className="mr-2 h-4 w-4" />
+                                  Deactivate
+                                </>
+                              ) : (
+                                <>
+                                  <Eye className="mr-2 h-4 w-4" />
+                                  Activate
+                                </>
+                              )}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => deleteCategoryMutation.mutate(category.id)}
+                              className="text-red-600 focus:text-red-600"
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete Category
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                     </div>
                   </CardHeader>
                 </Card>

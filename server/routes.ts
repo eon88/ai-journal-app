@@ -1,4 +1,5 @@
 import type { Express, Request, Response } from "express";
+import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertJournalEntrySchema, insertFolderSchema, type AIReflection, type WeeklyReflection, type MonthlyReflection, type JournalEntry, type Folder, users, folders, journalEntries, LEVEL_UNLOCKS, getUnlockedFeatures, forumCategories, forumPosts, forumReplies, forumLikes, forumModerators, userStats, dailyChallenges, userChallengeCompletions, userCustomTags, isBetaTester, requireBetaAccess, insertVisionAreaSchema, insertVisionMilestoneSchema, insertVisionNextStepSchema, VISION_CATEGORIES } from "@shared/schema";
@@ -10,6 +11,9 @@ import Stripe from "stripe";
 import { emailService } from "./email-service";
 import { setupAuth, isAuthenticated, hashPassword, verifyPassword } from "./auth";
 import type { NextFunction } from "express";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
 
 const openai = new OpenAI({ 
   apiKey: process.env.OPENAI_API_KEY || process.env.OPENAI_KEY || "default_key"
@@ -47,9 +51,43 @@ function requireBetaTester(req: any, res: Response, next: NextFunction) {
   }
 }
 
+// Ensure uploads directory exists
+const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+// Configure multer for file uploads
+const diskStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadsDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'forum-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ 
+  storage: diskStorage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed'));
+    }
+  }
+});
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Set up authentication first
   await setupAuth(app);
+  
+  // Serve static files from uploads directory
+  app.use('/uploads', express.static(path.join(process.cwd(), 'public', 'uploads')));
   // Registration endpoint
   app.post("/api/register", async (req, res) => {
     try {
@@ -2664,24 +2702,59 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Create forum reply
-  app.post("/api/forum/posts/:id/replies", isAuthenticated, async (req: any, res: Response) => {
+  app.post("/api/forum/posts/:id/replies", isAuthenticated, upload.single('photo'), async (req: any, res: Response) => {
     try {
       const postId = parseInt(req.params.id);
-      const { content, parentReplyId } = req.body;
+      const { content, parentReplyId, photoAlt } = req.body;
+      const uploadedFile = req.file;
       
       if (!content) {
         return res.status(400).json({ message: "Content is required" });
       }
+
+      // Check if post exists and get category info
+      const [post] = await db.select().from(forumPosts)
+        .leftJoin(forumCategories, eq(forumPosts.categoryId, forumCategories.id))
+        .where(eq(forumPosts.id, postId));
+
+      if (!post) {
+        return res.status(404).json({ message: "Post not found" });
+      }
+
+      // If photo is uploaded, check if category allows photos
+      if (uploadedFile && !post.forum_categories?.allowPhotos) {
+        // Remove uploaded file if category doesn't allow photos
+        fs.unlinkSync(uploadedFile.path);
+        return res.status(400).json({ message: "Photo uploads are not allowed in this category" });
+      }
       
-      const reply = await storage.createForumReply(req.user.id, {
+      const replyData: any = {
         content,
         postId,
         parentReplyId: parentReplyId ? parseInt(parentReplyId) : undefined
-      });
+      };
+
+      // Add photo data if uploaded
+      if (uploadedFile) {
+        replyData.photoUrl = `/uploads/${uploadedFile.filename}`;
+        replyData.photoAlt = photoAlt || '';
+      }
+
+      const reply = await storage.createForumReply(req.user.id, replyData);
       
       res.json(reply);
     } catch (error) {
       console.error("Error creating forum reply:", error);
+      
+      // Clean up uploaded file if there was an error
+      if (req.file) {
+        try {
+          fs.unlinkSync(req.file.path);
+        } catch (unlinkError) {
+          console.error("Error cleaning up uploaded file:", unlinkError);
+        }
+      }
+      
       res.status(500).json({ message: "Failed to create reply" });
     }
   });
@@ -2985,6 +3058,32 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
     } catch (error) {
       console.error("Category deletion error:", error);
       res.status(500).json({ success: false, message: "Failed to delete category" });
+    }
+  });
+
+  // Toggle photo uploads for forum category
+  app.patch("/api/admin/forum/categories/:id/photos", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { allowPhotos } = req.body;
+
+      const [category] = await db.update(forumCategories)
+        .set({ allowPhotos })
+        .where(eq(forumCategories.id, id))
+        .returning();
+
+      if (!category) {
+        return res.status(404).json({ success: false, message: "Category not found" });
+      }
+
+      res.json({ 
+        success: true, 
+        category,
+        message: allowPhotos ? "Photo uploads enabled for this category" : "Photo uploads disabled for this category"
+      });
+    } catch (error) {
+      console.error("Category photo settings error:", error);
+      res.status(500).json({ success: false, message: "Failed to update photo settings" });
     }
   });
 

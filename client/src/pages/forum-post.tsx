@@ -8,7 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { ArrowLeft, Heart, Reply, MessageSquare, Clock, Pin, Lock, MoreVertical, Edit3 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { ArrowLeft, Heart, Reply, MessageSquare, Clock, Pin, Lock, MoreVertical, Edit3, Camera, X } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ForumRankBadge } from "@/components/forum-rank-badge";
 import { useToast } from "@/hooks/use-toast";
@@ -22,6 +23,8 @@ export default function ForumPostPage() {
   const postId = parseInt(id || "0");
   const [replyContent, setReplyContent] = useState("");
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
+  const [selectedPhoto, setSelectedPhoto] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -41,10 +44,21 @@ export default function ForumPostPage() {
 
   // Create reply mutation
   const createReplyMutation = useMutation({
-    mutationFn: async (data: { content: string; parentReplyId?: number }) => {
-      return await apiRequest(`/api/forum/posts/${postId}/replies`, {
+    mutationFn: async (data: { content: string; parentReplyId?: number; photo?: File; photoAlt?: string }) => {
+      const formData = new FormData();
+      formData.append('content', data.content);
+      if (data.parentReplyId) {
+        formData.append('parentReplyId', data.parentReplyId.toString());
+      }
+      if (data.photo) {
+        formData.append('photo', data.photo);
+        formData.append('photoAlt', data.photoAlt || '');
+      }
+      
+      return await fetch(`/api/forum/posts/${postId}/replies`, {
         method: 'POST',
-        body: JSON.stringify(data)
+        body: formData,
+        credentials: 'include'
       });
     },
     onSuccess: () => {
@@ -52,6 +66,8 @@ export default function ForumPostPage() {
       queryClient.invalidateQueries({ queryKey: ["/api/forum/posts", postId] });
       setReplyContent("");
       setReplyingTo(null);
+      setSelectedPhoto(null);
+      setPhotoPreview(null);
       toast({
         title: "Reply posted!",
         description: "Your reply has been added to the discussion.",
@@ -91,13 +107,41 @@ export default function ForumPostPage() {
     return 'Just now';
   };
 
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        toast({
+          title: "File too large",
+          description: "Please choose a photo under 5MB",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      setSelectedPhoto(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setPhotoPreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removePhoto = () => {
+    setSelectedPhoto(null);
+    setPhotoPreview(null);
+  };
+
   const handleSubmitReply = (e: React.FormEvent) => {
     e.preventDefault();
     if (!replyContent.trim()) return;
 
     createReplyMutation.mutate({
       content: replyContent,
-      parentReplyId: replyingTo || undefined
+      parentReplyId: replyingTo || undefined,
+      photo: selectedPhoto || undefined,
+      photoAlt: selectedPhoto ? `Photo uploaded by ${user?.username || 'user'}` : undefined
     });
   };
 
@@ -261,6 +305,55 @@ export default function ForumPostPage() {
                     className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white min-h-[100px]"
                   />
                 </div>
+                
+                {/* Photo upload section - only show if category allows photos */}
+                {post.category?.allowPhotos && (
+                  <div className="mb-4">
+                    {!photoPreview ? (
+                      <div className="flex items-center gap-2">
+                        <label className="cursor-pointer">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                            asChild
+                          >
+                            <span>
+                              <Camera className="w-4 h-4 mr-2" />
+                              Add Photo
+                            </span>
+                          </Button>
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            onChange={handlePhotoChange}
+                            className="hidden"
+                          />
+                        </label>
+                        <span className="text-xs text-gray-400">Max 5MB</span>
+                      </div>
+                    ) : (
+                      <div className="relative inline-block">
+                        <img
+                          src={photoPreview}
+                          alt="Photo preview"
+                          className="max-w-sm max-h-64 rounded-lg border border-gray-600"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={removePhoto}
+                          className="absolute top-2 right-2 bg-black/50 hover:bg-black/70 text-white h-8 w-8 p-0"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                )}
+                
                 <div className="flex gap-2">
                   <Button 
                     type="submit" 
@@ -326,6 +419,18 @@ export default function ForumPostPage() {
                       <p className="text-gray-300 text-sm mb-3 whitespace-pre-wrap">
                         {reply.content}
                       </p>
+                      
+                      {/* Display photo if reply has one */}
+                      {reply.photoUrl && (
+                        <div className="mb-3">
+                          <img
+                            src={reply.photoUrl}
+                            alt={reply.photoAlt || "Photo from reply"}
+                            className="max-w-sm max-h-64 rounded-lg border border-gray-600 cursor-pointer hover:opacity-90 transition-opacity"
+                            onClick={() => window.open(reply.photoUrl, '_blank')}
+                          />
+                        </div>
+                      )}
                       <div className="flex items-center gap-2">
                         <Button
                           variant="ghost"

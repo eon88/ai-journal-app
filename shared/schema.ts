@@ -266,6 +266,7 @@ export const forumCategories = pgTable("forum_categories", {
   color: varchar("color", { length: 50 }).notNull(),
   icon: varchar("icon", { length: 50 }).notNull(),
   isActive: boolean("is_active").default(true).notNull(),
+  allowPhotos: boolean("allow_photos").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -294,6 +295,8 @@ export const forumReplies = pgTable("forum_replies", {
   postId: integer("post_id").references(() => forumPosts.id).notNull(),
   parentReplyId: integer("parent_reply_id").references(() => forumReplies.id),
   likeCount: integer("like_count").default(0).notNull(),
+  photoUrl: text("photo_url"),
+  photoAlt: text("photo_alt"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
