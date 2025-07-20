@@ -212,6 +212,7 @@ Changelog:
 - July 20, 2025. MERLIN WHISPER CLEANUP - Removed misleading monthly reflections whisper from Merlin component since monthly reflections are available from Level 1 with no restrictions. Merlin now only provides useful information about features that actually have unlock requirements, improving user experience by avoiding confusion about feature availability.
 - July 20, 2025. APATHETIC MOOD ADDITION - Added "apathetic" mood option with 😑 emoji across all mood-related components: journal entry form, enhanced entries list, entry search filters, and entry detail page. Integrated with slate color scheme (neutral gray) appropriate for apathy. Now available in mood selection dropdown, entry editing, search functionality, and display styling.
 - July 20, 2025. FORUM REPLY BOX VISIBILITY FIX - Fixed text visibility issue in forum reply textarea by replacing hardcoded dark styling with proper light/dark mode responsive classes. Reply box now shows dark text on white background in light mode and white text on dark background in dark mode, ensuring proper readability across all themes.
+- July 20, 2025. MONTHLY REFLECTION TYPOGRAPHY FIX - Fixed spacing issues in AI-generated monthly reflections where text was running together without proper sentence breaks (e.g. "relationshipsIncreasing" instead of "relationships. Increasing"). Added fixTextSpacing() function that properly formats camelCase words, adds periods and spaces, and cleans up multiple spaces to ensure readable monthly reflection content.
 ```
 
 ## User Preferences

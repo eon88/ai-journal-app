@@ -1772,15 +1772,29 @@ Be comprehensive and insightful, focusing on long-term patterns and sustainable 
         }
       }
 
+      // Helper function to fix text spacing issues
+      const fixTextSpacing = (text: string): string => {
+        if (!text) return text;
+        return text
+          // Add space after lowercase letter followed by uppercase letter (camelCase fix)
+          .replace(/([a-z])([A-Z])/g, '$1. $2')
+          // Fix missing spaces after periods
+          .replace(/\.([A-Z])/g, '. $1')
+          // Fix multiple spaces
+          .replace(/\s+/g, ' ')
+          // Trim whitespace
+          .trim();
+      };
+
       const monthlyReflection: MonthlyReflection = {
         month,
         year,
         entryCount: entries.length,
-        moodTrends: aiResponse.moodTrends || "Various mood patterns observed throughout the month.",
-        keyThemes: aiResponse.keyThemes || "Personal growth and daily life experiences.",
-        growthJourney: aiResponse.growthJourney || "Continued development through regular journaling practice.",
-        monthlyWisdom: aiResponse.monthlyWisdom || "Consistent reflection builds deeper self-understanding.",
-        lifeDirection: aiResponse.lifeDirection || "Moving toward greater self-awareness and personal development.",
+        moodTrends: fixTextSpacing(aiResponse.moodTrends) || "Various mood patterns observed throughout the month.",
+        keyThemes: fixTextSpacing(aiResponse.keyThemes) || "Personal growth and daily life experiences.",
+        growthJourney: fixTextSpacing(aiResponse.growthJourney) || "Continued development through regular journaling practice.",
+        monthlyWisdom: fixTextSpacing(aiResponse.monthlyWisdom) || "Consistent reflection builds deeper self-understanding.",
+        lifeDirection: fixTextSpacing(aiResponse.lifeDirection) || "Moving toward greater self-awareness and personal development.",
         emergingGoals: aiResponse.emergingGoals || ["Continue personal growth", "Maintain consistent journaling", "Develop deeper self-reflection skills"],
         goalAchievementSuggestions: aiResponse.goalAchievementSuggestions || ["Set aside dedicated time for daily reflection", "Create specific goals with measurable outcomes", "Track progress weekly"],
         goalProgressAssessment,
