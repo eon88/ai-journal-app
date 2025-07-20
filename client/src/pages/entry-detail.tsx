@@ -123,6 +123,7 @@ export default function EntryDetail() {
       case 'frustrated': return 'bg-red-500/20 text-red-400 border-red-500/30';
       case 'calm': return 'bg-teal-500/20 text-teal-400 border-teal-500/30';
       case 'energetic': return 'bg-pink-500/20 text-pink-400 border-pink-500/30';
+      case 'apathetic': return 'bg-slate-500/20 text-slate-400 border-slate-500/30';
       default: return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
     }
   };

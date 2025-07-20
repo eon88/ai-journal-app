@@ -38,7 +38,8 @@ interface Folder {
 
 const MOOD_EMOJIS: Record<string, string> = {
   excited: "🤩", happy: "😊", content: "😌", neutral: "😐", thoughtful: "🤔",
-  sad: "😢", anxious: "😰", frustrated: "😤", calm: "😎", energetic: "⚡"
+  sad: "😢", anxious: "😰", frustrated: "😤", calm: "😎", energetic: "⚡",
+  apathetic: "😑"
 };
 
 interface EditEntryFormProps {

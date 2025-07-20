@@ -22,7 +22,7 @@ interface EntrySearchFiltersProps {
 
 const MOOD_OPTIONS = [
   "excited", "happy", "content", "neutral", "thoughtful", 
-  "sad", "anxious", "frustrated", "calm", "energetic"
+  "sad", "anxious", "frustrated", "calm", "energetic", "apathetic"
 ];
 
 export function EntrySearchFilters({ onSearch, onClear }: EntrySearchFiltersProps) {

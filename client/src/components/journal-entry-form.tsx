@@ -58,6 +58,7 @@ export function JournalEntryForm() {
     { value: "determined", label: "💪 Determined" },
     { value: "neutral", label: "😐 Neutral" },
     { value: "reflective", label: "🤔 Reflective" },
+    { value: "apathetic", label: "😑 Apathetic" },
   ];
   
   const maxMoods = getMaxMoodsForLevel();
