@@ -214,7 +214,6 @@ export function PeriodicReflections() {
               onClick={handleMonthlyReflection}
               disabled={monthlyMutation.isPending}
               className="w-full"
-              variant="outline"
             >
               {monthlyMutation.isPending && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
