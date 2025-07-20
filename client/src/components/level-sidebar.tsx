@@ -36,7 +36,7 @@ export function LevelSidebar() {
   const progress = (stats.xpPoints % 1000) / 10;
 
   return (
-    <div className="glass-card rounded-lg p-4 w-48 sticky top-24">
+    <div className="glass-card rounded-lg p-4 w-full">
       {/* Level Display */}
       <div className="text-center mb-4">
         <div className="flex items-center justify-center mb-2">

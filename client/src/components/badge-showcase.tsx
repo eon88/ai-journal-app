@@ -37,7 +37,7 @@ export function BadgeShowcase() {
   const lockedBadges = badges.filter(badge => !badge.unlockedAt);
 
   return (
-    <div className="glass-card-transparent rounded-xl shadow-sm p-6 pb-8 min-h-fit h-auto overflow-hidden">
+    <div className="glass-card-transparent rounded-xl shadow-sm p-6 pb-8 min-h-fit h-auto overflow-hidden w-full">
       <div className="mb-6">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
           <Trophy className="h-5 w-5" />

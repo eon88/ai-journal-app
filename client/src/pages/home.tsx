@@ -72,9 +72,11 @@ export default function Home() {
         {/* Main Content with Sidebar */}
         <div className="flex gap-8">
           {/* Left Sidebar - Level Category & Achievements */}
-          <div className="hidden lg:block space-y-6 sticky top-8 self-start">
-            <LevelSidebar />
-            <BadgeShowcase />
+          <div className="hidden lg:block w-64 self-start">
+            <div className="sticky top-8 space-y-6">
+              <LevelSidebar />
+              <BadgeShowcase />
+            </div>
           </div>
           
           {/* Main Content Grid */}
