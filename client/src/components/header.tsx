@@ -119,8 +119,12 @@ export function Header() {
               />
             </button>
             
-            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-              <Calendar className="text-primary-foreground text-lg" />
+            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center shadow-lg border border-purple-400/50">
+              <img 
+                src={merlinWizardImage} 
+                alt="Merlin" 
+                className="w-8 h-8 object-cover rounded-md"
+              />
             </div>
             <div>
               <h1 className="text-lg sm:text-2xl font-semibold text-gray-900 dark:text-white">Life Path Companion</h1>
