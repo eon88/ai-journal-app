@@ -258,7 +258,7 @@ export default function ForumPostPage() {
                     placeholder="Write your reply..."
                     value={replyContent}
                     onChange={(e) => setReplyContent(e.target.value)}
-                    className="bg-gray-800 border-gray-600 text-white min-h-[100px]"
+                    className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white min-h-[100px]"
                   />
                 </div>
                 <div className="flex gap-2">
