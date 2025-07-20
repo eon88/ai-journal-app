@@ -99,7 +99,7 @@ export function NewPostDialog({ defaultCategoryId }: NewPostDialogProps = {}) {
               <Label htmlFor="category" className="text-gray-900 dark:text-white">Category</Label>
               <Select value={categoryId} onValueChange={setCategoryId}>
                 <SelectTrigger className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
-                  <SelectValue placeholder="Select a category" className="text-gray-500 dark:text-gray-400" />
+                  <SelectValue placeholder="Select a category" className="text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400" />
                 </SelectTrigger>
                 <SelectContent className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600">
                   {categories.map((category: ForumCategory) => (

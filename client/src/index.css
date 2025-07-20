@@ -137,6 +137,26 @@
   .dark .text-gray-500 {
     color: rgb(209, 213, 219) !important;
   }
+
+  /* Select component text visibility fixes */
+  [data-radix-select-trigger],
+  [data-radix-select-value] {
+    color: rgb(17, 24, 39) !important;
+  }
+
+  .dark [data-radix-select-trigger],
+  .dark [data-radix-select-value] {
+    color: rgb(249, 250, 251) !important;
+  }
+
+  /* Select placeholder text */
+  [data-radix-select-value][data-placeholder] {
+    color: rgb(107, 114, 128) !important;
+  }
+
+  .dark [data-radix-select-value][data-placeholder] {
+    color: rgb(156, 163, 175) !important;
+  }
   
   /* Mobile specific enhancements */
   @media (max-width: 768px) {
