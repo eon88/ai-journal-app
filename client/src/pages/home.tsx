@@ -13,21 +13,15 @@ import { DailyQuote } from "@/components/daily-quote";
 import { BadgeShowcase } from "@/components/badge-showcase";
 import { MerlinAssistant } from "@/components/merlin-assistant";
 import { MerlinWhisper } from "@/components/merlin-whisper";
-
-import { LifePathQuestionnaire } from "@/components/life-path-questionnaire";
 import { Footer } from "@/components/footer";
 import { LevelSidebar } from "@/components/level-sidebar";
 import { MobileScoreboard } from "@/components/mobile-scoreboard";
-import { useUser } from "@/components/user-provider";
 
 import { useQuery } from "@tanstack/react-query";
 import type { AIReflection } from "@shared/schema";
 import { useNotificationSettings } from "@/hooks/useNotificationSettings";
 
 export default function Home() {
-
-  const { hasCompletedQuestionnaire, setHasCompletedQuestionnaire } = useUser();
-
   // Fetch recent entry for Merlin context
   const { data: recentEntries } = useQuery({
     queryKey: ["/api/entries", { limit: 1 }],
@@ -40,26 +34,6 @@ export default function Home() {
 
   const todaysEntry = recentEntries?.[0];
   const hasJournalToday = todaysEntry && new Date(todaysEntry.createdAt).toDateString() === new Date().toDateString();
-
-
-
-  const handleQuestionnaireComplete = () => {
-    setHasCompletedQuestionnaire(true);
-  };
-
-  const handleQuestionnaireSkip = () => {
-    setHasCompletedQuestionnaire(true);
-  };
-
-  // Show questionnaire if user hasn't completed it yet
-  if (!hasCompletedQuestionnaire) {
-    return (
-      <LifePathQuestionnaire
-        onComplete={handleQuestionnaireComplete}
-        onSkip={handleQuestionnaireSkip}
-      />
-    );
-  }
 
   return (
     <div className="min-h-screen font-inter">
