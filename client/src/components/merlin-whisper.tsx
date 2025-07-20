@@ -38,11 +38,7 @@ const MERLIN_WHISPERS = [
     icon: <Crown className="w-4 h-4" />,
     color: "from-indigo-400 to-purple-500"
   },
-  {
-    text: "Monthly reflections await thee from the beginning... the grand tapestry shows itself to all.",
-    icon: <Sparkles className="w-4 h-4" />,
-    color: "from-teal-400 to-blue-500"
-  },
+
   {
     text: "Mood tracking unlocks insights... thy emotional patterns reveal hidden truths.",
     icon: <Star className="w-4 h-4" />,
