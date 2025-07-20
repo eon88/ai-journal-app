@@ -154,7 +154,7 @@ export interface IStorage {
   getForumCategories(): Promise<ForumCategory[]>;
   createForumCategory(category: InsertForumCategory): Promise<ForumCategory>;
   getForumPosts(categoryId?: number, limit?: number): Promise<(ForumPost & { author: { username: string; xpPoints: number; }, category: { name: string; } })[]>;
-  getForumPost(id: number): Promise<(ForumPost & { author: { username: string; }, category: { name: string; } }) | undefined>;
+  getForumPost(id: number): Promise<(ForumPost & { author: { username: string; }, category: { name: string; allowPhotos: boolean; } }) | undefined>;
   createForumPost(userId: number, post: InsertForumPost): Promise<ForumPost>;
   updateForumPost(id: number, updates: Partial<InsertForumPost>): Promise<ForumPost | undefined>;
   deleteForumPost(id: number): Promise<void>;
@@ -1186,7 +1186,7 @@ export class DatabaseStorage implements IStorage {
     return await query;
   }
 
-  async getForumPost(id: number): Promise<(ForumPost & { author: { username: string; }, category: { name: string; } }) | undefined> {
+  async getForumPost(id: number): Promise<(ForumPost & { author: { username: string; }, category: { name: string; allowPhotos: boolean; } }) | undefined> {
     const [post] = await db
       .select({
         id: forumPosts.id,
@@ -1205,7 +1205,10 @@ export class DatabaseStorage implements IStorage {
         createdAt: forumPosts.createdAt,
         updatedAt: forumPosts.updatedAt,
         author: { username: users.username },
-        category: { name: forumCategories.name }
+        category: { 
+          name: forumCategories.name,
+          allowPhotos: forumCategories.allowPhotos
+        }
       })
       .from(forumPosts)
       .leftJoin(users, eq(forumPosts.authorId, users.id))
