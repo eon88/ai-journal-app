@@ -271,7 +271,7 @@ export function MerlinAssistant({ userMood, hasJournalToday, recentEntry, isOpen
       <div className="fixed top-6 right-6 z-50 hidden md:block">
         <Button
           onClick={() => setInternalIsOpen(true)}
-          className="w-20 h-20 rounded-full p-1 bg-gradient-to-br from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg transition-all duration-300 hover:scale-110 border-2 border-purple-300/50 overflow-hidden"
+          className="w-20 h-20 rounded-full p-1 bg-gradient-to-br from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 dark:from-purple-600 dark:to-blue-600 dark:hover:from-purple-700 dark:hover:to-blue-700 shadow-xl transition-all duration-300 hover:scale-110 border-2 border-purple-400/70 dark:border-purple-300/50 overflow-hidden"
           title={getRandomHoverTip()}
         >
           <div className="relative w-full h-full">
