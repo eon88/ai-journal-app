@@ -30,9 +30,10 @@ export function JournalEntryForm() {
   // Sync with global journal entry state
   useEffect(() => {
     if (globalEntry && globalEntry !== entry) {
+      console.log('Syncing global entry to form:', globalEntry);
       setEntry(globalEntry);
     }
-  }, [globalEntry]);
+  }, [globalEntry, entry]);
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -210,8 +211,10 @@ export function JournalEntryForm() {
                 id="entry"
                 value={entry}
                 onChange={(e) => {
-                  setEntry(e.target.value);
-                  updateText(e.target.value);
+                  const newValue = e.target.value;
+                  console.log('Textarea onChange:', newValue);
+                  setEntry(newValue);
+                  updateText(newValue);
                 }}
                 placeholder="Write about your day, thoughts, goals, or anything that comes to mind. The AI will help you reflect on your entry..."
                 rows={12}

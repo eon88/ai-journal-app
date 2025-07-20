@@ -37,8 +37,12 @@ export function DailyChallenge() {
       const response = await apiRequest(`/api/challenge/${challengeId}/accept`, "POST");
       return await response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/challenge/today"] });
+      // Auto-populate journal entry with quest prompt after successful acceptance
+      if (data.prompt) {
+        setTimeout(() => copyToJournalEntry(data.prompt), 100);
+      }
     },
   });
 
@@ -94,8 +98,6 @@ export function DailyChallenge() {
 
   const handleAccept = () => {
     acceptMutation.mutate(challenge.id);
-    // Auto-populate journal entry with quest prompt
-    copyToJournalEntry(challenge.prompt);
   };
 
   const handleComplete = () => {
@@ -112,18 +114,27 @@ export function DailyChallenge() {
 
   const copyToJournalEntry = (text: string) => {
     try {
+      console.log('Copying quest prompt to journal:', text);
+      
       // Copy to clipboard as backup
       navigator.clipboard.writeText(text);
       
       // Set the global journal text state
       setGlobalJournalText(text);
       
-      // Scroll to the journal entry form
-      const textArea = document.querySelector('textarea[placeholder*="Write about your day"]') as HTMLTextAreaElement;
-      if (textArea) {
-        textArea.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        textArea.focus();
-      }
+      // Also directly set the textarea value as a fallback
+      setTimeout(() => {
+        const textArea = document.querySelector('textarea[placeholder*="Write about your day"]') as HTMLTextAreaElement;
+        if (textArea) {
+          textArea.value = text;
+          textArea.dispatchEvent(new Event('input', { bubbles: true }));
+          textArea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          textArea.focus();
+          console.log('Quest prompt set in textarea:', textArea.value);
+        } else {
+          console.warn('Could not find journal entry textarea');
+        }
+      }, 200);
       
       // Show success message
       toast({
