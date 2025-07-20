@@ -219,6 +219,7 @@ Changelog:
 - July 20, 2025. MOBILE MERLIN HEADER INTEGRATION - Added mobile Merlin button to the left side of the header for mobile devices. Features purple-blue gradient circular button with Merlin wizard image that opens a mobile-optimized modal with full Merlin assistant functionality (daily prophecy, reflection guidance, goal alignment, custom questions). Button is hidden on desktop where floating Merlin avatar remains, providing consistent access to Merlin's wisdom across all device sizes.
 - July 20, 2025. HEADER LOGO REPLACEMENT - Replaced the calendar icon in the header with Merlin's wizard image as the main app logo. Updated with purple-blue gradient background, shadow, and border styling to create cohesive mystical branding throughout the application with Merlin as the central figure.
 - July 20, 2025. HEADER ICON REVISION - Removed mobile Merlin button from header and replaced desktop Merlin wizard image with journal icon (BookOpen). Simplified header design while maintaining purple-blue gradient styling for consistency with app branding.
+- July 20, 2025. MOBILE MERLIN RESTORATION - Added Merlin AI button back to mobile header while keeping journal icon on desktop. Mobile users now have access to Merlin wizard through clickable avatar button, while desktop maintains the journal icon branding.
 ```
 
 ## User Preferences

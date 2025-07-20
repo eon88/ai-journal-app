@@ -106,7 +106,21 @@ export function Header() {
       <div className="max-w-4xl mx-auto px-4 py-4 sm:py-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2 sm:space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center shadow-lg border border-purple-400/50">
+            {/* Mobile Merlin Button - Only visible on mobile */}
+            <button
+              onClick={() => setMerlinOpen(true)}
+              className="md:hidden w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 shadow-lg transition-all duration-300 hover:scale-110 border border-purple-400/70 overflow-hidden flex items-center justify-center"
+              title="Consult Merlin"
+            >
+              <img 
+                src={merlinWizardImage} 
+                alt="Merlin" 
+                className="w-6 h-6 object-cover rounded-full"
+              />
+            </button>
+            
+            {/* Desktop Journal Icon - Only visible on desktop */}
+            <div className="hidden md:flex w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg items-center justify-center shadow-lg border border-purple-400/50">
               <BookOpen className="w-6 h-6 text-white" />
             </div>
             <div>
