@@ -904,21 +904,22 @@ export class DatabaseStorage implements IStorage {
   }
 
   calculateLevelTitle(level: number): string {
+    // Align with forum ranks system for consistency
     const titles = [
-      "Reflective Wanderer",      // Level 1
-      "Thoughtful Seeker",        // Level 2-3
-      "Mindful Explorer",         // Level 4-5
-      "Wisdom Gatherer",          // Level 6-7
-      "Growth Catalyst",          // Level 8-9
-      "Inner Architect",          // Level 10+
+      "Wanderer",       // Level 1
+      "Seeker",         // Level 2
+      "Student",        // Level 3
+      "Climber",        // Level 4
+      "Builder",        // Level 5
+      "Navigator",      // Level 6
+      "Architect",      // Level 7
+      "Guardian",       // Level 8
+      "Sage",           // Level 9
+      "Legendary Oracle" // Level 10+
     ];
     
-    if (level === 1) return titles[0];
-    if (level <= 3) return titles[1];
-    if (level <= 5) return titles[2];
-    if (level <= 7) return titles[3];
-    if (level <= 9) return titles[4];
-    return titles[5];
+    const titleIndex = Math.min(level - 1, titles.length - 1);
+    return titles[titleIndex] || "Legendary Oracle";
   }
 
   async createGoal(userId: number, goalData: InsertUserGoal): Promise<UserGoal> {
