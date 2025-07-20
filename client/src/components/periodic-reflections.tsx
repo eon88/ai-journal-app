@@ -103,7 +103,7 @@ export function PeriodicReflections() {
             <Button 
               onClick={handleWeeklyReflection}
               disabled={weeklyMutation.isPending}
-              className="w-full min-w-0 px-4 py-4 text-sm font-medium h-auto leading-tight"
+              className="w-full min-w-0 px-4 py-4 text-sm font-medium h-auto leading-normal whitespace-normal"
             >
               {weeklyMutation.isPending && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -213,7 +213,7 @@ export function PeriodicReflections() {
             <Button 
               onClick={handleMonthlyReflection}
               disabled={monthlyMutation.isPending}
-              className="w-full min-w-0 px-4 py-4 text-sm font-medium h-auto leading-tight"
+              className="w-full min-w-0 px-4 py-4 text-sm font-medium h-auto leading-normal whitespace-normal"
             >
               {monthlyMutation.isPending && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
