@@ -39,7 +39,7 @@ const MERLIN_WHISPERS = [
     color: "from-indigo-400 to-purple-500"
   },
   {
-    text: "Monthly reflections at Level 3... the grand tapestry begins to show itself.",
+    text: "Monthly reflections await thee from the beginning... the grand tapestry shows itself to all.",
     icon: <Sparkles className="w-4 h-4" />,
     color: "from-teal-400 to-blue-500"
   },
