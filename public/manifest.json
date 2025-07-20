@@ -1,6 +1,6 @@
 {
-  "name": "Life Path Companion",
-  "short_name": "LifePath",
+  "name": "Quest Journal",
+  "short_name": "QuestJournal",
   "description": "AI-powered journaling app for personal growth and self-discovery",
   "start_url": "/",
   "display": "standalone",

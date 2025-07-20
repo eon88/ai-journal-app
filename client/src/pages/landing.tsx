@@ -11,7 +11,7 @@ export default function Landing() {
         <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-2">
             <BookOpen className="w-8 h-8 text-blue-400" />
-            <h1 className="text-2xl font-bold text-white">Life Path Companion</h1>
+            <h1 className="text-2xl font-bold text-white">Quest Journal</h1>
           </div>
           <Button 
             onClick={() => window.location.href = '/login'}
@@ -151,7 +151,7 @@ export default function Landing() {
       {/* Features Grid */}
       <section className="max-w-6xl mx-auto px-4 py-16">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-white mb-4">Why Choose Life Path Companion?</h2>
+          <h2 className="text-3xl font-bold text-white mb-4">Why Choose Quest Journal?</h2>
           <p className="text-gray-300 text-lg">Everything you need to discover your purpose and achieve meaningful growth</p>
         </div>
         
@@ -231,9 +231,9 @@ export default function Landing() {
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center space-x-2 mb-4 md:mb-0">
               <BookOpen className="w-6 h-6 text-blue-400" />
-              <span className="text-white font-semibold">Life Path Companion</span>
+              <span className="text-white font-semibold">Quest Journal</span>
             </div>
-            <p className="text-gray-400">© 2025 Life Path Companion. Transforming lives through intelligent reflection.</p>
+            <p className="text-gray-400">© 2025 Quest Journal. Transforming lives through intelligent reflection.</p>
           </div>
         </div>
       </footer>

@@ -124,7 +124,7 @@ export function Header() {
               <BookOpen className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-lg sm:text-2xl font-semibold text-gray-900 dark:text-white">Life Path Companion</h1>
+              <h1 className="text-lg sm:text-2xl font-semibold text-gray-900 dark:text-white">Quest Journal</h1>
               <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">Reflect, grow, and discover insights</p>
             </div>
           </div>

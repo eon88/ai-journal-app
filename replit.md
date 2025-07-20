@@ -1,8 +1,8 @@
-# Life Path Companion - Replit.md
+# Quest Journal - Replit.md
 
 ## Overview
 
-This is a full-stack web application for an AI-powered life path companion system. The application allows users to create journal entries and receive AI-generated insights and reflections about their entries. Built with a modern tech stack featuring React frontend, Express backend, and PostgreSQL database with Drizzle ORM.
+This is a full-stack web application for an AI-powered Quest Journal system. The application allows users to create journal entries and receive AI-generated insights and reflections about their entries. Built with a modern tech stack featuring React frontend, Express backend, and PostgreSQL database with Drizzle ORM.
 
 ## System Architecture
 
@@ -220,6 +220,7 @@ Changelog:
 - July 20, 2025. HEADER LOGO REPLACEMENT - Replaced the calendar icon in the header with Merlin's wizard image as the main app logo. Updated with purple-blue gradient background, shadow, and border styling to create cohesive mystical branding throughout the application with Merlin as the central figure.
 - July 20, 2025. HEADER ICON REVISION - Removed mobile Merlin button from header and replaced desktop Merlin wizard image with journal icon (BookOpen). Simplified header design while maintaining purple-blue gradient styling for consistency with app branding.
 - July 20, 2025. MOBILE MERLIN RESTORATION - Added Merlin AI button back to mobile header while keeping journal icon on desktop. Mobile users now have access to Merlin wizard through clickable avatar button, while desktop maintains the journal icon branding.
+- July 20, 2025. APPLICATION TITLE REBRANDING - Changed application title from "Life Path Companion" to "Quest Journal" throughout entire application including header, login, registration, landing page, about page, manifest.json, service worker, and documentation files for consistent branding across all devices and platforms.
 ```
 
 ## User Preferences

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'life-path-companion-v1';
+const CACHE_NAME = 'quest-journal-v1';
 const urlsToCache = [
   '/',
   '/static/js/bundle.js',

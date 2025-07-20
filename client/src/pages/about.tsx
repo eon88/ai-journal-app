@@ -46,7 +46,7 @@ export default function About() {
         {/* Hero Section */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            About Life Path Companion
+            About Quest Journal
           </h1>
           <p className="text-xl text-gray-700 dark:text-gray-300 mb-6 max-w-2xl mx-auto">
             An AI-powered journaling experience that transforms personal reflection into 

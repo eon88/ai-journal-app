@@ -41,7 +41,7 @@ export default function Login() {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center space-x-2 mb-4">
             <BookOpen className="w-8 h-8 text-blue-400" />
-            <h1 className="text-2xl font-bold text-white">Life Path Companion</h1>
+            <h1 className="text-2xl font-bold text-white">Quest Journal</h1>
           </div>
           <p className="text-gray-300">Welcome back to your journey</p>
         </div>
