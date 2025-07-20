@@ -94,6 +94,8 @@ export function DailyChallenge() {
 
   const handleAccept = () => {
     acceptMutation.mutate(challenge.id);
+    // Auto-populate journal entry with quest prompt
+    copyToJournalEntry(challenge.prompt);
   };
 
   const handleComplete = () => {

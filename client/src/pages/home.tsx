@@ -71,9 +71,10 @@ export default function Home() {
         
         {/* Main Content with Sidebar */}
         <div className="flex gap-8">
-          {/* Left Sidebar - Level Category */}
-          <div className="hidden lg:block">
+          {/* Left Sidebar - Level Category & Achievements */}
+          <div className="hidden lg:block space-y-6 sticky top-8 self-start">
             <LevelSidebar />
+            <BadgeShowcase />
           </div>
           
           {/* Main Content Grid */}
@@ -90,9 +91,8 @@ export default function Home() {
             
             {/* Right Column - Gamification Features */}
             <div className="space-y-6">
-              <DailyChallenge />
               <DailyQuote />
-              <BadgeShowcase />
+              <DailyChallenge />
             </div>
           </div>
         </div>
