@@ -162,7 +162,7 @@ export function RecentEntries() {
                   <Button 
                     variant="ghost"
                     size="sm"
-                    className="text-xs text-journal-primary hover:text-indigo-700 group-hover:text-indigo-700"
+                    className="text-xs text-journal-primary hover:text-indigo-700 group-hover:text-indigo-700 dark:text-blue-400 dark:hover:text-blue-300"
                   >
                     Read More
                   </Button>
