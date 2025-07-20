@@ -338,8 +338,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
         }
         
-        // Automatically add "Daily Challenge" tag if not already present
-        const challengeTag = "Daily Challenge";
+        // Automatically add "Daily Quest" tag if not already present
+        const challengeTag = "Daily Quest";
         const existingTags = tags || [];
         if (!existingTags.includes(challengeTag)) {
           req.body.tags = [...existingTags, challengeTag];
@@ -1311,15 +1311,15 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
     }
   });
 
-  // Daily challenge routes
+  // Daily quest routes
   app.get("/api/challenge/today", isAuthenticated, async (req: any, res: Response) => {
     try {
       const userId = req.user.id;
-      const challenge = await storage.getTodaysChallenge(userId);
-      res.json(challenge);
+      const quest = await storage.getTodaysChallenge(userId);
+      res.json(quest);
     } catch (error) {
-      console.error("Error fetching today's challenge:", error);
-      res.status(500).json({ error: "Failed to fetch challenge" });
+      console.error("Error fetching today's quest:", error);
+      res.status(500).json({ error: "Failed to fetch quest" });
     }
   });
 
@@ -1531,17 +1531,17 @@ Wrap these practical steps with mystical language, but the actions must be concr
     }
   });
 
-  // Accept daily challenge
+  // Accept daily quest
   app.post("/api/challenge/:id/accept", isAuthenticated, async (req: any, res: Response) => {
     try {
       const userId = req.user.id;
       const id = parseInt(req.params.id);
       
-      const challenge = await storage.acceptChallenge(userId, id);
-      res.json(challenge);
+      const quest = await storage.acceptChallenge(userId, id);
+      res.json(quest);
     } catch (error) {
-      console.error("Error accepting challenge:", error);
-      res.status(500).json({ error: "Failed to accept challenge" });
+      console.error("Error accepting quest:", error);
+      res.status(500).json({ error: "Failed to accept quest" });
     }
   });
 
@@ -1665,11 +1665,11 @@ Wrap these practical steps with mystical language, but the actions must be concr
       const userId = req.user.id;
       const id = parseInt(req.params.id);
       
-      const challenge = await storage.completeChallenge(userId, id);
-      res.json(challenge);
+      const quest = await storage.completeChallenge(userId, id);
+      res.json(quest);
     } catch (error) {
-      console.error("Error completing challenge:", error);
-      res.status(400).json({ error: error.message || "Failed to complete challenge" });
+      console.error("Error completing quest:", error);
+      res.status(400).json({ error: error.message || "Failed to complete quest" });
     }
   });
 

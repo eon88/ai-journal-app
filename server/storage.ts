@@ -688,44 +688,44 @@ export class DatabaseStorage implements IStorage {
   }
 
   async generateDailyChallenge(userId: number, date: string): Promise<DailyChallenge> {
-    const challenges = [
+    const quests = [
       {
-        title: "Gratitude Spotlight",
+        title: "Gratitude Quest",
         description: "What made you smile today?",
         prompt: "Write about three things you're grateful for today, no matter how small.",
         xpReward: 15
       },
       {
-        title: "Fear Explorer",
+        title: "Fear Explorer Quest",
         description: "Face a small fear today",
         prompt: "What's one small thing you've been avoiding? Write about taking that first step.",
         xpReward: 20
       },
       {
-        title: "Growth Spotter",
+        title: "Growth Spotter Quest",
         description: "Notice your progress",
         prompt: "Reflect on how you've grown in the past month. What positive changes do you notice?",
         xpReward: 15
       },
       {
-        title: "Future Visionary",
+        title: "Future Visionary Quest",
         description: "Dream about tomorrow",
         prompt: "Describe where you see yourself in one year. What steps will get you there?",
         xpReward: 18
       }
     ];
 
-    const randomChallenge = challenges[Math.floor(Math.random() * challenges.length)];
+    const randomQuest = quests[Math.floor(Math.random() * quests.length)];
     
-    const [challenge] = await db
+    const [quest] = await db
       .insert(dailyChallenges)
       .values({
         date,
-        ...randomChallenge,
+        ...randomQuest,
       })
       .returning();
     
-    return challenge;
+    return quest;
   }
 
   async acceptChallenge(userId: number, challengeId: number): Promise<any> {
@@ -773,7 +773,7 @@ export class DatabaseStorage implements IStorage {
       .where(eq(dailyChallenges.id, challengeId));
 
     if (!existingChallenge) {
-      throw new Error("Challenge not found");
+      throw new Error("Quest not found");
     }
 
     // Get user-specific completion status
@@ -787,7 +787,7 @@ export class DatabaseStorage implements IStorage {
       .limit(1);
 
     if (!userCompletion || userCompletion.status !== 'accepted') {
-      throw new Error("Challenge must be accepted before it can be completed");
+      throw new Error("Quest must be accepted before it can be completed");
     }
 
     // Verify the user has written a journal entry today
@@ -801,26 +801,26 @@ export class DatabaseStorage implements IStorage {
       ));
 
     if (todayEntries.length === 0) {
-      throw new Error("You must write a journal entry today to complete the challenge");
+      throw new Error("You must write a journal entry today to complete the quest");
     }
 
-    // Calculate total characters excluding the challenge prompt
-    const challengePrompt = existingChallenge.prompt;
+    // Calculate total characters excluding the quest prompt
+    const questPrompt = existingChallenge.prompt;
     const totalCharacters = todayEntries.reduce((total, entry) => {
-      // If the entry contains the challenge prompt, subtract it from the count
+      // If the entry contains the quest prompt, subtract it from the count
       let effectiveContent = entry.content;
-      if (effectiveContent.includes(challengePrompt)) {
-        effectiveContent = effectiveContent.replace(challengePrompt, '').trim();
+      if (effectiveContent.includes(questPrompt)) {
+        effectiveContent = effectiveContent.replace(questPrompt, '').trim();
       }
       return total + effectiveContent.length;
     }, 0);
 
-    console.log(`DEBUG: Challenge prompt: "${challengePrompt}"`);
+    console.log(`DEBUG: Quest prompt: "${questPrompt}"`);
     console.log(`DEBUG: Entry content: "${todayEntries[0]?.content}"`);
     console.log(`DEBUG: Characters beyond prompt: ${totalCharacters}`);
 
     if (totalCharacters < 100) {
-      throw new Error(`You must write at least 100 characters beyond the challenge prompt to complete the challenge. Currently: ${totalCharacters}/100 characters.`);
+      throw new Error(`You must write at least 100 characters beyond the quest prompt to complete the quest. Currently: ${totalCharacters}/100 characters.`);
     }
 
     // Update user-specific completion status
@@ -836,7 +836,7 @@ export class DatabaseStorage implements IStorage {
       ))
       .returning();
 
-    // Award XP for completing challenge
+    // Award XP for completing quest
     const stats = await this.getUserStats(userId);
     await this.updateUserStats(userId, {
       xpPoints: stats.xpPoints + existingChallenge.xpReward,

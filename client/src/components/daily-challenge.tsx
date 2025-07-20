@@ -51,14 +51,14 @@ export function DailyChallenge() {
       queryClient.invalidateQueries({ queryKey: ["/api/challenge/today"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
       toast({
-        title: "Challenge Completed!",
-        description: `Congratulations! You've earned +${challenge?.xpReward} XP for completing today's challenge.`,
+        title: "Quest Completed!",
+        description: `Congratulations! You've earned +${challenge?.xpReward} XP for completing today's quest.`,
       });
     },
     onError: (error: any) => {
       toast({
-        title: "Challenge Not Complete",
-        description: error.message || "Unable to complete challenge. Please ensure you've written a substantial journal entry.",
+        title: "Quest Not Complete",
+        description: error.message || "Unable to complete quest. Please ensure you've written a substantial journal entry.",
         variant: "destructive",
       });
     },
@@ -70,7 +70,7 @@ export function DailyChallenge() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <AdventureIcons.Sword size={20} className="" />
-            Today's Challenge
+            Today's Quest
           </CardTitle>
           <CardDescription>Loading your daily quest...</CardDescription>
         </CardHeader>
@@ -84,9 +84,9 @@ export function DailyChallenge() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <AdventureIcons.Sword size={20} className="" />
-            Today's Challenge
+            Today's Quest
           </CardTitle>
-          <CardDescription>No challenge available today</CardDescription>
+          <CardDescription>No quest available today</CardDescription>
         </CardHeader>
       </Card>
     );
@@ -125,14 +125,14 @@ export function DailyChallenge() {
       
       // Show success message
       toast({
-        title: "Challenge Prompt Added",
-        description: "The challenge prompt has been added to your journal entry!",
+        title: "Quest Prompt Added",
+        description: "The quest prompt has been added to your journal entry!",
       });
     } catch (error) {
       console.error('Failed to copy challenge prompt:', error);
       toast({
         title: "Copy Failed",
-        description: "Please manually copy the challenge prompt to your journal entry.",
+        description: "Please manually copy the quest prompt to your journal entry.",
         variant: "destructive",
       });
     }
@@ -154,7 +154,7 @@ export function DailyChallenge() {
             ) : (
               <AdventureIcons.Sword size={20} className="" />
             )}
-            Today's Challenge
+            Today's Quest
           </CardTitle>
           <Badge variant={isCompleted ? "default" : isAccepted ? "outline" : "secondary"} className="flex items-center gap-1">
             <Star className="h-3 w-3" />
@@ -162,7 +162,7 @@ export function DailyChallenge() {
           </Badge>
         </div>
         <CardDescription>
-          {isCompleted ? "Completed!" : isAccepted ? "Accepted - Write a journal entry (minimum 100 characters beyond the challenge prompt) to complete" : "Accept the challenge to begin"}
+          {isCompleted ? "Completed!" : isAccepted ? "Accepted - Write a journal entry (minimum 100 characters beyond the quest prompt) to complete" : "Accept the quest to begin"}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -183,7 +183,7 @@ export function DailyChallenge() {
                   disabled={acceptMutation.isPending}
                   className="w-full"
                 >
-                  {acceptMutation.isPending ? "Accepting..." : "Accept Challenge"}
+                  {acceptMutation.isPending ? "Accepting..." : "Accept Quest"}
                 </Button>
               )}
               
@@ -195,13 +195,13 @@ export function DailyChallenge() {
                       onClick={() => setShowPrompt(true)}
                       className="w-full"
                     >
-                      View Challenge Prompt
+                      View Quest Prompt
                     </Button>
                   ) : (
                     <div className="p-4 rounded-lg bg-muted/50 border-l-4 border-primary">
                       <div className="flex items-start gap-2 mb-2">
                         <AdventureIcons.Sword size={16} className="mt-0.5 text-primary" />
-                        <span className="font-medium text-sm">Challenge Prompt</span>
+                        <span className="font-medium text-sm">Quest Prompt</span>
                       </div>
                       <p className="text-sm leading-relaxed">
                         {challenge.prompt}
