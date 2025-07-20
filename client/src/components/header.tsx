@@ -1,4 +1,4 @@
-import { Calendar, User, Crown, LogOut, UserCircle, Home, Shield, Settings, Map, Sparkles } from "lucide-react";
+import { Calendar, User, Crown, LogOut, UserCircle, Home, Shield, Settings, Map, Sparkles, Zap } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Link } from "wouter";
@@ -17,6 +17,8 @@ import { useProgressiveFeatures } from "@/hooks/useProgressiveFeatures";
 import { useAuth } from "@/hooks/useAuth";
 import { useBetaAccess } from "@/hooks/useBetaAccess";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { MerlinAssistant } from "@/components/merlin-assistant";
+import merlinWizardImage from "@assets/ChatGPT Image Jul 6, 2025, 01_31_56 PM_1751805312463.png";
 const LEVEL_DESCRIPTIONS = {
   1: { title: "Reflective Wanderer", color: "bg-gray-500" },
   2: { title: "Mindful Seeker", color: "bg-blue-500" },
@@ -33,6 +35,7 @@ const LEVEL_DESCRIPTIONS = {
 export function Header() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [selectedLevel, setSelectedLevel] = useState<string>("");
+  const [merlinOpen, setMerlinOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { progress } = useProgressiveFeatures();
@@ -103,6 +106,19 @@ export function Header() {
       <div className="max-w-4xl mx-auto px-4 py-4 sm:py-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2 sm:space-x-3">
+            {/* Mobile Merlin Button - Only visible on mobile */}
+            <button
+              onClick={() => setMerlinOpen(true)}
+              className="md:hidden w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 shadow-lg transition-all duration-300 hover:scale-110 border border-purple-400/70 overflow-hidden flex items-center justify-center"
+              title="Consult Merlin"
+            >
+              <img 
+                src={merlinWizardImage} 
+                alt="Merlin" 
+                className="w-6 h-6 object-cover rounded-full"
+              />
+            </button>
+            
             <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
               <Calendar className="text-primary-foreground text-lg" />
             </div>
@@ -256,6 +272,41 @@ export function Header() {
         </div>
       </div>
 
+      {/* Mobile Merlin Modal */}
+      {merlinOpen && (
+        <div className="md:hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="w-full max-w-sm bg-gradient-to-b from-amber-50 to-orange-50 dark:from-amber-950 dark:to-orange-950 border-2 border-amber-200 dark:border-amber-800 shadow-2xl rounded-lg">
+            <div className="relative p-4">
+              <button
+                onClick={() => setMerlinOpen(false)}
+                className="absolute top-2 right-2 w-8 h-8 rounded-full bg-amber-200 dark:bg-amber-800 hover:bg-amber-300 dark:hover:bg-amber-700 flex items-center justify-center transition-colors"
+              >
+                <span className="text-amber-800 dark:text-amber-200 text-sm">×</span>
+              </button>
+              
+              <div className="text-center mb-4">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <img 
+                    src={merlinWizardImage} 
+                    alt="Merlin" 
+                    className="w-8 h-8 object-cover rounded-full border border-purple-300"
+                  />
+                  <h3 className="text-xl font-serif text-amber-800 dark:text-amber-200">Merlin</h3>
+                </div>
+                <p className="text-sm text-amber-600 dark:text-amber-400 italic">
+                  "What wisdom do you seek today?"
+                </p>
+              </div>
+              
+              <MerlinAssistant 
+                isOpen={true}
+                onClose={() => setMerlinOpen(false)}
+                mobileMode={true}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
