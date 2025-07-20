@@ -23,9 +23,9 @@ const categoryIcons = {
 };
 
 const categoryColors = {
-  insight: 'text-yellow-800 bg-yellow-50 border-yellow-200 dark:text-yellow-200 dark:bg-yellow-900/30 dark:border-yellow-700',
-  lesson: 'text-blue-800 bg-blue-50 border-blue-200 dark:text-blue-200 dark:bg-blue-900/30 dark:border-blue-700',
-  goal: 'text-green-800 bg-green-50 border-green-200 dark:text-green-200 dark:bg-green-900/30 dark:border-green-700',
+  insight: 'text-yellow-800 bg-yellow-50 border-yellow-200 dark:text-yellow-100 dark:bg-yellow-800/20 dark:border-yellow-600',
+  lesson: 'text-blue-800 bg-blue-50 border-blue-200 dark:text-blue-100 dark:bg-blue-800/20 dark:border-blue-600',
+  goal: 'text-green-800 bg-green-50 border-green-200 dark:text-green-100 dark:bg-green-800/20 dark:border-green-600',
 };
 
 export function InsightsVault() {
