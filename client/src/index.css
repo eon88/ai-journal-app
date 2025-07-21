@@ -317,6 +317,53 @@ html:not(.dark) body * {
   color: rgb(17, 24, 39) !important;
 }
 
+/* Fix Select dropdown visibility issues */
+[data-radix-popper-content-wrapper] [role="option"],
+[data-radix-select-content] [role="option"],
+[data-radix-select-item],
+[data-radix-select-trigger],
+[data-radix-select-value] {
+  color: rgb(17, 24, 39) !important;
+}
+
+.dark [data-radix-popper-content-wrapper] [role="option"],
+.dark [data-radix-select-content] [role="option"],
+.dark [data-radix-select-item],
+.dark [data-radix-select-trigger],
+.dark [data-radix-select-value] {
+  color: rgb(229, 231, 235) !important;
+}
+
+/* Force Textarea and Input visibility in all contexts */
+textarea,
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  color: rgb(17, 24, 39) !important;
+}
+
+.dark textarea,
+.dark input[type="text"],
+.dark input[type="email"],
+.dark input[type="password"] {
+  color: rgb(229, 231, 235) !important;
+}
+
+/* Dialog and Modal specific fixes */
+[data-radix-dialog-content] input,
+[data-radix-dialog-content] textarea,
+[data-radix-dialog-content] [data-radix-select-trigger],
+[data-radix-dialog-content] [data-radix-select-value] {
+  color: rgb(17, 24, 39) !important;
+}
+
+.dark [data-radix-dialog-content] input,
+.dark [data-radix-dialog-content] textarea,
+.dark [data-radix-dialog-content] [data-radix-select-trigger],
+.dark [data-radix-dialog-content] [data-radix-select-value] {
+  color: rgb(229, 231, 235) !important;
+}
+
 /* Allow certain elements to keep their original colors */
 html.dark .text-blue-500,
 html.dark .text-green-500,
