@@ -11,6 +11,7 @@ import { InsightsVault } from "@/components/insights-vault";
 import { DailyChallenge } from "@/components/daily-challenge";
 import { DailyQuote } from "@/components/daily-quote";
 import { BadgeShowcase } from "@/components/badge-showcase";
+import { DailyStreakFire } from "@/components/daily-streak-fire";
 import { MerlinAssistant } from "@/components/merlin-assistant";
 import { MerlinWhisper } from "@/components/merlin-whisper";
 import { Footer } from "@/components/footer";
@@ -67,6 +68,7 @@ export default function Home() {
             
             {/* Right Column - Gamification Features */}
             <div className="space-y-6">
+              <DailyStreakFire />
               <DailyQuote />
               <DailyChallenge />
             </div>

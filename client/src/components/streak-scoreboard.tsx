@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Flame, TrendingUp, Trophy, Zap, HelpCircle } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
+import { DailyStreakFire } from "@/components/daily-streak-fire";
 
 interface UserStats {
   totalEntries: number;
@@ -39,6 +40,11 @@ export function StreakScoreboard() {
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+      {/* Daily Streak Fire Status */}
+      <div className="mb-4">
+        <DailyStreakFire />
+      </div>
+
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
           <Trophy className="w-5 h-5 text-yellow-500" />

@@ -1272,6 +1272,59 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
     }
   });
 
+  // Get streak fire status (shows if user is at risk of breaking streak)
+  app.get("/api/streak-fire", isAuthenticated, async (req: any, res: Response) => {
+    try {
+      const userId = req.user.id;
+      const today = new Date().toISOString().split('T')[0];
+      
+      // Check if user has written today
+      const todayEntries = await storage.getEntriesByDateRange(userId, today, today);
+      const hasWrittenToday = todayEntries.length > 0;
+      
+      // Get current streak info
+      const stats = await storage.getUserStats(userId);
+      const { currentStreak } = stats;
+      
+      // Determine fire status
+      let fireStatus: 'safe' | 'warning' | 'danger' | 'broken' = 'safe';
+      let message = '';
+      
+      if (currentStreak === 0) {
+        fireStatus = 'broken';
+        message = 'Start your journey! Write your first entry today.';
+      } else if (!hasWrittenToday) {
+        const now = new Date();
+        const currentHour = now.getHours();
+        
+        if (currentHour >= 20) { // After 8 PM
+          fireStatus = 'danger';
+          message = `🔥 Streak at risk! ${currentStreak} days will be lost if you don't write today!`;
+        } else if (currentHour >= 16) { // After 4 PM
+          fireStatus = 'warning';
+          message = `⚠️ Don't forget to journal today to keep your ${currentStreak}-day streak!`;
+        } else {
+          fireStatus = 'safe';
+          message = `🌟 You have time to journal today and keep your ${currentStreak}-day streak going!`;
+        }
+      } else {
+        fireStatus = 'safe';
+        message = `✅ Streak secured! You've written today and maintained your ${currentStreak}-day streak!`;
+      }
+      
+      res.json({
+        currentStreak,
+        hasWrittenToday,
+        fireStatus,
+        message,
+        timeUntilMidnight: 24 - new Date().getHours()
+      });
+    } catch (error: any) {
+      console.error("Error fetching streak fire status:", error);
+      res.status(500).json({ error: "Failed to fetch streak fire status" });
+    }
+  });
+
   app.get("/api/growth-metrics", isAuthenticated, async (req: any, res: Response) => {
     try {
       const userId = req.user.id;
