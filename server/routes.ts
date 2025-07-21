@@ -5,7 +5,7 @@ import { storage } from "./storage";
 import { insertJournalEntrySchema, insertFolderSchema, type AIReflection, type WeeklyReflection, type MonthlyReflection, type JournalEntry, type Folder, users, folders, journalEntries, LEVEL_UNLOCKS, getUnlockedFeatures, forumCategories, forumPosts, forumReplies, forumLikes, forumModerators, userStats, dailyChallenges, userChallengeCompletions, userCustomTags, isBetaTester, requireBetaAccess, insertVisionAreaSchema, insertVisionMilestoneSchema, insertVisionNextStepSchema, VISION_CATEGORIES } from "@shared/schema";
 import { db } from "./db";
 import { z } from "zod";
-import { eq, and, desc, asc, like, or, inArray } from "drizzle-orm";
+import { eq, and, desc, asc, like, or, inArray, gte, lte } from "drizzle-orm";
 import OpenAI from "openai";
 import Stripe from "stripe";
 import { emailService } from "./email-service";
@@ -1273,13 +1273,34 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Get streak fire status (shows if user is at risk of breaking streak)
-  app.get("/api/streak-fire", isAuthenticated, async (req: any, res: Response) => {
+  app.get("/api/streak-fire", async (req: any, res: Response) => {
     try {
+      // Check if user is authenticated
+      if (!req.isAuthenticated()) {
+        // Return default state for non-authenticated users
+        return res.json({
+          currentStreak: 0,
+          hasWrittenToday: false,
+          fireStatus: 'broken',
+          message: 'Sign in to start your journaling streak!',
+          timeUntilMidnight: 24 - new Date().getHours()
+        });
+      }
+
       const userId = req.user.id;
-      const today = new Date().toISOString().split('T')[0];
       
-      // Check if user has written today
-      const todayEntries = await storage.getEntriesByDateRange(userId, today, today);
+      // Check if user has written today using direct database query
+      const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+      const todayStart = new Date(today + 'T00:00:00.000Z');
+      const todayEnd = new Date(today + 'T23:59:59.999Z');
+      
+      const todayEntries = await db.select().from(journalEntries)
+        .where(and(
+          eq(journalEntries.userId, userId),
+          gte(journalEntries.createdAt, todayStart),
+          lte(journalEntries.createdAt, todayEnd)
+        ));
+      
       const hasWrittenToday = todayEntries.length > 0;
       
       // Get current streak info

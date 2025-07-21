@@ -11,16 +11,36 @@ interface StreakFireData {
 }
 
 export function DailyStreakFire() {
-  const { data: streakFire, isLoading } = useQuery<StreakFireData>({
+  const { data: streakFire, isLoading, error } = useQuery<StreakFireData>({
     queryKey: ["/api/streak-fire"],
     refetchInterval: 60000, // Refresh every minute to update fire status
+    retry: false, // Don't retry failed requests to prevent infinite loading
   });
 
-  if (isLoading || !streakFire) {
+  if (isLoading) {
     return (
       <div className="flex items-center gap-2 p-2 rounded-lg bg-gray-50 dark:bg-gray-800">
         <div className="animate-pulse w-5 h-5 bg-gray-300 dark:bg-gray-600 rounded"></div>
         <div className="animate-pulse h-4 bg-gray-300 dark:bg-gray-600 rounded w-32"></div>
+      </div>
+    );
+  }
+
+  // Handle error or no data with fallback message
+  if (error || !streakFire) {
+    return (
+      <div className="p-3 rounded-lg border bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-purple-200 dark:border-purple-700">
+        <div className="flex items-center gap-2">
+          <Zap className="w-5 h-5 text-purple-500" />
+          <div className="flex-1">
+            <div className="text-sm font-medium text-purple-800 dark:text-purple-200">
+              Ready to Journal?
+            </div>
+            <div className="text-xs text-purple-600 dark:text-purple-300 mt-1">
+              Sign in to track your streak progress!
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
