@@ -33,7 +33,8 @@ import {
   User,
   Gift,
   Zap,
-  Shield
+  Shield,
+  CreditCard
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -298,6 +299,14 @@ export default function AdminDashboard() {
             </p>
           </div>
           <div className="flex gap-2">
+            <Button 
+              onClick={() => window.location.href = '/pricing'} 
+              variant="outline" 
+              className="flex items-center gap-2"
+            >
+              <CreditCard className="w-4 h-4" />
+              Subscribe
+            </Button>
             <Button 
               onClick={() => window.location.href = '/admin/contact-messages'} 
               variant="outline" 
