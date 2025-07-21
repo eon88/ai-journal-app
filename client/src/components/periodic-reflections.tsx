@@ -173,23 +173,23 @@ export function PeriodicReflections() {
                   </div>
 
                   {weeklyReflection.goalProgressAssessment && (
-                    <div className="bg-purple-50 p-3 rounded-lg">
-                      <h4 className="font-medium flex items-center gap-2 text-sm text-purple-800">
+                    <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border border-purple-200 dark:border-purple-700">
+                      <h4 className="font-medium flex items-center gap-2 text-sm text-purple-800 dark:text-purple-200">
                         <Target className="w-4 h-4" />
                         Goal Progress Assessment
                       </h4>
-                      <p className="text-sm text-purple-700 mt-1 whitespace-pre-line">
+                      <p className="text-sm text-purple-700 dark:text-purple-100 mt-1 whitespace-pre-line">
                         {weeklyReflection.goalProgressAssessment}
                       </p>
                     </div>
                   )}
 
-                  <div className="bg-blue-50 p-3 rounded-lg">
-                    <h4 className="font-medium flex items-center gap-2 text-sm text-blue-800">
+                  <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-700">
+                    <h4 className="font-medium flex items-center gap-2 text-sm text-blue-800 dark:text-blue-200">
                       <Lightbulb className="w-4 h-4" />
                       Weekly Insight
                     </h4>
-                    <p className="text-sm text-blue-700 mt-1 italic">{weeklyReflection.weeklyInsight}</p>
+                    <p className="text-sm text-blue-700 dark:text-blue-100 mt-1 italic">{weeklyReflection.weeklyInsight}</p>
                   </div>
 
                   <p className="text-xs text-gray-800 dark:text-gray-400">
@@ -276,39 +276,39 @@ export function PeriodicReflections() {
                     </div>
                   </div>
 
-                  <div className="bg-green-50 p-3 rounded-lg">
-                    <h4 className="font-medium flex items-center gap-2 text-sm text-green-800">
+                  <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg border border-green-200 dark:border-green-700">
+                    <h4 className="font-medium flex items-center gap-2 text-sm text-green-800 dark:text-green-200">
                       <CheckCircle className="w-4 h-4" />
                       Goal Achievement Suggestions
                     </h4>
                     <div className="mt-2 space-y-1">
                       {monthlyReflection.goalAchievementSuggestions.map((suggestion, index) => (
                         <div key={index} className="flex items-start gap-2">
-                          <ArrowRight className="w-3 h-3 mt-0.5 text-green-700" />
-                          <p className="text-sm text-green-700">{suggestion}</p>
+                          <ArrowRight className="w-3 h-3 mt-0.5 text-green-700 dark:text-green-300" />
+                          <p className="text-sm text-green-700 dark:text-green-100">{suggestion}</p>
                         </div>
                       ))}
                     </div>
                   </div>
 
                   {monthlyReflection.goalProgressAssessment && (
-                    <div className="bg-purple-50 p-3 rounded-lg">
-                      <h4 className="font-medium flex items-center gap-2 text-sm text-purple-800">
+                    <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border border-purple-200 dark:border-purple-700">
+                      <h4 className="font-medium flex items-center gap-2 text-sm text-purple-800 dark:text-purple-200">
                         <Target className="w-4 h-4" />
                         Goal Progress Assessment
                       </h4>
-                      <p className="text-sm text-purple-700 mt-1 whitespace-pre-line">
+                      <p className="text-sm text-purple-700 dark:text-purple-100 mt-1 whitespace-pre-line">
                         {monthlyReflection.goalProgressAssessment}
                       </p>
                     </div>
                   )}
 
-                  <div className="bg-purple-50 p-3 rounded-lg">
-                    <h4 className="font-medium flex items-center gap-2 text-sm text-purple-800">
+                  <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg border border-purple-200 dark:border-purple-700">
+                    <h4 className="font-medium flex items-center gap-2 text-sm text-purple-800 dark:text-purple-200">
                       <Lightbulb className="w-4 h-4" />
                       Monthly Wisdom
                     </h4>
-                    <p className="text-sm text-purple-700 mt-1 italic">{monthlyReflection.monthlyWisdom}</p>
+                    <p className="text-sm text-purple-700 dark:text-purple-100 mt-1 italic">{monthlyReflection.monthlyWisdom}</p>
                   </div>
 
                   <p className="text-xs text-gray-800 dark:text-gray-400">
