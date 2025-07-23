@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { HelpCircle, ChevronDown, ChevronUp, Trophy } from "lucide-react";
 import { AdventureIcons } from "@/components/icons/adventure-icons";
-import { DailyStreakFire } from "@/components/daily-streak-fire";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -133,11 +132,6 @@ export function MobileScoreboard() {
                   <div className="text-xl font-bold text-blue-600 dark:text-blue-400 text-center">{stats.totalEntries}</div>
                   <div className="text-xs text-blue-600/70 dark:text-blue-400/70 text-center">entries</div>
                 </div>
-              </div>
-
-              {/* Streak Fire Status */}
-              <div className="mb-4">
-                <DailyStreakFire />
               </div>
 
               {/* Best Streak Display */}

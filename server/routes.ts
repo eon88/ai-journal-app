@@ -5,7 +5,7 @@ import { storage } from "./storage";
 import { insertJournalEntrySchema, insertFolderSchema, type AIReflection, type WeeklyReflection, type MonthlyReflection, type JournalEntry, type Folder, users, folders, journalEntries, LEVEL_UNLOCKS, getUnlockedFeatures, forumCategories, forumPosts, forumReplies, forumLikes, forumModerators, userStats, dailyChallenges, userChallengeCompletions, userCustomTags, isBetaTester, requireBetaAccess, insertVisionAreaSchema, insertVisionMilestoneSchema, insertVisionNextStepSchema, VISION_CATEGORIES } from "@shared/schema";
 import { db } from "./db";
 import { z } from "zod";
-import { eq, and, desc, asc, like, or, inArray, gte, lte } from "drizzle-orm";
+import { eq, and, desc, asc, like, or, inArray } from "drizzle-orm";
 import OpenAI from "openai";
 import Stripe from "stripe";
 import { emailService } from "./email-service";
@@ -1270,56 +1270,6 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
       console.error("Error fetching user stats:", error);
       res.status(500).json({ error: "Failed to fetch user stats" });
     }
-  });
-
-  // Get streak fire status (shows if user is at risk of breaking streak)
-  app.get("/api/streak-fire", async (req: any, res: Response) => {
-    // Simple working implementation without complex database queries
-    const currentHour = new Date().getHours();
-    
-    // Check if user is authenticated
-    if (!req.isAuthenticated()) {
-      return res.json({
-        currentStreak: 0,
-        hasWrittenToday: false,
-        fireStatus: 'broken',
-        message: 'Sign in to start your journaling streak!',
-        timeUntilMidnight: 24 - currentHour
-      });
-    }
-
-    // For authenticated users, provide a working response
-    // This is a simplified version that will work while we fix the backend
-    const mockStreak = 3; // Temporary value for demonstration
-    const hasWrittenToday = true; // Assume they've written since they just made an entry
-    
-    let fireStatus: 'safe' | 'warning' | 'danger' | 'broken' = 'safe';
-    let message = '';
-    
-    if (mockStreak === 0) {
-      fireStatus = 'broken';
-      message = 'Start your journey! Write your first entry today.';
-    } else if (hasWrittenToday) {
-      fireStatus = 'safe';
-      message = `✅ Streak secured! You've maintained your ${mockStreak}-day streak!`;
-    } else if (currentHour >= 20) { // After 8 PM
-      fireStatus = 'danger';
-      message = `🔥 Streak at risk! ${mockStreak} days will be lost if you don't write today!`;
-    } else if (currentHour >= 16) { // After 4 PM
-      fireStatus = 'warning';
-      message = `⚠️ Don't forget to journal today to keep your ${mockStreak}-day streak!`;
-    } else {
-      fireStatus = 'safe';
-      message = `🌟 You have time to journal today and keep your ${mockStreak}-day streak going!`;
-    }
-    
-    res.json({
-      currentStreak: mockStreak,
-      hasWrittenToday,
-      fireStatus,
-      message,
-      timeUntilMidnight: 24 - currentHour
-    });
   });
 
   app.get("/api/growth-metrics", isAuthenticated, async (req: any, res: Response) => {
