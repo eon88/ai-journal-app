@@ -62,11 +62,17 @@ export default function Home() {
               {/* Spacer for better visual separation */}
               <div className="h-4"></div>
               
+              {/* Mobile-only: Daily Inspiration and Quest above Periodic Reflections */}
+              <div className="lg:hidden space-y-6">
+                <DailyQuote />
+                <DailyChallenge />
+              </div>
+              
               <PeriodicReflections />
             </div>
             
-            {/* Right Column - Gamification Features */}
-            <div className="space-y-6">
+            {/* Right Column - Gamification Features (Desktop only) */}
+            <div className="hidden lg:block space-y-6">
               <DailyQuote />
               <DailyChallenge />
             </div>
