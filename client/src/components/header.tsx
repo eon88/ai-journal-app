@@ -161,6 +161,13 @@ export function Header() {
                   </DropdownMenuItem>
                 </Link>
 
+                <Link to="/blog">
+                  <DropdownMenuItem className="cursor-pointer">
+                    <BookOpen className="mr-2 h-4 w-4" />
+                    Blog
+                  </DropdownMenuItem>
+                </Link>
+
                 {isBetaTester && (
                   <Link to="/vision-board">
                     <DropdownMenuItem className="cursor-pointer">

@@ -65,7 +65,10 @@ import {
   type InsertVisionArea,
   type InsertVisionMilestone,
   type InsertVisionNextStep,
-  VISION_CATEGORIES
+  VISION_CATEGORIES,
+  blogArticles,
+  type BlogArticle,
+  type InsertBlogArticle
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, sql, and, gte, lte, count, isNotNull } from "drizzle-orm";
@@ -179,6 +182,20 @@ export interface IStorage {
   deleteVisionNextStep(nextStepId: number): Promise<boolean>;
   
   generateAIVisionSuggestions(userId: number): Promise<any>;
+
+  // Blog Articles management
+  getAllBlogArticles(): Promise<BlogArticle[]>;
+  getPublishedBlogArticles(): Promise<BlogArticle[]>;
+  getBlogArticle(id: number): Promise<BlogArticle | undefined>;
+  getBlogArticleBySlug(slug: string): Promise<BlogArticle | undefined>;
+  createBlogArticle(authorId: number, article: InsertBlogArticle): Promise<BlogArticle>;
+  updateBlogArticle(id: number, updates: Partial<InsertBlogArticle>): Promise<BlogArticle | undefined>;
+  deleteBlogArticle(id: number): Promise<void>;
+  publishBlogArticle(id: number): Promise<BlogArticle | undefined>;
+  unpublishBlogArticle(id: number): Promise<BlogArticle | undefined>;
+  toggleBlogArticleFeatured(id: number): Promise<BlogArticle | undefined>;
+  getBlogArticlesByCategory(category: string): Promise<BlogArticle[]>;
+  searchBlogArticles(query: string): Promise<BlogArticle[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1671,6 +1688,316 @@ Format as JSON with structure:
       entriesAnalyzed: recentEntries.length,
       insightsAnalyzed: insights.length
     };
+  }
+
+  // Blog Articles management methods
+  async getAllBlogArticles(): Promise<BlogArticle[]> {
+    const articles = await db
+      .select({
+        id: blogArticles.id,
+        title: blogArticles.title,
+        slug: blogArticles.slug,
+        excerpt: blogArticles.excerpt,
+        content: blogArticles.content,
+        featuredImage: blogArticles.featuredImage,
+        authorId: blogArticles.authorId,
+        category: blogArticles.category,
+        tags: blogArticles.tags,
+        isPublished: blogArticles.isPublished,
+        isFeatured: blogArticles.isFeatured,
+        readTime: blogArticles.readTime,
+        metaTitle: blogArticles.metaTitle,
+        metaDescription: blogArticles.metaDescription,
+        publishedAt: blogArticles.publishedAt,
+        createdAt: blogArticles.createdAt,
+        updatedAt: blogArticles.updatedAt,
+        author: {
+          username: users.username,
+          displayName: users.displayName
+        }
+      })
+      .from(blogArticles)
+      .innerJoin(users, eq(blogArticles.authorId, users.id))
+      .orderBy(desc(blogArticles.createdAt));
+      
+    return articles.map(article => ({
+      ...article,
+      author: article.author
+    })) as BlogArticle[];
+  }
+
+  async getPublishedBlogArticles(): Promise<BlogArticle[]> {
+    const articles = await db
+      .select({
+        id: blogArticles.id,
+        title: blogArticles.title,
+        slug: blogArticles.slug,
+        excerpt: blogArticles.excerpt,
+        content: blogArticles.content,
+        featuredImage: blogArticles.featuredImage,
+        authorId: blogArticles.authorId,
+        category: blogArticles.category,
+        tags: blogArticles.tags,
+        isPublished: blogArticles.isPublished,
+        isFeatured: blogArticles.isFeatured,
+        readTime: blogArticles.readTime,
+        metaTitle: blogArticles.metaTitle,
+        metaDescription: blogArticles.metaDescription,
+        publishedAt: blogArticles.publishedAt,
+        createdAt: blogArticles.createdAt,
+        updatedAt: blogArticles.updatedAt,
+        author: {
+          username: users.username,
+          displayName: users.displayName
+        }
+      })
+      .from(blogArticles)
+      .innerJoin(users, eq(blogArticles.authorId, users.id))
+      .where(eq(blogArticles.isPublished, true))
+      .orderBy(desc(blogArticles.publishedAt));
+      
+    return articles.map(article => ({
+      ...article,
+      author: article.author
+    })) as BlogArticle[];
+  }
+
+  async getBlogArticle(id: number): Promise<BlogArticle | undefined> {
+    const [article] = await db
+      .select({
+        id: blogArticles.id,
+        title: blogArticles.title,
+        slug: blogArticles.slug,
+        excerpt: blogArticles.excerpt,
+        content: blogArticles.content,
+        featuredImage: blogArticles.featuredImage,
+        authorId: blogArticles.authorId,
+        category: blogArticles.category,
+        tags: blogArticles.tags,
+        isPublished: blogArticles.isPublished,
+        isFeatured: blogArticles.isFeatured,
+        readTime: blogArticles.readTime,
+        metaTitle: blogArticles.metaTitle,
+        metaDescription: blogArticles.metaDescription,
+        publishedAt: blogArticles.publishedAt,
+        createdAt: blogArticles.createdAt,
+        updatedAt: blogArticles.updatedAt,
+        author: {
+          username: users.username,
+          displayName: users.displayName
+        }
+      })
+      .from(blogArticles)
+      .innerJoin(users, eq(blogArticles.authorId, users.id))
+      .where(eq(blogArticles.id, id));
+
+    if (!article) return undefined;
+    
+    return {
+      ...article,
+      author: article.author
+    } as BlogArticle;
+  }
+
+  async getBlogArticleBySlug(slug: string): Promise<BlogArticle | undefined> {
+    const [article] = await db
+      .select({
+        id: blogArticles.id,
+        title: blogArticles.title,
+        slug: blogArticles.slug,
+        excerpt: blogArticles.excerpt,
+        content: blogArticles.content,
+        featuredImage: blogArticles.featuredImage,
+        authorId: blogArticles.authorId,
+        category: blogArticles.category,
+        tags: blogArticles.tags,
+        isPublished: blogArticles.isPublished,
+        isFeatured: blogArticles.isFeatured,
+        readTime: blogArticles.readTime,
+        metaTitle: blogArticles.metaTitle,
+        metaDescription: blogArticles.metaDescription,
+        publishedAt: blogArticles.publishedAt,
+        createdAt: blogArticles.createdAt,
+        updatedAt: blogArticles.updatedAt,
+        author: {
+          username: users.username,
+          displayName: users.displayName
+        }
+      })
+      .from(blogArticles)
+      .innerJoin(users, eq(blogArticles.authorId, users.id))
+      .where(eq(blogArticles.slug, slug));
+
+    if (!article) return undefined;
+    
+    return {
+      ...article,
+      author: article.author
+    } as BlogArticle;
+  }
+
+  async createBlogArticle(authorId: number, article: InsertBlogArticle): Promise<BlogArticle> {
+    const [newArticle] = await db
+      .insert(blogArticles)
+      .values({
+        ...article,
+        authorId,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      })
+      .returning();
+
+    return this.getBlogArticle(newArticle.id) as Promise<BlogArticle>;
+  }
+
+  async updateBlogArticle(id: number, updates: Partial<InsertBlogArticle>): Promise<BlogArticle | undefined> {
+    const [updatedArticle] = await db
+      .update(blogArticles)
+      .set({
+        ...updates,
+        updatedAt: new Date()
+      })
+      .where(eq(blogArticles.id, id))
+      .returning();
+
+    if (!updatedArticle) return undefined;
+
+    return this.getBlogArticle(id);
+  }
+
+  async deleteBlogArticle(id: number): Promise<void> {
+    await db
+      .delete(blogArticles)
+      .where(eq(blogArticles.id, id));
+  }
+
+  async publishBlogArticle(id: number): Promise<BlogArticle | undefined> {
+    const [updatedArticle] = await db
+      .update(blogArticles)
+      .set({
+        isPublished: true,
+        publishedAt: new Date(),
+        updatedAt: new Date()
+      })
+      .where(eq(blogArticles.id, id))
+      .returning();
+
+    if (!updatedArticle) return undefined;
+
+    return this.getBlogArticle(id);
+  }
+
+  async unpublishBlogArticle(id: number): Promise<BlogArticle | undefined> {
+    const [updatedArticle] = await db
+      .update(blogArticles)
+      .set({
+        isPublished: false,
+        publishedAt: null,
+        updatedAt: new Date()
+      })
+      .where(eq(blogArticles.id, id))
+      .returning();
+
+    if (!updatedArticle) return undefined;
+
+    return this.getBlogArticle(id);
+  }
+
+  async toggleBlogArticleFeatured(id: number): Promise<BlogArticle | undefined> {
+    // First get current state
+    const current = await this.getBlogArticle(id);
+    if (!current) return undefined;
+
+    const [updatedArticle] = await db
+      .update(blogArticles)
+      .set({
+        isFeatured: !current.isFeatured,
+        updatedAt: new Date()
+      })
+      .where(eq(blogArticles.id, id))
+      .returning();
+
+    if (!updatedArticle) return undefined;
+
+    return this.getBlogArticle(id);
+  }
+
+  async getBlogArticlesByCategory(category: string): Promise<BlogArticle[]> {
+    const articles = await db
+      .select({
+        id: blogArticles.id,
+        title: blogArticles.title,
+        slug: blogArticles.slug,
+        excerpt: blogArticles.excerpt,
+        content: blogArticles.content,
+        featuredImage: blogArticles.featuredImage,
+        authorId: blogArticles.authorId,
+        category: blogArticles.category,
+        tags: blogArticles.tags,
+        isPublished: blogArticles.isPublished,
+        isFeatured: blogArticles.isFeatured,
+        readTime: blogArticles.readTime,
+        metaTitle: blogArticles.metaTitle,
+        metaDescription: blogArticles.metaDescription,
+        publishedAt: blogArticles.publishedAt,
+        createdAt: blogArticles.createdAt,
+        updatedAt: blogArticles.updatedAt,
+        author: {
+          username: users.username,
+          displayName: users.displayName
+        }
+      })
+      .from(blogArticles)
+      .innerJoin(users, eq(blogArticles.authorId, users.id))
+      .where(and(
+        eq(blogArticles.category, category),
+        eq(blogArticles.isPublished, true)
+      ))
+      .orderBy(desc(blogArticles.publishedAt));
+      
+    return articles.map(article => ({
+      ...article,
+      author: article.author
+    })) as BlogArticle[];
+  }
+
+  async searchBlogArticles(query: string): Promise<BlogArticle[]> {
+    const articles = await db
+      .select({
+        id: blogArticles.id,
+        title: blogArticles.title,
+        slug: blogArticles.slug,
+        excerpt: blogArticles.excerpt,
+        content: blogArticles.content,
+        featuredImage: blogArticles.featuredImage,
+        authorId: blogArticles.authorId,
+        category: blogArticles.category,
+        tags: blogArticles.tags,
+        isPublished: blogArticles.isPublished,
+        isFeatured: blogArticles.isFeatured,
+        readTime: blogArticles.readTime,
+        metaTitle: blogArticles.metaTitle,
+        metaDescription: blogArticles.metaDescription,
+        publishedAt: blogArticles.publishedAt,
+        createdAt: blogArticles.createdAt,
+        updatedAt: blogArticles.updatedAt,
+        author: {
+          username: users.username,
+          displayName: users.displayName
+        }
+      })
+      .from(blogArticles)
+      .innerJoin(users, eq(blogArticles.authorId, users.id))
+      .where(and(
+        eq(blogArticles.isPublished, true),
+        sql`(${blogArticles.title} ILIKE ${'%' + query + '%'} OR ${blogArticles.content} ILIKE ${'%' + query + '%'} OR ${blogArticles.excerpt} ILIKE ${'%' + query + '%'})`
+      ))
+      .orderBy(desc(blogArticles.publishedAt));
+      
+    return articles.map(article => ({
+      ...article,
+      author: article.author
+    })) as BlogArticle[];
   }
 }
 

@@ -34,7 +34,8 @@ import {
   Gift,
   Zap,
   Shield,
-  CreditCard
+  CreditCard,
+  FileText
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -322,6 +323,14 @@ export default function AdminDashboard() {
             >
               <Users className="w-4 h-4" />
               Forum Management
+            </Button>
+            <Button 
+              onClick={() => window.location.href = '/admin/blog-management'} 
+              variant="outline" 
+              className="flex items-center gap-2"
+            >
+              <FileText className="w-4 h-4" />
+              Blog Management
             </Button>
             <Button onClick={exportToCSV} className="flex items-center gap-2">
               <Download className="w-4 h-4" />

@@ -2,7 +2,7 @@ import type { Express, Request, Response } from "express";
 import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertJournalEntrySchema, insertFolderSchema, type AIReflection, type WeeklyReflection, type MonthlyReflection, type JournalEntry, type Folder, users, folders, journalEntries, LEVEL_UNLOCKS, getUnlockedFeatures, forumCategories, forumPosts, forumReplies, forumLikes, forumModerators, userStats, dailyChallenges, userChallengeCompletions, userCustomTags, isBetaTester, requireBetaAccess, insertVisionAreaSchema, insertVisionMilestoneSchema, insertVisionNextStepSchema, VISION_CATEGORIES } from "@shared/schema";
+import { insertJournalEntrySchema, insertFolderSchema, type AIReflection, type WeeklyReflection, type MonthlyReflection, type JournalEntry, type Folder, users, folders, journalEntries, LEVEL_UNLOCKS, getUnlockedFeatures, forumCategories, forumPosts, forumReplies, forumLikes, forumModerators, userStats, dailyChallenges, userChallengeCompletions, userCustomTags, isBetaTester, requireBetaAccess, insertVisionAreaSchema, insertVisionMilestoneSchema, insertVisionNextStepSchema, VISION_CATEGORIES, blogArticles, type BlogArticle, type InsertBlogArticle } from "@shared/schema";
 import { db } from "./db";
 import { z } from "zod";
 import { eq, and, desc, asc, like, or, inArray } from "drizzle-orm";
@@ -3450,6 +3450,245 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
     } catch (error) {
       console.error("AI suggestions error:", error);
       res.status(500).json({ message: "Failed to generate AI suggestions" });
+    }
+  });
+
+  // ===== BLOG SYSTEM API ROUTES =====
+  
+  // Get all blog articles (admin only - shows all articles including drafts)
+  app.get("/api/admin/blog/articles", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+    try {
+      const articles = await storage.getAllBlogArticles();
+      res.json(articles);
+    } catch (error) {
+      console.error("Blog articles fetch error:", error);
+      res.status(500).json({ message: "Failed to fetch blog articles" });
+    }
+  });
+
+  // Get published blog articles (public access)
+  app.get("/api/blog/articles", async (req: Request, res: Response) => {
+    try {
+      const articles = await storage.getPublishedBlogArticles();
+      res.json(articles);
+    } catch (error) {
+      console.error("Published blog articles fetch error:", error);
+      res.status(500).json({ message: "Failed to fetch published articles" });
+    }
+  });
+
+  // Get blog article by ID (admin can see any, public only published)
+  app.get("/api/blog/articles/:id", async (req: any, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid article ID" });
+      }
+
+      const article = await storage.getBlogArticle(id);
+      if (!article) {
+        return res.status(404).json({ message: "Article not found" });
+      }
+
+      // Check if user can access this article
+      const isAdmin = req.isAuthenticated && req.isAuthenticated() && req.user?.isAdmin;
+      if (!article.isPublished && !isAdmin) {
+        return res.status(404).json({ message: "Article not found" });
+      }
+
+      res.json(article);
+    } catch (error) {
+      console.error("Blog article fetch error:", error);
+      res.status(500).json({ message: "Failed to fetch article" });
+    }
+  });
+
+  // Get blog article by slug (public access, published only)
+  app.get("/api/blog/articles/slug/:slug", async (req: Request, res: Response) => {
+    try {
+      const slug = req.params.slug;
+      const article = await storage.getBlogArticleBySlug(slug);
+      
+      if (!article || !article.isPublished) {
+        return res.status(404).json({ message: "Article not found" });
+      }
+
+      res.json(article);
+    } catch (error) {
+      console.error("Blog article by slug fetch error:", error);
+      res.status(500).json({ message: "Failed to fetch article" });
+    }
+  });
+
+  // Create blog article (admin only)
+  app.post("/api/admin/blog/articles", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+    try {
+      const authorId = req.user.id;
+      const articleData = req.body;
+
+      // Generate slug from title if not provided
+      if (!articleData.slug && articleData.title) {
+        articleData.slug = articleData.title
+          .toLowerCase()
+          .replace(/[^a-z0-9\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/-+/g, '-')
+          .trim('-');
+      }
+
+      // Calculate read time from content length (average 200 words per minute)
+      if (articleData.content && !articleData.readTime) {
+        const wordCount = articleData.content.split(/\s+/).length;
+        articleData.readTime = Math.max(1, Math.ceil(wordCount / 200));
+      }
+
+      const article = await storage.createBlogArticle(authorId, articleData);
+      res.json(article);
+    } catch (error) {
+      console.error("Blog article creation error:", error);
+      res.status(500).json({ message: "Failed to create article" });
+    }
+  });
+
+  // Update blog article (admin only)
+  app.patch("/api/admin/blog/articles/:id", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid article ID" });
+      }
+
+      const updates = req.body;
+
+      // Update slug if title changed
+      if (updates.title && !updates.slug) {
+        updates.slug = updates.title
+          .toLowerCase()
+          .replace(/[^a-z0-9\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/-+/g, '-')
+          .trim('-');
+      }
+
+      // Recalculate read time if content changed
+      if (updates.content) {
+        const wordCount = updates.content.split(/\s+/).length;
+        updates.readTime = Math.max(1, Math.ceil(wordCount / 200));
+      }
+
+      const article = await storage.updateBlogArticle(id, updates);
+      if (!article) {
+        return res.status(404).json({ message: "Article not found" });
+      }
+
+      res.json(article);
+    } catch (error) {
+      console.error("Blog article update error:", error);
+      res.status(500).json({ message: "Failed to update article" });
+    }
+  });
+
+  // Delete blog article (admin only)
+  app.delete("/api/admin/blog/articles/:id", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid article ID" });
+      }
+
+      await storage.deleteBlogArticle(id);
+      res.json({ message: "Article deleted successfully" });
+    } catch (error) {
+      console.error("Blog article deletion error:", error);
+      res.status(500).json({ message: "Failed to delete article" });
+    }
+  });
+
+  // Publish blog article (admin only)
+  app.patch("/api/admin/blog/articles/:id/publish", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid article ID" });
+      }
+
+      const article = await storage.publishBlogArticle(id);
+      if (!article) {
+        return res.status(404).json({ message: "Article not found" });
+      }
+
+      res.json(article);
+    } catch (error) {
+      console.error("Blog article publish error:", error);
+      res.status(500).json({ message: "Failed to publish article" });
+    }
+  });
+
+  // Unpublish blog article (admin only)
+  app.patch("/api/admin/blog/articles/:id/unpublish", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid article ID" });
+      }
+
+      const article = await storage.unpublishBlogArticle(id);
+      if (!article) {
+        return res.status(404).json({ message: "Article not found" });
+      }
+
+      res.json(article);
+    } catch (error) {
+      console.error("Blog article unpublish error:", error);
+      res.status(500).json({ message: "Failed to unpublish article" });
+    }
+  });
+
+  // Toggle featured status (admin only)
+  app.patch("/api/admin/blog/articles/:id/feature", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid article ID" });
+      }
+
+      const article = await storage.toggleBlogArticleFeatured(id);
+      if (!article) {
+        return res.status(404).json({ message: "Article not found" });
+      }
+
+      res.json(article);
+    } catch (error) {
+      console.error("Blog article feature toggle error:", error);
+      res.status(500).json({ message: "Failed to toggle featured status" });
+    }
+  });
+
+  // Get articles by category (public access, published only)
+  app.get("/api/blog/articles/category/:category", async (req: Request, res: Response) => {
+    try {
+      const category = req.params.category;
+      const articles = await storage.getBlogArticlesByCategory(category);
+      res.json(articles);
+    } catch (error) {
+      console.error("Blog articles by category fetch error:", error);
+      res.status(500).json({ message: "Failed to fetch articles by category" });
+    }
+  });
+
+  // Search blog articles (public access, published only)
+  app.get("/api/blog/search", async (req: Request, res: Response) => {
+    try {
+      const query = req.query.q as string;
+      if (!query || query.trim().length === 0) {
+        return res.status(400).json({ message: "Search query is required" });
+      }
+
+      const articles = await storage.searchBlogArticles(query.trim());
+      res.json(articles);
+    } catch (error) {
+      console.error("Blog search error:", error);
+      res.status(500).json({ message: "Failed to search articles" });
     }
   });
 

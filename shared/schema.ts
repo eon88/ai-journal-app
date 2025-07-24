@@ -767,3 +767,40 @@ export type Quest = typeof quests.$inferSelect;
 export type InsertQuest = typeof quests.$inferInsert;
 export type UserQuest = typeof userQuests.$inferSelect;
 export type InsertUserQuest = typeof userQuests.$inferInsert;
+
+// Blog Articles System
+export const blogArticles = pgTable("blog_articles", {
+  id: serial("id").primaryKey(),
+  title: varchar("title", { length: 200 }).notNull(),
+  slug: varchar("slug", { length: 250 }).notNull(),
+  excerpt: text("excerpt"),
+  content: text("content").notNull(),
+  featuredImage: text("featured_image"),
+  authorId: integer("author_id").notNull().references(() => users.id),
+  category: varchar("category", { length: 50 }).notNull(),
+  tags: text("tags").array(),
+  isPublished: boolean("is_published").default(false).notNull(),
+  isFeatured: boolean("is_featured").default(false).notNull(),
+  readTime: integer("read_time"), // Estimated read time in minutes
+  metaTitle: varchar("meta_title", { length: 60}),
+  metaDescription: varchar("meta_description", { length: 160 }),
+  publishedAt: timestamp("published_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  slugIndex: index("blog_slug_idx").on(table.slug),
+  categoryIndex: index("blog_category_idx").on(table.category),
+  publishedIndex: index("blog_published_idx").on(table.isPublished),
+}));
+
+export type BlogArticle = typeof blogArticles.$inferSelect;
+export type InsertBlogArticle = typeof blogArticles.$inferInsert;
+
+export const insertBlogArticleSchema = createInsertSchema(blogArticles).omit({
+  id: true,
+  authorId: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertBlogArticleType = z.infer<typeof insertBlogArticleSchema>;

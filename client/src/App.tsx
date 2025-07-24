@@ -36,6 +36,9 @@ import RulesOfTheGame from "@/pages/rules-of-the-game";
 import VisionBoard from "@/pages/vision-board";
 import VisionArchitect from "@/pages/vision-architect";
 import VisionForm from "@/pages/vision-form";
+import BlogPage from "@/pages/blog";
+import BlogArticlePage from "@/pages/blog-article";
+import AdminBlogManagement from "@/pages/admin-blog-management";
 
 function Router() {
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -89,6 +92,9 @@ function Router() {
           <Route path="/admin/dashboard" component={AdminDashboard} />
           <Route path="/admin/contact-messages" component={ContactMessages} />
           <Route path="/admin/forum-management" component={ForumManagement} />
+          <Route path="/admin/blog-management" component={AdminBlogManagement} />
+          <Route path="/blog" component={BlogPage} />
+          <Route path="/blog/:slug" component={BlogArticlePage} />
           <Route path="/about" component={About} />
           <Route path="/contact" component={Contact} />
           <Route path="/pricing" component={Pricing} />
