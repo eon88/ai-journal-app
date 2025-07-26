@@ -38,10 +38,13 @@ export async function apiRequest(
         const refreshResult = await TokenRefresher.refreshToken();
         token = refreshResult.accessToken;
       } catch (error) {
-        // If refresh fails, clear tokens
+        // If refresh fails, clear tokens and throw authentication error
         TokenManager.clearTokens();
         throw new Error('Authentication required');
       }
+    } else {
+      // No tokens exist, this is a fresh user - don't try to authenticate
+      throw new Error('Authentication required');
     }
   }
   
@@ -113,6 +116,9 @@ export const getQueryFn: <T>(options: {
           TokenManager.clearTokens();
           throw new Error('Authentication required');
         }
+      } else if (unauthorizedBehavior === "returnNull") {
+        // No tokens exist and we should return null for unauthenticated state
+        return null;
       }
     }
     
