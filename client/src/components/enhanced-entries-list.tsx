@@ -17,7 +17,7 @@ import { EntrySearchFilters } from "@/components/entry-search-filters";
 import { FolderManager } from "@/components/folder-manager";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, getQueryFn } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
 interface JournalEntry {
@@ -132,20 +132,18 @@ export function EnhancedEntriesList() {
 
   // Query for entries
   const { data: entries, isLoading } = useQuery({
-    queryKey: searchFilters ? ["/api/entries/search", searchFilters] : ["/api/entries", { limit: "all" }],
-    queryFn: () => {
+    queryKey: searchFilters ? ["/api/entries/search", searchFilters] : ["/api/entries?limit=100"],
+    queryFn: async () => {
       if (searchFilters) {
         const params = new URLSearchParams();
         Object.entries(searchFilters).forEach(([key, value]) => {
           if (value) params.append(key, value as string);
         });
-        return fetch(`/api/entries/search?${params}`, {
-          credentials: "include"
-        }).then(res => res.json());
+        const response = await apiRequest(`/api/entries/search?${params}`, "GET");
+        return await response.json();
       }
-      return fetch("/api/entries", {
-        credentials: "include"
-      }).then(res => res.json());
+      const response = await apiRequest("/api/entries?limit=100", "GET");
+      return await response.json();
     },
     staleTime: 0, // Always fetch fresh data
     retry: 1,
@@ -154,6 +152,7 @@ export function EnhancedEntriesList() {
   // Query for folders
   const { data: folders } = useQuery({
     queryKey: ["/api/folders"],
+    queryFn: getQueryFn({ on401: "returnNull" }),
   });
 
   // Pin mutation
@@ -197,16 +196,8 @@ export function EnhancedEntriesList() {
   // Download mutation
   const downloadMutation = useMutation({
     mutationFn: async (entryIds: number[]) => {
-      const response = await fetch("/api/entries/download", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ entryIds }),
-      });
+      const response = await apiRequest("/api/entries/download", "POST", { entryIds });
       
-      if (!response.ok) {
-        throw new Error("Failed to download entries");
-      }
-
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
