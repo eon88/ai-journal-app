@@ -67,41 +67,9 @@
   }
 
   body {
-    @apply font-sans antialiased text-foreground;
+    @apply bg-background font-sans antialiased text-foreground;
     font-family: 'Inter', system-ui, sans-serif;
-    background-image: url('@assets/ChatGPT Image Jul 6, 2025, 12_41_32 PM_1751802420024.png');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    position: relative;
     min-height: 100vh;
-  }
-  
-  /* Overlay to ensure content readability while keeping background visible */
-  body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(255, 255, 255, 0.3);
-    pointer-events: none;
-    z-index: -1;
-  }
-  
-  .dark body::before {
-    background: rgba(0, 0, 0, 0.5);
-  }
-  
-  /* Enhanced visibility for both desktop and mobile */
-  body::before {
-    background: rgba(255, 255, 255, 0.75);
-  }
-  
-  .dark body::before {
-    background: rgba(0, 0, 0, 0.7);
   }
   
   /* Strong text contrast fixes for all screen sizes */
