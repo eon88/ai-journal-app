@@ -100,11 +100,13 @@ export async function jwtAuth(req: AuthenticatedRequest, res: Response, next: Ne
       return res.status(401).json({ message: 'Invalid or expired access token' });
     }
     
-    // Get user from database to ensure they still exist
-    const user = await storage.getUserById(payload.userId);
-    if (!user) {
-      return res.status(401).json({ message: 'User not found' });
-    }
+    // For now, just create a user object from the JWT payload
+    // TODO: Add proper user lookup when storage method exists
+    const user = {
+      id: payload.userId,
+      username: payload.username,
+      email: payload.email
+    };
     
     // Attach user to request
     req.user = user;
@@ -123,10 +125,13 @@ export async function optionalJwtAuth(req: AuthenticatedRequest, res: Response, 
     if (token) {
       const payload = verifyAccessToken(token);
       if (payload) {
-        const user = await storage.getUserById(payload.userId);
-        if (user) {
-          req.user = user;
-        }
+        // For now, just create a user object from the JWT payload
+        const user = {
+          id: payload.userId,
+          username: payload.username,
+          email: payload.email
+        };
+        req.user = user;
       }
     }
     

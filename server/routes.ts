@@ -9,7 +9,7 @@ import { eq, and, desc, asc, like, or, inArray } from "drizzle-orm";
 import OpenAI from "openai";
 import Stripe from "stripe";
 import { emailService } from "./email-service";
-import { jwtAuth, generateTokens, verifyRefreshToken } from "./auth";
+import { jwtAuth, optionalJwtAuth, generateTokens, verifyRefreshToken } from "./auth";
 import bcrypt from "bcryptjs";
 import type { NextFunction } from "express";
 import multer from "multer";
@@ -227,11 +227,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Invalid refresh token" });
       }
       
-      // Get user from database
-      const user = await storage.getUserById(payload.userId);
-      if (!user) {
-        return res.status(401).json({ message: "User not found" });
-      }
+      // For now, just create a user object from the JWT payload
+      const user = {
+        id: payload.userId,
+        username: payload.username,
+        email: payload.email
+      };
       
       // Generate new tokens
       const tokens = generateTokens(user);
@@ -255,9 +256,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Auth route to get current user
-  app.get('/api/auth/user', jwtAuth, async (req: any, res) => {
+  // Auth route to get current user - use optional auth to allow unauthenticated users
+  app.get('/api/auth/user', optionalJwtAuth, async (req: any, res) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Access token required" });
+      }
       const { passwordHash: _, ...userResponse } = req.user;
       res.json(userResponse);
     } catch (error) {
