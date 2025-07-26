@@ -1,4 +1,5 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
+import { TokenManager, TokenRefresher } from "./auth";
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
@@ -25,12 +26,64 @@ export async function apiRequest(
   method: string,
   data?: unknown | undefined,
 ): Promise<Response> {
+  let token = TokenManager.getAccessToken();
+  
+  // If token is expired or missing, try to refresh (only if we had tokens before)
+  if (!token || TokenManager.isTokenExpired()) {
+    const hadTokens = TokenManager.getAccessToken() || 
+                     document.cookie.includes('refresh_token');
+    
+    if (hadTokens) {
+      try {
+        const refreshResult = await TokenRefresher.refreshToken();
+        token = refreshResult.accessToken;
+      } catch (error) {
+        // If refresh fails, clear tokens
+        TokenManager.clearTokens();
+        throw new Error('Authentication required');
+      }
+    }
+  }
+  
+  const headers: Record<string, string> = {};
+  
+  if (data) {
+    headers["Content-Type"] = "application/json";
+  }
+  
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+  
   const res = await fetch(url, {
     method,
-    headers: data ? { "Content-Type": "application/json" } : {},
+    headers,
     body: data ? JSON.stringify(data) : undefined,
     credentials: "include",
   });
+
+  // If we get 401, try to refresh token once
+  if (res.status === 401 && token) {
+    try {
+      const refreshResult = await TokenRefresher.refreshToken();
+      headers["Authorization"] = `Bearer ${refreshResult.accessToken}`;
+      
+      // Retry the original request
+      const retryRes = await fetch(url, {
+        method,
+        headers,
+        body: data ? JSON.stringify(data) : undefined,
+        credentials: "include",
+      });
+      
+      await throwIfResNotOk(retryRes);
+      return retryRes;
+    } catch (refreshError) {
+      // If refresh fails, clear tokens
+      TokenManager.clearTokens();
+      throw new Error('Authentication failed');
+    }
+  }
 
   await throwIfResNotOk(res);
   return res;
@@ -42,9 +95,63 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
+    let token = TokenManager.getAccessToken();
+    
+    // If token is expired or missing, try to refresh (only if we had tokens before)
+    if (!token || TokenManager.isTokenExpired()) {
+      const hadTokens = TokenManager.getAccessToken() || 
+                       document.cookie.includes('refresh_token');
+      
+      if (hadTokens) {
+        try {
+          const refreshResult = await TokenRefresher.refreshToken();
+          token = refreshResult.accessToken;
+        } catch (error) {
+          if (unauthorizedBehavior === "returnNull") {
+            return null;
+          }
+          TokenManager.clearTokens();
+          throw new Error('Authentication required');
+        }
+      }
+    }
+    
+    const headers: Record<string, string> = {};
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+    
     const res = await fetch(queryKey[0] as string, {
+      headers,
       credentials: "include",
     });
+
+    // If we get 401, try to refresh token once
+    if (res.status === 401 && token) {
+      try {
+        const refreshResult = await TokenRefresher.refreshToken();
+        headers["Authorization"] = `Bearer ${refreshResult.accessToken}`;
+        
+        // Retry the original request
+        const retryRes = await fetch(queryKey[0] as string, {
+          headers,
+          credentials: "include",
+        });
+        
+        if (unauthorizedBehavior === "returnNull" && retryRes.status === 401) {
+          return null;
+        }
+        
+        await throwIfResNotOk(retryRes);
+        return await retryRes.json();
+      } catch (refreshError) {
+        if (unauthorizedBehavior === "returnNull") {
+          return null;
+        }
+        TokenManager.clearTokens();
+        throw new Error('Authentication failed');
+      }
+    }
 
     if (unauthorizedBehavior === "returnNull" && res.status === 401) {
       return null;

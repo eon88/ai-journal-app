@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getQueryFn, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { login, register, logout, TokenManager, TokenRefresher, initializeAuth } from "@/lib/auth";
+import { useEffect } from "react";
 
 export function useAuth() {
   const { data: user, isLoading, error, refetch } = useQuery({
@@ -15,53 +17,32 @@ export function useAuth() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
+  // Initialize auth on mount
+  useEffect(() => {
+    initializeAuth();
+  }, []);
+
   const loginMutation = useMutation({
     mutationFn: async (credentials: { username: string; password: string }) => {
-      const response = await apiRequest('/api/login', 'POST', credentials);
-      return response.json();
+      const result = await login(credentials.username, credentials.password);
+      return result;
     },
     onSuccess: async () => {
-      console.log("Login successful, clearing cache and refetching auth");
+      console.log("Login successful with JWT tokens");
       
-      // Show success toast first
+      // Show success toast
       toast({
         title: "Welcome Back!",
-        description: "You're now logged in to Life Path Companion.",
+        description: "You're now logged in to Quest Journal.",
       });
       
       // Clear all cached data for privacy
       queryClient.clear();
       
-      // Wait a moment for session to be established
-      await new Promise(resolve => setTimeout(resolve, 200));
+      // Refetch user data with new token
+      await refetch();
       
-      // Try to refetch auth data multiple times to ensure it works
-      let authResult;
-      let attempts = 0;
-      const maxAttempts = 3;
-      
-      while (attempts < maxAttempts) {
-        try {
-          authResult = await refetch();
-          console.log(`Auth refetch attempt ${attempts + 1}:`, authResult);
-          
-          if (authResult.data) {
-            console.log("Auth refetch successful, navigating to home page");
-            window.location.replace('/');
-            return;
-          }
-        } catch (error) {
-          console.error(`Auth refetch attempt ${attempts + 1} failed:`, error);
-        }
-        
-        attempts++;
-        if (attempts < maxAttempts) {
-          await new Promise(resolve => setTimeout(resolve, 300));
-        }
-      }
-      
-      // If all attempts failed, force redirect anyway since login was successful
-      console.warn("Auth refetch failed after multiple attempts, forcing redirect");
+      // Navigate to home page
       window.location.replace('/');
     },
     onError: (error: any) => {
@@ -76,51 +57,25 @@ export function useAuth() {
 
   const registerMutation = useMutation({
     mutationFn: async (data: { username: string; email: string; password: string; firstName?: string; lastName?: string }) => {
-      const response = await apiRequest('/api/register', 'POST', data);
-      return response.json();
+      const result = await register(data);
+      return result;
     },
     onSuccess: async () => {
-      console.log("Registration successful, clearing cache and refetching auth");
+      console.log("Registration successful with JWT tokens");
       
-      // Show success toast first
+      // Show success toast
       toast({
         title: "Account Created!",
-        description: "Welcome to Life Path Companion. You're now logged in.",
+        description: "Welcome to Quest Journal. You're now logged in.",
       });
       
       // Clear all cached data for privacy
       queryClient.clear();
       
-      // Wait a moment for session to be established
-      await new Promise(resolve => setTimeout(resolve, 200));
+      // Refetch user data with new token
+      await refetch();
       
-      // Try to refetch auth data multiple times to ensure it works
-      let authResult;
-      let attempts = 0;
-      const maxAttempts = 3;
-      
-      while (attempts < maxAttempts) {
-        try {
-          authResult = await refetch();
-          console.log(`Auth refetch attempt ${attempts + 1}:`, authResult);
-          
-          if (authResult.data) {
-            console.log("Auth refetch successful, navigating to home page");
-            window.location.replace('/');
-            return;
-          }
-        } catch (error) {
-          console.error(`Auth refetch attempt ${attempts + 1} failed:`, error);
-        }
-        
-        attempts++;
-        if (attempts < maxAttempts) {
-          await new Promise(resolve => setTimeout(resolve, 300));
-        }
-      }
-      
-      // If all attempts failed, force redirect anyway since registration was successful
-      console.warn("Auth refetch failed after multiple attempts, forcing redirect");
+      // Navigate to home page
       window.location.replace('/');
     },
     onError: (error: any) => {
@@ -135,17 +90,19 @@ export function useAuth() {
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      await apiRequest('/api/logout', 'POST');
+      await logout();
     },
     onSuccess: () => {
       // Clear all cached data
       queryClient.clear();
-      // Navigate to landing page
-      window.location.replace('/');
+      
       toast({
         title: "Logged Out",
         description: "You've been successfully logged out.",
       });
+      
+      // Navigate to landing page
+      window.location.replace('/');
     },
   });
 

@@ -9,7 +9,8 @@ import { eq, and, desc, asc, like, or, inArray } from "drizzle-orm";
 import OpenAI from "openai";
 import Stripe from "stripe";
 import { emailService } from "./email-service";
-import { setupAuth, isAuthenticated, hashPassword, verifyPassword } from "./auth";
+import { jwtAuth, generateTokens, verifyRefreshToken } from "./auth";
+import bcrypt from "bcryptjs";
 import type { NextFunction } from "express";
 import multer from "multer";
 import path from "path";
@@ -83,11 +84,9 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Set up authentication first
-  await setupAuth(app);
-  
   // Serve static files from uploads directory
   app.use('/uploads', express.static(path.join(process.cwd(), 'public', 'uploads')));
+  
   // Registration endpoint
   app.post("/api/register", async (req, res) => {
     try {
@@ -110,7 +109,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Hash password and create user
-      const passwordHash = await hashPassword(password);
+      const passwordHash = await bcrypt.hash(password, 12);
       const user = await storage.createUser({
         username,
         email,
@@ -119,19 +118,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         lastName,
       });
       
-      // Set up session
-      (req.session as any).userId = user.id;
+      // Generate JWT tokens
+      const tokens = generateTokens(user);
       
-      // Ensure session is saved before responding
-      req.session.save((err) => {
-        if (err) {
-          console.error("Session save error:", err);
-          return res.status(500).json({ message: "Failed to save session" });
-        }
-        
-        // Return user without password hash
-        const { passwordHash: _, ...userResponse } = user;
-        res.json({ success: true, user: userResponse });
+      // Set refresh token as httpOnly cookie
+      res.cookie('refresh_token', tokens.refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      });
+      
+      // Return user without password hash and access token
+      const { passwordHash: _, ...userResponse } = user;
+      res.json({ 
+        success: true, 
+        user: userResponse,
+        accessToken: tokens.accessToken,
+        expiresIn: tokens.expiresIn
       });
       
     } catch (error) {
@@ -166,24 +170,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("User found:", user.username);
       
       // Verify password
-      const isValid = await verifyPassword(password, user.passwordHash);
+      const isValid = await bcrypt.compare(password, user.passwordHash);
       if (!isValid) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
       
-      // Set up session
-      (req.session as any).userId = user.id;
+      // Generate JWT tokens
+      const tokens = generateTokens(user);
       
-      // Ensure session is saved before responding
-      req.session.save((err) => {
-        if (err) {
-          console.error("Session save error:", err);
-          return res.status(500).json({ message: "Failed to save session" });
-        }
-        
-        // Return user without password hash
-        const { passwordHash: _, ...userResponse } = user;
-        res.json({ success: true, user: userResponse });
+      // Set refresh token as httpOnly cookie
+      res.cookie('refresh_token', tokens.refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      });
+      
+      // Return user without password hash and access token
+      const { passwordHash: _, ...userResponse } = user;
+      res.json({ 
+        success: true, 
+        user: userResponse,
+        accessToken: tokens.accessToken,
+        expiresIn: tokens.expiresIn
       });
       
     } catch (error) {
@@ -194,16 +203,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Logout endpoint
   app.post("/api/logout", async (req, res) => {
-    req.session?.destroy((err) => {
-      if (err) {
-        return res.status(500).json({ message: "Failed to logout" });
-      }
+    try {
+      // Clear refresh token cookie
+      res.clearCookie('refresh_token');
       res.json({ success: true });
-    });
+    } catch (error) {
+      console.error("Logout error:", error);
+      res.status(500).json({ message: "Failed to logout" });
+    }
+  });
+
+  // Token refresh endpoint
+  app.post("/api/refresh", async (req, res) => {
+    try {
+      const refreshToken = req.cookies?.refresh_token;
+      
+      if (!refreshToken) {
+        return res.status(401).json({ message: "Refresh token not found" });
+      }
+      
+      const payload = verifyRefreshToken(refreshToken);
+      if (!payload) {
+        return res.status(401).json({ message: "Invalid refresh token" });
+      }
+      
+      // Get user from database
+      const user = await storage.getUserById(payload.userId);
+      if (!user) {
+        return res.status(401).json({ message: "User not found" });
+      }
+      
+      // Generate new tokens
+      const tokens = generateTokens(user);
+      
+      // Set new refresh token cookie
+      res.cookie('refresh_token', tokens.refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      });
+      
+      res.json({
+        accessToken: tokens.accessToken,
+        expiresIn: tokens.expiresIn
+      });
+      
+    } catch (error) {
+      console.error("Token refresh error:", error);
+      res.status(500).json({ message: "Failed to refresh token" });
+    }
   });
 
   // Auth route to get current user
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+  app.get('/api/auth/user', jwtAuth, async (req: any, res) => {
     try {
       const { passwordHash: _, ...userResponse } = req.user;
       res.json(userResponse);
@@ -214,7 +267,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Progressive gamification routes
-  app.get('/api/user/progress', isAuthenticated, async (req: any, res) => {
+  app.get('/api/user/progress', jwtAuth, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const progress = await storage.getUserProgress(userId);
@@ -225,7 +278,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/user/progress/check-level', isAuthenticated, async (req: any, res) => {
+  app.post('/api/user/progress/check-level', jwtAuth, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const stats = await storage.getUserStats(userId);
@@ -237,7 +290,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/user/feature-check/:featureName', isAuthenticated, async (req: any, res) => {
+  app.get('/api/user/feature-check/:featureName', jwtAuth, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const { featureName } = req.params;
@@ -249,7 +302,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/user/entry-count', isAuthenticated, async (req: any, res) => {
+  app.get('/api/user/entry-count', jwtAuth, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const count = await storage.getUserEntryCount(userId);
@@ -261,7 +314,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Check if user is a beta tester
-  app.get('/api/user/beta-status', isAuthenticated, async (req: any, res) => {
+  app.get('/api/user/beta-status', jwtAuth, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const isBeta = isBetaTester(userId);
@@ -273,7 +326,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update questionnaire completion status
-  app.post('/api/questionnaire/complete', isAuthenticated, async (req: any, res) => {
+  app.post('/api/questionnaire/complete', jwtAuth, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const user = await storage.updateQuestionnaireCompletion(userId, true);
@@ -290,7 +343,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update user display name
-  app.post('/api/user/display-name', isAuthenticated, async (req: any, res) => {
+  app.post('/api/user/display-name', jwtAuth, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const { displayName } = req.body;
@@ -313,7 +366,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get recent journal entries (protected)
-  app.get("/api/entries", isAuthenticated, async (req: any, res) => {
+  app.get("/api/entries", jwtAuth, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const limit = parseInt(req.query.limit as string) || 10;
@@ -332,7 +385,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get specific journal entry by ID (protected)
-  app.get("/api/entries/:id", isAuthenticated, async (req: any, res: Response) => {
+  app.get("/api/entries/:id", jwtAuth, async (req: any, res: Response) => {
     try {
       const userId = req.user.id;
       const entryId = parseInt(req.params.id);
@@ -355,7 +408,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Create new journal entry (protected) with progressive limits
-  app.post("/api/entries", isAuthenticated, async (req: any, res) => {
+  app.post("/api/entries", jwtAuth, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const { content, mood, tags } = req.body;
@@ -431,7 +484,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Analyze journal entry with AI and save reflection
-  app.post("/api/entries/:id/analyze", isAuthenticated, async (req: any, res) => {
+  app.post("/api/entries/:id/analyze", jwtAuth, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const entryId = parseInt(req.params.id);
@@ -499,7 +552,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update journal entry (protected)
-  app.put("/api/entries/:id", isAuthenticated, async (req: any, res) => {
+  app.put("/api/entries/:id", jwtAuth, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const entryId = parseInt(req.params.id);
@@ -540,7 +593,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Delete journal entry (protected)
-  app.delete("/api/entries/:id", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/entries/:id", jwtAuth, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const entryId = parseInt(req.params.id);
@@ -569,7 +622,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Analyze journal entry with AI (legacy endpoint for compatibility)
-  app.post("/api/analyze", isAuthenticated, async (req: any, res) => {
+  app.post("/api/analyze", jwtAuth, async (req: any, res) => {
     try {
       const { entry } = req.body;
       
@@ -618,7 +671,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // VISION ARCHITECT ROUTES
 
   // Vision Architect chat endpoint (beta feature)
-  app.post("/api/vision-architect/chat", isAuthenticated, requireBetaTester, async (req: any, res) => {
+  app.post("/api/vision-architect/chat", jwtAuth, requireBetaTester, async (req: any, res) => {
     try {
       const { messages, visionData } = req.body;
       
@@ -704,7 +757,7 @@ Respond as their mentor, continuing the natural flow of discovery.`;
   });
 
   // Vision Architect - Direct submission to n8n workflow (beta feature)
-  app.post("/api/vision-architect/submit", isAuthenticated, requireBetaTester, async (req: any, res) => {
+  app.post("/api/vision-architect/submit", jwtAuth, requireBetaTester, async (req: any, res) => {
     try {
       const { answers } = req.body;
       
@@ -860,7 +913,7 @@ GUIDELINES:
   // FOLDER MANAGEMENT ROUTES
 
   // Get user folders (protected)
-  app.get("/api/folders", isAuthenticated, async (req: any, res) => {
+  app.get("/api/folders", jwtAuth, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const userFolders = await db.select().from(folders)
@@ -874,7 +927,7 @@ GUIDELINES:
   });
 
   // Create new folder (protected)
-  app.post("/api/folders", isAuthenticated, async (req: any, res) => {
+  app.post("/api/folders", jwtAuth, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const folderData = insertFolderSchema.parse(req.body);
@@ -894,7 +947,7 @@ GUIDELINES:
   });
 
   // Update folder (protected)
-  app.patch("/api/folders/:id", isAuthenticated, async (req: any, res) => {
+  app.patch("/api/folders/:id", jwtAuth, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const folderId = parseInt(req.params.id);
@@ -924,7 +977,7 @@ GUIDELINES:
   });
 
   // Delete folder (protected)
-  app.delete("/api/folders/:id", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/folders/:id", jwtAuth, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const folderId = parseInt(req.params.id);
@@ -957,7 +1010,7 @@ GUIDELINES:
   // ENHANCED ENTRY MANAGEMENT ROUTES
 
   // Search entries by filters (protected)
-  app.get("/api/entries/search", isAuthenticated, async (req: any, res) => {
+  app.get("/api/entries/search", jwtAuth, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const { tags, mood, dateFrom, dateTo, query, folderId } = req.query;
@@ -1012,7 +1065,7 @@ GUIDELINES:
   });
 
   // Pin/unpin entry (protected)
-  app.patch("/api/entries/:id/pin", isAuthenticated, async (req: any, res) => {
+  app.patch("/api/entries/:id/pin", jwtAuth, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const entryId = parseInt(req.params.id);
@@ -1039,7 +1092,7 @@ GUIDELINES:
   });
 
   // Move entry to folder (protected)
-  app.patch("/api/entries/:id/folder", isAuthenticated, async (req: any, res) => {
+  app.patch("/api/entries/:id/folder", jwtAuth, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const entryId = parseInt(req.params.id);
@@ -1066,7 +1119,7 @@ GUIDELINES:
   });
 
   // Download entries as text (protected)
-  app.post("/api/entries/download", isAuthenticated, async (req: any, res) => {
+  app.post("/api/entries/download", jwtAuth, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const { entryIds } = req.body;
@@ -1106,7 +1159,7 @@ GUIDELINES:
   });
 
   // Get weekly reflection
-  app.get("/api/reflect/weekly", isAuthenticated, async (req: any, res) => {
+  app.get("/api/reflect/weekly", jwtAuth, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const weekStart = req.query.weekStart as string;
@@ -1261,7 +1314,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Get user stats and growth metrics
-  app.get("/api/stats", isAuthenticated, async (req: any, res: Response) => {
+  app.get("/api/stats", jwtAuth, async (req: any, res: Response) => {
     try {
       const userId = req.user.id;
       const stats = await storage.getUserStats(userId);
@@ -1272,7 +1325,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
     }
   });
 
-  app.get("/api/growth-metrics", isAuthenticated, async (req: any, res: Response) => {
+  app.get("/api/growth-metrics", jwtAuth, async (req: any, res: Response) => {
     try {
       const userId = req.user.id;
       const metrics = await storage.getGrowthMetrics(userId);
@@ -1284,7 +1337,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Saved insights management
-  app.get("/api/insights", isAuthenticated, async (req: any, res: Response) => {
+  app.get("/api/insights", jwtAuth, async (req: any, res: Response) => {
     try {
       const userId = req.user.id;
       const insights = await storage.getSavedInsights(userId);
@@ -1295,7 +1348,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
     }
   });
 
-  app.post("/api/insights", isAuthenticated, async (req: any, res: Response) => {
+  app.post("/api/insights", jwtAuth, async (req: any, res: Response) => {
     try {
       const userId = req.user.id;
       const { title, content, category, source, entryId } = req.body;
@@ -1313,7 +1366,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
     }
   });
 
-  app.delete("/api/insights/:id", isAuthenticated, async (req: any, res: Response) => {
+  app.delete("/api/insights/:id", jwtAuth, async (req: any, res: Response) => {
     try {
       const userId = req.user.id;
       const id = parseInt(req.params.id);
@@ -1326,7 +1379,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Badge routes
-  app.get("/api/badges", isAuthenticated, async (req: any, res: Response) => {
+  app.get("/api/badges", jwtAuth, async (req: any, res: Response) => {
     try {
       const userId = req.user.id;
       const badges = await storage.getBadges(userId);
@@ -1338,7 +1391,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Daily quest routes
-  app.get("/api/challenge/today", isAuthenticated, async (req: any, res: Response) => {
+  app.get("/api/challenge/today", jwtAuth, async (req: any, res: Response) => {
     try {
       const userId = req.user.id;
       const quest = await storage.getTodaysChallenge(userId);
@@ -1350,7 +1403,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Life Path Analysis endpoint
-  app.post("/api/life-path-analysis", isAuthenticated, async (req: any, res: Response) => {
+  app.post("/api/life-path-analysis", jwtAuth, async (req: any, res: Response) => {
     try {
       console.log("Life path analysis request received:", req.body);
       const { answers } = req.body;
@@ -1444,7 +1497,7 @@ IMPORTANT: All values must be strings only. No nested objects or arrays allowed.
   });
 
   // Merlin AI Assistant endpoint
-  app.post("/api/merlin/consult", isAuthenticated, async (req: any, res: Response) => {
+  app.post("/api/merlin/consult", jwtAuth, async (req: any, res: Response) => {
     try {
       const { mode, context, question, userName = "friend" } = req.body;
       
@@ -1558,7 +1611,7 @@ Wrap these practical steps with mystical language, but the actions must be concr
   });
 
   // Accept daily quest
-  app.post("/api/challenge/:id/accept", isAuthenticated, async (req: any, res: Response) => {
+  app.post("/api/challenge/:id/accept", jwtAuth, async (req: any, res: Response) => {
     try {
       const userId = req.user.id;
       const id = parseInt(req.params.id);
@@ -1572,7 +1625,7 @@ Wrap these practical steps with mystical language, but the actions must be concr
   });
 
   // Custom tags routes
-  app.get("/api/custom-tags", isAuthenticated, async (req: any, res: Response) => {
+  app.get("/api/custom-tags", jwtAuth, async (req: any, res: Response) => {
     try {
       const userId = req.user.id;
       const tags = await storage.getUserCustomTags(userId);
@@ -1583,7 +1636,7 @@ Wrap these practical steps with mystical language, but the actions must be concr
     }
   });
 
-  app.post("/api/custom-tags", isAuthenticated, async (req: any, res: Response) => {
+  app.post("/api/custom-tags", jwtAuth, async (req: any, res: Response) => {
     try {
       const userId = req.user.id;
       const { tagName, displayOrder } = req.body;
@@ -1630,7 +1683,7 @@ Wrap these practical steps with mystical language, but the actions must be concr
     }
   });
 
-  app.put("/api/custom-tags/:id", isAuthenticated, async (req: any, res: Response) => {
+  app.put("/api/custom-tags/:id", jwtAuth, async (req: any, res: Response) => {
     try {
       const userId = req.user.id;
       const tagId = parseInt(req.params.id);
@@ -1673,7 +1726,7 @@ Wrap these practical steps with mystical language, but the actions must be concr
     }
   });
 
-  app.delete("/api/custom-tags/:id", isAuthenticated, async (req: any, res: Response) => {
+  app.delete("/api/custom-tags/:id", jwtAuth, async (req: any, res: Response) => {
     try {
       const userId = req.user.id;
       const tagId = parseInt(req.params.id);
@@ -1686,7 +1739,7 @@ Wrap these practical steps with mystical language, but the actions must be concr
     }
   });
 
-  app.post("/api/challenge/:id/complete", isAuthenticated, async (req: any, res: Response) => {
+  app.post("/api/challenge/:id/complete", jwtAuth, async (req: any, res: Response) => {
     try {
       const userId = req.user.id;
       const id = parseInt(req.params.id);
@@ -1700,7 +1753,7 @@ Wrap these practical steps with mystical language, but the actions must be concr
   });
 
   // Get monthly reflection
-  app.get("/api/reflect/monthly", isAuthenticated, async (req: any, res) => {
+  app.get("/api/reflect/monthly", jwtAuth, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const month = req.query.month as string;
@@ -1876,7 +1929,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Export journal entries
-  app.get("/api/entries/export", isAuthenticated, async (req: any, res) => {
+  app.get("/api/entries/export", jwtAuth, async (req: any, res) => {
     try {
       const userId = req.user.id;
       const format = req.query.format as string || 'json';
@@ -1988,7 +2041,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // User settings endpoint
-  app.post("/api/user/settings", isAuthenticated, async (req: any, res: Response) => {
+  app.post("/api/user/settings", jwtAuth, async (req: any, res: Response) => {
     try {
       const { settingType, settings } = req.body;
       
@@ -2024,7 +2077,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Get user settings endpoint
-  app.get("/api/user/settings", isAuthenticated, async (req: any, res: Response) => {
+  app.get("/api/user/settings", jwtAuth, async (req: any, res: Response) => {
     try {
       // In production, this would fetch from database
       // For now, return default settings
@@ -2053,7 +2106,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Account management routes
-  app.get("/api/account/status", isAuthenticated, async (req: any, res: Response) => {
+  app.get("/api/account/status", jwtAuth, async (req: any, res: Response) => {
     try {
       // Check if user has completed upgrade simulation
       // In production, this would check actual subscription status from database
@@ -2281,7 +2334,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Goals management routes (Premium feature)
-  app.get("/api/goals", isAuthenticated, async (req: any, res: Response) => {
+  app.get("/api/goals", jwtAuth, async (req: any, res: Response) => {
     try {
       const userId = req.user.id;
       const goals = await storage.getGoals(userId);
@@ -2292,7 +2345,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
     }
   });
 
-  app.post("/api/goals", isAuthenticated, async (req: any, res: Response) => {
+  app.post("/api/goals", jwtAuth, async (req: any, res: Response) => {
     try {
       const userId = req.user.id;
       const { title, description, category, targetDate, priority, progressNotes } = req.body;
@@ -2318,7 +2371,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
     }
   });
 
-  app.patch("/api/goals/:id", isAuthenticated, async (req: any, res: Response) => {
+  app.patch("/api/goals/:id", jwtAuth, async (req: any, res: Response) => {
     try {
       const userId = req.user.id;
       const goalId = parseInt(req.params.id);
@@ -2346,7 +2399,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
     }
   });
 
-  app.delete("/api/goals/:id", isAuthenticated, async (req: any, res: Response) => {
+  app.delete("/api/goals/:id", jwtAuth, async (req: any, res: Response) => {
     try {
       const userId = req.user.id;
       const goalId = parseInt(req.params.id);
@@ -2404,7 +2457,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   };
 
   // Check if current user is admin
-  app.get("/api/admin/check", isAuthenticated, async (req: any, res: Response) => {
+  app.get("/api/admin/check", jwtAuth, async (req: any, res: Response) => {
     try {
       const isUserAdmin = await storage.isUserAdmin(req.user.id);
       res.json({ isAdmin: isUserAdmin });
@@ -2415,7 +2468,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Get all users for admin management
-  app.get("/api/admin/users", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+  app.get("/api/admin/users", jwtAuth, isAdmin, async (req: any, res: Response) => {
     try {
       const allUsers = await db.select({
         id: users.id,
@@ -2433,7 +2486,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Enhanced admin endpoint with detailed user data for marketing/promotion (EON ONLY)
-  app.get("/api/admin/users-detailed", isAuthenticated, async (req: any, res: Response) => {
+  app.get("/api/admin/users-detailed", jwtAuth, async (req: any, res: Response) => {
     try {
       // Restrict to EON user only for user database access
       if (req.user.id !== 2) { // EON's user ID
@@ -2449,7 +2502,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Update user role (promote/demote admin)
-  app.patch("/api/admin/users/:id/role", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+  app.patch("/api/admin/users/:id/role", jwtAuth, isAdmin, async (req: any, res: Response) => {
     try {
       const userId = parseInt(req.params.id);
       const { role } = req.body;
@@ -2471,7 +2524,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Admin endpoint to manually set user level (for testing - EON only)
-  app.post("/api/admin/set-level", isAuthenticated, async (req: any, res: Response) => {
+  app.post("/api/admin/set-level", jwtAuth, async (req: any, res: Response) => {
     try {
       const { level } = req.body;
       const userId = req.user.id;
@@ -2518,7 +2571,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Admin XP Gifting endpoint (Admin only)
-  app.post("/api/admin/gift-xp", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+  app.post("/api/admin/gift-xp", jwtAuth, isAdmin, async (req: any, res: Response) => {
     try {
       const { userId, xpAmount, reason } = req.body;
       
@@ -2559,7 +2612,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Admin Level Integrity Check endpoint (Admin only)
-  app.post("/api/admin/fix-level-consistency", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+  app.post("/api/admin/fix-level-consistency", jwtAuth, isAdmin, async (req: any, res: Response) => {
     try {
       console.log(`Admin ${req.user.username} initiated level consistency check`);
       
@@ -2627,7 +2680,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Create forum post
-  app.post("/api/forum/posts", isAuthenticated, async (req: any, res: Response) => {
+  app.post("/api/forum/posts", jwtAuth, async (req: any, res: Response) => {
     try {
       const { title, content, categoryId } = req.body;
       
@@ -2649,7 +2702,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Edit forum post (users can edit their own posts)
-  app.patch("/api/forum/posts/:id", isAuthenticated, async (req: any, res: Response) => {
+  app.patch("/api/forum/posts/:id", jwtAuth, async (req: any, res: Response) => {
     try {
       const postId = parseInt(req.params.id);
       const { title, content } = req.body;
@@ -2702,7 +2755,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Create forum reply
-  app.post("/api/forum/posts/:id/replies", isAuthenticated, upload.single('photo'), async (req: any, res: Response) => {
+  app.post("/api/forum/posts/:id/replies", jwtAuth, upload.single('photo'), async (req: any, res: Response) => {
     try {
       const postId = parseInt(req.params.id);
       const { content, parentReplyId, photoAlt } = req.body;
@@ -2760,7 +2813,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Toggle like on post or reply
-  app.post("/api/forum/like", isAuthenticated, async (req: any, res: Response) => {
+  app.post("/api/forum/like", jwtAuth, async (req: any, res: Response) => {
     try {
       const { postId, replyId } = req.body;
       
@@ -2793,7 +2846,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Admin contact messages endpoint (owner only)
-  app.get("/api/admin/contact-messages", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+  app.get("/api/admin/contact-messages", jwtAuth, isAdmin, async (req: any, res: Response) => {
     try {
       console.log("Contact messages endpoint called by user:", req.user?.username);
       const fs = await import('fs/promises');
@@ -2832,7 +2885,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Delete contact message (owner only)
-  app.delete("/api/admin/contact-messages/:id", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+  app.delete("/api/admin/contact-messages/:id", jwtAuth, isAdmin, async (req: any, res: Response) => {
     try {
       const messageId = parseInt(req.params.id);
       const fs = await import('fs/promises');
@@ -2875,7 +2928,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Archive/unarchive contact message (owner only)
-  app.patch("/api/admin/contact-messages/:id/archive", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+  app.patch("/api/admin/contact-messages/:id/archive", jwtAuth, isAdmin, async (req: any, res: Response) => {
     try {
       const messageId = parseInt(req.params.id);
       const { archived } = req.body;
@@ -2919,7 +2972,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Pin/unpin contact message (owner only)
-  app.patch("/api/admin/contact-messages/:id/pin", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+  app.patch("/api/admin/contact-messages/:id/pin", jwtAuth, isAdmin, async (req: any, res: Response) => {
     try {
       const messageId = parseInt(req.params.id);
       const { pinned } = req.body;
@@ -2992,7 +3045,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   // ===== FORUM MANAGEMENT ADMIN ROUTES =====
   
   // Category Management
-  app.post("/api/admin/forum/categories", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+  app.post("/api/admin/forum/categories", jwtAuth, isAdmin, async (req: any, res: Response) => {
     try {
       const { name, description, color, icon, isActive } = req.body;
       
@@ -3015,7 +3068,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
     }
   });
 
-  app.patch("/api/admin/forum/categories/:id", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+  app.patch("/api/admin/forum/categories/:id", jwtAuth, isAdmin, async (req: any, res: Response) => {
     try {
       const id = parseInt(req.params.id);
       const updates = req.body;
@@ -3036,7 +3089,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
     }
   });
 
-  app.delete("/api/admin/forum/categories/:id", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+  app.delete("/api/admin/forum/categories/:id", jwtAuth, isAdmin, async (req: any, res: Response) => {
     try {
       const id = parseInt(req.params.id);
 
@@ -3062,7 +3115,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Toggle photo uploads for forum category
-  app.patch("/api/admin/forum/categories/:id/photos", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+  app.patch("/api/admin/forum/categories/:id/photos", jwtAuth, isAdmin, async (req: any, res: Response) => {
     try {
       const id = parseInt(req.params.id);
       const { allowPhotos } = req.body;
@@ -3088,7 +3141,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Post Management
-  app.patch("/api/admin/forum/posts/:id/pin", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+  app.patch("/api/admin/forum/posts/:id/pin", jwtAuth, isAdmin, async (req: any, res: Response) => {
     try {
       const id = parseInt(req.params.id);
       const { isPinned } = req.body;
@@ -3109,7 +3162,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
     }
   });
 
-  app.patch("/api/admin/forum/posts/:id/feature", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+  app.patch("/api/admin/forum/posts/:id/feature", jwtAuth, isAdmin, async (req: any, res: Response) => {
     try {
       const id = parseInt(req.params.id);
       const { isFeatured } = req.body;
@@ -3130,7 +3183,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
     }
   });
 
-  app.patch("/api/admin/forum/posts/:id/lock", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+  app.patch("/api/admin/forum/posts/:id/lock", jwtAuth, isAdmin, async (req: any, res: Response) => {
     try {
       const id = parseInt(req.params.id);
       const { isLocked } = req.body;
@@ -3151,7 +3204,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
     }
   });
 
-  app.delete("/api/admin/forum/posts/:id", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+  app.delete("/api/admin/forum/posts/:id", jwtAuth, isAdmin, async (req: any, res: Response) => {
     try {
       const id = parseInt(req.params.id);
 
@@ -3172,7 +3225,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Moderator Management
-  app.get("/api/admin/forum/moderators", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+  app.get("/api/admin/forum/moderators", jwtAuth, isAdmin, async (req: any, res: Response) => {
     try {
       const moderators = await db.select({
         id: forumModerators.id,
@@ -3194,7 +3247,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
     }
   });
 
-  app.post("/api/admin/forum/moderators", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+  app.post("/api/admin/forum/moderators", jwtAuth, isAdmin, async (req: any, res: Response) => {
     try {
       const adminId = req.user.id;
       const { userId } = req.body;
@@ -3225,7 +3278,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
     }
   });
 
-  app.delete("/api/admin/forum/moderators/:userId", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+  app.delete("/api/admin/forum/moderators/:userId", jwtAuth, isAdmin, async (req: any, res: Response) => {
     try {
       const userId = parseInt(req.params.userId);
 
@@ -3240,7 +3293,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   // Vision Board API Routes - Beta Feature
   
   // Get user's vision board
-  app.get("/api/vision-board", isAuthenticated, requireBetaTester, async (req: any, res: Response) => {
+  app.get("/api/vision-board", jwtAuth, requireBetaTester, async (req: any, res: Response) => {
     try {
       const userId = req.user.id;
       const visionBoard = await storage.getUserVisionBoard(userId);
@@ -3252,7 +3305,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Get vision board categories
-  app.get("/api/vision-board/categories", isAuthenticated, requireBetaTester, async (req: any, res: Response) => {
+  app.get("/api/vision-board/categories", jwtAuth, requireBetaTester, async (req: any, res: Response) => {
     try {
       res.json(VISION_CATEGORIES);
     } catch (error) {
@@ -3262,7 +3315,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Create vision area
-  app.post("/api/vision-board/areas", isAuthenticated, requireBetaTester, async (req: any, res: Response) => {
+  app.post("/api/vision-board/areas", jwtAuth, requireBetaTester, async (req: any, res: Response) => {
     try {
       const userId = req.user.id;
       const validatedData = insertVisionAreaSchema.parse(req.body);
@@ -3282,7 +3335,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Update vision area
-  app.patch("/api/vision-board/areas/:id", isAuthenticated, requireBetaTester, async (req: any, res: Response) => {
+  app.patch("/api/vision-board/areas/:id", jwtAuth, requireBetaTester, async (req: any, res: Response) => {
     try {
       const userId = req.user.id;
       const areaId = parseInt(req.params.id);
@@ -3301,7 +3354,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Delete vision area
-  app.delete("/api/vision-board/areas/:id", isAuthenticated, requireBetaTester, async (req: any, res: Response) => {
+  app.delete("/api/vision-board/areas/:id", jwtAuth, requireBetaTester, async (req: any, res: Response) => {
     try {
       const userId = req.user.id;
       const areaId = parseInt(req.params.id);
@@ -3319,7 +3372,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Create milestone
-  app.post("/api/vision-board/milestones", isAuthenticated, requireBetaTester, async (req: any, res: Response) => {
+  app.post("/api/vision-board/milestones", jwtAuth, requireBetaTester, async (req: any, res: Response) => {
     try {
       const validatedData = insertVisionMilestoneSchema.parse(req.body);
       const milestone = await storage.createVisionMilestone(validatedData);
@@ -3331,7 +3384,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Update milestone
-  app.patch("/api/vision-board/milestones/:id", isAuthenticated, requireBetaTester, async (req: any, res: Response) => {
+  app.patch("/api/vision-board/milestones/:id", jwtAuth, requireBetaTester, async (req: any, res: Response) => {
     try {
       const milestoneId = parseInt(req.params.id);
       const updates = req.body;
@@ -3349,7 +3402,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Delete milestone
-  app.delete("/api/vision-board/milestones/:id", isAuthenticated, requireBetaTester, async (req: any, res: Response) => {
+  app.delete("/api/vision-board/milestones/:id", jwtAuth, requireBetaTester, async (req: any, res: Response) => {
     try {
       const milestoneId = parseInt(req.params.id);
       
@@ -3366,7 +3419,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Create next step
-  app.post("/api/vision-board/next-steps", isAuthenticated, requireBetaTester, async (req: any, res: Response) => {
+  app.post("/api/vision-board/next-steps", jwtAuth, requireBetaTester, async (req: any, res: Response) => {
     try {
       const validatedData = insertVisionNextStepSchema.parse(req.body);
       const nextStep = await storage.createVisionNextStep(validatedData);
@@ -3378,7 +3431,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Update next step
-  app.patch("/api/vision-board/next-steps/:id", isAuthenticated, requireBetaTester, async (req: any, res: Response) => {
+  app.patch("/api/vision-board/next-steps/:id", jwtAuth, requireBetaTester, async (req: any, res: Response) => {
     try {
       const nextStepId = parseInt(req.params.id);
       const updates = req.body;
@@ -3396,7 +3449,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Delete next step
-  app.delete("/api/vision-board/next-steps/:id", isAuthenticated, requireBetaTester, async (req: any, res: Response) => {
+  app.delete("/api/vision-board/next-steps/:id", jwtAuth, requireBetaTester, async (req: any, res: Response) => {
     try {
       const nextStepId = parseInt(req.params.id);
       
@@ -3413,7 +3466,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Generate AI vision suggestions
-  app.post("/api/vision-board/ai-suggestions", isAuthenticated, requireBetaTester, async (req: any, res: Response) => {
+  app.post("/api/vision-board/ai-suggestions", jwtAuth, requireBetaTester, async (req: any, res: Response) => {
     try {
       const userId = req.user.id;
       const suggestions = await storage.generateAIVisionSuggestions(userId);
@@ -3456,7 +3509,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   // ===== BLOG SYSTEM API ROUTES =====
   
   // Get all blog articles (admin only - shows all articles including drafts)
-  app.get("/api/admin/blog/articles", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+  app.get("/api/admin/blog/articles", jwtAuth, isAdmin, async (req: any, res: Response) => {
     try {
       const articles = await storage.getAllBlogArticles();
       res.json(articles);
@@ -3491,7 +3544,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
       }
 
       // Check if user can access this article
-      const isAdmin = req.isAuthenticated && req.isAuthenticated() && req.user?.isAdmin;
+      const isAdmin = req.jwtAuth && req.jwtAuth() && req.user?.isAdmin;
       if (!article.isPublished && !isAdmin) {
         return res.status(404).json({ message: "Article not found" });
       }
@@ -3521,7 +3574,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Create blog article (admin only)
-  app.post("/api/admin/blog/articles", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+  app.post("/api/admin/blog/articles", jwtAuth, isAdmin, async (req: any, res: Response) => {
     try {
       const authorId = req.user.id;
       const articleData = req.body;
@@ -3551,7 +3604,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Update blog article (admin only)
-  app.patch("/api/admin/blog/articles/:id", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+  app.patch("/api/admin/blog/articles/:id", jwtAuth, isAdmin, async (req: any, res: Response) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -3589,7 +3642,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Delete blog article (admin only)
-  app.delete("/api/admin/blog/articles/:id", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+  app.delete("/api/admin/blog/articles/:id", jwtAuth, isAdmin, async (req: any, res: Response) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -3605,7 +3658,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Publish blog article (admin only)
-  app.patch("/api/admin/blog/articles/:id/publish", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+  app.patch("/api/admin/blog/articles/:id/publish", jwtAuth, isAdmin, async (req: any, res: Response) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -3625,7 +3678,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Unpublish blog article (admin only)
-  app.patch("/api/admin/blog/articles/:id/unpublish", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+  app.patch("/api/admin/blog/articles/:id/unpublish", jwtAuth, isAdmin, async (req: any, res: Response) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -3645,7 +3698,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Toggle featured status (admin only)
-  app.patch("/api/admin/blog/articles/:id/feature", isAuthenticated, isAdmin, async (req: any, res: Response) => {
+  app.patch("/api/admin/blog/articles/:id/feature", jwtAuth, isAdmin, async (req: any, res: Response) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
