@@ -2,12 +2,10 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Clock, Smile, Tags, PenTool, X, Lock, TrendingUp, Folder } from "lucide-react";
-import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
+import { Clock, Smile, Tags, PenTool, X, Lock, TrendingUp } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import type { Folder as FolderType } from "@shared/schema";
 
 import { CustomTagsSelector } from "@/components/custom-tags-selector";
 import { useProgressiveFeatures } from "@/hooks/useProgressiveFeatures";
@@ -19,7 +17,6 @@ export function JournalEntryForm() {
   const { text: globalEntry, updateText } = useJournalEntry();
   const [entry, setEntry] = useState("");
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
-  const [selectedFolder, setSelectedFolder] = useState<string>("");
 
   const [tags, setTags] = useState<string[]>([]);
   const [manualTag, setManualTag] = useState("");
@@ -49,11 +46,6 @@ export function JournalEntryForm() {
     progress
   } = useProgressiveFeatures();
 
-  // Fetch user folders
-  const { data: folders = [] } = useQuery<FolderType[]>({
-    queryKey: ["/api/folders"],
-  });
-
   // Limit mood options based on user level
   const allMoodOptions = [
     { value: "happy", label: "😊 Happy" },
@@ -73,7 +65,7 @@ export function JournalEntryForm() {
   const moodOptions = allMoodOptions.slice(0, maxMoods);
 
   const createEntryMutation = useMutation({
-    mutationFn: async (data: { content: string; mood?: string | null; tags?: string[] | null; folderId?: number | null }) => {
+    mutationFn: async (data: { content: string; mood?: string | null; tags?: string[] | null }) => {
       const response = await apiRequest("/api/entries", "POST", data);
       return response.json();
     },
@@ -141,7 +133,6 @@ export function JournalEntryForm() {
       content: entry.trim(),
       mood: selectedMood,
       tags: tags.length > 0 ? tags : null,
-      folderId: selectedFolder && selectedFolder !== "" ? parseInt(selectedFolder) : null,
     });
   };
 
@@ -274,37 +265,6 @@ export function JournalEntryForm() {
                     </option>
                   ))}
                 </select>
-              </div>
-
-              {/* Folder Selector */}
-              <div className="min-w-[140px]">
-                <Select value={selectedFolder} onValueChange={setSelectedFolder}>
-                  <SelectTrigger className="w-full text-sm bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600">
-                    <div className="flex items-center gap-2">
-                      <Folder className="w-4 h-4" />
-                      <SelectValue placeholder="Folder" />
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600">
-                    <SelectItem value="">
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-gray-400" />
-                        No Folder
-                      </div>
-                    </SelectItem>
-                    {folders.map((folder) => (
-                      <SelectItem key={folder.id} value={folder.id.toString()}>
-                        <div className="flex items-center gap-2">
-                          <div 
-                            className="w-3 h-3 rounded-full" 
-                            style={{ backgroundColor: folder.color }}
-                          />
-                          {folder.name}
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
               </div>
             </div>
 
