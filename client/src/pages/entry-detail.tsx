@@ -13,8 +13,9 @@ import { ArrowLeft, Calendar, Tag, MessageCircle, RotateCcw, Download, Edit3, Tr
 import { AIReflectionComponent } from "@/components/ai-reflection";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { useAuth } from "@/hooks/useAuth";
 import type { JournalEntry } from "@shared/schema";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { Link } from "wouter";
 
@@ -24,6 +25,14 @@ export default function EntryDetail() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [, setLocation] = useLocation();
+  const { isAuthenticated, user } = useAuth();
+  
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!isAuthenticated && !user) {
+      setLocation('/login');
+    }
+  }, [isAuthenticated, user, setLocation]);
   
   // Edit dialog state
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -34,11 +43,8 @@ export default function EntryDetail() {
   const { data: entry, isLoading, error } = useQuery<JournalEntry>({
     queryKey: ["/api/entries", entryId],
     queryFn: async () => {
-      const response = await fetch(`/api/entries/${entryId}`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch entry");
-      }
-      return response.json();
+      const response = await apiRequest(`/api/entries/${entryId}`, "GET");
+      return await response.json();
     },
     enabled: !!entryId,
   });
