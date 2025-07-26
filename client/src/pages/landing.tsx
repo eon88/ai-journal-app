@@ -45,6 +45,20 @@ export default function Landing() {
             </Button>
             <p className="text-gray-400">Free during beta • No credit card required</p>
           </div>
+          
+          {/* Quick Demo Access */}
+          <div className="mt-6 p-4 bg-blue-900/20 border border-blue-500/30 rounded-lg max-w-md mx-auto">
+            <p className="text-center text-blue-300 text-sm">
+              <strong>Quick Demo Access:</strong><br />
+              Username: demo | Password: demo123<br />
+              <Button 
+                onClick={() => window.location.href = '/login'}
+                className="mt-2 bg-blue-600/80 hover:bg-blue-700 text-white px-4 py-2 text-sm rounded"
+              >
+                Login with Demo Account
+              </Button>
+            </p>
+          </div>
         </div>
       </section>
 
