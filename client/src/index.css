@@ -128,14 +128,6 @@
   
   /* Mobile specific enhancements */
   @media (max-width: 768px) {
-    body::before {
-      background: rgba(255, 255, 255, 0.85);
-    }
-    
-    .dark body::before {
-      background: rgba(0, 0, 0, 0.9);
-    }
-    
     /* Mobile specific button improvements */
     button,
     .btn {
