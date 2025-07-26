@@ -22,49 +22,102 @@ import type { AIReflection } from "@shared/schema";
 import { useNotificationSettings } from "@/hooks/useNotificationSettings";
 
 export default function Home() {
-  // Simplified home page to debug rendering issues
-  
+  // Fetch recent entry for Merlin context
+  const { data: recentEntries } = useQuery({
+    queryKey: ["/api/entries", { limit: 1 }],
+    queryFn: () => fetch("/api/entries?limit=1", {
+      credentials: "include"
+    }).then(res => res.json()),
+    staleTime: 0, // Always fetch fresh data
+    retry: 1,
+  });
+
+  const todaysEntry = recentEntries?.[0];
+  const hasJournalToday = todaysEntry && new Date(todaysEntry.createdAt).toDateString() === new Date().toDateString();
+
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
+    <div className="min-h-screen font-inter">
       <Header />
       
-      <main className="max-w-6xl mx-auto px-4 py-8">
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-8 shadow-lg">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
-            Welcome to Quest Journal
-          </h1>
-          <p className="text-gray-700 dark:text-gray-300 mb-8">
-            Your AI-powered journaling companion for personal growth and self-discovery.
-          </p>
+      <main className="max-w-6xl mx-auto px-4 py-8 space-y-8">
+        {/* Mobile Scoreboard */}
+        <MobileScoreboard />
+        
+        {/* Main Content with Sidebar */}
+        <div className="flex gap-8">
+          {/* Left Sidebar - Level Category & Achievements */}
+          <div className="hidden lg:block w-64 self-start">
+            <div className="sticky top-8 space-y-6">
+              <LevelSidebar />
+              <BadgeShowcase />
+            </div>
+          </div>
           
-          {/* Simple Journal Entry Form */}
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-              Write Your Entry
-            </h2>
-            <JournalEntryForm />
+          {/* Main Content Grid */}
+          <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Left Column - Journal Entry */}
+            <div className="lg:col-span-2 space-y-8">
+              <JournalEntryForm />
+              
+              {/* Spacer for better visual separation */}
+              <div className="h-4"></div>
+              
+              {/* Mobile-only: Daily Inspiration and Quest above Periodic Reflections */}
+              <div className="lg:hidden space-y-6">
+                <DailyQuote />
+                <DailyChallenge />
+              </div>
+              
+              <PeriodicReflections />
+            </div>
+            
+            {/* Right Column - Gamification Features (Desktop only) */}
+            <div className="hidden lg:block space-y-6">
+              <DailyQuote />
+              <DailyChallenge />
+            </div>
           </div>
         </div>
         
-        {/* Test other components one by one */}
-        <div className="mt-8 space-y-8">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-              Mobile Scoreboard
-            </h2>
-            <MobileScoreboard />
-          </div>
-          
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-              Recent Entries
-            </h2>
-            <RecentEntries />
+        {/* Community Link Section */}
+        <div className="text-center py-12">
+          <div className="glass-card-transparent rounded-xl p-8 max-w-md mx-auto">
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Join Our Community</h3>
+            <p className="text-gray-700 dark:text-gray-300 mb-6">
+              Connect with fellow journalers, share insights, and grow together on your life path journey.
+            </p>
+            <Link to="/forum">
+              <button className="bg-journal-primary hover:bg-journal-primary/90 text-white px-6 py-3 rounded-lg font-medium transition-colors inline-flex items-center gap-2">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2v-6a2 2 0 012-2h8z" />
+                </svg>
+                Visit Community Forum
+              </button>
+            </Link>
           </div>
         </div>
+        
+        {/* Growth Dashboard */}
+        <GrowthDashboard />
+        
+        {/* Insights Vault */}
+        <InsightsVault />
+        
+        {/* Recent Entries */}
+        <RecentEntries />
       </main>
       
+      {/* Merlin Assistant - Floating AI Mentor */}
+      <MerlinAssistant 
+        userMood={todaysEntry?.mood}
+        hasJournalToday={hasJournalToday}
+        recentEntry={todaysEntry?.content}
+      />
+      
       <Footer />
+      
+      {/* Merlin Whisper for Desktop */}
+      <MerlinWhisper />
     </div>
   );
 }
