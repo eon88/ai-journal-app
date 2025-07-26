@@ -9,11 +9,11 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Calendar, Tag, MessageCircle, RotateCcw, Download, Edit3, Trash2, X } from "lucide-react";
+import { ArrowLeft, Calendar, Tag, MessageCircle, RotateCcw, Download, Edit3, Trash2, X, Folder } from "lucide-react";
 import { AIReflectionComponent } from "@/components/ai-reflection";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import type { JournalEntry } from "@shared/schema";
+import type { JournalEntry, Folder as FolderType } from "@shared/schema";
 import { useState } from "react";
 
 import { Link } from "wouter";
@@ -30,6 +30,7 @@ export default function EntryDetail() {
   const [editContent, setEditContent] = useState("");
   const [editMood, setEditMood] = useState("");
   const [editTags, setEditTags] = useState("");
+  const [editFolder, setEditFolder] = useState("");
 
   const { data: entry, isLoading, error } = useQuery<JournalEntry>({
     queryKey: ["/api/entries", entryId],
@@ -41,6 +42,11 @@ export default function EntryDetail() {
       return response.json();
     },
     enabled: !!entryId,
+  });
+
+  // Fetch user folders for edit dialog
+  const { data: folders = [] } = useQuery<FolderType[]>({
+    queryKey: ["/api/folders"],
   });
 
   // AI reflection generation mutation
@@ -108,7 +114,7 @@ export default function EntryDetail() {
 
   // Edit entry mutation
   const editMutation = useMutation({
-    mutationFn: async (data: { content: string; mood?: string; tags?: string[] }) => {
+    mutationFn: async (data: { content: string; mood?: string; tags?: string[]; folderId?: number | null }) => {
       if (!entryId) throw new Error("No entry ID");
       const response = await apiRequest(`/api/entries/${entryId}`, "PUT", data);
       return await response.json();
@@ -172,6 +178,7 @@ export default function EntryDetail() {
       setEditContent(entry.content || "");
       setEditMood(entry.mood || "");
       setEditTags(entry.tags ? entry.tags.join(", ") : "");
+      setEditFolder(entry.folderId ? entry.folderId.toString() : "");
       setIsEditDialogOpen(true);
     }
   };
@@ -182,6 +189,7 @@ export default function EntryDetail() {
       content: editContent,
       mood: editMood || undefined,
       tags: tagsArray.length > 0 ? tagsArray : undefined,
+      folderId: editFolder && editFolder !== "" ? parseInt(editFolder) : null,
     });
   };
 
@@ -502,6 +510,40 @@ export default function EntryDetail() {
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                 Separate multiple tags with commas
               </p>
+            </div>
+            
+            {/* Folder */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Folder (optional)
+              </label>
+              <Select value={editFolder} onValueChange={setEditFolder}>
+                <SelectTrigger className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600">
+                  <div className="flex items-center gap-2">
+                    <Folder className="w-4 h-4" />
+                    <SelectValue placeholder="Select a folder" />
+                  </div>
+                </SelectTrigger>
+                <SelectContent className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600">
+                  <SelectItem value="">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-gray-400" />
+                      No Folder
+                    </div>
+                  </SelectItem>
+                  {folders.map((folder) => (
+                    <SelectItem key={folder.id} value={folder.id.toString()}>
+                      <div className="flex items-center gap-2">
+                        <div 
+                          className="w-3 h-3 rounded-full" 
+                          style={{ backgroundColor: folder.color }}
+                        />
+                        {folder.name}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
           
