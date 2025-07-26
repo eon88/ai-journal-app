@@ -2638,6 +2638,69 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
     }
   });
 
+  // Admin: Sync user stats with database (fix entry count mismatches)
+  app.post('/api/admin/sync-user-stats', jwtAuth, isAdmin, async (req: any, res: Response) => {
+    try {
+      console.log(`Admin ${req.user.username} initiated user stats synchronization`);
+      
+      const result = await storage.syncAllUsersStatsWithDatabase();
+      res.json({
+        success: true,
+        message: "User stats synchronized with database",
+        results: result,
+        totalFixed: result.filter(r => r.fixed).length,
+        totalUsers: result.length
+      });
+    } catch (error) {
+      console.error("Error syncing user stats:", error);
+      res.status(500).json({ message: "Failed to sync user stats" });
+    }
+  });
+
+  // Admin: Get data integrity report
+  app.get('/api/admin/data-integrity-report', jwtAuth, isAdmin, async (req: any, res: Response) => {
+    try {
+      console.log(`Admin ${req.user.username} requested data integrity report`);
+      
+      // Check for users with entry count mismatches
+      const allUsers = await db.select({ id: users.id, username: users.username }).from(users);
+      const mismatches = [];
+      
+      for (const user of allUsers) {
+        const [userStats] = await db.select().from(userStats).where(eq(userStats.userId, user.id));
+        const actualCount = await db
+          .select({ count: sql<number>`count(*)` })
+          .from(journalEntries)
+          .where(eq(journalEntries.userId, user.id));
+        
+        const actualEntryCount = actualCount[0]?.count || 0;
+        const statsEntryCount = userStats?.totalEntries || 0;
+        
+        if (actualEntryCount !== statsEntryCount) {
+          mismatches.push({
+            userId: user.id,
+            username: user.username,
+            actualEntries: actualEntryCount,
+            statsEntries: statsEntryCount,
+            difference: actualEntryCount - statsEntryCount
+          });
+        }
+      }
+
+      res.json({
+        success: true,
+        timestamp: new Date().toISOString(),
+        totalUsers: allUsers.length,
+        usersWithMismatches: mismatches.length,
+        mismatches: mismatches,
+        healthStatus: mismatches.length === 0 ? "healthy" : "needs_attention"
+      });
+    } catch (error) {
+      console.error("Error generating data integrity report:", error);
+      res.status(500).json({ message: "Failed to generate report" });
+    }
+  });
+
   // Forum API routes
   
   // Get forum categories

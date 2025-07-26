@@ -220,7 +220,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   private async updateStatsOnNewEntry(userId: number): Promise<void> {
+    // Get current stats and verify entry count accuracy
     const currentStats = await this.getUserStats(userId);
+    const actualEntryCount = await this.getActualEntryCount(userId);
+    
     const { currentStreak, longestStreak } = await this.calculateStreak(userId);
     
     // Award XP points: 10 for entry, bonus for streaks
@@ -233,7 +236,7 @@ export class DatabaseStorage implements IStorage {
     const newTitle = this.calculateLevelTitle(newLevel);
     
     await this.updateUserStats(userId, {
-      totalEntries: currentStats.totalEntries + 1,
+      totalEntries: actualEntryCount, // Always use actual count from database
       currentStreak,
       longestStreak: Math.max(currentStats.longestStreak, longestStreak),
       xpPoints: newXp,
@@ -244,6 +247,59 @@ export class DatabaseStorage implements IStorage {
 
     // Check for new badge unlocks
     await this.checkAndUnlockBadges(userId);
+  }
+
+  // Get the actual count of entries from the database
+  private async getActualEntryCount(userId: number): Promise<number> {
+    const result = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(journalEntries)
+      .where(eq(journalEntries.userId, userId));
+    
+    return result[0]?.count || 0;
+  }
+
+  // Verify and fix entry count mismatches for a user
+  async syncUserStatsWithDatabase(userId: number): Promise<{ fixed: boolean; oldCount: number; newCount: number }> {
+    const currentStats = await this.getUserStats(userId);
+    const actualEntryCount = await this.getActualEntryCount(userId);
+    
+    if (currentStats.totalEntries !== actualEntryCount) {
+      console.log(`Entry count mismatch for user ${userId}: stats=${currentStats.totalEntries}, actual=${actualEntryCount}`);
+      
+      await this.updateUserStats(userId, {
+        totalEntries: actualEntryCount,
+      });
+      
+      return {
+        fixed: true,
+        oldCount: currentStats.totalEntries,
+        newCount: actualEntryCount
+      };
+    }
+    
+    return {
+      fixed: false,
+      oldCount: actualEntryCount,
+      newCount: actualEntryCount
+    };
+  }
+
+  // Fix all users' entry count mismatches
+  async syncAllUsersStatsWithDatabase(): Promise<Array<{ userId: number; username?: string; fixed: boolean; oldCount: number; newCount: number }>> {
+    const allUsers = await db.select({ id: users.id, username: users.username }).from(users);
+    const results = [];
+    
+    for (const user of allUsers) {
+      const result = await this.syncUserStatsWithDatabase(user.id);
+      results.push({
+        userId: user.id,
+        username: user.username,
+        ...result
+      });
+    }
+    
+    return results;
   }
 
   async getJournalEntry(userId: number, id: number): Promise<JournalEntry | undefined> {
@@ -296,7 +352,30 @@ export class DatabaseStorage implements IStorage {
       .delete(journalEntries)
       .where(and(eq(journalEntries.id, id), eq(journalEntries.userId, userId)))
       .returning();
-    return result.length > 0;
+    
+    const deleted = result.length > 0;
+    
+    // If entry was successfully deleted, update user stats to maintain consistency
+    if (deleted) {
+      await this.updateStatsOnEntryDelete(userId);
+    }
+    
+    return deleted;
+  }
+
+  private async updateStatsOnEntryDelete(userId: number): Promise<void> {
+    // Get current stats and verify entry count accuracy
+    const currentStats = await this.getUserStats(userId);
+    const actualEntryCount = await this.getActualEntryCount(userId);
+    
+    // Recalculate streak since deletion might affect it
+    const { currentStreak, longestStreak } = await this.calculateStreak(userId);
+    
+    await this.updateUserStats(userId, {
+      totalEntries: actualEntryCount, // Always use actual count from database
+      currentStreak,
+      longestStreak: Math.max(currentStats.longestStreak, longestStreak), // Don't reduce longest streak
+    });
   }
 
   async updateJournalEntryReflection(userId: number, id: number, reflection: AIReflection): Promise<JournalEntry | undefined> {
