@@ -287,12 +287,12 @@ export default function EntryDetail() {
                   Journal Entry
                 </CardTitle>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleEdit}
-                  className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 border-blue-200 dark:border-blue-800"
+                  className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 border-blue-200 dark:border-blue-800 w-full sm:w-auto"
                 >
                   <Edit3 className="w-4 h-4 mr-2" />
                   Edit
@@ -302,7 +302,7 @@ export default function EntryDetail() {
                   size="sm"
                   onClick={handleDelete}
                   disabled={deleteMutation.isPending}
-                  className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 border-red-200 dark:border-red-800"
+                  className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 border-red-200 dark:border-red-800 w-full sm:w-auto"
                 >
                   {deleteMutation.isPending ? (
                     <>
@@ -321,7 +321,7 @@ export default function EntryDetail() {
                   size="sm"
                   onClick={handleDownload}
                   disabled={downloadMutation.isPending}
-                  className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+                  className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white w-full sm:w-auto"
                 >
                   {downloadMutation.isPending ? (
                     <>
