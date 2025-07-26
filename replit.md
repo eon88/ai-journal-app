@@ -223,6 +223,7 @@ Changelog:
 - July 20, 2025. HEADER ICON REVISION - Removed mobile Merlin button from header and replaced desktop Merlin wizard image with journal icon (BookOpen). Simplified header design while maintaining purple-blue gradient styling for consistency with app branding.
 - July 20, 2025. MOBILE MERLIN RESTORATION - Added Merlin AI button back to mobile header while keeping journal icon on desktop. Mobile users now have access to Merlin wizard through clickable avatar button, while desktop maintains the journal icon branding.
 - July 20, 2025. APPLICATION TITLE REBRANDING - Changed application title from "Life Path Companion" to "Quest Journal" throughout entire application including header, login, registration, landing page, about page, manifest.json, service worker, and documentation files for consistent branding across all devices and platforms.
+- July 26, 2025. JOURNAL ENTRY CRUD COMPLETION - Implemented complete edit and delete functionality for journal entries with edit dialog containing content, mood, and tags editing capabilities. Added Edit and Delete buttons to entry detail page with proper PUT/DELETE API calls, error handling, success notifications, and cache invalidation. Users can now fully manage their journal entries with create, read, update, and delete operations.
 ```
 
 ## User Preferences
