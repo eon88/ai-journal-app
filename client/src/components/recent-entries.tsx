@@ -4,21 +4,14 @@ import { Badge } from "@/components/ui/badge";
 import { MessageCircle } from "lucide-react";
 import { AdventureIcons } from "@/components/icons/adventure-icons";
 import { Link } from "wouter";
+import { getQueryFn } from "@/lib/queryClient";
 import type { JournalEntry } from "@shared/schema";
 
 
 export function RecentEntries() {
   const { data: entries, isLoading, error } = useQuery<JournalEntry[]>({
-    queryKey: ["/api/entries", { limit: 6 }],
-    queryFn: async () => {
-      const response = await fetch("/api/entries?limit=6", {
-        credentials: "include"
-      });
-      if (!response.ok) {
-        throw new Error("Failed to fetch entries");
-      }
-      return response.json();
-    },
+    queryKey: ["/api/entries?limit=6"],
+    queryFn: getQueryFn({ on401: "returnNull" }),
     staleTime: 0, // Always fetch fresh data
     retry: 1,
   });
