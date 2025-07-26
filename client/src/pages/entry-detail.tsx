@@ -1,15 +1,20 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRoute } from "wouter";
+import { useRoute, useLocation } from "wouter";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Calendar, Tag, MessageCircle, Heart, RotateCcw, Download } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { ArrowLeft, Calendar, Tag, MessageCircle, RotateCcw, Download, Edit3, Trash2, X } from "lucide-react";
 import { AIReflectionComponent } from "@/components/ai-reflection";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { JournalEntry } from "@shared/schema";
+import { useState } from "react";
 
 import { Link } from "wouter";
 
@@ -18,6 +23,13 @@ export default function EntryDetail() {
   const entryId = params?.id;
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [, setLocation] = useLocation();
+  
+  // Edit dialog state
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editContent, setEditContent] = useState("");
+  const [editMood, setEditMood] = useState("");
+  const [editTags, setEditTags] = useState("");
 
   const { data: entry, isLoading, error } = useQuery<JournalEntry>({
     queryKey: ["/api/entries", entryId],
@@ -94,9 +106,88 @@ export default function EntryDetail() {
     },
   });
 
+  // Edit entry mutation
+  const editMutation = useMutation({
+    mutationFn: async (data: { content: string; mood?: string; tags?: string[] }) => {
+      if (!entryId) throw new Error("No entry ID");
+      const response = await apiRequest(`/api/entries/${entryId}`, "PUT", data);
+      return await response.json();
+    },
+    onSuccess: (updatedEntry) => {
+      toast({
+        title: "Entry Updated",
+        description: "Your journal entry has been successfully updated.",
+      });
+      
+      // Update the cache with the updated entry
+      queryClient.setQueryData(["/api/entries", entryId], updatedEntry);
+      queryClient.invalidateQueries({ queryKey: ["/api/entries"] });
+      setIsEditDialogOpen(false);
+    },
+    onError: (error) => {
+      toast({
+        title: "Update Failed",
+        description: "Unable to update the entry. Please try again.",
+        variant: "destructive",
+      });
+      console.error("Edit error:", error);
+    },
+  });
+
+  // Delete entry mutation
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      if (!entryId) throw new Error("No entry ID");
+      const response = await apiRequest(`/api/entries/${entryId}`, "DELETE");
+      return await response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Entry Deleted",
+        description: "Your journal entry has been permanently deleted.",
+      });
+      
+      // Invalidate cache and redirect to home
+      queryClient.invalidateQueries({ queryKey: ["/api/entries"] });
+      setLocation("/");
+    },
+    onError: (error) => {
+      toast({
+        title: "Delete Failed",
+        description: "Unable to delete the entry. Please try again.",
+        variant: "destructive",
+      });
+      console.error("Delete error:", error);
+    },
+  });
+
   const handleDownload = () => {
     if (entryId) {
       downloadMutation.mutate(entryId);
+    }
+  };
+
+  const handleEdit = () => {
+    if (entry) {
+      setEditContent(entry.content || "");
+      setEditMood(entry.mood || "");
+      setEditTags(entry.tags ? entry.tags.join(", ") : "");
+      setIsEditDialogOpen(true);
+    }
+  };
+
+  const handleSaveEdit = () => {
+    const tagsArray = editTags.split(",").map(tag => tag.trim()).filter(tag => tag.length > 0);
+    editMutation.mutate({
+      content: editContent,
+      mood: editMood || undefined,
+      tags: tagsArray.length > 0 ? tagsArray : undefined,
+    });
+  };
+
+  const handleDelete = () => {
+    if (window.confirm("Are you sure you want to delete this journal entry? This action cannot be undone.")) {
+      deleteMutation.mutate();
     }
   };
 
@@ -197,6 +288,34 @@ export default function EntryDetail() {
                 </CardTitle>
               </div>
               <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleEdit}
+                  className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 border-blue-200 dark:border-blue-800"
+                >
+                  <Edit3 className="w-4 h-4 mr-2" />
+                  Edit
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleDelete}
+                  disabled={deleteMutation.isPending}
+                  className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 border-red-200 dark:border-red-800"
+                >
+                  {deleteMutation.isPending ? (
+                    <>
+                      <RotateCcw className="w-4 h-4 mr-2 animate-spin" />
+                      Deleting...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Delete
+                    </>
+                  )}
+                </Button>
                 <Button
                   variant="outline"
                   size="sm"
@@ -318,6 +437,99 @@ export default function EntryDetail() {
           </Card>
         )}
       </main>
+      
+      {/* Edit Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-gray-900 dark:text-white">Edit Journal Entry</DialogTitle>
+            <DialogDescription className="text-gray-600 dark:text-gray-400">
+              Make changes to your journal entry. Your AI reflection will remain the same.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 mt-4">
+            {/* Content */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Content
+              </label>
+              <Textarea
+                value={editContent}
+                onChange={(e) => setEditContent(e.target.value)}
+                placeholder="Write about your thoughts, feelings, and experiences..."
+                className="min-h-[200px] text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600"
+                rows={8}
+              />
+            </div>
+            
+            {/* Mood */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Mood (optional)
+              </label>
+              <Select value={editMood} onValueChange={setEditMood}>
+                <SelectTrigger className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600">
+                  <SelectValue placeholder="How are you feeling?" />
+                </SelectTrigger>
+                <SelectContent className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600">
+                  <SelectItem value="excited">😆 Excited</SelectItem>
+                  <SelectItem value="happy">😊 Happy</SelectItem>
+                  <SelectItem value="content">😌 Content</SelectItem>
+                  <SelectItem value="neutral">😐 Neutral</SelectItem>
+                  <SelectItem value="thoughtful">🤔 Thoughtful</SelectItem>
+                  <SelectItem value="sad">😢 Sad</SelectItem>
+                  <SelectItem value="anxious">😰 Anxious</SelectItem>
+                  <SelectItem value="frustrated">😤 Frustrated</SelectItem>
+                  <SelectItem value="calm">😌 Calm</SelectItem>
+                  <SelectItem value="energetic">⚡ Energetic</SelectItem>
+                  <SelectItem value="apathetic">😑 Apathetic</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {/* Tags */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Tags (optional)
+              </label>
+              <Input
+                value={editTags}
+                onChange={(e) => setEditTags(e.target.value)}
+                placeholder="Separate tags with commas (e.g., work, goals, reflection)"
+                className="text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600"
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Separate multiple tags with commas
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex justify-end gap-3 mt-6">
+            <Button
+              variant="outline"
+              onClick={() => setIsEditDialogOpen(false)}
+              className="text-gray-600 dark:text-gray-400"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSaveEdit}
+              disabled={editMutation.isPending || !editContent.trim()}
+              className="bg-journal-primary hover:bg-indigo-700"
+            >
+              {editMutation.isPending ? (
+                <>
+                  <RotateCcw className="w-4 h-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Save Changes"
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
       
       <Footer />
     </div>
