@@ -28,11 +28,11 @@ export default function Landing() {
           <Badge className="bg-blue-600/30 text-white border-blue-400/50 px-4 py-2">
             AI-Powered Personal Growth
           </Badge>
-          <h1 className="text-5xl font-bold text-white leading-tight landing-text">
+          <h1 className="text-5xl font-bold text-white leading-tight">
             Transform Your Life Through
-            <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent landing-gradient-text"> Intelligent Journaling</span>
+            <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent"> Intelligent Journaling</span>
           </h1>
-          <p className="text-xl text-white/90 max-w-3xl mx-auto leading-relaxed landing-text">
+          <p className="text-xl text-white/90 max-w-3xl mx-auto leading-relaxed">
             Discover your purpose, track meaningful growth, and unlock your potential with our AI-powered journaling companion. 
             Get personalized insights, reflections, and guidance on your journey to becoming your best self.
           </p>

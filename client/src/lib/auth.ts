@@ -274,6 +274,10 @@ export async function register(userData: {
 
 // Logout function
 export async function logout(): Promise<void> {
+  // Clear tokens and stop refresh immediately
+  TokenManager.clearTokens();
+  TokenRefresher.stopAutoRefresh();
+  
   try {
     await fetch('/api/logout', {
       method: 'POST',
@@ -281,10 +285,7 @@ export async function logout(): Promise<void> {
     });
   } catch (error) {
     console.error('Logout request failed:', error);
-  } finally {
-    // Always clear local tokens and stop refresh
-    TokenManager.clearTokens();
-    TokenRefresher.stopAutoRefresh();
+    // Tokens are already cleared, so this is non-critical
   }
 }
 
