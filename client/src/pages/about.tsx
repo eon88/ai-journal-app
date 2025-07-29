@@ -9,7 +9,7 @@ export default function About() {
     {
       icon: <BookOpen className="w-5 h-5" />,
       title: "Smart Journaling",
-      description: "Express yourself with custom symbols and automatic entry categorization"
+      description: "Express yourself with custom tags, mood tracking, and intelligent entry organization"
     },
     {
       icon: <Target className="w-5 h-5" />,
