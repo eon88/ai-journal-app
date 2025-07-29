@@ -25,7 +25,7 @@ export default function Landing() {
       {/* Hero Section */}
       <section className="max-w-6xl mx-auto px-4 py-16 text-center">
         <div className="space-y-6">
-          <Badge className="bg-blue-600/20 text-blue-300 border-blue-400/30 px-4 py-2">
+          <Badge className="bg-blue-600/30 text-white border-blue-400/50 px-4 py-2">
             AI-Powered Personal Growth
           </Badge>
           <h1 className="text-5xl font-bold text-white leading-tight landing-text">
