@@ -5,7 +5,7 @@ import { BookOpen, Brain, Target, TrendingUp, Users, Zap, Star, CheckCircle } fr
 
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900" key="landing-page">
       {/* Header */}
       <header className="w-full bg-black/20 backdrop-blur-sm border-b border-white/10">
         <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
