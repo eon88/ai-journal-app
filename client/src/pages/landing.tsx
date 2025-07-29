@@ -7,11 +7,11 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900" key="landing-page">
       {/* Header */}
-      <header className="w-full bg-black/20 backdrop-blur-sm border-b border-white/10">
+      <header className="w-full bg-black/20 backdrop-blur-sm border-b border-white/10" data-testid="landing-header">
         <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-2">
             <BookOpen className="w-8 h-8 text-blue-400" />
-            <h1 className="text-2xl font-bold text-white">Quest Journal</h1>
+            <h1 className="text-2xl font-bold text-white" data-testid="landing-title">Quest Journal</h1>
           </div>
           <Button 
             onClick={() => window.location.href = '/login'}
@@ -226,12 +226,12 @@ export default function Landing() {
       </section>
 
       {/* Footer */}
-      <footer className="w-full bg-black/20 backdrop-blur-sm border-t border-white/10 mt-16">
+      <footer className="w-full bg-black/20 backdrop-blur-sm border-t border-white/10 mt-16" data-testid="landing-footer">
         <div className="max-w-6xl mx-auto px-4 py-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center space-x-2 mb-4 md:mb-0">
               <BookOpen className="w-6 h-6 text-blue-400" />
-              <span className="text-white font-semibold">Quest Journal</span>
+              <span className="text-white font-semibold" data-testid="footer-title">Quest Journal</span>
             </div>
             <p className="text-white/70">© 2025 Quest Journal. Transforming lives through intelligent reflection.</p>
           </div>
