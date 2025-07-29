@@ -59,52 +59,48 @@ function Router() {
   // Additional check: if we have a user object, we're authenticated
   const finalIsAuthenticated = isAuthenticated || !!user;
 
-  return (
+  return !finalIsAuthenticated ? (
     <Switch>
-      {!finalIsAuthenticated ? (
-        <>
-          <Route path="/" component={Landing} />
-          <Route path="/about" component={About} />
-          <Route path="/contact" component={Contact} />
-          <Route path="/pricing" component={Pricing} />
-          <Route path="/questionnaire" component={Questionnaire} />
-          <Route path="/rules" component={RulesOfTheGame} />
-          <Route path="/login" component={Login} />
-          <Route path="/register" component={Register} />
-          <Route component={NotFound} /> {/* Show 404 for unauthenticated users on unknown routes */}
-        </>
-      ) : (
-        <>
-          <Route path="/" component={Home} />
-          <Route path="/entries" component={Entries} />
-          <Route path="/vault" component={Vault} />
-          <Route path="/vision-board" component={VisionBoard} />
-          <Route path="/vision-architect" component={VisionArchitect} />
-          <Route path="/vision-form" component={VisionForm} />
-          <Route path="/entry/:id" component={EntryDetail} />
-          <Route path="/profile" component={UserProfile} />
-          <Route path="/forum" component={Forum} />
-          <Route path="/forum/category/:id" component={ForumCategory} />
-          <Route path="/forum/post/:id" component={ForumPost} />
-          <Route path="/forum/leaderboard" component={ForumLeaderboard} />
-          <Route path="/forum/admin" component={ForumAdmin} />
-          <Route path="/admin" component={AdminPanel} />
-          <Route path="/admin/dashboard" component={AdminDashboard} />
-          <Route path="/admin/contact-messages" component={ContactMessages} />
-          <Route path="/admin/forum-management" component={ForumManagement} />
-          <Route path="/admin/blog-management" component={AdminBlogManagement} />
-          <Route path="/blog" component={BlogPage} />
-          <Route path="/blog/:slug" component={BlogArticlePage} />
-          <Route path="/about" component={About} />
-          <Route path="/contact" component={Contact} />
-          <Route path="/pricing" component={Pricing} />
-          <Route path="/questionnaire" component={Questionnaire} />
-          <Route path="/rules" component={RulesOfTheGame} />
-          <Route path="/login" component={Login} />
-          <Route path="/register" component={Register} />
-          <Route component={NotFound} /> {/* Show 404 for authenticated users on unknown routes */}
-        </>
-      )}
+      <Route path="/" component={Landing} />
+      <Route path="/about" component={About} />
+      <Route path="/contact" component={Contact} />
+      <Route path="/pricing" component={Pricing} />
+      <Route path="/questionnaire" component={Questionnaire} />
+      <Route path="/rules" component={RulesOfTheGame} />
+      <Route path="/login" component={Login} />
+      <Route path="/register" component={Register} />
+      <Route component={NotFound} />
+    </Switch>
+  ) : (
+    <Switch>
+      <Route path="/" component={Home} />
+      <Route path="/entries" component={Entries} />
+      <Route path="/vault" component={Vault} />
+      <Route path="/vision-board" component={VisionBoard} />
+      <Route path="/vision-architect" component={VisionArchitect} />
+      <Route path="/vision-form" component={VisionForm} />
+      <Route path="/entry/:id" component={EntryDetail} />
+      <Route path="/profile" component={UserProfile} />
+      <Route path="/forum" component={Forum} />
+      <Route path="/forum/category/:id" component={ForumCategory} />
+      <Route path="/forum/post/:id" component={ForumPost} />
+      <Route path="/forum/leaderboard" component={ForumLeaderboard} />
+      <Route path="/forum/admin" component={ForumAdmin} />
+      <Route path="/admin" component={AdminPanel} />
+      <Route path="/admin/dashboard" component={AdminDashboard} />
+      <Route path="/admin/contact-messages" component={ContactMessages} />
+      <Route path="/admin/forum-management" component={ForumManagement} />
+      <Route path="/admin/blog-management" component={AdminBlogManagement} />
+      <Route path="/blog" component={BlogPage} />
+      <Route path="/blog/:slug" component={BlogArticlePage} />
+      <Route path="/about" component={About} />
+      <Route path="/contact" component={Contact} />
+      <Route path="/pricing" component={Pricing} />
+      <Route path="/questionnaire" component={Questionnaire} />
+      <Route path="/rules" component={RulesOfTheGame} />
+      <Route path="/login" component={Login} />
+      <Route path="/register" component={Register} />
+      <Route component={NotFound} />
     </Switch>
   );
 }
