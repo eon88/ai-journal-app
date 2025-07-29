@@ -39,7 +39,7 @@ export function Header() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { progress } = useProgressiveFeatures();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { isBetaTester } = useBetaAccess();
 
   // Check if current user is admin
@@ -247,29 +247,7 @@ export function Header() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem 
                   className="cursor-pointer text-red-600 focus:text-red-600"
-                  onClick={async () => {
-                    try {
-                      // Call logout API
-                      await fetch('/api/logout', {
-                        method: 'POST',
-                        credentials: 'include'
-                      });
-                      // CRITICAL: Clear ALL cached data to prevent privacy issues when switching users
-                      queryClient.clear();
-                      // Clear any stored user data
-                      localStorage.removeItem('premium_user');
-                      localStorage.removeItem('user_name');
-                      // Refresh the page to update auth state
-                      window.location.href = '/';
-                    } catch (error) {
-                      console.error('Logout error:', error);
-                      // Even if logout fails, clear local data and redirect
-                      queryClient.clear();
-                      localStorage.removeItem('premium_user');
-                      localStorage.removeItem('user_name');
-                      window.location.href = '/';
-                    }
-                  }}
+                  onClick={() => logout()}
                 >
                   <LogOut className="mr-2 h-4 w-4" />
                   Logout
