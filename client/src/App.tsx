@@ -28,7 +28,7 @@ import ForumManagement from "@/pages/admin/forum-management";
 import EntryDetail from "@/pages/entry-detail";
 import Entries from "@/pages/entries";
 import Vault from "@/pages/vault";
-import Landing from "@/pages/landing";
+import LandingNew from "@/pages/landing-new";
 import Login from "@/pages/login";
 import Register from "@/pages/register";
 import Questionnaire from "@/pages/questionnaire";
@@ -63,7 +63,7 @@ function Router() {
     <Switch>
       {!finalIsAuthenticated ? (
         <>
-          <Route path="/" component={Landing} />
+          <Route path="/" component={LandingNew} />
           <Route path="/about" component={About} />
           <Route path="/contact" component={Contact} />
           <Route path="/pricing" component={Pricing} />
@@ -71,7 +71,7 @@ function Router() {
           <Route path="/rules" component={RulesOfTheGame} />
           <Route path="/login" component={Login} />
           <Route path="/register" component={Register} />
-          <Route component={Landing} /> {/* Redirect unauthenticated users to landing */}
+          <Route component={LandingNew} /> {/* Redirect unauthenticated users to landing */}
         </>
       ) : (
         <>
