@@ -110,35 +110,7 @@ export default function About() {
           </div>
         </div>
 
-        {/* Technology Section */}
-        <Card className="glass-card mb-8">
-          <CardHeader>
-            <CardTitle className="text-gray-900 dark:text-white">Built With Modern Technology</CardTitle>
-            <CardDescription className="text-gray-700 dark:text-gray-300">
-              Powered by cutting-edge technologies for a seamless experience
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="text-gray-800 dark:text-gray-200">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-              <div>
-                <div className="font-medium text-gray-900 dark:text-white mb-1">Frontend</div>
-                <div className="text-sm text-gray-700 dark:text-gray-300">React, TypeScript, Tailwind CSS</div>
-              </div>
-              <div>
-                <div className="font-medium text-gray-900 dark:text-white mb-1">Backend</div>
-                <div className="text-sm text-gray-700 dark:text-gray-300">Node.js, Express, PostgreSQL</div>
-              </div>
-              <div>
-                <div className="font-medium text-gray-900 dark:text-white mb-1">AI Engine</div>
-                <div className="text-sm text-gray-700 dark:text-gray-300">OpenAI GPT-4o</div>
-              </div>
-              <div>
-                <div className="font-medium text-gray-900 dark:text-white mb-1">Platform</div>
-                <div className="text-sm text-gray-700 dark:text-gray-300">Replit Cloud</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+
 
         {/* Values Section */}
         <Card className="glass-card">
