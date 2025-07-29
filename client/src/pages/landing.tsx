@@ -32,7 +32,7 @@ export default function Landing() {
             Transform Your Life Through
             <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent landing-gradient-text"> Intelligent Journaling</span>
           </h1>
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed landing-text">
+          <p className="text-xl text-white/90 max-w-3xl mx-auto leading-relaxed landing-text">
             Discover your purpose, track meaningful growth, and unlock your potential with our AI-powered journaling companion. 
             Get personalized insights, reflections, and guidance on your journey to becoming your best self.
           </p>
@@ -43,14 +43,14 @@ export default function Landing() {
             >
               Start Your Journey
             </Button>
-            <p className="text-gray-400">Free during beta • No credit card required</p>
+            <p className="text-white/70">Free during beta • No credit card required</p>
           </div>
         </div>
       </section>
 
       {/* Why Journal Section */}
       <section className="max-w-4xl mx-auto px-4 py-16">
-        <div className="space-y-8 text-gray-300">
+        <div className="space-y-8 text-white/90">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold text-white mb-6 landing-text">🎯 Why Journal?</h2>
             <p className="text-xl leading-relaxed landing-text">
@@ -152,7 +152,7 @@ export default function Landing() {
       <section className="max-w-6xl mx-auto px-4 py-16">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-white mb-4">Why Choose Quest Journal?</h2>
-          <p className="text-gray-300 text-lg">Everything you need to discover your purpose and achieve meaningful growth</p>
+          <p className="text-white/80 text-lg">Everything you need to discover your purpose and achieve meaningful growth</p>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -194,7 +194,7 @@ export default function Landing() {
                 <CardTitle className="text-white">{feature.title}</CardTitle>
               </CardHeader>
               <CardContent>
-                <CardDescription className="text-gray-300">{feature.description}</CardDescription>
+                <CardDescription className="text-white/80">{feature.description}</CardDescription>
               </CardContent>
             </Card>
           ))}
@@ -206,7 +206,7 @@ export default function Landing() {
         <Card className="glass-card border-white/10">
           <CardHeader>
             <CardTitle className="text-3xl text-white mb-4">Ready to Begin Your Transformation?</CardTitle>
-            <CardDescription className="text-xl text-gray-300">
+            <CardDescription className="text-xl text-white/85">
               Join thousands of users who have discovered their purpose and achieved meaningful growth
             </CardDescription>
           </CardHeader>
@@ -220,7 +220,7 @@ export default function Landing() {
                 Start Free Account
               </Button>
             </div>
-            <p className="text-gray-400 mt-4">No commitment • Full access during beta</p>
+            <p className="text-white/70 mt-4">No commitment • Full access during beta</p>
           </CardContent>
         </Card>
       </section>
@@ -233,7 +233,7 @@ export default function Landing() {
               <BookOpen className="w-6 h-6 text-blue-400" />
               <span className="text-white font-semibold">Quest Journal</span>
             </div>
-            <p className="text-gray-400">© 2025 Quest Journal. Transforming lives through intelligent reflection.</p>
+            <p className="text-white/70">© 2025 Quest Journal. Transforming lives through intelligent reflection.</p>
           </div>
         </div>
       </footer>
