@@ -158,15 +158,15 @@
     color: rgb(156, 163, 175) !important;
   }
   
-  /* Mobile specific enhancements */
+  /* Mobile specific enhancements - disabled body::before for debugging */
   @media (max-width: 768px) {
-    body::before {
+    /* body::before {
       background: rgba(255, 255, 255, 0.85);
     }
     
     .dark body::before {
       background: rgba(0, 0, 0, 0.9);
-    }
+    } */
     
     /* Mobile specific button improvements */
     button,
