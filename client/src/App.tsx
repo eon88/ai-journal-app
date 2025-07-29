@@ -71,7 +71,7 @@ function Router() {
           <Route path="/rules" component={RulesOfTheGame} />
           <Route path="/login" component={Login} />
           <Route path="/register" component={Register} />
-          <Route component={Landing} /> {/* Redirect unauthenticated users to landing */}
+          <Route component={NotFound} /> {/* Show 404 for unauthenticated users on unknown routes */}
         </>
       ) : (
         <>
@@ -102,6 +102,7 @@ function Router() {
           <Route path="/rules" component={RulesOfTheGame} />
           <Route path="/login" component={Login} />
           <Route path="/register" component={Register} />
+          <Route component={NotFound} /> {/* Show 404 for authenticated users on unknown routes */}
         </>
       )}
     </Switch>
