@@ -194,6 +194,21 @@
   html.dark [data-radix-select-viewport] > * {
     color: rgb(255, 255, 255) !important;
   }
+
+  /* Custom class for forcing white text in dark mode selects */
+  .mood-select-dark .dark [data-radix-select-item],
+  .dark .mood-select-dark [data-radix-select-item] {
+    color: rgb(255, 255, 255) !important;
+  }
+
+  /* Force all text in dark theme select items to be white */
+  html.dark [data-radix-select-item] {
+    color: rgb(255, 255, 255) !important;
+  }
+
+  html.dark [data-radix-select-item] * {
+    color: rgb(255, 255, 255) !important;
+  }
   
   /* Mobile specific enhancements */
   @media (max-width: 768px) {
