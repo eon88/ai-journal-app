@@ -140,9 +140,9 @@ export function EntrySearchFilters({ onSearch, onClear }: EntrySearchFiltersProp
             <SelectValue placeholder="Select mood" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all" className="text-gray-900 dark:text-white">All moods</SelectItem>
+            <SelectItem value="all" className="text-gray-900 dark:!text-white">All moods</SelectItem>
             {MOOD_OPTIONS.map((mood) => (
-              <SelectItem key={mood} value={mood} className="text-gray-900 dark:text-white">
+              <SelectItem key={mood} value={mood} className="text-gray-900 dark:!text-white">
                 {mood.charAt(0).toUpperCase() + mood.slice(1)}
               </SelectItem>
             ))}
@@ -158,10 +158,10 @@ export function EntrySearchFilters({ onSearch, onClear }: EntrySearchFiltersProp
             <SelectValue placeholder="Select folder" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all" className="text-gray-900 dark:text-white">All folders</SelectItem>
-            <SelectItem value="none" className="text-gray-900 dark:text-white">No folder</SelectItem>
+            <SelectItem value="all" className="text-gray-900 dark:!text-white">All folders</SelectItem>
+            <SelectItem value="none" className="text-gray-900 dark:!text-white">No folder</SelectItem>
             {folders?.map((folder: any) => (
-              <SelectItem key={folder.id} value={folder.id.toString()} className="text-gray-900 dark:text-white">
+              <SelectItem key={folder.id} value={folder.id.toString()} className="text-gray-900 dark:!text-white">
                 {folder.name}
               </SelectItem>
             ))}

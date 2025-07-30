@@ -148,6 +148,19 @@
   .dark [data-radix-select-value][data-placeholder] {
     color: rgb(156, 163, 175) !important;
   }
+
+  /* Force white text for SelectItem in dark mode */
+  .dark [data-radix-select-item] {
+    color: rgb(255, 255, 255) !important;
+  }
+  
+  .dark [data-radix-select-item]:hover {
+    color: rgb(255, 255, 255) !important;
+  }
+  
+  .dark [role="option"] {
+    color: rgb(255, 255, 255) !important;
+  }
   
   /* Mobile specific enhancements */
   @media (max-width: 768px) {
