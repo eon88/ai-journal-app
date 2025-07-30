@@ -209,6 +209,20 @@
   html.dark [data-radix-select-item] * {
     color: rgb(255, 255, 255) !important;
   }
+
+  /* NUCLEAR OPTION - Force white text on ALL dark mode selects */
+  .dark [data-radix-select-item],
+  .dark [data-radix-select-item]:hover,
+  .dark [data-radix-select-item]:focus,
+  .dark [data-radix-select-item]:active {
+    color: white !important;
+    --tw-text-opacity: 1 !important;
+  }
+
+  /* Target the specific text content */
+  .dark [data-radix-select-item] [data-radix-select-item-text] {
+    color: white !important;
+  }
   
   /* Mobile specific enhancements */
   @media (max-width: 768px) {
