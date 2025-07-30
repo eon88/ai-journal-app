@@ -149,22 +149,35 @@
     color: rgb(156, 163, 175) !important;
   }
 
-  /* Force white text for SelectItem in dark mode - HIGH SPECIFICITY */
+  /* Force white text for SelectItem in dark mode - MAXIMUM SPECIFICITY */
+  .dark [data-radix-select-content] [data-radix-select-item],
+  .dark [data-radix-select-content] [data-radix-select-item] *,
   .dark [data-radix-select-item],
   .dark [data-radix-select-item] span,
   .dark [data-radix-select-item] * {
     color: rgb(255, 255, 255) !important;
+    text-decoration: none !important;
   }
   
+  .dark [data-radix-select-content] [data-radix-select-item]:hover,
+  .dark [data-radix-select-content] [data-radix-select-item]:hover *,
   .dark [data-radix-select-item]:hover,
   .dark [data-radix-select-item]:hover span,
   .dark [data-radix-select-item]:hover * {
     color: rgb(255, 255, 255) !important;
+    text-decoration: none !important;
   }
   
   .dark [role="option"],
   .dark [role="option"] span,
   .dark [role="option"] * {
+    color: rgb(255, 255, 255) !important;
+    text-decoration: none !important;
+  }
+
+  /* Dialog specific overrides */
+  .dark [data-radix-dialog-content] [data-radix-select-item],
+  .dark [data-radix-dialog-content] [data-radix-select-item] * {
     color: rgb(255, 255, 255) !important;
   }
 
@@ -174,6 +187,11 @@
   }
 
   .dark div[role="option"] {
+    color: rgb(255, 255, 255) !important;
+  }
+
+  /* Nuclear override for all select items in dark mode */
+  html.dark [data-radix-select-viewport] > * {
     color: rgb(255, 255, 255) !important;
   }
   

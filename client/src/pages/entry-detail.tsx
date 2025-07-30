@@ -481,17 +481,17 @@ export default function EntryDetail() {
                   <SelectValue placeholder="How are you feeling?" />
                 </SelectTrigger>
                 <SelectContent className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600">
-                  <SelectItem value="excited" className="text-gray-900 dark:text-white" style={{ color: theme === 'dark' ? 'white' : '#111827' }}>😆 Excited</SelectItem>
-                  <SelectItem value="happy" className="text-gray-900 dark:text-white" style={{ color: theme === 'dark' ? 'white' : '#111827' }}>😊 Happy</SelectItem>
-                  <SelectItem value="content" className="text-gray-900 dark:text-white" style={{ color: theme === 'dark' ? 'white' : '#111827' }}>😌 Content</SelectItem>
-                  <SelectItem value="neutral" className="text-gray-900 dark:text-white" style={{ color: theme === 'dark' ? 'white' : '#111827' }}>😐 Neutral</SelectItem>
-                  <SelectItem value="thoughtful" className="text-gray-900 dark:text-white" style={{ color: theme === 'dark' ? 'white' : '#111827' }}>🤔 Thoughtful</SelectItem>
-                  <SelectItem value="sad" className="text-gray-900 dark:text-white" style={{ color: theme === 'dark' ? 'white' : '#111827' }}>😢 Sad</SelectItem>
-                  <SelectItem value="anxious" className="text-gray-900 dark:text-white" style={{ color: theme === 'dark' ? 'white' : '#111827' }}>😰 Anxious</SelectItem>
-                  <SelectItem value="frustrated" className="text-gray-900 dark:text-white" style={{ color: theme === 'dark' ? 'white' : '#111827' }}>😤 Frustrated</SelectItem>
-                  <SelectItem value="calm" className="text-gray-900 dark:text-white" style={{ color: theme === 'dark' ? 'white' : '#111827' }}>😌 Calm</SelectItem>
-                  <SelectItem value="energetic" className="text-gray-900 dark:text-white" style={{ color: theme === 'dark' ? 'white' : '#111827' }}>⚡ Energetic</SelectItem>
-                  <SelectItem value="apathetic" className="text-gray-900 dark:text-white" style={{ color: theme === 'dark' ? 'white' : '#111827' }}>😑 Apathetic</SelectItem>
+                  <SelectItem value="excited" className="text-gray-900 dark:!text-white" style={{ color: theme === 'dark' ? 'white !important' : '#111827', fontWeight: 'normal' }}>😆 Excited</SelectItem>
+                  <SelectItem value="happy" className="text-gray-900 dark:!text-white" style={{ color: theme === 'dark' ? 'white !important' : '#111827', fontWeight: 'normal' }}>😊 Happy</SelectItem>
+                  <SelectItem value="content" className="text-gray-900 dark:!text-white" style={{ color: theme === 'dark' ? 'white !important' : '#111827', fontWeight: 'normal' }}>😌 Content</SelectItem>
+                  <SelectItem value="neutral" className="text-gray-900 dark:!text-white" style={{ color: theme === 'dark' ? 'white !important' : '#111827', fontWeight: 'normal' }}>😐 Neutral</SelectItem>
+                  <SelectItem value="thoughtful" className="text-gray-900 dark:!text-white" style={{ color: theme === 'dark' ? 'white !important' : '#111827', fontWeight: 'normal' }}>🤔 Thoughtful</SelectItem>
+                  <SelectItem value="sad" className="text-gray-900 dark:!text-white" style={{ color: theme === 'dark' ? 'white !important' : '#111827', fontWeight: 'normal' }}>😢 Sad</SelectItem>
+                  <SelectItem value="anxious" className="text-gray-900 dark:!text-white" style={{ color: theme === 'dark' ? 'white !important' : '#111827', fontWeight: 'normal' }}>😰 Anxious</SelectItem>
+                  <SelectItem value="frustrated" className="text-gray-900 dark:!text-white" style={{ color: theme === 'dark' ? 'white !important' : '#111827', fontWeight: 'normal' }}>😤 Frustrated</SelectItem>
+                  <SelectItem value="calm" className="text-gray-900 dark:!text-white" style={{ color: theme === 'dark' ? 'white !important' : '#111827', fontWeight: 'normal' }}>😌 Calm</SelectItem>
+                  <SelectItem value="energetic" className="text-gray-900 dark:!text-white" style={{ color: theme === 'dark' ? 'white !important' : '#111827', fontWeight: 'normal' }}>⚡ Energetic</SelectItem>
+                  <SelectItem value="apathetic" className="text-gray-900 dark:!text-white" style={{ color: theme === 'dark' ? 'white !important' : '#111827', fontWeight: 'normal' }}>😑 Apathetic</SelectItem>
                 </SelectContent>
               </Select>
             </div>
