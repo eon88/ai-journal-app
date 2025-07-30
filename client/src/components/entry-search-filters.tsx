@@ -140,9 +140,9 @@ export function EntrySearchFilters({ onSearch, onClear }: EntrySearchFiltersProp
             <SelectValue placeholder="Select mood" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all" className="text-gray-900 dark:!text-white">All moods</SelectItem>
+            <SelectItem value="all" className="text-gray-900 dark:text-white" style={{ color: 'white' }}>All moods</SelectItem>
             {MOOD_OPTIONS.map((mood) => (
-              <SelectItem key={mood} value={mood} className="text-gray-900 dark:!text-white">
+              <SelectItem key={mood} value={mood} className="text-gray-900 dark:text-white" style={{ color: 'white' }}>
                 {mood.charAt(0).toUpperCase() + mood.slice(1)}
               </SelectItem>
             ))}

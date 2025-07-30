@@ -149,16 +149,31 @@
     color: rgb(156, 163, 175) !important;
   }
 
-  /* Force white text for SelectItem in dark mode */
-  .dark [data-radix-select-item] {
+  /* Force white text for SelectItem in dark mode - HIGH SPECIFICITY */
+  .dark [data-radix-select-item],
+  .dark [data-radix-select-item] span,
+  .dark [data-radix-select-item] * {
     color: rgb(255, 255, 255) !important;
   }
   
-  .dark [data-radix-select-item]:hover {
+  .dark [data-radix-select-item]:hover,
+  .dark [data-radix-select-item]:hover span,
+  .dark [data-radix-select-item]:hover * {
     color: rgb(255, 255, 255) !important;
   }
   
-  .dark [role="option"] {
+  .dark [role="option"],
+  .dark [role="option"] span,
+  .dark [role="option"] * {
+    color: rgb(255, 255, 255) !important;
+  }
+
+  /* Additional selectors for SelectItem content */
+  .dark [data-radix-collection-item] {
+    color: rgb(255, 255, 255) !important;
+  }
+
+  .dark div[role="option"] {
     color: rgb(255, 255, 255) !important;
   }
   

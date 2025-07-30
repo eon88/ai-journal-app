@@ -14,6 +14,7 @@ import { AIReflectionComponent } from "@/components/ai-reflection";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
+import { useTheme } from "@/components/theme-provider";
 import type { JournalEntry } from "@shared/schema";
 import { useState, useEffect } from "react";
 
@@ -26,6 +27,7 @@ export default function EntryDetail() {
   const queryClient = useQueryClient();
   const [, setLocation] = useLocation();
   const { isAuthenticated, user } = useAuth();
+  const { theme } = useTheme();
   
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -479,17 +481,17 @@ export default function EntryDetail() {
                   <SelectValue placeholder="How are you feeling?" />
                 </SelectTrigger>
                 <SelectContent className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600">
-                  <SelectItem value="excited" className="text-gray-900 dark:!text-white">😆 Excited</SelectItem>
-                  <SelectItem value="happy" className="text-gray-900 dark:!text-white">😊 Happy</SelectItem>
-                  <SelectItem value="content" className="text-gray-900 dark:!text-white">😌 Content</SelectItem>
-                  <SelectItem value="neutral" className="text-gray-900 dark:!text-white">😐 Neutral</SelectItem>
-                  <SelectItem value="thoughtful" className="text-gray-900 dark:!text-white">🤔 Thoughtful</SelectItem>
-                  <SelectItem value="sad" className="text-gray-900 dark:!text-white">😢 Sad</SelectItem>
-                  <SelectItem value="anxious" className="text-gray-900 dark:!text-white">😰 Anxious</SelectItem>
-                  <SelectItem value="frustrated" className="text-gray-900 dark:!text-white">😤 Frustrated</SelectItem>
-                  <SelectItem value="calm" className="text-gray-900 dark:!text-white">😌 Calm</SelectItem>
-                  <SelectItem value="energetic" className="text-gray-900 dark:!text-white">⚡ Energetic</SelectItem>
-                  <SelectItem value="apathetic" className="text-gray-900 dark:!text-white">😑 Apathetic</SelectItem>
+                  <SelectItem value="excited" className="text-gray-900 dark:text-white" style={{ color: theme === 'dark' ? 'white' : '#111827' }}>😆 Excited</SelectItem>
+                  <SelectItem value="happy" className="text-gray-900 dark:text-white" style={{ color: theme === 'dark' ? 'white' : '#111827' }}>😊 Happy</SelectItem>
+                  <SelectItem value="content" className="text-gray-900 dark:text-white" style={{ color: theme === 'dark' ? 'white' : '#111827' }}>😌 Content</SelectItem>
+                  <SelectItem value="neutral" className="text-gray-900 dark:text-white" style={{ color: theme === 'dark' ? 'white' : '#111827' }}>😐 Neutral</SelectItem>
+                  <SelectItem value="thoughtful" className="text-gray-900 dark:text-white" style={{ color: theme === 'dark' ? 'white' : '#111827' }}>🤔 Thoughtful</SelectItem>
+                  <SelectItem value="sad" className="text-gray-900 dark:text-white" style={{ color: theme === 'dark' ? 'white' : '#111827' }}>😢 Sad</SelectItem>
+                  <SelectItem value="anxious" className="text-gray-900 dark:text-white" style={{ color: theme === 'dark' ? 'white' : '#111827' }}>😰 Anxious</SelectItem>
+                  <SelectItem value="frustrated" className="text-gray-900 dark:text-white" style={{ color: theme === 'dark' ? 'white' : '#111827' }}>😤 Frustrated</SelectItem>
+                  <SelectItem value="calm" className="text-gray-900 dark:text-white" style={{ color: theme === 'dark' ? 'white' : '#111827' }}>😌 Calm</SelectItem>
+                  <SelectItem value="energetic" className="text-gray-900 dark:text-white" style={{ color: theme === 'dark' ? 'white' : '#111827' }}>⚡ Energetic</SelectItem>
+                  <SelectItem value="apathetic" className="text-gray-900 dark:text-white" style={{ color: theme === 'dark' ? 'white' : '#111827' }}>😑 Apathetic</SelectItem>
                 </SelectContent>
               </Select>
             </div>
