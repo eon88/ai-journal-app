@@ -214,7 +214,8 @@
   .dark [data-radix-select-item],
   .dark [data-radix-select-item]:hover,
   .dark [data-radix-select-item]:focus,
-  .dark [data-radix-select-item]:active {
+  .dark [data-radix-select-item]:active,
+  .dark [data-radix-select-item][data-highlighted] {
     color: white !important;
     --tw-text-opacity: 1 !important;
   }
@@ -222,6 +223,27 @@
   /* Target the specific text content */
   .dark [data-radix-select-item] [data-radix-select-item-text] {
     color: white !important;
+  }
+
+  /* Override Tailwind's text-accent-foreground in dark mode */
+  .dark .text-accent-foreground {
+    color: white !important;
+  }
+
+  /* Final desperate attempt - override everything */
+  .dark [data-radix-select-content] * {
+    color: white !important;
+  }
+
+  /* Target by role attribute */
+  .dark [role="option"] {
+    color: white !important;
+  }
+
+  /* Force white using CSS variables */
+  .dark [data-radix-select-item] {
+    --accent-foreground: 255 255 255 !important;
+    color: rgb(255, 255, 255) !important;
   }
   
   /* Mobile specific enhancements */

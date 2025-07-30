@@ -480,34 +480,22 @@ export default function EntryDetail() {
                 <SelectTrigger className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600">
                   <SelectValue placeholder="How are you feeling?" />
                 </SelectTrigger>
-                <SelectContent 
-                  className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 mood-select-dark"
-                  onOpenChange={(open) => {
-                    if (open && document.documentElement.classList.contains('dark')) {
-                      // Force white text on all select items in dark mode
-                      setTimeout(() => {
-                        const items = document.querySelectorAll('[data-radix-select-item]');
-                        items.forEach(item => {
-                          if (item instanceof HTMLElement) {
-                            item.style.color = 'white';
-                            item.style.setProperty('color', 'white', 'important');
-                          }
-                        });
-                      }, 10);
-                    }
-                  }}
+                <SelectContent className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600"
+                  style={{
+                    '--radix-select-item-color': 'var(--foreground)',
+                  } as React.CSSProperties}
                 >
-                  <SelectItem value="excited">😆 Excited</SelectItem>
-                  <SelectItem value="happy">😊 Happy</SelectItem>
-                  <SelectItem value="content">😌 Content</SelectItem>
-                  <SelectItem value="neutral">😐 Neutral</SelectItem>
-                  <SelectItem value="thoughtful">🤔 Thoughtful</SelectItem>
-                  <SelectItem value="sad">😢 Sad</SelectItem>
-                  <SelectItem value="anxious">😰 Anxious</SelectItem>
-                  <SelectItem value="frustrated">😤 Frustrated</SelectItem>
-                  <SelectItem value="calm">😌 Calm</SelectItem>
-                  <SelectItem value="energetic">⚡ Energetic</SelectItem>
-                  <SelectItem value="apathetic">😑 Apathetic</SelectItem>
+                  <SelectItem value="excited" className="dark:!text-white">😆 Excited</SelectItem>
+                  <SelectItem value="happy" className="dark:!text-white">😊 Happy</SelectItem>
+                  <SelectItem value="content" className="dark:!text-white">😌 Content</SelectItem>
+                  <SelectItem value="neutral" className="dark:!text-white">😐 Neutral</SelectItem>
+                  <SelectItem value="thoughtful" className="dark:!text-white">🤔 Thoughtful</SelectItem>
+                  <SelectItem value="sad" className="dark:!text-white">😢 Sad</SelectItem>
+                  <SelectItem value="anxious" className="dark:!text-white">😰 Anxious</SelectItem>
+                  <SelectItem value="frustrated" className="dark:!text-white">😤 Frustrated</SelectItem>
+                  <SelectItem value="calm" className="dark:!text-white">😌 Calm</SelectItem>
+                  <SelectItem value="energetic" className="dark:!text-white">⚡ Energetic</SelectItem>
+                  <SelectItem value="apathetic" className="dark:!text-white">😑 Apathetic</SelectItem>
                 </SelectContent>
               </Select>
             </div>
