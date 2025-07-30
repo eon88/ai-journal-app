@@ -85,9 +85,9 @@ function EditEntryForm({ entry, onSave, onCancel }: EditEntryFormProps) {
             <SelectValue placeholder="Select mood..." />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="none">No mood</SelectItem>
+            <SelectItem value="none" className="text-gray-900 dark:text-white">No mood</SelectItem>
             {Object.entries(MOOD_EMOJIS).map(([moodKey, emoji]) => (
-              <SelectItem key={moodKey} value={moodKey}>
+              <SelectItem key={moodKey} value={moodKey} className="text-gray-900 dark:text-white">
                 {emoji} {moodKey.charAt(0).toUpperCase() + moodKey.slice(1)}
               </SelectItem>
             ))}

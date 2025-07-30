@@ -479,17 +479,17 @@ export default function EntryDetail() {
                   <SelectValue placeholder="How are you feeling?" />
                 </SelectTrigger>
                 <SelectContent className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600">
-                  <SelectItem value="excited">😆 Excited</SelectItem>
-                  <SelectItem value="happy">😊 Happy</SelectItem>
-                  <SelectItem value="content">😌 Content</SelectItem>
-                  <SelectItem value="neutral">😐 Neutral</SelectItem>
-                  <SelectItem value="thoughtful">🤔 Thoughtful</SelectItem>
-                  <SelectItem value="sad">😢 Sad</SelectItem>
-                  <SelectItem value="anxious">😰 Anxious</SelectItem>
-                  <SelectItem value="frustrated">😤 Frustrated</SelectItem>
-                  <SelectItem value="calm">😌 Calm</SelectItem>
-                  <SelectItem value="energetic">⚡ Energetic</SelectItem>
-                  <SelectItem value="apathetic">😑 Apathetic</SelectItem>
+                  <SelectItem value="excited" className="text-gray-900 dark:text-white">😆 Excited</SelectItem>
+                  <SelectItem value="happy" className="text-gray-900 dark:text-white">😊 Happy</SelectItem>
+                  <SelectItem value="content" className="text-gray-900 dark:text-white">😌 Content</SelectItem>
+                  <SelectItem value="neutral" className="text-gray-900 dark:text-white">😐 Neutral</SelectItem>
+                  <SelectItem value="thoughtful" className="text-gray-900 dark:text-white">🤔 Thoughtful</SelectItem>
+                  <SelectItem value="sad" className="text-gray-900 dark:text-white">😢 Sad</SelectItem>
+                  <SelectItem value="anxious" className="text-gray-900 dark:text-white">😰 Anxious</SelectItem>
+                  <SelectItem value="frustrated" className="text-gray-900 dark:text-white">😤 Frustrated</SelectItem>
+                  <SelectItem value="calm" className="text-gray-900 dark:text-white">😌 Calm</SelectItem>
+                  <SelectItem value="energetic" className="text-gray-900 dark:text-white">⚡ Energetic</SelectItem>
+                  <SelectItem value="apathetic" className="text-gray-900 dark:text-white">😑 Apathetic</SelectItem>
                 </SelectContent>
               </Select>
             </div>
