@@ -1,7 +1,7 @@
 # Quest Journal
 
 ## Overview
-Quest Journal is an AI-powered full-stack web application designed to help users create journal entries, receive AI-generated reflections, and track personal growth. It aims to be a comprehensive life path companion, offering gamified elements like XP progression, achievement badges, and daily quests, alongside advanced organizational features for journal entries. The project's vision is to provide a unique, engaging, and insightful journaling experience that fosters self-discovery and personal development, leveraging AI to provide deep, personalized insights.
+Quest Journal is a comprehensive 3-tier AI-powered life guidance system designed to transform personal reflection into an immersive, goal-oriented experience. The platform consists of three interconnected modules: (1) Entry Management (digital mind mapping through journaling), (2) Vision Planning (AI-guided goal structuring and milestone tracking), and (3) Mastermind (high-level strategic guidance). The system features a persistent AI agent that learns across all modules to provide increasingly personalized guidance. All three modules will be fully developed before launch to ensure a cohesive, integrated user experience.
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
@@ -29,15 +29,27 @@ User name: Alex
 - **Schema**: `journal_entries` (content, AI reflection, mood, tags, pinning, folder_id) and `folders` (user_id, name, color).
 
 ### Core Features
-- **Journaling**: Entry creation with rich text, mood selection, custom tags.
-- **AI Reflections**: OpenAI GPT-4o integration for insights, weekly/monthly reflections, and life path analysis (Ikigai-based).
-- **Gamification**: XP progression system (levels, titles), achievement badges, daily quests, streak tracking, scoreboard.
-- **Organization**: Pinning entries, custom folders with color-coding, advanced search/filtering, bulk operations, download entries.
-- **Insights Vault**: Personal library for saving and organizing insights.
-- **Merlin AI Assistant**: Narrative-based AI mentor providing guidance and prophecies.
-- **UI/UX**: Responsive design, dark/light mode, custom adventure-themed icons, personalized user experience.
-- **Subscription Management**: Free beta accounts, paid subscription plans (monthly/yearly) integrated with Stripe.
-- **PWA**: Progressive Web App capabilities for offline use and home screen installation.
+
+#### Module 1: Entry Management (Journaling)
+- **Free Tier**: Unlimited entries, one monthly AI insight
+- **Premium Tier ($4.99/month)**: Weekly AI insights, individual entry-based insights
+- **Features**: Rich text editing, mood selection, custom tags, folders, search/filtering, pinning, bulk operations
+
+#### Module 2: Vision Planning ($8.99/month)
+- **Includes**: Full journal access + vision planning features
+- **Features**: AI-guided goal structuring, milestone tracking, vision board creation, progress visualization, goal interconnection mapping
+
+#### Module 3: Mastermind ($14.99/month)
+- **Includes**: Everything from Vision Planning + high-level strategic guidance
+- **Features**: AI mastermind council, strategic course correction, life path analysis, cross-module intelligence synthesis
+
+#### Shared Features Across All Tiers
+- **Persistent AI Agent**: Learns across all modules for personalized guidance
+- **Multi-Agent System**: Specialized AI for journal analysis, vision architecture, progress tracking, strategic advisory
+- **Cross-Module Intelligence**: Connects journal insights to goals to strategic guidance
+- **UI/UX**: Responsive design, dark/light mode, custom adventure-themed icons
+- **PWA**: Progressive Web App capabilities for offline use
+- **Gamification**: XP progression, achievement badges, daily quests, streak tracking
 
 ### Architectural Decisions
 - **Modularity**: Separation of concerns between frontend, backend, and database layers.
