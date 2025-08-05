@@ -33,7 +33,7 @@ import Login from "@/pages/login";
 import Register from "@/pages/register";
 import Questionnaire from "@/pages/questionnaire";
 import RulesOfTheGame from "@/pages/rules-of-the-game";
-import VisionBoard from "@/pages/vision-board-simple";
+import VisionBoard from "@/pages/vision-board";
 import VisionArchitect from "@/pages/vision-architect";
 import VisionForm from "@/pages/vision-form";
 import VisionQuestionnaire from "@/pages/vision-questionnaire";
