@@ -33,7 +33,7 @@ export default function VisionBoard() {
   const [expandedPillar, setExpandedPillar] = useState<string | null>(null);
   const [selectedSubBubble, setSelectedSubBubble] = useState<{ pillarId: string; stepIndex: number } | null>(null);
   const [completedTasks, setCompletedTasks] = useState<Record<string, boolean>>({});
-  const [editingText, setEditingText] = useState<{ type: 'pillar' | 'subBubble' | 'task'; id: string; index?: number } | null>(null);
+  const [editingText, setEditingText] = useState<{ type: 'pillar' | 'subBubble' | 'task' | 'goal' | 'actionStep'; id: string; index?: number } | null>(null);
   const [draggedPillar, setDraggedPillar] = useState<string | null>(null);
   const [pillarPositions, setPillarPositions] = useState<Record<string, { x: number; y: number }>>({});
   const [isMobile, setIsMobile] = useState(false);
@@ -374,6 +374,309 @@ export default function VisionBoard() {
                   >
                     {node.name}
                   </text>
+                </>
+              )}
+
+              {/* Goal Text Box */}
+              <g transform="translate(50, -10)">
+                {editingText?.type === 'goal' && editingText.id === node.id ? (
+                  <foreignObject x="0" y="0" width="200" height="60">
+                    <textarea
+                      defaultValue={node.goal || ''}
+                      className="w-full h-full text-xs p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-black dark:text-white resize-none"
+                      onBlur={(e) => {
+                        console.log(`Updated goal for ${node.id}: ${e.target.value}`);
+                        setEditingText(null);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && e.ctrlKey) {
+                          e.currentTarget.blur();
+                        }
+                        if (e.key === 'Escape') {
+                          setEditingText(null);
+                        }
+                      }}
+                      autoFocus
+                      placeholder="Enter your goal..."
+                    />
+                  </foreignObject>
+                ) : (
+                  <>
+                    <rect
+                      x="0"
+                      y="0"
+                      width="200"
+                      height="40"
+                      fill="white"
+                      stroke={node.color}
+                      strokeWidth="2"
+                      rx="8"
+                      className="cursor-pointer"
+                      onDoubleClick={(e) => {
+                        e.stopPropagation();
+                        setEditingText({ type: 'goal', id: node.id });
+                      }}
+                    />
+                    <text
+                      x="100"
+                      y="12"
+                      textAnchor="middle"
+                      fill="#374151"
+                      fontSize="10"
+                      fontWeight="bold"
+                      className="cursor-pointer select-none"
+                      onDoubleClick={(e) => {
+                        e.stopPropagation();
+                        setEditingText({ type: 'goal', id: node.id });
+                      }}
+                    >
+                      {node.goal ? (
+                        node.goal.length > 25 ? `${node.goal.substring(0, 25)}...` : node.goal
+                      ) : 
+                        'Double-click to add goal'
+                      }
+                    </text>
+                    {node.goal && node.goal.length > 25 && (
+                      <text
+                        x="100"
+                        y="26"
+                        textAnchor="middle"
+                        fill="#6B7280"
+                        fontSize="8"
+                        className="cursor-pointer select-none"
+                        onDoubleClick={(e) => {
+                          e.stopPropagation();
+                          setEditingText({ type: 'goal', id: node.id });
+                        }}
+                      >
+                        {node.goal.substring(25, 50)}...
+                      </text>
+                    )}
+                  </>
+                )}
+              </g>
+
+              {/* Action Steps */}
+              {node.actionSteps && node.actionSteps.map((step, stepIndex) => {
+                const angleOffset = (stepIndex - (node.actionSteps.length - 1) / 2) * 0.5;
+                const distance = 80;
+                const stepX = Math.cos(angleOffset) * distance;
+                const stepY = Math.sin(angleOffset) * distance + 60;
+
+                return (
+                  <g key={stepIndex} transform={`translate(${stepX}, ${stepY})`}>
+                    {editingText?.type === 'actionStep' && editingText.id === node.id && editingText.index === stepIndex ? (
+                      <foreignObject x="-75" y="-15" width="150" height="30">
+                        <textarea
+                          defaultValue={step}
+                          className="w-full h-full text-xs p-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-black dark:text-white resize-none"
+                          onBlur={(e) => {
+                            console.log(`Updated action step ${stepIndex} for ${node.id}: ${e.target.value}`);
+                            setEditingText(null);
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && e.ctrlKey) {
+                              e.currentTarget.blur();
+                            }
+                            if (e.key === 'Escape') {
+                              setEditingText(null);
+                            }
+                          }}
+                          autoFocus
+                        />
+                      </foreignObject>
+                    ) : (
+                      <>
+                        <rect
+                          x="-75"
+                          y="-15"
+                          width="150"
+                          height="30"
+                          fill="white"
+                          stroke={node.color}
+                          strokeWidth="1"
+                          strokeOpacity="0.6"
+                          rx="6"
+                          className="cursor-pointer"
+                          onDoubleClick={(e) => {
+                            e.stopPropagation();
+                            setEditingText({ type: 'actionStep', id: node.id, index: stepIndex });
+                          }}
+                        />
+                        <text
+                          x="0"
+                          y="-2"
+                          textAnchor="middle"
+                          fill="#374151"
+                          fontSize="8"
+                          className="cursor-pointer select-none"
+                          onDoubleClick={(e) => {
+                            e.stopPropagation();
+                            setEditingText({ type: 'actionStep', id: node.id, index: stepIndex });
+                          }}
+                        >
+                          {step.length > 20 ? `${step.substring(0, 20)}...` : step}
+                        </text>
+                        {step.length > 20 && (
+                          <text
+                            x="0"
+                            y="8"
+                            textAnchor="middle"
+                            fill="#6B7280"
+                            fontSize="7"
+                            className="cursor-pointer select-none"
+                            onDoubleClick={(e) => {
+                              e.stopPropagation();
+                              setEditingText({ type: 'actionStep', id: node.id, index: stepIndex });
+                            }}
+                          >
+                            {step.substring(20, 40)}...
+                          </text>
+                        )}
+                        {/* Connecting line to main bubble */}
+                        <line
+                          x1="0"
+                          y1="0"
+                          x2={-stepX * 0.6}
+                          y2={-stepY * 0.6}
+                          stroke={node.color}
+                          strokeWidth="1"
+                          strokeOpacity="0.4"
+                          strokeDasharray="2,2"
+                          className="pointer-events-none"
+                        />
+                      </>
+                    )}
+                  </g>
+                );
+              })}
+              </>
+            ) : (
+              <>
+                {/* Sub-bubbles for expanded pillars */}
+                {expandedPillar === node.id && node.actionSteps && (
+                  <>
+                    {node.actionSteps.map((step, stepIndex) => {
+                      const angle = (stepIndex / node.actionSteps.length) * 2 * Math.PI;
+                      const distance = 90;
+                      const pos = {
+                        x: Math.cos(angle) * distance,
+                        y: Math.sin(angle) * distance
+                      };
+
+                      const isCompleted = isSubBubbleComplete(node.id, stepIndex);
+
+                      return (
+                        <g
+                          key={stepIndex}
+                          transform={`translate(${pos.x}, ${pos.y})`}
+                          className="cursor-pointer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleSubBubbleClick(node.id, stepIndex);
+                          }}
+                        >
+                          <circle
+                            cx="0"
+                            cy="0"
+                            r="15"
+                            fill={isCompleted ? "#10B981" : node.color}
+                            stroke="white"
+                            strokeWidth="2"
+                            className="transition-all duration-200 hover:opacity-80"
+                          />
+                          
+                          {isCompleted ? (
+                            <text
+                              x="0"
+                              y="5"
+                              textAnchor="middle"
+                              fill="white"
+                              fontSize="12"
+                              fontWeight="bold"
+                            >
+                              ✓
+                            </text>
+                          ) : (
+                            <text
+                              x="0"
+                              y="5"
+                              textAnchor="middle"
+                              fill="white"
+                              fontSize="10"
+                              fontWeight="bold"
+                            >
+                              {stepIndex + 1}
+                            </text>
+                          )}
+
+                          {editingText?.type === 'subBubble' && editingText.id === node.id && editingText.index === stepIndex ? (
+                            <foreignObject x="-40" y="25" width="80" height="40">
+                              <textarea
+                                defaultValue={step}
+                                className="w-full h-full text-xs p-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-black dark:text-white resize-none"
+                                onBlur={(e) => {
+                                  console.log(`Updated sub-bubble ${stepIndex} for ${node.id}: ${e.target.value}`);
+                                  setEditingText(null);
+                                }}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter' && e.ctrlKey) {
+                                    e.currentTarget.blur();
+                                  }
+                                  if (e.key === 'Escape') {
+                                    setEditingText(null);
+                                  }
+                                }}
+                                autoFocus
+                              />
+                            </foreignObject>
+                          ) : (
+                            <>
+                              {/* Text label for sub-bubble */}
+                              <text
+                                x="0"
+                                y="35"
+                                textAnchor="middle"
+                                fill="#374151"
+                                fontSize="8"
+                                fontWeight="medium"
+                                className="cursor-pointer select-none"
+                                onDoubleClick={(e) => {
+                                  e.stopPropagation();
+                                  setEditingText({ type: 'subBubble', id: node.id, index: stepIndex });
+                                }}
+                              >
+                                {(() => {
+                                  const words = step.split(' ');
+                                  if (words.length <= 3) return step;
+                                  const line1 = words.slice(0, 3).join(' ');
+                                  const line2 = words.slice(3, 6).join(' ');
+                                  return line1;
+                                })()}
+                              </text>
+                              
+                              {/* Second line if text is long */}
+                              {(() => {
+                                const words = step.split(' ');
+                                if (words.length <= 3) return null;
+                                const line2 = words.slice(3, 6).join(' ');
+                                return (
+                                  <text
+                                    x="0"
+                                    y="45"
+                                    textAnchor="middle"
+                                    fill="#6B7280"
+                                    fontSize="7"
+                                    className="cursor-pointer select-none"
+                                    onDoubleClick={(e) => {
+                                      e.stopPropagation();
+                                      setEditingText({ type: 'subBubble', id: node.id, index: stepIndex });
+                                    }}
+                                  >
+                                    {line2}
+                                  </text>
+                                );
+                              })()}
                 </>
               )}
               
