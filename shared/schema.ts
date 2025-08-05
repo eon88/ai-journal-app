@@ -168,17 +168,57 @@ export const subscriptionPlans = pgTable("subscription_plans", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-// User goals table for paid subscribers
-export const userGoals = pgTable("user_goals", {
+// Enhanced goals system for Vision Board
+export const visionGoals = pgTable("vision_goals", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id).notNull(),
   title: varchar("title", { length: 200 }).notNull(),
   description: text("description"),
-  category: varchar("category", { length: 100 }).notNull(),
+  category: varchar("category", { length: 100 }).notNull(), // career, health, relationships, personal, financial, etc.
   targetDate: timestamp("target_date"),
-  status: varchar("status", { length: 50 }).notNull().default("active"), // active, completed, paused
+  status: varchar("status", { length: 50 }).notNull().default("active"), // active, completed, paused, archived
   priority: varchar("priority", { length: 20 }).notNull().default("medium"), // low, medium, high
-  progressNotes: text("progress_notes"),
+  progressPercentage: integer("progress_percentage").default(0).notNull(),
+  color: varchar("color", { length: 20 }).default("#3B82F6"), // hex color for visual organization
+  position: jsonb("position").default({ x: 0, y: 0 }), // for drag-and-drop positioning on board
+  aiGuidance: text("ai_guidance"), // AI-generated strategic advice for this goal
+  connectionIds: integer("connection_ids").array().default([]), // IDs of related goals
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Milestones/sub-goals within larger goals
+export const goalMilestones = pgTable("goal_milestones", {
+  id: serial("id").primaryKey(),
+  goalId: integer("goal_id").references(() => visionGoals.id).notNull(),
+  title: varchar("title", { length: 200 }).notNull(),
+  description: text("description"),
+  targetDate: timestamp("target_date"),
+  isCompleted: boolean("is_completed").default(false).notNull(),
+  completedAt: timestamp("completed_at"),
+  sortOrder: integer("sort_order").default(0).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Progress tracking entries
+export const goalProgress = pgTable("goal_progress", {
+  id: serial("id").primaryKey(),
+  goalId: integer("goal_id").references(() => visionGoals.id).notNull(),
+  milestoneId: integer("milestone_id").references(() => goalMilestones.id),
+  entryId: integer("entry_id").references(() => journalEntries.id), // link to journal entry evidence
+  progressNote: text("progress_note").notNull(),
+  progressValue: integer("progress_value"), // numerical progress if applicable
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Vision Board layouts for different views
+export const visionBoards = pgTable("vision_boards", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  name: varchar("name", { length: 100 }).notNull(),
+  description: text("description"),
+  isDefault: boolean("is_default").default(false).notNull(),
+  layout: jsonb("layout").default({}), // stores positioning and visual arrangement
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -207,8 +247,53 @@ export type InsertUserAccount = typeof userAccounts.$inferInsert;
 export type SubscriptionPlan = typeof subscriptionPlans.$inferSelect;
 export type InsertSubscriptionPlan = typeof subscriptionPlans.$inferInsert;
 
-export type UserGoal = typeof userGoals.$inferSelect;
-export type InsertUserGoal = typeof userGoals.$inferInsert;
+// Vision Board type definitions
+export type VisionGoal = typeof visionGoals.$inferSelect;
+export type InsertVisionGoal = typeof visionGoals.$inferInsert;
+
+export type GoalMilestone = typeof goalMilestones.$inferSelect;
+export type InsertGoalMilestone = typeof goalMilestones.$inferInsert;
+
+export type GoalProgress = typeof goalProgress.$inferSelect;
+export type InsertGoalProgress = typeof goalProgress.$inferInsert;
+
+export type VisionBoard = typeof visionBoards.$inferSelect;
+export type InsertVisionBoard = typeof visionBoards.$inferInsert;
+
+// Insert schemas for forms
+export const insertVisionGoalSchema = createInsertSchema(visionGoals).pick({
+  title: true,
+  description: true,
+  category: true,
+  targetDate: true,
+  priority: true,
+  color: true,
+  position: true,
+}).partial({
+  description: true,
+  targetDate: true,
+  priority: true,
+  color: true,
+  position: true,
+});
+
+export const insertGoalMilestoneSchema = createInsertSchema(goalMilestones).pick({
+  title: true,
+  description: true,
+  targetDate: true,
+  sortOrder: true,
+}).partial({
+  description: true,
+  targetDate: true,
+  sortOrder: true,
+});
+
+export const insertGoalProgressSchema = createInsertSchema(goalProgress).pick({
+  progressNote: true,
+  progressValue: true,
+}).partial({
+  progressValue: true,
+});
 
 // Session storage table for Replit Auth
 export const sessions = pgTable(

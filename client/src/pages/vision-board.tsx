@@ -1,602 +1,269 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Plus, Target, Calendar, TrendingUp, Settings, Eye, Grid, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
-import { useToast } from "@/hooks/use-toast";
-import { BetaFeature } from "@/hooks/useBetaAccess";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FeatureGate } from "@/components/feature-gate";
+import { CreateGoalDialog } from "@/components/vision/create-goal-dialog";
+import { GoalCard } from "@/components/vision/goal-card";
+import { GoalDetailModal } from "@/components/vision/goal-detail-modal";
+import { VisionBoardCanvas } from "@/components/vision/vision-board-canvas";
 import { apiRequest } from "@/lib/queryClient";
-import { Plus, Target, Calendar, CheckCircle, Circle, Trash2, Edit, Sparkles, Map } from "lucide-react";
+import { VisionGoal } from "@shared/schema";
 
-interface VisionCategory {
-  id: string;
-  name: string;
-  color: string;
-  icon: string;
-}
-
-interface VisionNextStep {
-  id: number;
-  title: string;
-  description?: string;
-  isCompleted: boolean;
-  dueDate?: string;
-}
-
-interface VisionMilestone {
-  id: number;
-  title: string;
-  description?: string;
-  targetDate?: string;
-  isCompleted: boolean;
-  position: number;
-  nextSteps?: VisionNextStep[];
-}
-
-interface VisionArea {
-  id: number;
-  title: string;
-  description?: string;
-  category: string;
-  colorCode: string;
-  position: number;
-  isActive: boolean;
-  milestones?: VisionMilestone[];
-}
-
-interface AISuggestion {
-  title: string;
-  description: string;
-  category: string;
-  milestones: {
-    title: string;
-    description: string;
-    nextStep: string;
-  }[];
+interface VisionBoardStats {
+  totalGoals: number;
+  completedGoals: number;
+  activeGoals: number;
+  averageProgress: number;
+  overdueMilestones: number;
 }
 
 export default function VisionBoard() {
-  const [selectedArea, setSelectedArea] = useState<VisionArea | null>(null);
-  const [editingArea, setEditingArea] = useState<VisionArea | null>(null);
-  const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [showAIDialog, setShowAIDialog] = useState(false);
-  const [aiSuggestions, setAiSuggestions] = useState<AISuggestion[]>([]);
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    category: "",
-    colorCode: "#3B82F6"
-  });
-
-  const { toast } = useToast();
+  const [createGoalOpen, setCreateGoalOpen] = useState(false);
+  const [selectedGoal, setSelectedGoal] = useState<VisionGoal | null>(null);
+  const [viewMode, setViewMode] = useState<'board' | 'list'>('board');
   const queryClient = useQueryClient();
 
-  // Fetch vision board data
-  const { data: visionBoard = [], isLoading } = useQuery<VisionArea[]>({
-    queryKey: ["/api/vision-board"],
-    staleTime: 5 * 60 * 1000,
+  // Fetch user's goals
+  const { data: goals = [], isLoading: goalsLoading } = useQuery({
+    queryKey: ['/api/vision/goals'],
+    enabled: true,
   });
 
-  // Fetch categories
-  const { data: categories = [] } = useQuery<VisionCategory[]>({
-    queryKey: ["/api/vision-board/categories"],
-    staleTime: 30 * 60 * 1000,
+  // Fetch vision board stats
+  const { data: stats } = useQuery<VisionBoardStats>({
+    queryKey: ['/api/vision/stats'],
+    enabled: true,
   });
 
-  // Create vision area mutation
-  const createAreaMutation = useMutation({
-    mutationFn: (data: any) => apiRequest("/api/vision-board/areas", "POST", data),
+  // Create goal mutation
+  const createGoalMutation = useMutation({
+    mutationFn: (goalData: any) => apiRequest("POST", "/api/vision/goals", goalData),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/vision-board"] });
-      setShowCreateDialog(false);
-      setFormData({ title: "", description: "", category: "", colorCode: "#3B82F6" });
-      toast({ title: "Vision area created successfully!" });
+      queryClient.invalidateQueries({ queryKey: ['/api/vision/goals'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/vision/stats'] });
+      setCreateGoalOpen(false);
     },
-    onError: (error: any) => {
-      toast({ title: "Error", description: error.message || "Failed to create vision area", variant: "destructive" });
-    }
   });
 
-  // Update vision area mutation
-  const updateAreaMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: any }) => 
-      apiRequest(`/api/vision-board/areas/${id}`, "PATCH", data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/vision-board"] });
-      setEditingArea(null);
-      setFormData({ title: "", description: "", category: "", colorCode: "#3B82F6" });
-      toast({ title: "Vision area updated successfully!" });
-    },
-    onError: (error: any) => {
-      toast({ title: "Error", description: error.message || "Failed to update vision area", variant: "destructive" });
-    }
-  });
+  // Goal categories for organization
+  const goalCategories = [
+    { id: 'career', name: 'Career & Professional', color: '#3B82F6', icon: '💼' },
+    { id: 'health', name: 'Health & Wellness', color: '#10B981', icon: '🏃‍♂️' },
+    { id: 'relationships', name: 'Relationships', color: '#F59E0B', icon: '❤️' },
+    { id: 'personal', name: 'Personal Growth', color: '#8B5CF6', icon: '🌱' },
+    { id: 'financial', name: 'Financial', color: '#059669', icon: '💰' },
+    { id: 'creative', name: 'Creative & Hobbies', color: '#DC2626', icon: '🎨' },
+    { id: 'spiritual', name: 'Spiritual & Purpose', color: '#7C2D12', icon: '🧘‍♂️' },
+  ];
 
-  // Delete vision area mutation
-  const deleteAreaMutation = useMutation({
-    mutationFn: (id: number) => apiRequest(`/api/vision-board/areas/${id}`, "DELETE"),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/vision-board"] });
-      setSelectedArea(null);
-      toast({ title: "Vision area deleted successfully!" });
-    },
-    onError: (error: any) => {
-      toast({ title: "Error", description: error.message || "Failed to delete vision area", variant: "destructive" });
-    }
-  });
-
-  // Generate AI suggestions mutation
-  const generateAISuggestions = useMutation({
-    mutationFn: () => apiRequest("/api/vision-board/ai-suggestions", "POST"),
-    onSuccess: (data) => {
-      setAiSuggestions(data.suggestions?.suggestedAreas || []);
-      setShowAIDialog(true);
-      toast({ 
-        title: "AI suggestions generated!", 
-        description: `Based on ${data.entriesAnalyzed} journal entries and ${data.insightsAnalyzed} insights`
-      });
-    },
-    onError: (error: any) => {
-      toast({ title: "Error", description: error.message || "Failed to generate AI suggestions", variant: "destructive" });
-    }
-  });
-
-  // Update completion status mutations
-  const updateMilestoneMutation = useMutation({
-    mutationFn: ({ id, updates }: { id: number; updates: any }) =>
-      apiRequest(`/api/vision-board/milestones/${id}`, "PATCH", updates),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/vision-board"] });
-      toast({ title: "Milestone updated!" });
-    }
-  });
-
-  const updateNextStepMutation = useMutation({
-    mutationFn: ({ id, updates }: { id: number; updates: any }) =>
-      apiRequest(`/api/vision-board/next-steps/${id}`, "PATCH", updates),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/vision-board"] });
-      toast({ title: "Next step updated!" });
-    }
-  });
-
-  const handleCreateArea = () => {
-    if (!formData.title.trim() || !formData.category) {
-      toast({ title: "Error", description: "Please fill in all required fields", variant: "destructive" });
-      return;
-    }
-
-    const selectedCategory = categories.find(cat => cat.id === formData.category);
-    createAreaMutation.mutate({
-      ...formData,
-      colorCode: selectedCategory?.color || formData.colorCode,
-      position: visionBoard.length
-    });
-  };
-
-  const handleEditArea = (area: VisionArea) => {
-    setEditingArea(area);
-    setFormData({
-      title: area.title,
-      description: area.description || "",
-      category: area.category,
-      colorCode: area.colorCode
-    });
-  };
-
-  const handleUpdateArea = () => {
-    if (!editingArea || !formData.title.trim() || !formData.category) {
-      toast({ title: "Error", description: "Please fill in all required fields", variant: "destructive" });
-      return;
-    }
-
-    const selectedCategory = categories.find(cat => cat.id === formData.category);
-    updateAreaMutation.mutate({
-      id: editingArea.id,
-      data: {
-        ...formData,
-        colorCode: selectedCategory?.color || formData.colorCode,
-      }
-    });
-  };
-
-  const handleDeleteArea = (area: VisionArea) => {
-    if (window.confirm(`Are you sure you want to delete "${area.title}"? This action cannot be undone.`)) {
-      deleteAreaMutation.mutate(area.id);
-    }
-  };
-
-  const handleApplyAISuggestion = (suggestion: AISuggestion) => {
-    const selectedCategory = categories.find(cat => cat.id === suggestion.category);
-    setFormData({
-      title: suggestion.title,
-      description: suggestion.description,
-      category: suggestion.category,
-      colorCode: selectedCategory?.color || "#3B82F6"
-    });
-    setShowAIDialog(false);
-    setShowCreateDialog(true);
-  };
-
-  const getProgressPercentage = (area: VisionArea) => {
-    if (!area.milestones || area.milestones.length === 0) return 0;
-    const completed = area.milestones.filter(m => m.isCompleted).length;
-    return Math.round((completed / area.milestones.length) * 100);
-  };
-
-  const getCategoryIcon = (categoryId: string) => {
-    const category = categories.find(cat => cat.id === categoryId);
-    return category?.icon || "🎯";
-  };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-300">Loading your vision board...</p>
-        </div>
-      </div>
-    );
-  }
+  // Group goals by category
+  const goalsByCategory = goals.reduce((acc: any, goal: VisionGoal) => {
+    if (!acc[goal.category]) acc[goal.category] = [];
+    acc[goal.category].push(goal);
+    return acc;
+  }, {});
 
   return (
-    <BetaFeature fallback={
-      <div className="min-h-screen flex items-center justify-center">
-        <Card className="max-w-md">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Map className="h-5 w-5" />
-              Vision Board
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-600 dark:text-gray-300">
-              Vision Board is currently in beta testing. This feature will be available soon for all users.
+    <FeatureGate requiredTier="vision_planning">
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
+          <div className="mb-4 md:mb-0">
+            <h1 className="text-3xl font-bold text-foreground mb-2">Vision Board</h1>
+            <p className="text-muted-foreground">
+              Transform your dreams into actionable goals with AI-guided planning
             </p>
-          </CardContent>
-        </Card>
-      </div>
-    }>
-      <div className="min-h-screen p-4 relative" style={{
-        backgroundColor: '#1a1a1a',
-        backgroundImage: `
-          linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
-          linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px)
-        `,
-        backgroundSize: '40px 40px, 40px 40px, 10px 10px, 10px 10px',
-        backgroundPosition: '0 0, 0 0, 0 0, 0 0'
-      }}>
-        <div className="max-w-7xl mx-auto relative">
-          {/* Blueprint-style border */}
-          <div className="absolute inset-0 border-2 border-white/20 pointer-events-none" style={{
-            borderStyle: 'solid',
-            borderImage: 'linear-gradient(45deg, rgba(255,255,255,0.3) 25%, transparent 25%), linear-gradient(-45deg, rgba(255,255,255,0.3) 25%, transparent 25%)',
-            borderImageSize: '20px 20px'
-          }}></div>
-          
-          {/* Header */}
-          <div className="mb-8 relative z-10">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="bg-white/5 border border-white/20 p-4 rounded-none relative">
-                  <div className="absolute top-0 left-0 w-full h-full border-2 border-white/10 pointer-events-none" style={{
-                    borderStyle: 'dashed',
-                    borderSpacing: '5px'
-                  }}></div>
-                  <h1 className="text-3xl font-bold text-white flex items-center gap-2 font-mono tracking-wide">
-                    <Map className="h-8 w-8 text-blue-400" />
-                    VISION BOARD - BLUEPRINT
-                  </h1>
-                  <p className="text-gray-300 mt-1 font-mono text-sm">
-                    ARCHITECTURAL DESIGN: 5 MAJOR AREAS • 3 MILESTONES EACH • 1 NEXT STEP PER MILESTONE
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  onClick={() => generateAISuggestions.mutate()}
-                  disabled={generateAISuggestions.isPending}
-                  variant="outline"
-                  className="flex items-center gap-2 bg-white/10 border-white/30 text-white hover:bg-white/20 font-mono"
-                >
-                  <Sparkles className="h-4 w-4" />
-                  {generateAISuggestions.isPending ? "GENERATING..." : "AI SUGGESTIONS"}
-                </Button>
-                <Button
-                  onClick={() => setShowCreateDialog(true)}
-                  disabled={visionBoard.length >= 5}
-                  className="flex items-center gap-2 bg-blue-600/80 hover:bg-blue-600 text-white font-mono"
-                >
-                  <Plus className="h-4 w-4" />
-                  ADD VISION AREA
-                </Button>
-              </div>
-            </div>
-            {visionBoard.length >= 5 && (
-              <Badge variant="outline" className="mt-2 bg-orange-500/20 border-orange-500/50 text-orange-200 font-mono">
-                MAXIMUM 5 VISION AREAS REACHED
-              </Badge>
-            )}
           </div>
+          
+          <div className="flex items-center gap-3">
+            {/* View mode toggle */}
+            <div className="flex rounded-md border border-border">
+              <Button
+                variant={viewMode === 'board' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('board')}
+                className="rounded-r-none"
+              >
+                <Grid className="h-4 w-4" />
+              </Button>
+              <Button
+                variant={viewMode === 'list' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('list')}
+                className="rounded-l-none"
+              >
+                <List className="h-4 w-4" />
+              </Button>
+            </div>
+            
+            <Button onClick={() => setCreateGoalOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Create Goal
+            </Button>
+          </div>
+        </div>
 
-          {/* Vision Board Grid */}
-          {visionBoard.length === 0 ? (
-            <Card className="text-center py-12 bg-white/95 border-2 border-gray-400/50 shadow-lg backdrop-blur-sm relative z-10" style={{
-              backgroundImage: `
-                linear-gradient(rgba(0,0,0,0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0,0,0,0.02) 1px, transparent 1px)
-              `,
-              backgroundSize: '20px 20px'
-            }}>
-              <CardContent>
-                <Map className="h-16 w-16 text-gray-500 mx-auto mb-4" />
-                <h3 className="text-xl font-medium text-gray-900 mb-2 font-mono">
-                  CREATE YOUR VISION BOARD
-                </h3>
-                <p className="text-gray-600 mb-6 font-mono text-sm">
-                  START MAPPING YOUR LIFE GOALS USING OUR 5-3-1 FORMULA. LET AI ANALYZE YOUR JOURNAL ENTRIES TO SUGGEST PERSONALIZED VISION AREAS.
-                </p>
-                <div className="flex gap-2 justify-center">
-                  <Button
-                    onClick={() => generateAISuggestions.mutate()}
-                    disabled={generateAISuggestions.isPending}
-                    className="flex items-center gap-2 bg-blue-600/80 hover:bg-blue-600 text-white font-mono"
-                  >
-                    <Sparkles className="h-4 w-4" />
-                    {generateAISuggestions.isPending ? "ANALYZING..." : "GET AI SUGGESTIONS"}
-                  </Button>
-                  <Button
-                    onClick={() => setShowCreateDialog(true)}
-                    variant="outline"
-                    className="flex items-center gap-2 bg-white/10 border-gray-400/50 text-gray-700 hover:bg-white/20 font-mono"
-                  >
-                    <Plus className="h-4 w-4" />
-                    CREATE MANUALLY
-                  </Button>
+        {/* Stats Overview */}
+        {stats && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center">
+                  <Target className="h-4 w-4 text-muted-foreground" />
+                  <div className="ml-2">
+                    <p className="text-sm font-medium">Total Goals</p>
+                    <p className="text-2xl font-bold">{stats.totalGoals}</p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10">
-              {visionBoard.map((area) => (
-                <Card 
-                  key={area.id} 
-                  className="cursor-pointer hover:shadow-xl transition-all bg-white/95 border-2 border-gray-400/50 shadow-lg backdrop-blur-sm"
-                  style={{ 
-                    borderLeft: `6px solid ${area.colorCode}`,
-                    backgroundImage: `
-                      linear-gradient(rgba(0,0,0,0.02) 1px, transparent 1px),
-                      linear-gradient(90deg, rgba(0,0,0,0.02) 1px, transparent 1px)
-                    `,
-                    backgroundSize: '20px 20px'
-                  }}
-                  onClick={() => setSelectedArea(area)}
-                >
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="text-2xl">{getCategoryIcon(area.category)}</span>
-                        <CardTitle className="text-lg">{area.title}</CardTitle>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" style={{ color: area.colorCode }}>
-                          {area.category}
-                        </Badge>
-                        <div className="flex gap-1">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleEditArea(area);
-                            }}
-                            className="h-8 w-8 p-0"
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDeleteArea(area);
-                            }}
-                            className="h-8 w-8 p-0 text-red-500 hover:text-red-600"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-2">
-                      {area.description}
-                    </p>
-                    
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between text-sm">
-                        <span>Progress</span>
-                        <span>{getProgressPercentage(area)}%</span>
-                      </div>
-                      <Progress value={getProgressPercentage(area)} className="h-2" />
-                      
-                      <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-300">
-                        <span className="flex items-center gap-1">
-                          <Target className="h-3 w-3" />
-                          {area.milestones?.length || 0}/3 milestones
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <CheckCircle className="h-3 w-3" />
-                          {area.milestones?.filter(m => m.isCompleted).length || 0} completed
-                        </span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-
-          {/* Create/Edit Vision Area Dialog */}
-          <Dialog open={showCreateDialog || editingArea !== null} onOpenChange={(open) => {
-            if (!open) {
-              setShowCreateDialog(false);
-              setEditingArea(null);
-              setFormData({ title: "", description: "", category: "", colorCode: "#3B82F6" });
-            }
-          }}>
-            <DialogContent className="max-w-md">
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
-                  {editingArea ? <Edit className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
-                  {editingArea ? "Edit Vision Area" : "Create Vision Area"}
-                </DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                    Title *
-                  </label>
-                  <Input
-                    value={formData.title}
-                    onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                    placeholder="e.g., Health & Fitness Journey"
-                    maxLength={100}
-                  />
-                </div>
-                
-                <div>
-                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                    Description
-                  </label>
-                  <Textarea
-                    value={formData.description}
-                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                    placeholder="Describe your vision for this area..."
-                    rows={3}
-                  />
-                </div>
-                
-                <div>
-                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
-                    Category *
-                  </label>
-                  <Select value={formData.category} onValueChange={(value) => {
-                    const selectedCategory = categories.find(cat => cat.id === value);
-                    setFormData(prev => ({ 
-                      ...prev, 
-                      category: value,
-                      colorCode: selectedCategory?.color || prev.colorCode
-                    }));
-                  }}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.map((category) => (
-                        <SelectItem key={category.id} value={category.id}>
-                          <div className="flex items-center gap-2">
-                            <span>{category.icon}</span>
-                            <span>{category.name}</span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="flex justify-end gap-2">
-                  <Button variant="outline" onClick={() => {
-                    setShowCreateDialog(false);
-                    setEditingArea(null);
-                    setFormData({ title: "", description: "", category: "", colorCode: "#3B82F6" });
-                  }}>
-                    Cancel
-                  </Button>
-                  <Button 
-                    onClick={editingArea ? handleUpdateArea : handleCreateArea}
-                    disabled={createAreaMutation.isPending || updateAreaMutation.isPending}
-                  >
-                    {editingArea ? 
-                      (updateAreaMutation.isPending ? "Updating..." : "Update Vision Area") :
-                      (createAreaMutation.isPending ? "Creating..." : "Create Vision Area")
-                    }
-                  </Button>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
-
-          {/* AI Suggestions Dialog */}
-          <Dialog open={showAIDialog} onOpenChange={setShowAIDialog}>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
-                  <Sparkles className="h-5 w-5" />
-                  AI Vision Suggestions
-                </DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4 max-h-96 overflow-y-auto">
-                {aiSuggestions.length === 0 ? (
-                  <div className="text-center py-8">
-                    <p className="text-gray-600 dark:text-gray-300">
-                      No suggestions generated. Try journaling more about your goals and aspirations.
-                    </p>
+            
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center">
+                  <TrendingUp className="h-4 w-4 text-green-600" />
+                  <div className="ml-2">
+                    <p className="text-sm font-medium">Active</p>
+                    <p className="text-2xl font-bold text-green-600">{stats.activeGoals}</p>
                   </div>
-                ) : (
-                  aiSuggestions.map((suggestion, index) => (
-                    <Card key={index} className="border-l-4" style={{ borderLeftColor: categories.find(cat => cat.id === suggestion.category)?.color || "#3B82F6" }}>
-                      <CardHeader className="pb-3">
-                        <div className="flex items-center justify-between">
-                          <CardTitle className="text-lg flex items-center gap-2">
-                            <span>{getCategoryIcon(suggestion.category)}</span>
-                            {suggestion.title}
-                          </CardTitle>
-                          <Button
-                            size="sm"
-                            onClick={() => handleApplyAISuggestion(suggestion)}
-                            className="flex items-center gap-1"
-                          >
-                            <Plus className="h-3 w-3" />
-                            Use This
-                          </Button>
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
-                          {suggestion.description}
-                        </p>
-                        <div className="space-y-2">
-                          <h4 className="font-medium text-sm">Suggested Milestones:</h4>
-                          {suggestion.milestones.map((milestone, mIndex) => (
-                            <div key={mIndex} className="bg-gray-50 dark:bg-gray-800 p-2 rounded">
-                              <p className="font-medium text-sm">{milestone.title}</p>
-                              <p className="text-xs text-gray-600 dark:text-gray-400">
-                                Next step: {milestone.nextStep}
-                              </p>
-                            </div>
-                          ))}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))
-                )}
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center">
+                  <Eye className="h-4 w-4 text-blue-600" />
+                  <div className="ml-2">
+                    <p className="text-sm font-medium">Completed</p>
+                    <p className="text-2xl font-bold text-blue-600">{stats.completedGoals}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center">
+                  <div className="ml-2 w-full">
+                    <p className="text-sm font-medium mb-2">Average Progress</p>
+                    <Progress value={stats.averageProgress} className="w-full" />
+                    <p className="text-xs text-muted-foreground mt-1">{stats.averageProgress}%</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center">
+                  <Calendar className="h-4 w-4 text-red-600" />
+                  <div className="ml-2">
+                    <p className="text-sm font-medium">Overdue</p>
+                    <p className="text-2xl font-bold text-red-600">{stats.overdueMilestones}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Main Content */}
+        <Tabs value={viewMode} className="w-full">
+          <TabsList className="hidden">
+            <TabsTrigger value="board">Board View</TabsTrigger>
+            <TabsTrigger value="list">List View</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="board" className="mt-0">
+            {goals.length === 0 ? (
+              <EmptyState onCreateGoal={() => setCreateGoalOpen(true)} />
+            ) : (
+              <VisionBoardCanvas 
+                goals={goals} 
+                onGoalClick={setSelectedGoal}
+                categories={goalCategories}
+              />
+            )}
+          </TabsContent>
+          
+          <TabsContent value="list" className="mt-0">
+            {goals.length === 0 ? (
+              <EmptyState onCreateGoal={() => setCreateGoalOpen(true)} />
+            ) : (
+              <div className="space-y-6">
+                {goalCategories.map((category) => {
+                  const categoryGoals = goalsByCategory[category.id] || [];
+                  if (categoryGoals.length === 0) return null;
+                  
+                  return (
+                    <div key={category.id}>
+                      <div className="flex items-center mb-4">
+                        <span className="text-2xl mr-3">{category.icon}</span>
+                        <h3 className="text-lg font-semibold">{category.name}</h3>
+                        <Badge variant="secondary" className="ml-2">
+                          {categoryGoals.length}
+                        </Badge>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {categoryGoals.map((goal: VisionGoal) => (
+                          <GoalCard
+                            key={goal.id}
+                            goal={goal}
+                            onClick={() => setSelectedGoal(goal)}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            </DialogContent>
-          </Dialog>
-        </div>
+            )}
+          </TabsContent>
+        </Tabs>
+
+        {/* Dialogs */}
+        <CreateGoalDialog
+          open={createGoalOpen}
+          onOpenChange={setCreateGoalOpen}
+          onSubmit={createGoalMutation.mutate}
+          categories={goalCategories}
+          isPending={createGoalMutation.isPending}
+        />
+        
+        {selectedGoal && (
+          <GoalDetailModal
+            goal={selectedGoal}
+            open={!!selectedGoal}
+            onOpenChange={(open) => !open && setSelectedGoal(null)}
+          />
+        )}
       </div>
-    </BetaFeature>
+    </FeatureGate>
+  );
+}
+
+function EmptyState({ onCreateGoal }: { onCreateGoal: () => void }) {
+  return (
+    <div className="text-center py-12">
+      <div className="mx-auto w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-6">
+        <Target className="h-10 w-10 text-muted-foreground" />
+      </div>
+      <h3 className="text-xl font-semibold mb-2">Create Your First Vision</h3>
+      <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+        Start your journey by creating goals that align with your life vision. 
+        Our AI will help you break them down into actionable steps.
+      </p>
+      <Button onClick={onCreateGoal} size="lg">
+        <Plus className="h-4 w-4 mr-2" />
+        Create Your First Goal
+      </Button>
+    </div>
   );
 }
