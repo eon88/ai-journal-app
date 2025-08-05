@@ -36,6 +36,7 @@ export default function VisionBoard() {
   const [draggedPillar, setDraggedPillar] = useState<string | null>(null);
   const [pillarPositions, setPillarPositions] = useState<Record<string, { x: number; y: number }>>({});
   const [isMobile, setIsMobile] = useState(false);
+  const [hoveredSubBubble, setHoveredSubBubble] = useState<{ pillarId: string; stepIndex: number } | null>(null);
 
   // Pillars configuration
   const pillars: Pillar[] = [
@@ -167,6 +168,11 @@ export default function VisionBoard() {
   };
 
   const handleSubBubbleClick = (pillarId: string, stepIndex: number) => {
+    // Just open the task details modal
+    setSelectedSubBubble({ pillarId, stepIndex });
+  };
+
+  const handleTaskCompletion = (pillarId: string, stepIndex: number) => {
     const taskKey = `${pillarId}-${stepIndex}`;
     if (completedTasks[taskKey]) {
       const newCompleted = { ...completedTasks };
@@ -175,7 +181,6 @@ export default function VisionBoard() {
     } else {
       setCompletedTasks(prev => ({ ...prev, [taskKey]: true }));
     }
-    setSelectedSubBubble({ pillarId, stepIndex });
   };
 
   const isSubBubbleComplete = (pillarId: string, stepIndex: number) => {
@@ -382,13 +387,15 @@ export default function VisionBoard() {
                             cy="0"
                             r="20"
                             fill={isComplete ? "#10B981" : node.color}
-                            stroke="white"
-                            strokeWidth="2"
-                            className="cursor-pointer transition-all duration-200 hover:opacity-80"
+                            stroke={selectedSubBubble?.pillarId === node.id && selectedSubBubble?.stepIndex === index ? "#374151" : "white"}
+                            strokeWidth={selectedSubBubble?.pillarId === node.id && selectedSubBubble?.stepIndex === index ? "3" : "2"}
+                            className="cursor-pointer transition-all duration-200 hover:opacity-80 hover:scale-110"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleSubBubbleClick(node.id, index);
                             }}
+                            onMouseEnter={() => !isMobile && setHoveredSubBubble({ pillarId: node.id, stepIndex: index })}
+                            onMouseLeave={() => !isMobile && setHoveredSubBubble(null)}
                           />
                           
                           {isComplete ? (
@@ -531,6 +538,25 @@ export default function VisionBoard() {
         </svg>
       </div>
 
+      {/* Hover Tooltip for Sub-bubbles */}
+      {hoveredSubBubble && !isMobile && (
+        <div className="fixed z-50 pointer-events-none">
+          <div 
+            className="bg-black dark:bg-gray-800 text-white text-xs px-2 py-1 rounded shadow-lg max-w-48"
+            style={{
+              left: '50%',
+              top: '50%',
+              transform: 'translate(-50%, -120%)'
+            }}
+          >
+            {(() => {
+              const pillar = nodesWithGoals.find(n => n.id === hoveredSubBubble.pillarId);
+              return pillar?.actionSteps?.[hoveredSubBubble.stepIndex] || '';
+            })()}
+          </div>
+        </div>
+      )}
+
       {/* Task Detail Modal */}
       {selectedSubBubble && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -594,7 +620,7 @@ export default function VisionBoard() {
                   <input
                     type="checkbox"
                     checked={isSubBubbleComplete(selectedSubBubble.pillarId, selectedSubBubble.stepIndex)}
-                    onChange={() => handleSubBubbleClick(selectedSubBubble.pillarId, selectedSubBubble.stepIndex)}
+                    onChange={() => handleTaskCompletion(selectedSubBubble.pillarId, selectedSubBubble.stepIndex)}
                     className="mr-2"
                   />
                   <span className="text-sm text-gray-700 dark:text-gray-300">Mark as completed</span>
