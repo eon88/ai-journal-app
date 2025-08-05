@@ -3919,6 +3919,47 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
     }
   });
 
+  // AI Insights endpoint for vision goals
+  app.post("/api/vision/ai-insights", async (req: any, res) => {
+    try {
+      const { goal, category } = req.body;
+      
+      if (!goal || !category) {
+        return res.status(400).json({ message: "Goal and category are required" });
+      }
+
+      // Use OpenAI to generate personalized insights
+      const { OpenAI } = require('openai');
+      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+      const prompt = `You are a wise life coach and personal development expert. A user has set this ${category} goal: "${goal}"
+
+Provide 2-3 practical, actionable insights to help them achieve this goal. Focus on:
+- Specific steps they can take this week
+- Common obstacles and how to overcome them  
+- One motivational insight
+
+Keep the response concise (under 150 words) and encouraging. Write in a supportive, personal tone.`;
+
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+        messages: [
+          { role: "system", content: "You are a helpful life coach providing personalized guidance." },
+          { role: "user", content: prompt }
+        ],
+        max_tokens: 200,
+        temperature: 0.7,
+      });
+
+      const insights = completion.choices[0].message.content;
+
+      res.json({ insights });
+    } catch (error: any) {
+      console.error("Error generating AI insights:", error);
+      res.status(500).json({ message: "Error generating AI insights: " + error.message });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
