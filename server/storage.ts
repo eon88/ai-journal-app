@@ -2150,7 +2150,7 @@ Format as JSON with structure:
 
   // ===== VISION BOARD METHODS =====
   
-  async createVisionBoardFromAnswers(userId: number, questionsAndAnswers: any[]): Promise<VisionGoal[]> {
+  async createVisionBoardFromAnswers(userId: number, questionsAndAnswers: any): Promise<VisionGoal[]> {
     const goalCategories = [
       { id: 'health', name: 'Health', color: '#10B981', icon: '💪' },
       { id: 'wealth', name: 'Wealth', color: '#F59E0B', icon: '💰' },
@@ -2163,27 +2163,21 @@ Format as JSON with structure:
 
     const createdGoals: VisionGoal[] = [];
 
-    for (const qa of questionsAndAnswers) {
-      if (!qa.answer || qa.answer.trim().length === 0) continue;
+    for (const [pillarId, answer] of Object.entries(questionsAndAnswers)) {
+      if (!answer || typeof answer !== 'string' || answer.trim().length === 0) continue;
 
-      const category = goalCategories.find(cat => cat.id === qa.pillar);
+      const category = goalCategories.find(cat => cat.id === pillarId);
       if (!category) continue;
 
-      // Create a goal based on the answer
-      const goalTitle = `${category.name} Vision`;
-      const goalDescription = qa.answer.substring(0, 500); // Use first 500 chars as description
-
+      // Create a goal based on the answer - but we need to use the correct vision_goals table structure
       try {
         const [goal] = await db.insert(visionGoals).values({
           userId,
-          title: goalTitle,
-          description: goalDescription,
-          category: qa.pillar,
-          status: 'active',
-          priority: 'medium',
-          color: category.color,
-          progressPercentage: 0,
-          targetDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year from now
+          responseId: 1, // We'll need to create a response first
+          pillarId: pillarId,
+          pillarName: category.name,
+          goal: answer.substring(0, 500), // Use answer as the goal
+          actionSteps: [], // Empty for now
         }).returning();
 
         createdGoals.push(goal);

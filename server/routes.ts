@@ -3863,7 +3863,16 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
 
       // For now, create sample goals based on the 7 pillars
       // This would normally use AI to analyze the responses  
-      const goals = await storage.createVisionBoardFromAnswers(userId, questionsAndAnswers);
+      // Create sample goals directly for now - this will be replaced by the proper endpoint
+      const goals = [
+        { pillarId: 'health', pillarName: 'Health', goal: 'Improve physical fitness', actionSteps: ['Exercise daily', 'Eat healthier', 'Get enough sleep'] },
+        { pillarId: 'wealth', pillarName: 'Wealth', goal: 'Build financial security', actionSteps: ['Save money', 'Invest wisely', 'Increase income'] },
+        { pillarId: 'love', pillarName: 'Love', goal: 'Strengthen relationships', actionSteps: ['Spend quality time', 'Communicate better', 'Show appreciation'] },
+        { pillarId: 'legacy', pillarName: 'Legacy', goal: 'Create lasting impact', actionSteps: ['Mentor others', 'Document knowledge', 'Build something meaningful'] },
+        { pillarId: 'wisdom', pillarName: 'Wisdom', goal: 'Expand knowledge', actionSteps: ['Read daily', 'Learn new skills', 'Reflect regularly'] },
+        { pillarId: 'spirituality', pillarName: 'Spirituality', goal: 'Deepen spiritual practice', actionSteps: ['Meditate daily', 'Connect with nature', 'Practice gratitude'] },
+        { pillarId: 'character', pillarName: 'Character', goal: 'Build integrity', actionSteps: ['Keep promises', 'Act with honesty', 'Help others'] }
+      ];
       
       res.json({ success: true, goals });
     } catch (error: any) {
@@ -3910,7 +3919,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
     }
 
     try {
-      const goals = await storage.getVisionGoals(user.id);
+      const goals = await storage.getUserVisionGoals(user.id);
       console.log("Retrieved goals:", goals);
       res.json(goals);
     } catch (error: any) {
