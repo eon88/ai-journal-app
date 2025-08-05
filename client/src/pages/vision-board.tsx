@@ -83,7 +83,7 @@ export default function VisionBoard() {
     };
   });
 
-  const handleZoomIn = () => setZoomLevel(Math.min(100, zoomLevel + 10));
+  const handleZoomIn = () => setZoomLevel(Math.min(200, zoomLevel + 10));
   const handleZoomOut = () => setZoomLevel(Math.max(20, zoomLevel - 10));
 
   const handlePillarClick = (pillarId: string) => {
