@@ -124,6 +124,22 @@ export const userCustomTags = pgTable("user_custom_tags", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Vision Questionnaire Responses - stores answers to 7 pillar questions
+export const visionResponses = pgTable("vision_responses", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  responses: jsonb("responses").notNull(), // Store all 7 pillar answers as JSON
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertVisionResponseSchema = createInsertSchema(visionResponses).pick({
+  responses: true,
+});
+
+export type InsertVisionResponse = z.infer<typeof insertVisionResponseSchema>;
+export type VisionResponse = typeof visionResponses.$inferSelect;
+
 export const savedInsights = pgTable("saved_insights", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id).notNull(),
@@ -168,21 +184,15 @@ export const subscriptionPlans = pgTable("subscription_plans", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-// Enhanced goals system for Vision Board
+// Generated Vision Goals - AI-created goals based on questionnaire responses
 export const visionGoals = pgTable("vision_goals", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id).notNull(),
-  title: varchar("title", { length: 200 }).notNull(),
-  description: text("description"),
-  category: varchar("category", { length: 100 }).notNull(), // career, health, relationships, personal, financial, etc.
-  targetDate: timestamp("target_date"),
-  status: varchar("status", { length: 50 }).notNull().default("active"), // active, completed, paused, archived
-  priority: varchar("priority", { length: 20 }).notNull().default("medium"), // low, medium, high
-  progressPercentage: integer("progress_percentage").default(0).notNull(),
-  color: varchar("color", { length: 20 }).default("#3B82F6"), // hex color for visual organization
-  position: jsonb("position").default({ x: 0, y: 0 }), // for drag-and-drop positioning on board
-  aiGuidance: text("ai_guidance"), // AI-generated strategic advice for this goal
-  connectionIds: integer("connection_ids").array().default([]), // IDs of related goals
+  responseId: integer("response_id").references(() => visionResponses.id).notNull(),
+  pillarId: text("pillar_id").notNull(), // health, wealth, love, legacy, wisdom, spirituality, character
+  pillarName: text("pillar_name").notNull(),
+  goal: text("goal").notNull(), // AI-generated goal text
+  actionSteps: text("action_steps").array(), // AI-suggested action steps
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -260,22 +270,16 @@ export type InsertGoalProgress = typeof goalProgress.$inferInsert;
 export type VisionBoard = typeof visionBoards.$inferSelect;
 export type InsertVisionBoard = typeof visionBoards.$inferInsert;
 
-// Insert schemas for forms
+// Insert schemas for forms  
 export const insertVisionGoalSchema = createInsertSchema(visionGoals).pick({
-  title: true,
-  description: true,
-  category: true,
-  targetDate: true,
-  priority: true,
-  color: true,
-  position: true,
-}).partial({
-  description: true,
-  targetDate: true,
-  priority: true,
-  color: true,
-  position: true,
+  pillarId: true,
+  pillarName: true,
+  goal: true,
+  actionSteps: true,
 });
+
+export type InsertVisionGoal = z.infer<typeof insertVisionGoalSchema>;
+export type VisionGoal = typeof visionGoals.$inferSelect;
 
 export const insertGoalMilestoneSchema = createInsertSchema(goalMilestones).pick({
   title: true,

@@ -3919,6 +3919,151 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
     }
   });
 
+  // Generate vision goals from questionnaire responses
+  app.post("/api/vision/generate", async (req: any, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      const questionsAndAnswers = req.body;
+      console.log("Received questionnaire data:", questionsAndAnswers);
+
+      if (!Array.isArray(questionsAndAnswers) || questionsAndAnswers.length !== 7) {
+        return res.status(400).json({ message: "Expected 7 pillar responses" });
+      }
+
+      // Use OpenAI to analyze responses and generate 7 specific goals
+      const { OpenAI } = require('openai');
+      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+      const analysisPrompt = `You are an expert life coach analyzing a person's vision for their life across 7 key pillars. Based on their responses to deep reflection questions, generate ONE specific, actionable goal for each pillar.
+
+Here are their responses to the 7 Pillars of Life questions:
+
+${questionsAndAnswers.map((item, index) => `
+PILLAR ${index + 1}: ${item.pillarName.toUpperCase()}
+Question: "${item.question}"
+Their Response: "${item.answer}"
+`).join('\n')}
+
+For each pillar, create ONE clear, specific goal that:
+- Directly reflects their vision from their answer
+- Is actionable and measurable
+- Inspires forward movement
+- Addresses their specific situation
+
+Respond with JSON in this exact format:
+{
+  "goals": [
+    {
+      "pillarId": "health",
+      "pillarName": "Health", 
+      "goal": "specific goal statement",
+      "actionSteps": ["step 1", "step 2", "step 3"]
+    },
+    {
+      "pillarId": "wealth",
+      "pillarName": "Wealth",
+      "goal": "specific goal statement", 
+      "actionSteps": ["step 1", "step 2", "step 3"]
+    },
+    {
+      "pillarId": "love",
+      "pillarName": "Love",
+      "goal": "specific goal statement",
+      "actionSteps": ["step 1", "step 2", "step 3"]
+    },
+    {
+      "pillarId": "legacy", 
+      "pillarName": "Legacy",
+      "goal": "specific goal statement",
+      "actionSteps": ["step 1", "step 2", "step 3"]
+    },
+    {
+      "pillarId": "wisdom",
+      "pillarName": "Wisdom", 
+      "goal": "specific goal statement",
+      "actionSteps": ["step 1", "step 2", "step 3"]
+    },
+    {
+      "pillarId": "spirituality",
+      "pillarName": "Spirituality",
+      "goal": "specific goal statement",
+      "actionSteps": ["step 1", "step 2", "step 3"]
+    },
+    {
+      "pillarId": "character",
+      "pillarName": "Character",
+      "goal": "specific goal statement", 
+      "actionSteps": ["step 1", "step 2", "step 3"]
+    }
+  ]
+}`;
+
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+        messages: [
+          { role: "system", content: "You are an expert life coach who creates personalized goals from deep reflection responses. Always respond with valid JSON." },
+          { role: "user", content: analysisPrompt }
+        ],
+        max_tokens: 1500,
+        temperature: 0.7,
+        response_format: { type: "json_object" }
+      });
+
+      const aiResponse = JSON.parse(completion.choices[0].message.content);
+      console.log("AI generated goals:", aiResponse);
+
+      // Store responses and goals in database
+      const responseData = {
+        responses: questionsAndAnswers.reduce((acc, item) => {
+          acc[item.pillar] = item.answer;
+          return acc;
+        }, {} as Record<string, string>)
+      };
+
+      const [visionResponse] = await storage.createVisionResponse(req.user.id, responseData);
+      
+      // Store each generated goal
+      const goalPromises = aiResponse.goals.map((goal: any) => 
+        storage.createVisionGoal(req.user.id, visionResponse.id, {
+          pillarId: goal.pillarId,
+          pillarName: goal.pillarName,
+          goal: goal.goal,
+          actionSteps: goal.actionSteps
+        })
+      );
+
+      await Promise.all(goalPromises);
+
+      res.json({ 
+        success: true, 
+        goals: aiResponse.goals,
+        message: "Vision board generated successfully!" 
+      });
+
+    } catch (error: any) {
+      console.error("Error generating vision goals:", error);
+      res.status(500).json({ message: "Error generating vision goals: " + error.message });
+    }
+  });
+
+  // Get user's vision goals
+  app.get("/api/vision/goals", async (req: any, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      const goals = await storage.getUserVisionGoals(req.user.id);
+      res.json(goals);
+    } catch (error: any) {
+      console.error("Error fetching vision goals:", error);
+      res.status(500).json({ message: "Error fetching vision goals: " + error.message });
+    }
+  });
+
   // AI Insights endpoint for vision goals
   app.post("/api/vision/ai-insights", async (req: any, res) => {
     try {

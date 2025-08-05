@@ -20,10 +20,13 @@ import {
   userCustomTags,
   type UserCustomTag,
   type InsertUserCustomTag,
+  visionResponses,
   visionGoals,
   goalMilestones,
   goalProgress,
   visionBoards,
+  type VisionResponse,
+  type InsertVisionResponse,
   type VisionGoal,
   type InsertVisionGoal,
   type GoalMilestone,
@@ -83,7 +86,12 @@ import { db } from "./db";
 import { eq, desc, sql, and, gte, lte, count, isNotNull } from "drizzle-orm";
 
 export interface IStorage {
-  // Vision board methods
+  // Vision questionnaire methods
+  createVisionResponse(userId: number, responseData: InsertVisionResponse): Promise<VisionResponse[]>;
+  createVisionGoal(userId: number, responseId: number, goalData: InsertVisionGoal): Promise<VisionGoal>;
+  getUserVisionGoals(userId: number): Promise<VisionGoal[]>;
+  
+  // Legacy vision board methods (keeping for compatibility)
   createVisionBoardFromAnswers(userId: number, questionsAndAnswers: any[]): Promise<VisionGoal[]>;
   getVisionGoals(userId: number): Promise<VisionGoal[]>;
   createJournalEntry(userId: number, entry: InsertJournalEntry): Promise<JournalEntry>;
@@ -1599,6 +1607,32 @@ export class DatabaseStorage implements IStorage {
       .returning();
     
     return userQuest;
+  }
+
+  // Vision questionnaire methods
+  async createVisionResponse(userId: number, responseData: InsertVisionResponse): Promise<VisionResponse[]> {
+    const response = await db
+      .insert(visionResponses)
+      .values({ userId, ...responseData })
+      .returning();
+    return response;
+  }
+
+  async createVisionGoal(userId: number, responseId: number, goalData: InsertVisionGoal): Promise<VisionGoal> {
+    const [goal] = await db
+      .insert(visionGoals)
+      .values({ userId, responseId, ...goalData })
+      .returning();
+    return goal;
+  }
+
+  async getUserVisionGoals(userId: number): Promise<VisionGoal[]> {
+    const goals = await db
+      .select()
+      .from(visionGoals)
+      .where(eq(visionGoals.userId, userId))
+      .orderBy(visionGoals.createdAt);
+    return goals;
   }
 
   // Vision Board - 5-3-1 Formula Implementation
