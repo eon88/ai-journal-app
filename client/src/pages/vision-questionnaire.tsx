@@ -90,7 +90,7 @@ export default function VisionQuestionnaire() {
     mutationFn: async (questionsAndAnswers: any) => {
       console.log("Generating vision with data:", questionsAndAnswers);
       try {
-        const response = await apiRequest("POST", "/api/vision/generate", { questionsAndAnswers });
+        const response = await apiRequest("/api/vision/generate", "POST", { questionsAndAnswers });
         const data = await response.json();
         console.log("API response:", data);
         return data;
