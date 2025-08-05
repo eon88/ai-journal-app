@@ -116,9 +116,7 @@ export default function VisionQuestionnaire() {
     onSuccess: (data) => {
       console.log("Vision generation successful:", data);
       queryClient.invalidateQueries({ queryKey: ['/api/vision/goals'] });
-      setTimeout(() => {
-        setLocation('/vision-board');
-      }, 1000);
+      // Don't auto-redirect, let user click the button
     },
     onError: (error: any) => {
       console.error("Vision generation failed:", error);
@@ -214,9 +212,12 @@ export default function VisionQuestionnaire() {
                 }
               </p>
               
-              {!generateVisionMutation.isPending && (
-                <Button onClick={() => setLocation('/vision-board')}>
-                  View My Vision Board
+              {!generateVisionMutation.isPending && generateVisionMutation.isSuccess && (
+                <Button 
+                  onClick={() => setLocation('/vision-board')}
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold px-8 py-3 rounded-lg text-lg"
+                >
+                  Take Me to My Vision Board
                 </Button>
               )}
             </CardContent>
