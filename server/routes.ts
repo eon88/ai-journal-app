@@ -4031,7 +4031,7 @@ Respond with JSON in this exact format:
           pillarId: goal.pillarId,
           pillarName: goal.pillarName,
           goal: goal.goal,
-          actionSteps: goal.actionSteps
+          actionSteps: goal.actionSteps || []
         })
       );
 

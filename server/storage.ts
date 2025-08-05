@@ -1614,7 +1614,10 @@ export class DatabaseStorage implements IStorage {
   async createVisionResponse(userId: number, responseData: InsertVisionResponse): Promise<VisionResponse[]> {
     const response = await db
       .insert(visionResponses)
-      .values({ userId, ...responseData })
+      .values({ 
+        userId, 
+        responses: responseData.responses
+      })
       .returning();
     return response;
   }
@@ -1622,7 +1625,14 @@ export class DatabaseStorage implements IStorage {
   async createVisionGoal(userId: number, responseId: number, goalData: InsertVisionGoal): Promise<VisionGoal> {
     const [goal] = await db
       .insert(visionGoals)
-      .values({ userId, responseId, ...goalData })
+      .values({ 
+        userId, 
+        responseId, 
+        pillarId: goalData.pillarId,
+        pillarName: goalData.pillarName,
+        goal: goalData.goal,
+        actionSteps: goalData.actionSteps
+      })
       .returning();
     return goal;
   }
