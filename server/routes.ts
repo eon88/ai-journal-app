@@ -3815,11 +3815,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   // ===== VISION BOARD ROUTES =====
   
   // Generate vision board from questionnaire responses (Admin only)
-  app.post("/api/vision/generate", async (req, res) => {
-    if (!req.isAuthenticated()) {
-      return res.sendStatus(401);
-    }
-    
+  app.post("/api/vision/generate", jwtAuth, async (req: any, res) => {
     if (req.user.role !== 'admin' && req.user.id !== 2) {
       return res.status(403).json({ message: "Admin access required" });
     }
@@ -3840,11 +3836,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   });
 
   // Get user's vision goals (Admin only)
-  app.get("/api/vision/goals", async (req, res) => {
-    if (!req.isAuthenticated()) {
-      return res.sendStatus(401);
-    }
-    
+  app.get("/api/vision/goals", jwtAuth, async (req: any, res) => {
     if (req.user.role !== 'admin' && req.user.id !== 2) {
       return res.status(403).json({ message: "Admin access required" });
     }
