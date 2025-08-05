@@ -324,52 +324,26 @@ export default function VisionBoard() {
                 </foreignObject>
               ) : (
                 <>
-                  {/* Icon for the pillar - larger and more prominent */}
-                  <g transform="translate(0, -6)">
-                    {node.id === 'health' && (
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="white" stroke="none" x="-12" y="-12">
-                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                      </svg>
-                    )}
-                    {node.id === 'wealth' && (
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="white" stroke="white" strokeWidth="2" x="-12" y="-12">
-                        <line x1="12" y1="2" x2="12" y2="22"/>
-                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                      </svg>
-                    )}
-                    {node.id === 'love' && (
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="white" stroke="none" x="-12" y="-12">
-                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                      </svg>
-                    )}
-                    {node.id === 'legacy' && (
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="white" stroke="white" strokeWidth="2" x="-12" y="-12">
-                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                      </svg>
-                    )}
-                    {node.id === 'wisdom' && (
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="white" stroke="none" x="-12" y="-12">
-                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-                      </svg>
-                    )}
-                    {node.id === 'spirituality' && (
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="white" stroke="white" strokeWidth="2" x="-12" y="-12">
-                        <circle cx="12" cy="12" r="4"/>
-                        <path d="M12 2v4m0 12v4M2 12h4m12 0h4m-2.5-7.5l-2.8 2.8m-8.4 8.4l-2.8 2.8m8.4-8.4l2.8 2.8M4.9 4.9l2.8 2.8"/>
-                      </svg>
-                    )}
-                    {node.id === 'character' && (
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="white" stroke="none" x="-12" y="-12">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                        <circle cx="12" cy="7" r="4"/>
-                      </svg>
-                    )}
-                  </g>
+                  {/* Emoji icons for the pillars */}
+                  <text
+                    x="0"
+                    y="-2"
+                    textAnchor="middle"
+                    fontSize="20"
+                    className="select-none"
+                  >
+                    {node.id === 'health' && '🫀'}
+                    {node.id === 'wealth' && '💰'}
+                    {node.id === 'love' && '❤️'}
+                    {node.id === 'legacy' && '🌳'}
+                    {node.id === 'wisdom' && '📚'}
+                    {node.id === 'spirituality' && '✨'}
+                    {node.id === 'character' && '🛡️'}
+                  </text>
                   
                   <text
                     x="0"
-                    y="16"
+                    y="18"
                     textAnchor="middle"
                     fill="white"
                     fontSize="9"

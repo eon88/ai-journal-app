@@ -39,7 +39,7 @@ User name: Alex
 - **Includes**: Full journal access + vision planning features
 - **Features**: AI-guided goal structuring, milestone tracking, vision board creation, progress visualization, goal interconnection mapping
 - **Interactive Elements**: Draggable pillar bubbles, text editing (double-click), completion tracking with visual checkmarks
-- **Icons**: Large prominent icons for each life pillar (24px, white fill/stroke)
+- **Icons**: Emoji icons for each life pillar (🫀 Health, 💰 Wealth, ❤️ Love, 🌳 Legacy, 📚 Wisdom, ✨ Spirituality, 🛡️ Character)
 - **Status**: Complete system developed, currently restricted to admin-only access for testing
 - **Access**: Available through admin panel and header dropdown for admin users
 
