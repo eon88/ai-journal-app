@@ -177,8 +177,8 @@ export default function VisionBoard() {
         <svg 
           width="100%" 
           height="100%" 
-          viewBox="0 0 800 600"
-          className="w-full h-full"
+          viewBox={`${400 - (400 * zoomLevel/100)} ${300 - (300 * zoomLevel/100)} ${800 * zoomLevel/100} ${600 * zoomLevel/100}`}
+          className="w-full h-full transition-all duration-200"
         >
           {/* Background */}
           <defs>
@@ -341,74 +341,7 @@ export default function VisionBoard() {
         </svg>
       </div>
 
-      {/* Goals Panel at Bottom - Main Pillar */}
-      {expandedPillar && !selectedSubBubble && (
-        <div className="fixed bottom-0 left-0 right-0 bg-slate-700 text-white border-t border-slate-600 shadow-lg transition-all duration-300 ease-in-out z-40">
-          <div className="container mx-auto px-6 py-4">
-            {(() => {
-              const pillar = nodesWithGoals.find(n => n.id === expandedPillar);
-              const goal = goals.find(g => g.pillarId === expandedPillar);
-              
-              return (
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-4 mb-3">
-                      <div 
-                        className="w-12 h-12 rounded-full flex items-center justify-center"
-                        style={{ backgroundColor: pillar?.color }}
-                      >
-                        <span className="text-white font-bold text-xl">
-                          {pillar?.name.charAt(0)}
-                        </span>
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-bold text-white">
-                          {goal?.pillarName || pillar?.name}
-                        </h3>
-                        {goal && (
-                          <p className="text-slate-300 text-sm mt-1">
-                            {goal.goal}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                    
-                    {goal && goal.actionSteps && (
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-                        {goal.actionSteps.slice(0, 4).map((step, index) => (
-                          <div 
-                            key={index} 
-                            className="flex items-center gap-3 p-3 rounded-lg bg-slate-600/50 border border-slate-500"
-                          >
-                            <div 
-                              className="w-6 h-6 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
-                              style={{ backgroundColor: pillar?.color }}
-                            >
-                              {index + 1}
-                            </div>
-                            <p className="text-slate-200 text-sm">
-                              {step}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => setExpandedPillar(null)}
-                    className="ml-4 text-white hover:bg-slate-600"
-                  >
-                    ✕
-                  </Button>
-                </div>
-              );
-            })()}
-          </div>
-        </div>
-      )}
+
 
       {/* Timeline Panel at Bottom - Sub-bubble Selected */}
       {selectedSubBubble && (
@@ -441,16 +374,42 @@ export default function VisionBoard() {
                       </div>
                     </div>
                     
-                    {/* Timeline visualization */}
+                    {/* Timeline visualization with checkable tasks */}
                     <div className="relative">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Research Destinations</span>
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Save Budget</span>
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Book Flights</span>
-                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Plan Itinerary</span>
+                      <div className="grid grid-cols-4 gap-4 mb-6">
+                        {['Research Destinations', 'Save Budget', 'Book Flights', 'Plan Itinerary'].map((taskName, taskIndex) => (
+                          <div key={taskIndex} className="text-center">
+                            <div className="flex flex-col items-center gap-2">
+                              <button 
+                                className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
+                                  taskIndex <= selectedSubBubble.stepIndex 
+                                    ? 'border-green-500 bg-green-500 text-white' 
+                                    : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
+                                }`}
+                                onClick={() => {
+                                  // Toggle task completion - this would update the backend in real implementation
+                                  console.log(`Toggled task ${taskIndex}: ${taskName}`);
+                                }}
+                              >
+                                {taskIndex <= selectedSubBubble.stepIndex && (
+                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <polyline points="20,6 9,17 4,12"></polyline>
+                                  </svg>
+                                )}
+                              </button>
+                              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                {taskName}
+                              </span>
+                              <span className="text-xs text-gray-500 dark:text-gray-400">
+                                {['2 months', '$200/month', '3 months ahead', '1 month ahead'][taskIndex]}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                       
-                      <div className="relative h-2 bg-gray-200 dark:bg-gray-600 rounded-full mb-4">
+                      {/* Progress bar */}
+                      <div className="relative h-2 bg-gray-200 dark:bg-gray-600 rounded-full">
                         <div 
                           className="absolute left-0 top-0 h-full rounded-full transition-all duration-500"
                           style={{ 
@@ -459,29 +418,21 @@ export default function VisionBoard() {
                           }}
                         />
                         
-                        {/* Timeline markers */}
+                        {/* Timeline markers on progress bar */}
                         {[0, 1, 2, 3].map((markerIndex) => (
                           <div
                             key={markerIndex}
-                            className={`absolute top-1/2 transform -translate-y-1/2 w-4 h-4 rounded-full border-2 ${
+                            className={`absolute top-1/2 transform -translate-y-1/2 w-3 h-3 rounded-full border-2 ${
                               markerIndex <= selectedSubBubble.stepIndex 
-                                ? 'border-white' 
-                                : 'border-gray-400 dark:border-gray-500'
+                                ? 'border-white bg-green-500' 
+                                : 'border-gray-400 dark:border-gray-500 bg-gray-200 dark:bg-gray-600'
                             }`}
                             style={{
                               left: `${(markerIndex / 3) * 100}%`,
-                              backgroundColor: markerIndex <= selectedSubBubble.stepIndex ? pillar?.color : 'transparent',
-                              marginLeft: '-8px'
+                              marginLeft: '-6px'
                             }}
                           />
                         ))}
-                      </div>
-                      
-                      <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-                        <span>2 months</span>
-                        <span>$200/month</span>
-                        <span>3 months ahead</span>
-                        <span>1 month ahead</span>
                       </div>
                     </div>
                   </div>
