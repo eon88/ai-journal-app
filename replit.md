@@ -40,6 +40,7 @@ User name: Alex
 - **Features**: AI-guided goal structuring, milestone tracking, vision board creation, progress visualization, goal interconnection mapping
 - **Interactive Elements**: Draggable pillar bubbles, text editing (double-click), completion tracking with visual checkmarks
 - **Icons**: Emoji icons for each life pillar (🫀 Health, 💰 Wealth, ❤️ Love, 🌳 Legacy, 📚 Wisdom, ✨ Spirituality, 🛡️ Character)
+- **Colors**: Custom color scheme (Health: white, Wealth: green, Love: soft pink, Legacy: black, Wisdom: soft gray, Spirituality: soft blue, Character: pale yellow)
 - **Status**: Complete system developed, currently restricted to admin-only access for testing
 - **Access**: Available through admin panel and header dropdown for admin users
 

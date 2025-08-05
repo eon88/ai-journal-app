@@ -46,13 +46,13 @@ export default function VisionBoard() {
 
   // Define pillar positions in a circle around the center
   const pillarNodes: PillarNode[] = [
-    { id: 'health', name: 'Health', color: '#EF4444', x: 420, y: 200 },
-    { id: 'wealth', name: 'Wealth', color: '#F97316', x: 540, y: 130 },
-    { id: 'love', name: 'Love', color: '#EC4899', x: 620, y: 200 },
-    { id: 'legacy', name: 'Legacy', color: '#8B5CF6', x: 620, y: 350 },
-    { id: 'wisdom', name: 'Wisdom', color: '#EAB308', x: 520, y: 420 },
-    { id: 'spirituality', name: 'Spirituality', color: '#22C55E', x: 330, y: 420 },
-    { id: 'character', name: 'Character', color: '#3B82F6', x: 420, y: 350 },
+    { id: 'health', name: 'Health', color: '#FFFFFF', x: 420, y: 200 },
+    { id: 'wealth', name: 'Wealth', color: '#22C55E', x: 540, y: 130 },
+    { id: 'love', name: 'Love', color: '#F8BBD0', x: 620, y: 200 },
+    { id: 'legacy', name: 'Legacy', color: '#000000', x: 620, y: 350 },
+    { id: 'wisdom', name: 'Wisdom', color: '#E5E7EB', x: 520, y: 420 },
+    { id: 'spirituality', name: 'Spirituality', color: '#BFDBFE', x: 330, y: 420 },
+    { id: 'character', name: 'Character', color: '#FEF3C7', x: 420, y: 350 },
   ];
 
 
@@ -306,7 +306,9 @@ export default function VisionBoard() {
                   <input
                     type="text"
                     defaultValue={node.name}
-                    className="w-full h-full text-center text-xs font-bold bg-white dark:bg-gray-800 text-black dark:text-white border border-gray-300 dark:border-gray-600 rounded px-1 outline-none"
+                    className={`w-full h-full text-center text-xs font-bold border border-gray-300 dark:border-gray-600 rounded px-1 outline-none ${
+                      node.id === 'legacy' ? 'bg-white text-black' : 'bg-white dark:bg-gray-800 text-black dark:text-white'
+                    }`}
                     onBlur={(e) => {
                       console.log(`Updated pillar ${node.id} name to: ${e.target.value}`);
                       setEditingText(null);
@@ -345,7 +347,7 @@ export default function VisionBoard() {
                     x="0"
                     y="18"
                     textAnchor="middle"
-                    fill="white"
+                    fill={node.id === 'health' || node.id === 'wisdom' || node.id === 'character' ? '#374151' : 'white'}
                     fontSize="9"
                     fontWeight="bold"
                     className="cursor-pointer select-none"
@@ -441,7 +443,7 @@ export default function VisionBoard() {
                               x="0"
                               y="-2"
                               textAnchor="middle"
-                              fill="white"
+                              fill={node.id === 'health' || node.id === 'wisdom' || node.id === 'character' ? '#374151' : 'white'}
                               fontSize="7"
                               fontWeight="bold"
                               className="cursor-pointer"
@@ -457,7 +459,7 @@ export default function VisionBoard() {
                                 x="0"
                                 y="8"
                                 textAnchor="middle"
-                                fill="white"
+                                fill={node.id === 'health' || node.id === 'wisdom' || node.id === 'character' ? '#374151' : 'white'}
                                 fontSize="7"
                                 fontWeight="bold"
                                 className="cursor-pointer"
