@@ -192,7 +192,7 @@ export default function VisionBoard() {
                 Your Life Vision
               </h1>
               <p className="text-gray-600 dark:text-gray-300 mt-1">
-                Click to expand goals • Drag to rearrange
+                Click to expand goals • Drag to rearrange • Double-click text to edit
               </p>
             </div>
             <Button 
@@ -302,11 +302,11 @@ export default function VisionBoard() {
                 onMouseDown={(e) => handlePillarDrag(node.id, e)}
               />
               {editingText?.type === 'pillar' && editingText.id === node.id ? (
-                <foreignObject x="-30" y="-8" width="60" height="16">
+                <foreignObject x="-35" y="-10" width="70" height="20">
                   <input
                     type="text"
                     defaultValue={node.name}
-                    className="w-full h-full text-center text-sm font-bold bg-transparent text-white border-none outline-none"
+                    className="w-full h-full text-center text-xs font-bold bg-white dark:bg-gray-800 text-black dark:text-white border border-gray-300 dark:border-gray-600 rounded px-1 outline-none"
                     onBlur={(e) => {
                       console.log(`Updated pillar ${node.id} name to: ${e.target.value}`);
                       setEditingText(null);
@@ -315,23 +315,77 @@ export default function VisionBoard() {
                       if (e.key === 'Enter') {
                         e.currentTarget.blur();
                       }
+                      if (e.key === 'Escape') {
+                        setEditingText(null);
+                      }
                     }}
                     autoFocus
                   />
                 </foreignObject>
               ) : (
-                <text
-                  x="0"
-                  y="4"
-                  textAnchor="middle"
-                  fill="white"
-                  fontSize="11"
-                  fontWeight="bold"
-                  className="pointer-events-none select-none"
-                  onDoubleClick={() => setEditingText({ type: 'pillar', id: node.id })}
-                >
-                  {node.name}
-                </text>
+                <>
+                  {/* Icon for the pillar */}
+                  <g transform="translate(0, -8)">
+                    {node.id === 'health' && (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" x="-8" y="-8">
+                        <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/>
+                      </svg>
+                    )}
+                    {node.id === 'wealth' && (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" x="-8" y="-8">
+                        <line x1="12" y1="1" x2="12" y2="23"/>
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                      </svg>
+                    )}
+                    {node.id === 'love' && (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" x="-8" y="-8">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                      </svg>
+                    )}
+                    {node.id === 'legacy' && (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" x="-8" y="-8">
+                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                        <line x1="3" y1="6" x2="21" y2="6"/>
+                        <path d="M16 10a4 4 0 0 1-8 0"/>
+                      </svg>
+                    )}
+                    {node.id === 'wisdom' && (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" x="-8" y="-8">
+                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                      </svg>
+                    )}
+                    {node.id === 'spirituality' && (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" x="-8" y="-8">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1m15.5-6.5l-4.24 4.24M7.76 16.24l-4.24 4.24m12.73 0l-4.24-4.24M7.76 7.76L3.52 3.52"/>
+                      </svg>
+                    )}
+                    {node.id === 'character' && (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" x="-8" y="-8">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+                      </svg>
+                    )}
+                  </g>
+                  
+                  <text
+                    x="0"
+                    y="12"
+                    textAnchor="middle"
+                    fill="white"
+                    fontSize="9"
+                    fontWeight="bold"
+                    className="cursor-pointer select-none"
+                    onDoubleClick={(e) => {
+                      e.stopPropagation();
+                      setEditingText({ type: 'pillar', id: node.id });
+                    }}
+                  >
+                    {node.name}
+                  </text>
+                </>
               )}
               
               {/* Sub-bubbles for action steps when expanded */}
@@ -390,11 +444,11 @@ export default function VisionBoard() {
                         )}
                         
                         {editingText?.type === 'subBubble' && editingText.id === node.id && editingText.index === index ? (
-                          <foreignObject x="-20" y="-10" width="40" height="20">
+                          <foreignObject x="-25" y="-12" width="50" height="24">
                             <input
                               type="text"
                               defaultValue={step}
-                              className="w-full h-full text-center text-xs font-bold bg-transparent text-white border-none outline-none"
+                              className="w-full h-full text-center text-xs font-bold bg-white dark:bg-gray-800 text-black dark:text-white border border-gray-300 dark:border-gray-600 rounded px-1 outline-none"
                               onBlur={(e) => {
                                 console.log(`Updated sub-bubble ${node.id}-${index} text to: ${e.target.value}`);
                                 setEditingText(null);
@@ -402,6 +456,9 @@ export default function VisionBoard() {
                               onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
                                   e.currentTarget.blur();
+                                }
+                                if (e.key === 'Escape') {
+                                  setEditingText(null);
                                 }
                               }}
                               autoFocus
@@ -416,8 +473,11 @@ export default function VisionBoard() {
                               fill="white"
                               fontSize="7"
                               fontWeight="bold"
-                              className="pointer-events-none"
-                              onDoubleClick={() => setEditingText({ type: 'subBubble', id: node.id, index })}
+                              className="cursor-pointer"
+                              onDoubleClick={(e) => {
+                                e.stopPropagation();
+                                setEditingText({ type: 'subBubble', id: node.id, index });
+                              }}
                             >
                               {line1}
                             </text>
@@ -429,8 +489,11 @@ export default function VisionBoard() {
                                 fill="white"
                                 fontSize="7"
                                 fontWeight="bold"
-                                className="pointer-events-none"
-                                onDoubleClick={() => setEditingText({ type: 'subBubble', id: node.id, index })}
+                                className="cursor-pointer"
+                                onDoubleClick={(e) => {
+                                  e.stopPropagation();
+                                  setEditingText({ type: 'subBubble', id: node.id, index });
+                                }}
                               >
                                 {line2}
                               </text>
@@ -521,7 +584,7 @@ export default function VisionBoard() {
                                   <input
                                     type="text"
                                     defaultValue={taskName}
-                                    className="text-sm font-medium text-gray-700 dark:text-gray-300 bg-transparent border-b border-gray-300 dark:border-gray-600 text-center outline-none"
+                                    className="text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-center outline-none rounded px-2 py-1"
                                     onBlur={(e) => {
                                       console.log(`Updated task ${taskIndex} text to: ${e.target.value}`);
                                       setEditingText(null);
@@ -530,12 +593,15 @@ export default function VisionBoard() {
                                       if (e.key === 'Enter') {
                                         e.currentTarget.blur();
                                       }
+                                      if (e.key === 'Escape') {
+                                        setEditingText(null);
+                                      }
                                     }}
                                     autoFocus
                                   />
                                 ) : (
                                   <span 
-                                    className="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 px-2 py-1 rounded"
+                                    className="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 px-2 py-1 rounded transition-colors"
                                     onDoubleClick={() => setEditingText({ type: 'task', id: selectedSubBubble.pillarId, index: taskIndex })}
                                   >
                                     {taskName}
