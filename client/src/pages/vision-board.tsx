@@ -1,293 +1,340 @@
-import { useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Target, Sparkles, Lightbulb, Plus, RotateCcw } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { apiRequest } from "@/lib/queryClient";
-import { VisionGoal } from "@shared/schema";
-import { Link } from "wouter";
+import { RefreshCw, Target, Sparkles, Plus, Minus } from "lucide-react";
+import { useLocation } from "wouter";
+import { useState } from "react";
 
-const pillarConfig = {
-  health: { icon: "💪", color: "emerald" },
-  wealth: { icon: "💰", color: "amber" },
-  love: { icon: "❤️", color: "rose" },
-  legacy: { icon: "🏛️", color: "indigo" },
-  wisdom: { icon: "🧠", color: "violet" },
-  spirituality: { icon: "✨", color: "purple" },
-  character: { icon: "🎯", color: "blue" }
-};
+interface VisionGoal {
+  id: number;
+  userId: number;
+  responseId: number;
+  pillarId: string;
+  pillarName: string;
+  goal: string;
+  actionSteps: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface PillarNode {
+  id: string;
+  name: string;
+  color: string;
+  x: number;
+  y: number;
+  goal?: string;
+  actionSteps?: string[];
+}
 
 export default function VisionBoard() {
-  const queryClient = useQueryClient();
-  const { data: visionGoals = [], isLoading, error } = useQuery({
-    queryKey: ["/api/vision/goals"],
-    queryFn: async () => {
-      const response = await fetch("/api/vision/goals", {
-        credentials: "include"
-      });
-      if (!response.ok) {
-        throw new Error("Failed to fetch vision goals");
-      }
-      return response.json();
-    }
+  const [, setLocation] = useLocation();
+  const [zoomLevel, setZoomLevel] = useState(50);
+  const [expandedPillar, setExpandedPillar] = useState<string | null>(null);
+
+  const { data: goals = [], isLoading, error } = useQuery<VisionGoal[]>({
+    queryKey: ['/api/vision/goals'],
   });
 
-  const handleClearVision = async () => {
-    try {
-      await apiRequest("DELETE", "/api/vision/goals");
-      queryClient.invalidateQueries({ queryKey: ["/api/vision/goals"] });
-    } catch (error) {
-      console.error("Error clearing vision goals:", error);
-    }
+  const handleRetakeQuestionnaire = () => {
+    setLocation('/vision-questionnaire');
+  };
+
+  // Define pillar positions in a circle around the center - matching the reference design
+  const pillarNodes: PillarNode[] = [
+    { id: 'health', name: 'Health & Fitness', color: '#EF4444', x: 420, y: 200 },
+    { id: 'wealth', name: 'Recreation& Fun', color: '#F97316', x: 540, y: 130 },
+    { id: 'love', name: 'Career& Growth', color: '#10B981', x: 620, y: 200 },
+    { id: 'legacy', name: 'Contribution', color: '#8B5CF6', x: 420, y: 350 },
+    { id: 'wisdom', name: 'Personal& Growth', color: '#EAB308', x: 330, y: 420 },
+    { id: 'spirituality', name: 'Financial& Security', color: '#22C55E', x: 520, y: 420 },
+    { id: 'character', name: 'Relationships', color: '#3B82F6', x: 620, y: 350 },
+  ];
+
+  // Map goals to pillar nodes
+  const nodesWithGoals = pillarNodes.map(node => {
+    const goal = goals.find(g => g.pillarId === node.id);
+    return {
+      ...node,
+      goal: goal?.goal,
+      actionSteps: goal?.actionSteps
+    };
+  });
+
+  const handleZoomIn = () => setZoomLevel(Math.min(100, zoomLevel + 10));
+  const handleZoomOut = () => setZoomLevel(Math.max(20, zoomLevel - 10));
+
+  const handlePillarClick = (pillarId: string) => {
+    setExpandedPillar(expandedPillar === pillarId ? null : pillarId);
   };
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        <div className="flex items-center justify-center min-h-96">
-          <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-center min-h-[60vh]">
+            <div className="text-center space-y-4">
+              <RefreshCw className="h-8 w-8 animate-spin mx-auto text-blue-600" />
+              <p className="text-lg text-gray-600 dark:text-gray-300">Loading your vision board...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-center min-h-[60vh]">
+            <div className="text-center space-y-4">
+              <p className="text-lg text-red-600 dark:text-red-400">Error loading vision board</p>
+              <Button onClick={() => window.location.reload()}>Try Again</Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (goals.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-center min-h-[60vh]">
+            <div className="text-center space-y-6">
+              <Target className="h-16 w-16 mx-auto text-blue-600 dark:text-blue-400" />
+              <div>
+                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
+                  Complete Your Vision Questionnaire
+                </h2>
+                <p className="text-gray-600 dark:text-gray-300 mb-6">
+                  Answer 7 deep questions to generate your personalized life vision board
+                </p>
+                <Button onClick={handleRetakeQuestionnaire} size="lg" className="flex items-center gap-2">
+                  <Sparkles size={16} />
+                  Start Questionnaire
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
-        <div className="mb-4 md:mb-0">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Vision Board</h1>
-          <p className="text-muted-foreground">
-            Your 7 Pillars of Life - AI-generated goals from your questionnaire responses
-          </p>
-        </div>
-        {visionGoals.length > 0 && (
-          <div className="flex gap-3">
-            <Link href="/vision-questionnaire">
-              <Button variant="outline" className="flex items-center gap-2">
-                <RotateCcw className="w-4 h-4" />
-                Retake Questionnaire
-              </Button>
-            </Link>
-          </div>
-        )}
-      </div>
-      
-      {error ? (
-        <div className="p-8 text-center">
-          <div className="mx-auto w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mb-6">
-            <Target className="h-10 w-10 text-red-600" />
-          </div>
-          <h3 className="text-xl font-semibold mb-2 text-red-800">Unable to Load Goals</h3>
-          <p className="text-red-600 mb-6 max-w-md mx-auto">
-            There was an error loading your vision goals. Please complete the questionnaire first.
-          </p>
-        </div>
-      ) : visionGoals.length === 0 ? (
-        <div className="p-8 text-center">
-          <div className="mx-auto w-24 h-24 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mb-6">
-            <Target className="h-10 w-10 text-white" />
-          </div>
-          <h3 className="text-xl font-semibold mb-2">Complete Your Vision Questionnaire</h3>
-          <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-            Complete the 7 Pillars questionnaire to generate your personalized vision goals.
-          </p>
-          <Link href="/vision-questionnaire">
-            <Button className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white">
-              Start Questionnaire
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Header */}
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                Your Life Vision
+              </h1>
+              <p className="text-gray-600 dark:text-gray-300 mt-1">
+                Click to expand goals • Drag to rearrange
+              </p>
+            </div>
+            <Button 
+              onClick={handleRetakeQuestionnaire}
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              <RefreshCw size={16} />
+              Retake Questionnaire
             </Button>
-          </Link>
+          </div>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {visionGoals.map((goal: VisionGoal) => {
-            const config = pillarConfig[goal.pillarId as keyof typeof pillarConfig];
-            return (
-              <AIEnhancedGoalCard
-                key={goal.id}
-                title={`${config?.icon} ${goal.pillarName}`}
-                description={goal.goal}
-                category={goal.pillarId}
-                icon={config?.icon || "🎯"}
-                color={config?.color || "blue"}
-                actionSteps={goal.actionSteps || []}
+      </div>
+
+      {/* Vision Board Canvas */}
+      <div className="relative w-full" style={{ height: 'calc(100vh - 140px)' }}>
+        {/* Zoom Controls */}
+        <div className="absolute top-4 right-4 z-10 flex items-center gap-2 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-2 shadow-lg">
+          <Button size="sm" variant="ghost" onClick={handleZoomOut}>
+            <Minus size={16} />
+          </Button>
+          <span className="text-sm font-medium px-2 text-gray-700 dark:text-gray-300">
+            {zoomLevel}%
+          </span>
+          <Button size="sm" variant="ghost" onClick={handleZoomIn}>
+            <Plus size={16} />
+          </Button>
+          <Button size="sm" variant="ghost">
+            <RefreshCw size={16} />
+          </Button>
+        </div>
+
+        {/* SVG Canvas */}
+        <svg 
+          width="100%" 
+          height="100%" 
+          viewBox="0 0 800 600"
+          className="w-full h-full"
+        >
+          {/* Background */}
+          <defs>
+            <radialGradient id="bgGradient" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#f8fafc" />
+              <stop offset="100%" stopColor="#e2e8f0" />
+            </radialGradient>
+          </defs>
+          <rect width="800" height="600" fill="url(#bgGradient)" />
+
+          {/* Connection Lines */}
+          {nodesWithGoals.map((node) => (
+            <line
+              key={`line-${node.id}`}
+              x1="400"
+              y1="300"
+              x2={node.x}
+              y2={node.y}
+              stroke="#e2e8f0"
+              strokeWidth="2"
+              strokeDasharray="5,5"
+            />
+          ))}
+
+          {/* Central Vision Board Node */}
+          <g transform="translate(400, 300)">
+            <circle
+              cx="0"
+              cy="0"
+              r="40"
+              fill="#374151"
+              stroke="#6b7280"
+              strokeWidth="2"
+            />
+            <text
+              x="0"
+              y="-5"
+              textAnchor="middle"
+              fill="white"
+              fontSize="12"
+              fontWeight="bold"
+            >
+              Vision
+            </text>
+            <text
+              x="0"
+              y="8"
+              textAnchor="middle"
+              fill="white"
+              fontSize="12"
+              fontWeight="bold"
+            >
+              Board
+            </text>
+          </g>
+
+          {/* Pillar Nodes */}
+          {nodesWithGoals.map((node) => (
+            <g key={node.id} transform={`translate(${node.x}, ${node.y})`}>
+              <circle
+                cx="0"
+                cy="0"
+                r="35"
+                fill={node.color}
+                stroke={expandedPillar === node.id ? "#374151" : "white"}
+                strokeWidth={expandedPillar === node.id ? "3" : "2"}
+                className="cursor-pointer transition-all duration-200 hover:r-38"
+                onClick={() => handlePillarClick(node.id)}
               />
-            );
-          })}
+              <text
+                x="0"
+                y="-5"
+                textAnchor="middle"
+                fill="white"
+                fontSize="10"
+                fontWeight="bold"
+                className="pointer-events-none"
+              >
+                {node.name.split('&')[0].trim()}
+              </text>
+              <text
+                x="0"
+                y="8"
+                textAnchor="middle"
+                fill="white"
+                fontSize="10"
+                fontWeight="bold"
+                className="pointer-events-none"
+              >
+                {node.name.split('&')[1]?.trim() || ''}
+              </text>
+            </g>
+          ))}
+        </svg>
+      </div>
+
+      {/* Expanded Pillar Panel */}
+      {expandedPillar && (
+        <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-lg transition-all duration-300 ease-in-out">
+          <div className="container mx-auto px-4 py-6">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                {(() => {
+                  const pillar = nodesWithGoals.find(n => n.id === expandedPillar);
+                  const goal = goals.find(g => g.pillarId === expandedPillar);
+                  
+                  return (
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-3">
+                          <div 
+                            className="w-8 h-8 rounded-full"
+                            style={{ backgroundColor: pillar?.color }}
+                          />
+                          <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                            {goal?.pillarName || pillar?.name}
+                          </h3>
+                        </div>
+                      </div>
+                      
+                      {goal && (
+                        <>
+                          <div className="md:col-span-2">
+                            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Goal:</h4>
+                            <p className="text-gray-700 dark:text-gray-300">
+                              {goal.goal}
+                            </p>
+                          </div>
+                          
+                          <div>
+                            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Action Steps:</h4>
+                            <ul className="space-y-1">
+                              {goal.actionSteps?.slice(0, 4).map((step, index) => (
+                                <li key={index} className="text-gray-600 dark:text-gray-400 text-sm flex items-start gap-2">
+                                  <span 
+                                    className="w-1.5 h-1.5 rounded-full mt-2 flex-shrink-0"
+                                    style={{ backgroundColor: pillar?.color }}
+                                  />
+                                  {step}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  );
+                })()}
+              </div>
+              
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => setExpandedPillar(null)}
+                className="ml-4"
+              >
+                ✕
+              </Button>
+            </div>
+          </div>
         </div>
       )}
     </div>
-  );
-}
-
-// AI-Enhanced Goal Card Component
-function AIEnhancedGoalCard({ 
-  title, 
-  description, 
-  category, 
-  icon, 
-  color,
-  actionSteps = []
-}: {
-  title: string;
-  description: string;
-  category: string;
-  icon: string;
-  color: string;
-  actionSteps?: string[];
-}) {
-  const [aiInsights, setAiInsights] = useState<string | null>(null);
-  const [isGeneratingInsights, setIsGeneratingInsights] = useState(false);
-  const [showInsights, setShowInsights] = useState(false);
-
-  const generateAIInsights = async () => {
-    setIsGeneratingInsights(true);
-    try {
-      const response = await fetch("/api/vision/ai-insights", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          goal: description,
-          category: category
-        })
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Failed to generate insights: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      setAiInsights(data.insights);
-      setShowInsights(true);
-    } catch (error) {
-      console.error("Failed to generate AI insights:", error);
-      setAiInsights("Unable to generate insights at this time. Please try again later.");
-      setShowInsights(true);
-    } finally {
-      setIsGeneratingInsights(false);
-    }
-  };
-
-  const colorStyles = {
-    emerald: {
-      card: "border-emerald-200 bg-emerald-50 hover:bg-emerald-100",
-      title: "text-emerald-800",
-      text: "text-emerald-700",
-      progress: "text-emerald-600",
-      button: "bg-emerald-600 hover:bg-emerald-700 text-white"
-    },
-    amber: {
-      card: "border-amber-200 bg-amber-50 hover:bg-amber-100",
-      title: "text-amber-800",
-      text: "text-amber-700", 
-      progress: "text-amber-600",
-      button: "bg-amber-600 hover:bg-amber-700 text-white"
-    },
-    rose: {
-      card: "border-rose-200 bg-rose-50 hover:bg-rose-100",
-      title: "text-rose-800",
-      text: "text-rose-700",
-      progress: "text-rose-600",
-      button: "bg-rose-600 hover:bg-rose-700 text-white" 
-    },
-    indigo: {
-      card: "border-indigo-200 bg-indigo-50 hover:bg-indigo-100",
-      title: "text-indigo-800",
-      text: "text-indigo-700",
-      progress: "text-indigo-600",
-      button: "bg-indigo-600 hover:bg-indigo-700 text-white"
-    },
-    violet: {
-      card: "border-violet-200 bg-violet-50 hover:bg-violet-100",
-      title: "text-violet-800",
-      text: "text-violet-700",
-      progress: "text-violet-600",
-      button: "bg-violet-600 hover:bg-violet-700 text-white"
-    },
-    purple: {
-      card: "border-purple-200 bg-purple-50 hover:bg-purple-100",
-      title: "text-purple-800",
-      text: "text-purple-700",
-      progress: "text-purple-600",
-      button: "bg-purple-600 hover:bg-purple-700 text-white"
-    },
-    blue: {
-      card: "border-blue-200 bg-blue-50 hover:bg-blue-100",
-      title: "text-blue-800",
-      text: "text-blue-700",
-      progress: "text-blue-600",
-      button: "bg-blue-600 hover:bg-blue-700 text-white"
-    }
-  };
-
-  const styles = colorStyles[color as keyof typeof colorStyles] || colorStyles.blue;
-
-  return (
-    <Card className={`${styles.card} transition-all duration-200 cursor-pointer transform hover:scale-105`}>
-      <CardHeader>
-        <CardTitle className={`${styles.title} flex items-center justify-between`}>
-          <span className="flex items-center gap-2">
-            {icon} {title}
-          </span>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={generateAIInsights}
-            disabled={isGeneratingInsights}
-            className={`${styles.button} h-8 px-3`}
-          >
-            {isGeneratingInsights ? (
-              <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
-            ) : (
-              <Sparkles className="w-4 h-4" />
-            )}
-          </Button>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <p className={styles.text}>{description}</p>
-        <Progress value={0} className="mt-3" />
-        <p className={`text-xs ${styles.progress} mt-1`}>Just getting started</p>
-        
-        {actionSteps.length > 0 && (
-          <div className="mt-4">
-            <h4 className="text-sm font-medium mb-2">Action Steps:</h4>
-            <ul className="text-xs space-y-1">
-              {actionSteps.slice(0, 3).map((step, index) => (
-                <li key={index} className="flex items-start gap-2">
-                  <span className="text-blue-600 mt-0.5">•</span>
-                  <span>{step}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {showInsights && aiInsights && (
-          <div className="mt-4 p-3 bg-white/50 rounded-lg border border-white/20">
-            <div className="flex items-center gap-2 mb-2">
-              <Lightbulb className="w-4 h-4 text-blue-600" />
-              <span className="text-sm font-medium text-blue-800">AI Insights</span>
-            </div>
-            <p className="text-sm text-gray-700 leading-relaxed">{aiInsights}</p>
-          </div>
-        )}
-        
-        {!showInsights && !isGeneratingInsights && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={generateAIInsights}
-            className="w-full mt-2"
-          >
-            <Sparkles className="w-4 h-4 mr-2" />
-            Get AI Insights
-          </Button>
-        )}
-      </CardContent>
-    </Card>
   );
 }
