@@ -28,10 +28,13 @@ interface PillarNode {
 
 export default function VisionBoard() {
   const [, setLocation] = useLocation();
-  const [zoomLevel, setZoomLevel] = useState(50);
+  const [zoomLevel, setZoomLevel] = useState(100);
   const [expandedPillar, setExpandedPillar] = useState<string | null>(null);
   const [selectedSubBubble, setSelectedSubBubble] = useState<{ pillarId: string; stepIndex: number } | null>(null);
   const [completedTasks, setCompletedTasks] = useState<Record<string, boolean>>({});
+  const [editingText, setEditingText] = useState<{ type: 'pillar' | 'subBubble' | 'task'; id: string; index?: number } | null>(null);
+  const [draggedPillar, setDraggedPillar] = useState<string | null>(null);
+  const [pillarPositions, setPillarPositions] = useState<Record<string, { x: number; y: number }>>({});
 
   const { data: goals = [], isLoading, error } = useQuery<VisionGoal[]>({
     queryKey: ['/api/vision/goals'],
@@ -52,13 +55,18 @@ export default function VisionBoard() {
     { id: 'character', name: 'Character', color: '#3B82F6', x: 420, y: 350 },
   ];
 
-  // Map goals to pillar nodes
+
+
+  // Map goals to pillar nodes with custom positions
   const nodesWithGoals = pillarNodes.map(node => {
     const goal = goals.find(g => g.pillarId === node.id);
+    const customPosition = pillarPositions[node.id];
     return {
       ...node,
+      x: customPosition?.x ?? node.x,
+      y: customPosition?.y ?? node.y,
       goal: goal?.goal,
-      actionSteps: goal?.actionSteps
+      actionSteps: goal?.actionSteps || []
     };
   });
 
@@ -82,6 +90,39 @@ export default function VisionBoard() {
       ...prev,
       [taskKey]: !prev[taskKey]
     }));
+  };
+
+  const isSubBubbleComplete = (pillarId: string, stepIndex: number) => {
+    const taskKeys = [0, 1, 2, 3].map(i => `${pillarId}-${stepIndex}-${i}`);
+    return taskKeys.every(key => completedTasks[key] || false);
+  };
+
+  const handlePillarDrag = (pillarId: string, event: React.MouseEvent) => {
+    event.preventDefault();
+    setDraggedPillar(pillarId);
+    
+    const handleMouseMove = (e: MouseEvent) => {
+      const svg = (e.target as Element).closest('svg');
+      if (!svg) return;
+      
+      const rect = svg.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * (800 * 100/zoomLevel) + (400 - (400 * 100/zoomLevel));
+      const y = ((e.clientY - rect.top) / rect.height) * (600 * 100/zoomLevel) + (300 - (300 * 100/zoomLevel));
+      
+      setPillarPositions(prev => ({
+        ...prev,
+        [pillarId]: { x, y }
+      }));
+    };
+    
+    const handleMouseUp = () => {
+      setDraggedPillar(null);
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+    
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
   };
 
   if (isLoading) {
@@ -256,20 +297,42 @@ export default function VisionBoard() {
                 fill={node.color}
                 stroke={expandedPillar === node.id ? "#374151" : "white"}
                 strokeWidth={expandedPillar === node.id ? "3" : "2"}
-                className="cursor-pointer transition-all duration-200 hover:opacity-80"
+                className={`cursor-move transition-all duration-200 hover:opacity-80 ${draggedPillar === node.id ? 'opacity-60' : ''}`}
                 onClick={() => handlePillarClick(node.id)}
+                onMouseDown={(e) => handlePillarDrag(node.id, e)}
               />
-              <text
-                x="0"
-                y="4"
-                textAnchor="middle"
-                fill="white"
-                fontSize="11"
-                fontWeight="bold"
-                className="pointer-events-none"
-              >
-                {node.name}
-              </text>
+              {editingText?.type === 'pillar' && editingText.id === node.id ? (
+                <foreignObject x="-30" y="-8" width="60" height="16">
+                  <input
+                    type="text"
+                    defaultValue={node.name}
+                    className="w-full h-full text-center text-sm font-bold bg-transparent text-white border-none outline-none"
+                    onBlur={(e) => {
+                      console.log(`Updated pillar ${node.id} name to: ${e.target.value}`);
+                      setEditingText(null);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.currentTarget.blur();
+                      }
+                    }}
+                    autoFocus
+                  />
+                </foreignObject>
+              ) : (
+                <text
+                  x="0"
+                  y="4"
+                  textAnchor="middle"
+                  fill="white"
+                  fontSize="11"
+                  fontWeight="bold"
+                  className="pointer-events-none select-none"
+                  onDoubleClick={() => setEditingText({ type: 'pillar', id: node.id })}
+                >
+                  {node.name}
+                </text>
+              )}
               
               {/* Sub-bubbles for action steps when expanded */}
               {expandedPillar === node.id && node.actionSteps && (
@@ -290,6 +353,8 @@ export default function VisionBoard() {
                     const line1 = words.slice(0, Math.ceil(words.length / 2)).join(' ');
                     const line2 = words.slice(Math.ceil(words.length / 2)).join(' ');
                     
+                    const isComplete = isSubBubbleComplete(node.id, index);
+                    
                     return (
                       <g key={`sub-${index}`} transform={`translate(${pos.x}, ${pos.y})`}>
                         <circle
@@ -306,30 +371,73 @@ export default function VisionBoard() {
                             handleSubBubbleClick(node.id, index);
                           }}
                         />
-                        <text
-                          x="0"
-                          y="-2"
-                          textAnchor="middle"
-                          fill="white"
-                          fontSize="7"
-                          fontWeight="bold"
-                          className="pointer-events-none"
-                        >
-                          {line1}
-                        </text>
-                        {line2 && (
-                          <text
-                            x="0"
-                            y="8"
-                            textAnchor="middle"
-                            fill="white"
-                            fontSize="7"
-                            fontWeight="bold"
-                            className="pointer-events-none"
-                          >
-                            {line2}
-                          </text>
+                        
+                        {/* Completion checkmark */}
+                        {isComplete && (
+                          <circle
+                            cx="15"
+                            cy="-15"
+                            r="8"
+                            fill="#22C55E"
+                            stroke="white"
+                            strokeWidth="2"
+                          />
                         )}
+                        {isComplete && (
+                          <svg x="10" y="-20" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                            <polyline points="20,6 9,17 4,12"></polyline>
+                          </svg>
+                        )}
+                        
+                        {editingText?.type === 'subBubble' && editingText.id === node.id && editingText.index === index ? (
+                          <foreignObject x="-20" y="-10" width="40" height="20">
+                            <input
+                              type="text"
+                              defaultValue={step}
+                              className="w-full h-full text-center text-xs font-bold bg-transparent text-white border-none outline-none"
+                              onBlur={(e) => {
+                                console.log(`Updated sub-bubble ${node.id}-${index} text to: ${e.target.value}`);
+                                setEditingText(null);
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  e.currentTarget.blur();
+                                }
+                              }}
+                              autoFocus
+                            />
+                          </foreignObject>
+                        ) : (
+                          <>
+                            <text
+                              x="0"
+                              y="-2"
+                              textAnchor="middle"
+                              fill="white"
+                              fontSize="7"
+                              fontWeight="bold"
+                              className="pointer-events-none"
+                              onDoubleClick={() => setEditingText({ type: 'subBubble', id: node.id, index })}
+                            >
+                              {line1}
+                            </text>
+                            {line2 && (
+                              <text
+                                x="0"
+                                y="8"
+                                textAnchor="middle"
+                                fill="white"
+                                fontSize="7"
+                                fontWeight="bold"
+                                className="pointer-events-none"
+                                onDoubleClick={() => setEditingText({ type: 'subBubble', id: node.id, index })}
+                              >
+                                {line2}
+                              </text>
+                            )}
+                          </>
+                        )}
+                        
                         {/* Connecting line to main bubble */}
                         <line
                           x1="0"
@@ -409,12 +517,33 @@ export default function VisionBoard() {
                                     </svg>
                                   )}
                                 </button>
-                              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                {taskName}
-                              </span>
-                              <span className="text-xs text-gray-500 dark:text-gray-400">
-                                {['2 months', '$200/month', '3 months ahead', '1 month ahead'][taskIndex]}
-                              </span>
+                                {editingText?.type === 'task' && editingText.id === selectedSubBubble.pillarId && editingText.index === taskIndex ? (
+                                  <input
+                                    type="text"
+                                    defaultValue={taskName}
+                                    className="text-sm font-medium text-gray-700 dark:text-gray-300 bg-transparent border-b border-gray-300 dark:border-gray-600 text-center outline-none"
+                                    onBlur={(e) => {
+                                      console.log(`Updated task ${taskIndex} text to: ${e.target.value}`);
+                                      setEditingText(null);
+                                    }}
+                                    onKeyDown={(e) => {
+                                      if (e.key === 'Enter') {
+                                        e.currentTarget.blur();
+                                      }
+                                    }}
+                                    autoFocus
+                                  />
+                                ) : (
+                                  <span 
+                                    className="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 px-2 py-1 rounded"
+                                    onDoubleClick={() => setEditingText({ type: 'task', id: selectedSubBubble.pillarId, index: taskIndex })}
+                                  >
+                                    {taskName}
+                                  </span>
+                                )}
+                                <span className="text-xs text-gray-500 dark:text-gray-400">
+                                  {['2 months', '$200/month', '3 months ahead', '1 month ahead'][taskIndex]}
+                                </span>
                               </div>
                             </div>
                           );
