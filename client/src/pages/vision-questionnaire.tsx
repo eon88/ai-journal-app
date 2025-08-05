@@ -90,7 +90,21 @@ export default function VisionQuestionnaire() {
     mutationFn: async (questionsAndAnswers: any) => {
       console.log("Generating vision with data:", questionsAndAnswers);
       try {
-        const response = await apiRequest("/api/vision/generate", "POST", { questionsAndAnswers });
+        // Use fetch directly to avoid the authentication redirect
+        const response = await fetch("/api/vision/generate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          credentials: "include", // Include cookies for session auth
+          body: JSON.stringify({ questionsAndAnswers })
+        });
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`${response.status}: ${errorText}`);
+        }
+        
         const data = await response.json();
         console.log("API response:", data);
         return data;
@@ -108,7 +122,7 @@ export default function VisionQuestionnaire() {
     },
     onError: (error: any) => {
       console.error("Vision generation failed:", error);
-      alert(`Vision generation failed: ${error.message}`);
+      alert(`Vision generation failed: ${error.message}. Please try logging in again.`);
       setIsComplete(false);
     },
   });
