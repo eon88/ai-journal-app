@@ -30,6 +30,7 @@ export default function VisionBoard() {
   const [, setLocation] = useLocation();
   const [zoomLevel, setZoomLevel] = useState(50);
   const [expandedPillar, setExpandedPillar] = useState<string | null>(null);
+  const [selectedSubBubble, setSelectedSubBubble] = useState<{ pillarId: string; stepIndex: number } | null>(null);
 
   const { data: goals = [], isLoading, error } = useQuery<VisionGoal[]>({
     queryKey: ['/api/vision/goals'],
@@ -65,6 +66,11 @@ export default function VisionBoard() {
 
   const handlePillarClick = (pillarId: string) => {
     setExpandedPillar(expandedPillar === pillarId ? null : pillarId);
+    setSelectedSubBubble(null); // Clear sub-bubble selection when clicking main pillar
+  };
+
+  const handleSubBubbleClick = (pillarId: string, stepIndex: number) => {
+    setSelectedSubBubble({ pillarId, stepIndex });
   };
 
   if (isLoading) {
@@ -258,14 +264,14 @@ export default function VisionBoard() {
               {expandedPillar === node.id && node.actionSteps && (
                 <>
                   {node.actionSteps.slice(0, 4).map((step, index) => {
-                    // Position sub-bubbles in a tight cluster around the main bubble
+                    // Position sub-bubbles further outside around the main bubble
                     const positions = [
-                      { x: -25, y: -35 }, // top left
-                      { x: 25, y: -35 },  // top right  
-                      { x: -35, y: 15 },  // bottom left
-                      { x: 35, y: 15 },   // bottom right
+                      { x: -45, y: -60 }, // top left
+                      { x: 45, y: -60 },  // top right  
+                      { x: -60, y: 30 },  // bottom left
+                      { x: 60, y: 30 },   // bottom right
                     ];
-                    const pos = positions[index] || { x: 0, y: -50 };
+                    const pos = positions[index] || { x: 0, y: -70 };
                     
                     // Truncate long text to fit in bubble
                     const truncatedText = step.length > 15 ? step.substring(0, 12) + "..." : step;
@@ -281,9 +287,13 @@ export default function VisionBoard() {
                           r="22"
                           fill={node.color}
                           fillOpacity="0.9"
-                          stroke="white"
-                          strokeWidth="2"
-                          className="animate-in fade-in duration-300"
+                          stroke={selectedSubBubble?.pillarId === node.id && selectedSubBubble?.stepIndex === index ? "#374151" : "white"}
+                          strokeWidth={selectedSubBubble?.pillarId === node.id && selectedSubBubble?.stepIndex === index ? "3" : "2"}
+                          className="animate-in fade-in duration-300 cursor-pointer hover:opacity-80"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleSubBubbleClick(node.id, index);
+                          }}
                         />
                         <text
                           x="0"
@@ -292,6 +302,7 @@ export default function VisionBoard() {
                           fill="white"
                           fontSize="7"
                           fontWeight="bold"
+                          className="pointer-events-none"
                         >
                           {line1}
                         </text>
@@ -303,10 +314,23 @@ export default function VisionBoard() {
                             fill="white"
                             fontSize="7"
                             fontWeight="bold"
+                            className="pointer-events-none"
                           >
                             {line2}
                           </text>
                         )}
+                        {/* Connecting line to main bubble */}
+                        <line
+                          x1="0"
+                          y1="0"
+                          x2={-pos.x * 0.6}
+                          y2={-pos.y * 0.6}
+                          stroke={node.color}
+                          strokeWidth="1"
+                          strokeOpacity="0.4"
+                          strokeDasharray="3,3"
+                          className="pointer-events-none"
+                        />
                       </g>
                     );
                   })}
@@ -317,8 +341,8 @@ export default function VisionBoard() {
         </svg>
       </div>
 
-      {/* Goals Panel at Bottom */}
-      {expandedPillar && (
+      {/* Goals Panel at Bottom - Main Pillar */}
+      {expandedPillar && !selectedSubBubble && (
         <div className="fixed bottom-0 left-0 right-0 bg-slate-700 text-white border-t border-slate-600 shadow-lg transition-all duration-300 ease-in-out z-40">
           <div className="container mx-auto px-6 py-4">
             {(() => {
@@ -376,6 +400,97 @@ export default function VisionBoard() {
                     size="sm"
                     onClick={() => setExpandedPillar(null)}
                     className="ml-4 text-white hover:bg-slate-600"
+                  >
+                    ✕
+                  </Button>
+                </div>
+              );
+            })()}
+          </div>
+        </div>
+      )}
+
+      {/* Timeline Panel at Bottom - Sub-bubble Selected */}
+      {selectedSubBubble && (
+        <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-lg transition-all duration-300 ease-in-out z-40">
+          <div className="container mx-auto px-6 py-6">
+            {(() => {
+              const pillar = nodesWithGoals.find(n => n.id === selectedSubBubble.pillarId);
+              const goal = goals.find(g => g.pillarId === selectedSubBubble.pillarId);
+              const selectedStep = goal?.actionSteps?.[selectedSubBubble.stepIndex];
+              
+              return (
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div 
+                        className="w-10 h-10 rounded-full flex items-center justify-center"
+                        style={{ backgroundColor: pillar?.color }}
+                      >
+                        <span className="text-white font-bold text-lg">
+                          {selectedSubBubble.stepIndex + 1}
+                        </span>
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                          {selectedStep}
+                        </h3>
+                        <p className="text-gray-600 dark:text-gray-400 text-sm">
+                          {pillar?.name} - Milestone Timeline
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {/* Timeline visualization */}
+                    <div className="relative">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Research Destinations</span>
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Save Budget</span>
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Book Flights</span>
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Plan Itinerary</span>
+                      </div>
+                      
+                      <div className="relative h-2 bg-gray-200 dark:bg-gray-600 rounded-full mb-4">
+                        <div 
+                          className="absolute left-0 top-0 h-full rounded-full transition-all duration-500"
+                          style={{ 
+                            backgroundColor: pillar?.color,
+                            width: `${((selectedSubBubble.stepIndex + 1) / 4) * 100}%`
+                          }}
+                        />
+                        
+                        {/* Timeline markers */}
+                        {[0, 1, 2, 3].map((markerIndex) => (
+                          <div
+                            key={markerIndex}
+                            className={`absolute top-1/2 transform -translate-y-1/2 w-4 h-4 rounded-full border-2 ${
+                              markerIndex <= selectedSubBubble.stepIndex 
+                                ? 'border-white' 
+                                : 'border-gray-400 dark:border-gray-500'
+                            }`}
+                            style={{
+                              left: `${(markerIndex / 3) * 100}%`,
+                              backgroundColor: markerIndex <= selectedSubBubble.stepIndex ? pillar?.color : 'transparent',
+                              marginLeft: '-8px'
+                            }}
+                          />
+                        ))}
+                      </div>
+                      
+                      <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                        <span>2 months</span>
+                        <span>$200/month</span>
+                        <span>3 months ahead</span>
+                        <span>1 month ahead</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => setSelectedSubBubble(null)}
+                    className="ml-4"
                   >
                     ✕
                   </Button>
