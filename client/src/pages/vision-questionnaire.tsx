@@ -87,18 +87,28 @@ export default function VisionQuestionnaire() {
   const queryClient = useQueryClient();
 
   const generateVisionMutation = useMutation({
-    mutationFn: (questionsAndAnswers: any) => {
+    mutationFn: async (questionsAndAnswers: any) => {
       console.log("Generating vision with data:", questionsAndAnswers);
-      return apiRequest("POST", "/api/vision/generate", { questionsAndAnswers });
+      try {
+        const response = await apiRequest("POST", "/api/vision/generate", { questionsAndAnswers });
+        const data = await response.json();
+        console.log("API response:", data);
+        return data;
+      } catch (error) {
+        console.error("API request failed:", error);
+        throw error;
+      }
     },
     onSuccess: (data) => {
       console.log("Vision generation successful:", data);
       queryClient.invalidateQueries({ queryKey: ['/api/vision/goals'] });
-      setLocation('/vision-board');
+      setTimeout(() => {
+        setLocation('/vision-board');
+      }, 1000);
     },
     onError: (error: any) => {
       console.error("Vision generation failed:", error);
-      // Don't reset the questionnaire - let user try again
+      alert(`Vision generation failed: ${error.message}`);
       setIsComplete(false);
     },
   });

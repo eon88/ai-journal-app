@@ -3815,14 +3815,46 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   // ===== VISION BOARD ROUTES =====
   
   // Generate vision board from questionnaire responses (Admin only)
-  app.post("/api/vision/generate", jwtAuth, async (req: any, res) => {
-    if (req.user.role !== 'admin' && req.user.id !== 2) {
+  app.post("/api/vision/generate", async (req: any, res) => {
+    console.log("Vision generate endpoint hit");
+    console.log("Headers:", req.headers);
+    console.log("Body:", req.body);
+    
+    // Try JWT auth first
+    let user = null;
+    try {
+      const token = req.headers.authorization?.replace('Bearer ', '');
+      if (token) {
+        const { verifyAccessToken } = require('./auth');
+        const payload = verifyAccessToken(token);
+        if (payload) {
+          const userData = await storage.getUserById(payload.userId);
+          user = userData;
+        }
+      }
+    } catch (error) {
+      console.log("JWT auth failed, trying session auth");
+    }
+    
+    // Fallback to session auth
+    if (!user && req.isAuthenticated && req.isAuthenticated()) {
+      user = req.user;
+    }
+    
+    if (!user) {
+      console.log("No authentication found");
+      return res.status(401).json({ message: "Authentication required" });
+    }
+    
+    console.log("Authenticated user:", user);
+    
+    if (user.role !== 'admin' && user.id !== 2) {
       return res.status(403).json({ message: "Admin access required" });
     }
 
     try {
       const { questionsAndAnswers } = req.body;
-      const userId = req.user.id;
+      const userId = user.id;
 
       // For now, create sample goals based on the 7 pillars
       // This would normally use AI to analyze the responses  
