@@ -258,42 +258,37 @@ export default function VisionBoard() {
               {expandedPillar === node.id && node.actionSteps && (
                 <>
                   {node.actionSteps.slice(0, 4).map((step, index) => {
-                    const angle = (index * 90 - 45) * (Math.PI / 180);
-                    const subX = 80 * Math.cos(angle);
-                    const subY = 80 * Math.sin(angle);
+                    // Position sub-bubbles in a tight cluster around the main bubble
+                    const positions = [
+                      { x: -25, y: -35 }, // top left
+                      { x: 25, y: -35 },  // top right  
+                      { x: -35, y: 15 },  // bottom left
+                      { x: 35, y: 15 },   // bottom right
+                    ];
+                    const pos = positions[index] || { x: 0, y: -50 };
                     
                     return (
-                      <g key={`sub-${index}`} transform={`translate(${subX}, ${subY})`}>
+                      <g key={`sub-${index}`} transform={`translate(${pos.x}, ${pos.y})`}>
                         <circle
                           cx="0"
                           cy="0"
-                          r="20"
+                          r="18"
                           fill={node.color}
-                          fillOpacity="0.7"
+                          fillOpacity="0.8"
                           stroke="white"
-                          strokeWidth="1"
-                          className="animate-pulse"
+                          strokeWidth="2"
+                          className="animate-in fade-in duration-300"
                         />
                         <text
                           x="0"
-                          y="4"
+                          y="5"
                           textAnchor="middle"
                           fill="white"
-                          fontSize="8"
+                          fontSize="10"
                           fontWeight="bold"
                         >
                           {index + 1}
                         </text>
-                        {/* Connecting line to main bubble */}
-                        <line
-                          x1="0"
-                          y1="0"
-                          x2={-subX * 0.4}
-                          y2={-subY * 0.4}
-                          stroke={node.color}
-                          strokeWidth="2"
-                          strokeOpacity="0.5"
-                        />
                       </g>
                     );
                   })}
@@ -304,71 +299,68 @@ export default function VisionBoard() {
         </svg>
       </div>
 
-      {/* Floating Action Steps Popup */}
+      {/* Goals Panel at Bottom */}
       {expandedPillar && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50" onClick={() => setExpandedPillar(null)}>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4 p-6" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed bottom-0 left-0 right-0 bg-slate-700 text-white border-t border-slate-600 shadow-lg transition-all duration-300 ease-in-out z-40">
+          <div className="container mx-auto px-6 py-4">
             {(() => {
               const pillar = nodesWithGoals.find(n => n.id === expandedPillar);
               const goal = goals.find(g => g.pillarId === expandedPillar);
               
               return (
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-3">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-4 mb-3">
                       <div 
-                        className="w-10 h-10 rounded-full flex items-center justify-center"
+                        className="w-12 h-12 rounded-full flex items-center justify-center"
                         style={{ backgroundColor: pillar?.color }}
                       >
-                        <span className="text-white font-bold text-lg">
+                        <span className="text-white font-bold text-xl">
                           {pillar?.name.charAt(0)}
                         </span>
                       </div>
-                      <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                        {goal?.pillarName || pillar?.name}
-                      </h3>
+                      <div>
+                        <h3 className="text-xl font-bold text-white">
+                          {goal?.pillarName || pillar?.name}
+                        </h3>
+                        {goal && (
+                          <p className="text-slate-300 text-sm mt-1">
+                            {goal.goal}
+                          </p>
+                        )}
+                      </div>
                     </div>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={() => setExpandedPillar(null)}
-                    >
-                      ✕
-                    </Button>
+                    
+                    {goal && goal.actionSteps && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                        {goal.actionSteps.slice(0, 4).map((step, index) => (
+                          <div 
+                            key={index} 
+                            className="flex items-center gap-3 p-3 rounded-lg bg-slate-600/50 border border-slate-500"
+                          >
+                            <div 
+                              className="w-6 h-6 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
+                              style={{ backgroundColor: pillar?.color }}
+                            >
+                              {index + 1}
+                            </div>
+                            <p className="text-slate-200 text-sm">
+                              {step}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   
-                  {goal && (
-                    <>
-                      <div className="mb-4">
-                        <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Main Goal:</h4>
-                        <p className="text-gray-700 dark:text-gray-300 text-sm">
-                          {goal.goal}
-                        </p>
-                      </div>
-                      
-                      <div>
-                        <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Milestones to Achieve:</h4>
-                        <div className="grid grid-cols-1 gap-3">
-                          {goal.actionSteps?.map((step, index) => (
-                            <div 
-                              key={index} 
-                              className="flex items-start gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                            >
-                              <div 
-                                className="w-6 h-6 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0 mt-0.5"
-                                style={{ backgroundColor: pillar?.color }}
-                              >
-                                {index + 1}
-                              </div>
-                              <p className="text-gray-700 dark:text-gray-300 text-sm">
-                                {step}
-                              </p>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </>
-                  )}
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => setExpandedPillar(null)}
+                    className="ml-4 text-white hover:bg-slate-600"
+                  >
+                    ✕
+                  </Button>
                 </div>
               );
             })()}
