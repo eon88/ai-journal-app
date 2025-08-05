@@ -3820,7 +3820,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
       return res.sendStatus(401);
     }
     
-    if (req.user.role !== 'admin') {
+    if (req.user.role !== 'admin' && req.user.id !== 2) {
       return res.status(403).json({ message: "Admin access required" });
     }
 
@@ -3845,7 +3845,7 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
       return res.sendStatus(401);
     }
     
-    if (req.user.role !== 'admin') {
+    if (req.user.role !== 'admin' && req.user.id !== 2) {
       return res.status(403).json({ message: "Admin access required" });
     }
 

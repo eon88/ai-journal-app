@@ -93,6 +93,11 @@ export default function VisionQuestionnaire() {
       queryClient.invalidateQueries({ queryKey: ['/api/vision/goals'] });
       setLocation('/vision-board');
     },
+    onError: (error: any) => {
+      console.error("Vision generation failed:", error);
+      setIsComplete(false);
+      setCurrentPillar(0);
+    },
   });
 
   const progress = ((currentPillar + 1) / sevenPillars.length) * 100;
