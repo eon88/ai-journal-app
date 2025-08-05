@@ -87,16 +87,19 @@ export default function VisionQuestionnaire() {
   const queryClient = useQueryClient();
 
   const generateVisionMutation = useMutation({
-    mutationFn: (questionsAndAnswers: any) => 
-      apiRequest("POST", "/api/vision/generate", { questionsAndAnswers }),
-    onSuccess: () => {
+    mutationFn: (questionsAndAnswers: any) => {
+      console.log("Generating vision with data:", questionsAndAnswers);
+      return apiRequest("POST", "/api/vision/generate", { questionsAndAnswers });
+    },
+    onSuccess: (data) => {
+      console.log("Vision generation successful:", data);
       queryClient.invalidateQueries({ queryKey: ['/api/vision/goals'] });
       setLocation('/vision-board');
     },
     onError: (error: any) => {
       console.error("Vision generation failed:", error);
+      // Don't reset the questionnaire - let user try again
       setIsComplete(false);
-      setCurrentPillar(0);
     },
   });
 
@@ -125,6 +128,10 @@ export default function VisionQuestionnaire() {
         ...answers,
         [currentPillarData.id]: currentAnswer
       };
+      
+      console.log("Completing questionnaire with final answers:", finalAnswers);
+      console.log("Current pillar:", currentPillar, "Total pillars:", sevenPillars.length);
+      
       setIsComplete(true);
       
       // Generate vision board from answers
@@ -135,6 +142,7 @@ export default function VisionQuestionnaire() {
         answer: finalAnswers[pillar.id] || ""
       }));
       
+      console.log("Sending questions and answers to API:", questionsAndAnswers);
       generateVisionMutation.mutate(questionsAndAnswers);
     }
   };
