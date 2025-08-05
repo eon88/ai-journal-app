@@ -154,51 +154,51 @@ export function Header() {
                 </div>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
-                <Link to="/entries">
-                  <DropdownMenuItem className="cursor-pointer">
+                <DropdownMenuItem asChild>
+                  <Link to="/entries" className="cursor-pointer flex items-center">
                     <Calendar className="mr-2 h-4 w-4" />
                     Browse Entries
-                  </DropdownMenuItem>
-                </Link>
+                  </Link>
+                </DropdownMenuItem>
 
-                <Link to="/blog">
-                  <DropdownMenuItem className="cursor-pointer">
+                <DropdownMenuItem asChild>
+                  <Link to="/blog" className="cursor-pointer flex items-center">
                     <BookOpen className="mr-2 h-4 w-4" />
                     Blog
-                  </DropdownMenuItem>
-                </Link>
+                  </Link>
+                </DropdownMenuItem>
 
-                {adminCheck?.isAdmin && (
-                  <Link to="/vision-board">
-                    <DropdownMenuItem className="cursor-pointer">
+                {user?.role === 'admin' && (
+                  <DropdownMenuItem asChild>
+                    <Link to="/vision-board" className="cursor-pointer flex items-center">
                       <Map className="mr-2 h-4 w-4" />
                       Vision Board
-                    </DropdownMenuItem>
-                  </Link>
+                    </Link>
+                  </DropdownMenuItem>
                 )}
 
-                {adminCheck?.isAdmin && (
-                  <Link to="/vision-questionnaire">
-                    <DropdownMenuItem className="cursor-pointer">
+                {user?.role === 'admin' && (
+                  <DropdownMenuItem asChild>
+                    <Link to="/vision-questionnaire" className="cursor-pointer flex items-center">
                       <Sparkles className="mr-2 h-4 w-4" />
                       Vision Architect
-                    </DropdownMenuItem>
-                  </Link>
+                    </Link>
+                  </DropdownMenuItem>
                 )}
 
-                <Link to="/profile">
-                  <DropdownMenuItem className="cursor-pointer">
+                <DropdownMenuItem asChild>
+                  <Link to="/profile" className="cursor-pointer flex items-center">
                     <UserCircle className="mr-2 h-4 w-4" />
                     Profile
-                  </DropdownMenuItem>
-                </Link>
-                {adminCheck?.isAdmin && (
-                  <Link to="/admin/dashboard">
-                    <DropdownMenuItem className="cursor-pointer">
+                  </Link>
+                </DropdownMenuItem>
+                {user?.role === 'admin' && (
+                  <DropdownMenuItem asChild>
+                    <Link to="/admin/dashboard" className="cursor-pointer flex items-center">
                       <Crown className="mr-2 h-4 w-4" />
                       Admin Dashboard
-                    </DropdownMenuItem>
-                  </Link>
+                    </Link>
+                  </DropdownMenuItem>
                 )}
                 
                 {/* Level Switcher for testing - EON ONLY */}

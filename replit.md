@@ -35,9 +35,11 @@ User name: Alex
 - **Premium Tier ($4.99/month)**: Weekly AI insights, individual entry-based insights
 - **Features**: Rich text editing, mood selection, custom tags, folders, search/filtering, pinning, bulk operations
 
-#### Module 2: Vision Planning ($8.99/month)
+#### Module 2: Vision Planning ($8.99/month) - Admin Beta Testing Phase
 - **Includes**: Full journal access + vision planning features
 - **Features**: AI-guided goal structuring, milestone tracking, vision board creation, progress visualization, goal interconnection mapping
+- **Status**: Complete system developed, currently restricted to admin-only access for testing
+- **Access**: Available through admin panel and header dropdown for admin users
 
 #### Module 3: Mastermind ($14.99/month)
 - **Includes**: Everything from Vision Planning + high-level strategic guidance
