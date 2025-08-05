@@ -31,6 +31,7 @@ export default function VisionBoard() {
   const [zoomLevel, setZoomLevel] = useState(50);
   const [expandedPillar, setExpandedPillar] = useState<string | null>(null);
   const [selectedSubBubble, setSelectedSubBubble] = useState<{ pillarId: string; stepIndex: number } | null>(null);
+  const [completedTasks, setCompletedTasks] = useState<Record<string, boolean>>({});
 
   const { data: goals = [], isLoading, error } = useQuery<VisionGoal[]>({
     queryKey: ['/api/vision/goals'],
@@ -71,6 +72,16 @@ export default function VisionBoard() {
 
   const handleSubBubbleClick = (pillarId: string, stepIndex: number) => {
     setSelectedSubBubble({ pillarId, stepIndex });
+  };
+
+  const handleTaskToggle = (taskIndex: number) => {
+    if (!selectedSubBubble) return;
+    
+    const taskKey = `${selectedSubBubble.pillarId}-${selectedSubBubble.stepIndex}-${taskIndex}`;
+    setCompletedTasks(prev => ({
+      ...prev,
+      [taskKey]: !prev[taskKey]
+    }));
   };
 
   if (isLoading) {
@@ -177,7 +188,7 @@ export default function VisionBoard() {
         <svg 
           width="100%" 
           height="100%" 
-          viewBox={`${400 - (400 * zoomLevel/100)} ${300 - (300 * zoomLevel/100)} ${800 * zoomLevel/100} ${600 * zoomLevel/100}`}
+          viewBox={`${400 - (400 * 100/zoomLevel)} ${300 - (300 * 100/zoomLevel)} ${800 * 100/zoomLevel} ${600 * 100/zoomLevel}`}
           className="w-full h-full transition-all duration-200"
         >
           {/* Background */}
@@ -377,62 +388,79 @@ export default function VisionBoard() {
                     {/* Timeline visualization with checkable tasks */}
                     <div className="relative">
                       <div className="grid grid-cols-4 gap-4 mb-6">
-                        {['Research Destinations', 'Save Budget', 'Book Flights', 'Plan Itinerary'].map((taskName, taskIndex) => (
-                          <div key={taskIndex} className="text-center">
-                            <div className="flex flex-col items-center gap-2">
-                              <button 
-                                className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
-                                  taskIndex <= selectedSubBubble.stepIndex 
-                                    ? 'border-green-500 bg-green-500 text-white' 
-                                    : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
-                                }`}
-                                onClick={() => {
-                                  // Toggle task completion - this would update the backend in real implementation
-                                  console.log(`Toggled task ${taskIndex}: ${taskName}`);
-                                }}
-                              >
-                                {taskIndex <= selectedSubBubble.stepIndex && (
-                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                    <polyline points="20,6 9,17 4,12"></polyline>
-                                  </svg>
-                                )}
-                              </button>
+                        {['Research Destinations', 'Save Budget', 'Book Flights', 'Plan Itinerary'].map((taskName, taskIndex) => {
+                          const taskKey = `${selectedSubBubble.pillarId}-${selectedSubBubble.stepIndex}-${taskIndex}`;
+                          const isCompleted = completedTasks[taskKey] || false;
+                          
+                          return (
+                            <div key={taskIndex} className="text-center">
+                              <div className="flex flex-col items-center gap-2">
+                                <button 
+                                  className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all duration-200 cursor-pointer ${
+                                    isCompleted
+                                      ? 'border-green-500 bg-green-500 text-white' 
+                                      : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
+                                  }`}
+                                  onClick={() => handleTaskToggle(taskIndex)}
+                                >
+                                  {isCompleted && (
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                      <polyline points="20,6 9,17 4,12"></polyline>
+                                    </svg>
+                                  )}
+                                </button>
                               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                 {taskName}
                               </span>
                               <span className="text-xs text-gray-500 dark:text-gray-400">
                                 {['2 months', '$200/month', '3 months ahead', '1 month ahead'][taskIndex]}
                               </span>
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                       
                       {/* Progress bar */}
                       <div className="relative h-2 bg-gray-200 dark:bg-gray-600 rounded-full">
-                        <div 
-                          className="absolute left-0 top-0 h-full rounded-full transition-all duration-500"
-                          style={{ 
-                            backgroundColor: pillar?.color,
-                            width: `${((selectedSubBubble.stepIndex + 1) / 4) * 100}%`
-                          }}
-                        />
+                        {(() => {
+                          const completedCount = ['Research Destinations', 'Save Budget', 'Book Flights', 'Plan Itinerary']
+                            .filter((_, taskIndex) => {
+                              const taskKey = `${selectedSubBubble.pillarId}-${selectedSubBubble.stepIndex}-${taskIndex}`;
+                              return completedTasks[taskKey] || false;
+                            }).length;
+                          
+                          return (
+                            <div 
+                              className="absolute left-0 top-0 h-full rounded-full transition-all duration-500"
+                              style={{ 
+                                backgroundColor: pillar?.color,
+                                width: `${(completedCount / 4) * 100}%`
+                              }}
+                            />
+                          );
+                        })()}
                         
                         {/* Timeline markers on progress bar */}
-                        {[0, 1, 2, 3].map((markerIndex) => (
-                          <div
-                            key={markerIndex}
-                            className={`absolute top-1/2 transform -translate-y-1/2 w-3 h-3 rounded-full border-2 ${
-                              markerIndex <= selectedSubBubble.stepIndex 
-                                ? 'border-white bg-green-500' 
-                                : 'border-gray-400 dark:border-gray-500 bg-gray-200 dark:bg-gray-600'
-                            }`}
-                            style={{
-                              left: `${(markerIndex / 3) * 100}%`,
-                              marginLeft: '-6px'
-                            }}
-                          />
-                        ))}
+                        {[0, 1, 2, 3].map((markerIndex) => {
+                          const taskKey = `${selectedSubBubble.pillarId}-${selectedSubBubble.stepIndex}-${markerIndex}`;
+                          const isCompleted = completedTasks[taskKey] || false;
+                          
+                          return (
+                            <div
+                              key={markerIndex}
+                              className={`absolute top-1/2 transform -translate-y-1/2 w-3 h-3 rounded-full border-2 ${
+                                isCompleted
+                                  ? 'border-white bg-green-500' 
+                                  : 'border-gray-400 dark:border-gray-500 bg-gray-200 dark:bg-gray-600'
+                              }`}
+                              style={{
+                                left: `${(markerIndex / 3) * 100}%`,
+                                marginLeft: '-6px'
+                              }}
+                            />
+                          );
+                        })}
                       </div>
                     </div>
                   </div>
