@@ -33,9 +33,10 @@ import Login from "@/pages/login";
 import Register from "@/pages/register";
 import Questionnaire from "@/pages/questionnaire";
 import RulesOfTheGame from "@/pages/rules-of-the-game";
-import VisionBoard from "@/pages/vision-board";
+import VisionBoard from "@/pages/vision-board-simple";
 import VisionArchitect from "@/pages/vision-architect";
 import VisionForm from "@/pages/vision-form";
+import VisionQuestionnaire from "@/pages/vision-questionnaire";
 import BlogPage from "@/pages/blog";
 import BlogArticlePage from "@/pages/blog-article";
 import AdminBlogManagement from "@/pages/admin-blog-management";
@@ -77,6 +78,7 @@ function Router() {
       <Route path="/entries" component={Entries} />
       <Route path="/vault" component={Vault} />
       <Route path="/vision-board" component={VisionBoard} />
+      <Route path="/vision-questionnaire" component={VisionQuestionnaire} />
       <Route path="/vision-architect" component={VisionArchitect} />
       <Route path="/vision-form" component={VisionForm} />
       <Route path="/entry/:id" component={EntryDetail} />

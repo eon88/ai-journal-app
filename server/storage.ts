@@ -20,9 +20,18 @@ import {
   userCustomTags,
   type UserCustomTag,
   type InsertUserCustomTag,
-  userGoals,
-  type UserGoal,
-  type InsertUserGoal,
+  visionGoals,
+  goalMilestones,
+  goalProgress,
+  visionBoards,
+  type VisionGoal,
+  type InsertVisionGoal,
+  type GoalMilestone,
+  type InsertGoalMilestone,
+  type GoalProgress,
+  type InsertGoalProgress,
+  type VisionBoard,
+  type InsertVisionBoard,
   users,
   type User,
   type InsertUser,
@@ -74,6 +83,9 @@ import { db } from "./db";
 import { eq, desc, sql, and, gte, lte, count, isNotNull } from "drizzle-orm";
 
 export interface IStorage {
+  // Vision board methods
+  createVisionBoardFromAnswers(userId: number, questionsAndAnswers: any[]): Promise<VisionGoal[]>;
+  getVisionGoals(userId: number): Promise<VisionGoal[]>;
   createJournalEntry(userId: number, entry: InsertJournalEntry): Promise<JournalEntry>;
   getJournalEntry(userId: number, id: number): Promise<JournalEntry | undefined>;
   getAllJournalEntries(userId: number): Promise<JournalEntry[]>;
@@ -2077,6 +2089,67 @@ Format as JSON with structure:
       ...article,
       author: article.author
     })) as BlogArticle[];
+  }
+
+  // ===== VISION BOARD METHODS =====
+  
+  async createVisionBoardFromAnswers(userId: number, questionsAndAnswers: any[]): Promise<VisionGoal[]> {
+    const goalCategories = [
+      { id: 'health', name: 'Health', color: '#10B981', icon: '💪' },
+      { id: 'wealth', name: 'Wealth', color: '#F59E0B', icon: '💰' },
+      { id: 'love', name: 'Love', color: '#EF4444', icon: '❤️' },
+      { id: 'legacy', name: 'Legacy', color: '#F59E0B', icon: '🏛️' },
+      { id: 'wisdom', name: 'Wisdom', color: '#6366F1', icon: '🧠' },
+      { id: 'spirituality', name: 'Spirituality', color: '#8B5CF6', icon: '✨' },
+      { id: 'character', name: 'Character', color: '#3B82F6', icon: '🎯' },
+    ];
+
+    const createdGoals: VisionGoal[] = [];
+
+    for (const qa of questionsAndAnswers) {
+      if (!qa.answer || qa.answer.trim().length === 0) continue;
+
+      const category = goalCategories.find(cat => cat.id === qa.pillar);
+      if (!category) continue;
+
+      // Create a goal based on the answer
+      const goalTitle = `${category.name} Vision`;
+      const goalDescription = qa.answer.substring(0, 500); // Use first 500 chars as description
+
+      try {
+        const [goal] = await db.insert(visionGoals).values({
+          userId,
+          title: goalTitle,
+          description: goalDescription,
+          category: qa.pillar,
+          status: 'active',
+          priority: 'medium',
+          color: category.color,
+          progressPercentage: 0,
+          targetDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year from now
+        }).returning();
+
+        createdGoals.push(goal);
+      } catch (error) {
+        console.error(`Failed to create goal for pillar ${qa.pillar}:`, error);
+      }
+    }
+
+    return createdGoals;
+  }
+
+  async getVisionGoals(userId: number): Promise<VisionGoal[]> {
+    try {
+      const goals = await db
+        .select()
+        .from(visionGoals)
+        .where(eq(visionGoals.userId, userId));
+      
+      return goals;
+    } catch (error) {
+      console.error('Failed to fetch vision goals:', error);
+      return [];
+    }
   }
 }
 

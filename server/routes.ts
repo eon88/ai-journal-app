@@ -3812,6 +3812,43 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
     }
   });
 
+  // ===== VISION BOARD ROUTES =====
+  
+  // Generate vision board from questionnaire responses
+  app.post("/api/vision/generate", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.sendStatus(401);
+    }
+
+    try {
+      const { questionsAndAnswers } = req.body;
+      const userId = req.user.id;
+
+      // For now, create sample goals based on the 7 pillars
+      // This would normally use AI to analyze the responses  
+      const goals = await storage.createVisionBoardFromAnswers(userId, questionsAndAnswers);
+      
+      res.json({ success: true, goals });
+    } catch (error: any) {
+      console.error("Vision generation error:", error);
+      res.status(500).json({ message: "Error generating vision board: " + error.message });
+    }
+  });
+
+  // Get user's vision goals
+  app.get("/api/vision/goals", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.sendStatus(401);
+    }
+
+    try {
+      const goals = await storage.getVisionGoals(req.user.id);
+      res.json(goals);
+    } catch (error: any) {
+      res.status(500).json({ message: "Error fetching vision goals: " + error.message });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

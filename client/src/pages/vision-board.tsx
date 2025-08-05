@@ -7,10 +7,10 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FeatureGate } from "@/components/feature-gate";
-import { CreateGoalDialog } from "@/components/vision/create-goal-dialog";
-import { GoalCard } from "@/components/vision/goal-card";
-import { GoalDetailModal } from "@/components/vision/goal-detail-modal";
-import { VisionBoardCanvas } from "@/components/vision/vision-board-canvas";
+// import { CreateGoalDialog } from "@/components/vision/create-goal-dialog";
+// import { GoalCard } from "@/components/vision/goal-card";
+// import { GoalDetailModal } from "@/components/vision/goal-detail-modal";
+// import { VisionBoardCanvas } from "@/components/vision/vision-board-canvas";
 import { apiRequest } from "@/lib/queryClient";
 import { VisionGoal } from "@shared/schema";
 
@@ -184,11 +184,10 @@ export default function VisionBoard() {
             {goals.length === 0 ? (
               <EmptyState onCreateGoal={() => setCreateGoalOpen(true)} />
             ) : (
-              <VisionBoardCanvas 
-                goals={goals} 
-                onGoalClick={setSelectedGoal}
-                categories={goalCategories}
-              />
+              <div className="p-8 text-center">
+                <p className="text-lg">Vision Board Canvas Coming Soon</p>
+                <p className="text-muted-foreground mt-2">Interactive vision board will be displayed here</p>
+              </div>
             )}
           </TabsContent>
           
@@ -228,8 +227,8 @@ export default function VisionBoard() {
           </TabsContent>
         </Tabs>
 
-        {/* Dialogs */}
-        <CreateGoalDialog
+        {/* Dialogs - temporarily disabled */}
+        {/* <CreateGoalDialog
           open={createGoalOpen}
           onOpenChange={setCreateGoalOpen}
           onSubmit={createGoalMutation.mutate}
@@ -243,7 +242,7 @@ export default function VisionBoard() {
             open={!!selectedGoal}
             onOpenChange={(open) => !open && setSelectedGoal(null)}
           />
-        )}
+        )} */}
       </div>
     </FeatureGate>
   );

@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Life Vision AI - Design Your Meaningful Life</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2c3e50;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 700px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px;
+            text-align: center;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e6ed;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 10px;
+            transition: width 0.6s ease;
+            width: 0%;
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .intro-section {
+            text-align: center;
+        }
+
+        .intro-section h2 {
+            font-size: 28px;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .intro-section p {
+            font-size: 18px;
+            line-height: 1.8;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        .pillars-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .pillar-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .pillar-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .pillar-icon {
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+
+        .pillar-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .question-section h2 {
+            font-size: 24px;
+            color: #667eea;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .question-section .pillar-badge {
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .question-text {
+            font-size: 20px;
+            line-height: 1.6;
+            color: #333;
+            margin: 20px 0 30px;
+            font-weight: 500;
+        }
+
+        .input-group {
+            margin-bottom: 30px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 20px;
+            border: 2px solid #e0e6ed;
+            border-radius: 15px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 120px;
+            transition: border-color 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        button {
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: 600;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f0f4f8;
+            color: #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e6ed;
+        }
+
+        .completion-section {
+            text-align: center;
+        }
+
+        .completion-section h2 {
+            font-size: 32px;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .completion-message {
+            font-size: 18px;
+            line-height: 1.8;
+            color: #555;
+            margin-bottom: 30px;
+        }
+
+        .vision-preview {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 30px;
+            border-radius: 20px;
+            margin: 30px 0;
+        }
+
+        .skip-link {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+            margin-top: 20px;
+            display: inline-block;
+            opacity: 0.8;
+        }
+
+        .skip-link:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 28px;
+            }
+            
+            .content {
+                padding: 30px 20px;
+            }
+            
+            .pillars-preview {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Life Vision AI</h1>
+            <p>Design Your Meaningful Life</p>
+        </div>
+        
+        <div class="content">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+            
+            <!-- Introduction Screen -->
+            <div class="screen active" id="introScreen">
+                <div class="intro-section">
+                    <h2>Welcome to Your Life Design Journey 🌟</h2>
+                    <p>
+                        Life Vision AI is your personal guide to creating a purposeful, balanced life. 
+                        Through thoughtful reflection on seven essential pillars, you'll craft a vision 
+                        that aligns with your deepest values and aspirations.
+                    </p>
+                    
+                    <div class="pillars-preview">
+                        <div class="pillar-card">
+                            <div class="pillar-icon">💪</div>
+                            <div class="pillar-name">Health</div>
+                        </div>
+                        <div class="pillar-card">
+                            <div class="pillar-icon">💰</div>
+                            <div class="pillar-name">Wealth</div>
+                        </div>
+                        <div class="pillar-card">
+                            <div class="pillar-icon">❤️</div>
+                            <div class="pillar-name">Love</div>
+                        </div>
+                        <div class="pillar-card">
+                            <div class="pillar-icon">🏛️</div>
+                            <div class="pillar-name">Legacy</div>
+                        </div>
+                        <div class="pillar-card">
+                            <div class="pillar-icon">🧠</div>
+                            <div class="pillar-name">Wisdom</div>
+                        </div>
+                        <div class="pillar-card">
+                            <div class="pillar-icon">✨</div>
+                            <div class="pillar-name">Spirituality</div>
+                        </div>
+                        <div class="pillar-card">
+                            <div class="pillar-icon">🎯</div>
+                            <div class="pillar-name">Character</div>
+                        </div>
+                    </div>
+                    
+                    <p>
+                        <strong>Why these seven pillars?</strong> Together, they form a complete framework 
+                        for human flourishing. Each pillar supports the others, creating a life of 
+                        balance, purpose, and fulfillment.
+                    </p>
+                    
+                    <p>
+                        Take 10-15 minutes to reflect deeply on each question. Your honest answers 
+                        will shape a personalized vision board to guide your journey.
+                    </p>
+                    
+                    <div class="button-group">
+                        <button class="btn-primary" onclick="startJourney()">Begin My Journey</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Question Screens -->
+            <div class="screen" id="questionScreen">
+                <div class="question-section">
+                    <h2>
+                        <span class="pillar-badge" id="currentPillar">Health</span>
+                        <span id="pillarNumber">1 of 7</span>
+                    </h2>
+                    
+                    <p class="question-text" id="questionText">
+                        What does your ideal physical state look like 10 years from now?
+                    </p>
+                    
+                    <div class="input-group">
+                        <textarea 
+                            id="answerInput" 
+                            placeholder="Take a moment to reflect and share your thoughts..."
+                            rows="5"
+                        ></textarea>
+                    </div>
+                    
+                    <div class="button-group">
+                        <button class="btn-secondary" onclick="previousQuestion()" id="backBtn">Back</button>
+                        <button class="btn-primary" onclick="nextQuestion()">Continue</button>
+                    </div>
+                    
+                    <a href="#" class="skip-link" onclick="skipQuestion()">Skip this question</a>
+                </div>
+            </div>
+            
+            <!-- Completion Screen -->
+            <div class="screen" id="completionScreen">
+                <div class="completion-section">
+                    <h2>🎉 Congratulations!</h2>
+                    <p class="completion-message">
+                        You've completed your life vision reflection. Based on your thoughtful 
+                        responses to the seven pillars, we've created a personalized vision board 
+                        that maps out your path to a meaningful life.
+                    </p>
+                    
+                    <div class="vision-preview">
+                        <p><strong>Your vision board includes:</strong></p>
+                        <ul style="text-align: left; list-style: none; padding: 20px;">
+                            <li>✓ Interactive goal visualization</li>
+                            <li>✓ Milestone tracking for each pillar</li>
+                            <li>✓ Actionable steps and timelines</li>
+                            <li>✓ Progress monitoring tools</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="button-group">
+                        <button class="btn-primary" onclick="showVisionBoard()">
+                            Show Me My Vision Board
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const pillars = [
+            {
+                name: "Health",
+                icon: "💪",
+                question: "What does your ideal physical state look like 10 years from now? Consider your energy, vitality, and how you want to feel in your body.",
+                essence: "The pillar of vitality, energy, and physical stewardship."
+            },
+            {
+                name: "Wealth",
+                icon: "💰",
+                question: "What would financial freedom look like for you? Think beyond numbers - what kind of life would your wealth enable?",
+                essence: "The pillar of provision, freedom, and value exchange."
+            },
+            {
+                name: "Love",
+                icon: "❤️",
+                question: "Describe the quality of your relationships when life feels truly fulfilling. What connections matter most?",
+                essence: "The pillar of connection, intimacy, and meaningful relationships."
+            },
+            {
+                name: "Legacy",
+                icon: "🏛️",
+                question: "What do you want people to remember you for? What impact will outlive you?",
+                essence: "The pillar of contribution, significance, and long-term impact."
+            },
+            {
+                name: "Wisdom",
+                icon: "🧠",
+                question: "What kind of wisdom do you want to embody and pass on? How will you become someone who sees clearly?",
+                essence: "The pillar of insight, learning, and right judgment."
+            },
+            {
+                name: "Spirituality",
+                icon: "✨",
+                question: "What role does faith or inner connection play in your ideal life? What anchors your purpose?",
+                essence: "The pillar of inner alignment, faith, and transcendent purpose."
+            },
+            {
+                name: "Character",
+                icon: "🎯",
+                question: "What kind of person must you become to live the life you've envisioned? Which virtues will define you?",
+                essence: "The pillar of identity, virtue, and moral substance."
+            }
+        ];
+
+        let currentPillarIndex = 0;
+        const answers = [];
+
+        function updateProgress() {
+            const progress = ((currentPillarIndex + 1) / pillars.length) * 100;
+            document.getElementById('progressBar').style.width = `${progress}%`;
+        }
+
+        function startJourney() {
+            document.getElementById('introScreen').classList.remove('active');
+            document.getElementById('questionScreen').classList.add('active');
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const pillar = pillars[currentPillarIndex];
+            document.getElementById('currentPillar').textContent = pillar.name;
+            document.getElementById('pillarNumber').textContent = `${currentPillarIndex + 1} of ${pillars.length}`;
+            document.getElementById('questionText').textContent = pillar.question;
+            document.getElementById('answerInput').value = answers[currentPillarIndex]?.answer || '';
+            document.getElementById('backBtn').style.display = currentPillarIndex === 0 ? 'none' : 'block';
+            updateProgress();
+        }
+
+        function nextQuestion() {
+            const answer = document.getElementById('answerInput').value.trim();
+            
+            // Save answer
+            answers[currentPillarIndex] = {
+                pillar: pillars[currentPillarIndex].name,
+                answer: answer || 'Skipped'
+            };
+
+            if (currentPillarIndex < pillars.length - 1) {
+                currentPillarIndex++;
+                showQuestion();
+                document.getElementById('answerInput').focus();
+            } else {
+                completeJourney();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentPillarIndex > 0) {
+                currentPillarIndex--;
+                showQuestion();
+            }
+        }
+
+        function skipQuestion() {
+            answers[currentPillarIndex] = {
+                pillar: pillars[currentPillarIndex].name,
+                answer: 'Skipped'
+            };
+            
+            if (currentPillarIndex < pillars.length - 1) {
+                currentPillarIndex++;
+                showQuestion();
+            } else {
+                completeJourney();
+            }
+        }
+
+        function completeJourney() {
+            // Save answers to localStorage for the vision board
+            localStorage.setItem('lifeVisionAnswers', JSON.stringify(answers));
+            localStorage.setItem('lifeVisionPillars', JSON.stringify(pillars));
+            
+            document.getElementById('questionScreen').classList.remove('active');
+            document.getElementById('completionScreen').classList.add('active');
+            document.getElementById('progressBar').style.width = '100%';
+        }
+
+        function showVisionBoard() {
+            // Navigate to your vision board page
+            window.location.href = 'vision_board.html';
+        }
+
+        // Allow Enter key to submit in textarea (Ctrl/Cmd+Enter)
+        document.getElementById('answerInput').addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                nextQuestion();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Life Vision - Interactive</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #f0f4f8;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .zoom-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .zoom-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .zoom-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .zoom-level {
+            background: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #2c3e50;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 48px;
+            margin: 40px 0 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        .vision-board {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(1);
+            width: 800px;
+            height: 800px;
+            transform-origin: center center;
+            transition: transform 0.3s ease;
+        }
+        
+        .vision-board-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        
+        svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .connection-line {
+            stroke: #ddd;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .center-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #2c3e50;
+            color: white;
+            padding: 20px 40px;
+            border-radius: 30px;
+            font-size: 28px;
+            font-weight: bold;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .goal {
+            position: absolute;
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            cursor: move;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            user-select: none;
+            z-index: 1;
+        }
+
+        .goal.dragging {
+            z-index: 1000;
+            transform: scale(1.1);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            transition: transform 0.2s ease;
+        }
+
+        .goal:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .goal.expanded {
+            z-index: 100;
+        }
+
+        /* Sub-milestones */
+        .sub-milestones {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: none;
+        }
+
+        .goal.expanded .sub-milestones {
+            display: block;
+        }
+
+        .sub-milestone {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: 500;
+            text-align: center;
+            padding: 5px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.2);
+            cursor: pointer;
+            pointer-events: all;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.3s ease;
+        }
+
+        .goal.expanded .sub-milestone {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .sub-milestone:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+
+        /* Goal Colors */
+        .health { background: #e74c3c; }
+        .health .sub-milestone { background: #c0392b; }
+        
+        .recreation { background: #e67e22; }
+        .recreation .sub-milestone { background: #d35400; }
+        
+        .career { background: #16a085; }
+        .career .sub-milestone { background: #138d75; }
+        
+        .relationships { background: #3498db; }
+        .relationships .sub-milestone { background: #2980b9; }
+        
+        .financial { background: #27ae60; }
+        .financial .sub-milestone { background: #229954; }
+        
+        .personal { background: #f1c40f; }
+        .personal .sub-milestone { background: #d4ac0d; }
+        
+        .contribution { background: #9b59b6; }
+        .contribution .sub-milestone { background: #8e44ad; }
+
+        .instructions {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255,255,255,0.9);
+            padding: 15px 30px;
+            border-radius: 25px;
+            color: #7f8c8d;
+            font-size: 14px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        
+        .instructions.hidden {
+            opacity: 0;
+            transform: translateX(-50%) translateY(20px);
+            pointer-events: none;
+        }
+
+        /* Animation delays for sub-milestones */
+        .sub-milestone:nth-child(1) { transition-delay: 0.1s; }
+        .sub-milestone:nth-child(2) { transition-delay: 0.15s; }
+        .sub-milestone:nth-child(3) { transition-delay: 0.2s; }
+        .sub-milestone:nth-child(4) { transition-delay: 0.25s; }
+
+        /* Timeline styles */
+        .timeline-container {
+            position: fixed;
+            bottom: -300px;
+            left: 0;
+            right: 0;
+            height: 300px;
+            background: white;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+            transition: bottom 0.3s ease;
+            z-index: 1001;
+            padding: 30px 40px;
+            box-sizing: border-box;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+        
+        .timeline-container.active {
+            bottom: 0;
+        }
+        
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .timeline-title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 0;
+        }
+        
+        .timeline-close {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f0f4f8;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .timeline-close:hover {
+            background: #e0e6ed;
+            transform: scale(1.1);
+        }
+        
+        .timeline {
+            position: relative;
+            padding: 40px 0;
+            margin-top: 20px;
+        }
+        
+        .timeline-line {
+            position: absolute;
+            top: 50%;
+            left: 40px;
+            right: 40px;
+            height: 4px;
+            background: #e0e6ed;
+            transform: translateY(-50%);
+        }
+        
+        .timeline-items {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            min-width: 100%;
+            padding: 0 40px;
+        }
+        
+        .timeline-item {
+            position: relative;
+            text-align: center;
+            flex: 1;
+            max-width: 200px;
+        }
+        
+        .timeline-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #16a085;
+            margin: 0 auto 15px;
+            position: relative;
+            z-index: 1;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .timeline-dot:hover {
+            transform: scale(1.3);
+            box-shadow: 0 0 0 8px rgba(22, 160, 133, 0.1);
+        }
+        
+        .timeline-item-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .timeline-item-duration {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        
+        .timeline-item.completed .timeline-dot {
+            background: #27ae60;
+        }
+        
+        .timeline-item.completed .timeline-dot::after {
+            content: '✓';
+            color: white;
+            font-size: 12px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    </style>
+</head>
+<body>
+    <h1>Your Life Vision</h1>
+    <p class="subtitle">Click to expand goals • Drag to rearrange</p>
+    
+    <div class="container">
+        <div class="zoom-controls">
+            <button class="zoom-btn" id="zoomOut">−</button>
+            <div class="zoom-level" id="zoomLevel">100%</div>
+            <button class="zoom-btn" id="zoomIn">+</button>
+            <button class="zoom-btn" id="zoomReset">⟲</button>
+        </div>
+        
+        <div class="vision-board" id="visionBoard">
+            <div class="vision-board-inner" id="visionBoardInner">
+                <!-- SVG for connection lines -->
+                <svg id="connectionSvg">
+                    <!-- Lines will be dynamically created -->
+                </svg>
+                
+                <div class="center-label">Vision Board</div>
+                
+                <!-- Goals with sub-milestones -->
+                <div class="goal health" data-goal="health" style="left: 80px; top: 160px;">
+                    Health<br>&<br>Fitness
+                    <div class="sub-milestones">
+                        <div class="sub-milestone" style="top: -90px; left: 30px;">Exercise<br>Routine</div>
+                        <div class="sub-milestone" style="top: -50px; left: -80px;">Nutrition<br>Plan</div>
+                        <div class="sub-milestone" style="top: 50px; left: -80px;">Sleep<br>Schedule</div>
+                        <div class="sub-milestone" style="top: 90px; left: 30px;">Mental<br>Health</div>
+                    </div>
+                </div>
+                
+                <div class="goal recreation" data-goal="recreation" style="left: 330px; top: 40px;">
+                    Recreation<br>&<br>Fun
+                    <div class="sub-milestones">
+                        <div class="sub-milestone" style="top: -90px; left: 30px;">Travel<br>Goals</div>
+                        <div class="sub-milestone" style="top: -50px; left: -80px;">New<br>Hobbies</div>
+                        <div class="sub-milestone" style="top: 50px; left: -80px;">Social<br>Events</div>
+                        <div class="sub-milestone" style="top: 90px; left: 30px;">Creative<br>Projects</div>
+                    </div>
+                </div>
+                
+                <div class="goal career" data-goal="career" style="left: 580px; top: 160px;">
+                    Career<br>Growth
+                    <div class="sub-milestones">
+                        <div class="sub-milestone" style="top: -90px; left: -30px;">Skill<br>Development</div>
+                        <div class="sub-milestone" style="top: -50px; left: -110px;">Networking</div>
+                        <div class="sub-milestone" style="top: 50px; left: -110px;">Leadership<br>Goals</div>
+                        <div class="sub-milestone" style="top: 90px; left: -30px;">Industry<br>Impact</div>
+                    </div>
+                </div>
+                
+                <div class="goal relationships" data-goal="relationships" style="left: 580px; top: 480px;">
+                    Relationships
+                    <div class="sub-milestones">
+                        <div class="sub-milestone" style="top: -30px; left: -110px;">Family<br>Time</div>
+                        <div class="sub-milestone" style="top: -90px; left: -30px;">Partner<br>Goals</div>
+                        <div class="sub-milestone" style="top: -50px; left: 60px;">Friendships</div>
+                        <div class="sub-milestone" style="top: 30px; left: -110px;">Community<br>Building</div>
+                    </div>
+                </div>
+                
+                <div class="goal financial" data-goal="financial" style="left: 330px; top: 600px;">
+                    Financial<br>Security
+                    <div class="sub-milestones">
+                        <div class="sub-milestone" style="top: -110px; left: 30px;">Savings<br>Goals</div>
+                        <div class="sub-milestone" style="top: -110px; left: -50px;">Investment<br>Strategy</div>
+                        <div class="sub-milestone" style="top: -50px; left: -100px;">Debt<br>Freedom</div>
+                        <div class="sub-milestone" style="top: -50px; left: 80px;">Passive<br>Income</div>
+                    </div>
+                </div>
+                
+                <div class="goal personal" data-goal="personal" style="left: 80px; top: 600px;">
+                    Personal<br>Growth
+                    <div class="sub-milestones">
+                        <div class="sub-milestone" style="top: -110px; left: 30px;">Learning<br>Goals</div>
+                        <div class="sub-milestone" style="top: -110px; left: -50px;">Self-Care<br>Rituals</div>
+                        <div class="sub-milestone" style="top: -50px; left: 80px;">Mindfulness</div>
+                        <div class="sub-milestone" style="top: 30px; left: 100px;">Life<br>Skills</div>
+                    </div>
+                </div>
+                
+                <div class="goal contribution" data-goal="contribution" style="left: 80px; top: 380px;">
+                    Contribution
+                    <div class="sub-milestones">
+                        <div class="sub-milestone" style="top: -90px; left: 30px;">Volunteer<br>Work</div>
+                        <div class="sub-milestone" style="top: -30px; left: 100px;">Mentoring</div>
+                        <div class="sub-milestone" style="top: 50px; left: 80px;">Environmental<br>Impact</div>
+                        <div class="sub-milestone" style="top: 90px; left: 0px;">Legacy<br>Building</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="instructions" id="instructions">
+            💡 Tip: Click goals to see milestones • Drag to rearrange • Click milestones for details
+        </div>
+    </div>
+    
+    <!-- Timeline Container -->
+    <div class="timeline-container" id="timelineContainer">
+        <div class="timeline-header">
+            <h2 class="timeline-title" id="timelineTitle">Exercise Routine</h2>
+            <button class="timeline-close" id="timelineClose">×</button>
+        </div>
+        <div class="timeline">
+            <div class="timeline-line"></div>
+            <div class="timeline-items" id="timelineItems">
+                <!-- Timeline items will be dynamically generated -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get all elements
+        const visionBoard = document.getElementById('visionBoard');
+        const visionBoardInner = document.getElementById('visionBoardInner');
+        const goals = document.querySelectorAll('.goal');
+        const svg = document.getElementById('connectionSvg');
+        const instructions = document.getElementById('instructions');
+        const centerX = 400; // Center of the board
+        const centerY = 400;
+        
+        // Track if user has interacted
+        let hasInteracted = false;
+        
+        // Function to hide instructions after first interaction
+        function hideInstructions() {
+            if (!hasInteracted) {
+                hasInteracted = true;
+                instructions.classList.add('hidden');
+                // Remove from DOM after animation
+                setTimeout(() => {
+                    instructions.style.display = 'none';
+                }, 300);
+            }
+        }
+        
+        // Create SVG lines for each goal
+        const lines = new Map();
+        goals.forEach(goal => {
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.classList.add('connection-line');
+            svg.appendChild(line);
+            lines.set(goal, line);
+        });
+        
+        // Update connection lines using SVG
+        function updateLines() {
+            goals.forEach(goal => {
+                const line = lines.get(goal);
+                
+                // Get goal center position
+                const goalLeft = parseFloat(goal.style.left) || 0;
+                const goalTop = parseFloat(goal.style.top) || 0;
+                const goalCenterX = goalLeft + 70; // 70 is half of goal width (140/2)
+                const goalCenterY = goalTop + 70;
+                
+                // Set line coordinates
+                line.setAttribute('x1', centerX);
+                line.setAttribute('y1', centerY);
+                line.setAttribute('x2', goalCenterX);
+                line.setAttribute('y2', goalCenterY);
+            });
+        }
+        
+        // Initialize lines
+        updateLines();
+        
+        // Zoom functionality
+        let currentZoom = 1;
+        const zoomStep = 0.1;
+        const minZoom = 0.5;
+        const maxZoom = 2;
+        
+        const zoomInBtn = document.getElementById('zoomIn');
+        const zoomOutBtn = document.getElementById('zoomOut');
+        const zoomResetBtn = document.getElementById('zoomReset');
+        const zoomLevelDisplay = document.getElementById('zoomLevel');
+        
+        function updateZoom(newZoom) {
+            currentZoom = Math.max(minZoom, Math.min(maxZoom, newZoom));
+            visionBoard.style.transform = `translate(-50%, -50%) scale(${currentZoom})`;
+            zoomLevelDisplay.textContent = Math.round(currentZoom * 100) + '%';
+        }
+        
+        zoomInBtn.addEventListener('click', () => updateZoom(currentZoom + zoomStep));
+        zoomOutBtn.addEventListener('click', () => updateZoom(currentZoom - zoomStep));
+        zoomResetBtn.addEventListener('click', () => updateZoom(1));
+        
+        // Mouse wheel zoom
+        document.querySelector('.container').addEventListener('wheel', (e) => {
+            if (e.ctrlKey || e.metaKey || e.shiftKey) {
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? -zoomStep : zoomStep;
+                updateZoom(currentZoom + delta);
+            }
+        }, { passive: false });
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                if (e.key === '+' || e.key === '=') {
+                    e.preventDefault();
+                    updateZoom(currentZoom + zoomStep);
+                } else if (e.key === '-') {
+                    e.preventDefault();
+                    updateZoom(currentZoom - zoomStep);
+                } else if (e.key === '0') {
+                    e.preventDefault();
+                    updateZoom(1);
+                }
+            }
+        });
+        
+        // Make goals draggable
+        let draggedElement = null;
+        let offsetX = 0;
+        let offsetY = 0;
+        let isDragging = false;
+        let startX = 0;
+        let startY = 0;
+        
+        goals.forEach(goal => {
+            // Click to expand/collapse
+            goal.addEventListener('click', function(e) {
+                // Only expand if we haven't dragged
+                if (!isDragging && e.target === this) {
+                    // Hide instructions on first interaction
+                    hideInstructions();
+                    
+                    // Close other expanded goals
+                    goals.forEach(g => {
+                        if (g !== this) g.classList.remove('expanded');
+                    });
+                    
+                    this.classList.toggle('expanded');
+                }
+            });
+            
+            // Start dragging
+            goal.addEventListener('mousedown', function(e) {
+                if (e.target === this || e.target.parentElement === this) {
+                    // Hide instructions on first interaction
+                    hideInstructions();
+                    
+                    draggedElement = this;
+                    const rect = this.getBoundingClientRect();
+                    const boardRect = visionBoardInner.getBoundingClientRect();
+                    
+                    // Account for zoom scale in offset calculation
+                    offsetX = (e.clientX - rect.left) / currentZoom;
+                    offsetY = (e.clientY - rect.top) / currentZoom;
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    isDragging = false;
+                    
+                    this.classList.add('dragging');
+                    e.preventDefault();
+                }
+            });
+        });
+        
+        // Add all milestone timelines data - including all categories
+        const milestoneTimelines = {
+            // Health & Fitness milestones
+            'Exercise\nRoutine': [
+                { title: 'Wake-Up Mobility', duration: '3-5 min', completed: false },
+                { title: 'Dynamic Warm-Up', duration: '5-8 min', completed: false },
+                { title: 'Strength & Stability', duration: '15-20 min', completed: false },
+                { title: 'Stretch & Breathe', duration: '5-10 min', completed: false }
+            ],
+            'Nutrition\nPlan': [
+                { title: 'Meal Planning', duration: 'Weekly', completed: false },
+                { title: 'Grocery Shopping', duration: '2x/week', completed: false },
+                { title: 'Meal Prep', duration: '3 hrs/week', completed: false },
+                { title: 'Track Macros', duration: 'Daily', completed: false }
+            ],
+            'Sleep\nSchedule': [
+                { title: 'Set Bedtime', duration: '10:30 PM', completed: false },
+                { title: 'Evening Routine', duration: '30 min', completed: false },
+                { title: 'No Screens', duration: '1 hr before', completed: false },
+                { title: 'Morning Routine', duration: '6:30 AM', completed: false }
+            ],
+            'Mental\nHealth': [
+                { title: 'Daily Meditation', duration: '10 min', completed: false },
+                { title: 'Journaling', duration: '15 min', completed: false },
+                { title: 'Therapy Session', duration: 'Weekly', completed: false },
+                { title: 'Self-Care Time', duration: '1 hr/week', completed: false }
+            ],
+            // Recreation & Fun milestones
+            'Travel\nGoals': [
+                { title: 'Research Destinations', duration: '2 months', completed: false },
+                { title: 'Save Budget', duration: '$200/month', completed: false },
+                { title: 'Book Flights', duration: '3 months ahead', completed: false },
+                { title: 'Plan Itinerary', duration: '1 month ahead', completed: false }
+            ],
+            'New\nHobbies': [
+                { title: 'Choose Activity', duration: '1 week', completed: false },
+                { title: 'Get Equipment', duration: '2 weeks', completed: false },
+                { title: 'Find Classes', duration: '1 week', completed: false },
+                { title: 'Practice Weekly', duration: '2 hrs/week', completed: false }
+            ],
+            'Social\nEvents': [
+                { title: 'Monthly Gathering', duration: '1st Saturday', completed: false },
+                { title: 'Join Club', duration: 'This month', completed: false },
+                { title: 'Host Dinner', duration: 'Quarterly', completed: false },
+                { title: 'Attend Meetups', duration: '2x/month', completed: false }
+            ],
+            'Creative\nProjects': [
+                { title: 'Brainstorm Ideas', duration: '1 week', completed: false },
+                { title: 'Gather Materials', duration: '2 weeks', completed: false },
+                { title: 'Create Schedule', duration: '3 hrs/week', completed: false },
+                { title: 'Share Progress', duration: 'Monthly', completed: false }
+            ],
+            // Career Growth milestones
+            'Skill\nDevelopment': [
+                { title: 'Identify Skills Gap', duration: '1 week', completed: false },
+                { title: 'Online Courses', duration: '5 hrs/week', completed: false },
+                { title: 'Practice Projects', duration: '10 hrs/week', completed: false },
+                { title: 'Get Certification', duration: '3 months', completed: false }
+            ],
+            'Networking': [
+                { title: 'Update LinkedIn', duration: 'Monthly', completed: false },
+                { title: 'Industry Events', duration: '1/month', completed: false },
+                { title: 'Coffee Meetings', duration: '2/month', completed: false },
+                { title: 'Follow Up', duration: 'Weekly', completed: false }
+            ],
+            'Leadership\nGoals': [
+                { title: 'Lead Team Meeting', duration: 'Weekly', completed: false },
+                { title: 'Mentor Junior', duration: '1 hr/week', completed: false },
+                { title: 'Present to Execs', duration: 'Quarterly', completed: false },
+                { title: 'Leadership Course', duration: '6 months', completed: false }
+            ],
+            'Industry\nImpact': [
+                { title: 'Write Articles', duration: '1/month', completed: false },
+                { title: 'Speak at Events', duration: '1/quarter', completed: false },
+                { title: 'Open Source', duration: '5 hrs/week', completed: false },
+                { title: 'Industry Research', duration: '3 hrs/week', completed: false }
+            ],
+            // Relationships milestones
+            'Family\nTime': [
+                { title: 'Weekly Dinners', duration: 'Sundays', completed: false },
+                { title: 'Phone Calls', duration: '2x/week', completed: false },
+                { title: 'Family Trips', duration: 'Quarterly', completed: false },
+                { title: 'Share Photos', duration: 'Weekly', completed: false }
+            ],
+            'Partner\nGoals': [
+                { title: 'Date Night', duration: 'Weekly', completed: false },
+                { title: 'Plan Adventures', duration: 'Monthly', completed: false },
+                { title: 'Communication Time', duration: 'Daily', completed: false },
+                { title: 'Anniversary Plans', duration: 'Yearly', completed: false }
+            ],
+            'Friendships': [
+                { title: 'Check-ins', duration: 'Weekly', completed: false },
+                { title: 'Group Activities', duration: '2x/month', completed: false },
+                { title: 'Birthday Reminders', duration: 'As needed', completed: false },
+                { title: 'Support System', duration: 'Ongoing', completed: false }
+            ],
+            'Community\nBuilding': [
+                { title: 'Local Events', duration: 'Monthly', completed: false },
+                { title: 'Volunteer Hours', duration: '4 hrs/month', completed: false },
+                { title: 'Neighborhood Meet', duration: 'Quarterly', completed: false },
+                { title: 'Online Groups', duration: 'Weekly', completed: false }
+            ],
+            // Financial Security milestones
+            'Savings\nGoals': [
+                { title: 'Emergency Fund', duration: '6 months', completed: false },
+                { title: 'Monthly Savings', duration: '20% income', completed: false },
+                { title: 'Track Expenses', duration: 'Daily', completed: false },
+                { title: 'Review Budget', duration: 'Monthly', completed: false }
+            ],
+            'Investment\nStrategy': [
+                { title: 'Research Options', duration: '2 weeks', completed: false },
+                { title: 'Diversify Portfolio', duration: 'Quarterly', completed: false },
+                { title: 'Regular Deposits', duration: 'Monthly', completed: false },
+                { title: 'Review Performance', duration: 'Quarterly', completed: false }
+            ],
+            'Debt\nFreedom': [
+                { title: 'List All Debts', duration: 'This week', completed: false },
+                { title: 'Payment Strategy', duration: 'Monthly', completed: false },
+                { title: 'Extra Payments', duration: 'When possible', completed: false },
+                { title: 'Track Progress', duration: 'Monthly', completed: false }
+            ],
+            'Passive\nIncome': [
+                { title: 'Research Ideas', duration: '1 month', completed: false },
+                { title: 'Start Side Project', duration: '3 months', completed: false },
+                { title: 'Build Systems', duration: '6 months', completed: false },
+                { title: 'Scale Income', duration: 'Ongoing', completed: false }
+            ],
+            // Personal Growth milestones
+            'Learning\nGoals': [
+                { title: 'Choose Topics', duration: '1 week', completed: false },
+                { title: 'Study Time', duration: '1 hr/day', completed: false },
+                { title: 'Apply Knowledge', duration: 'Weekly', completed: false },
+                { title: 'Teach Others', duration: 'Monthly', completed: false }
+            ],
+            'Self-Care\nRituals': [
+                { title: 'Morning Routine', duration: '30 min', completed: false },
+                { title: 'Relaxation Time', duration: '1 hr/day', completed: false },
+                { title: 'Spa Day', duration: 'Monthly', completed: false },
+                { title: 'Digital Detox', duration: 'Weekly', completed: false }
+            ],
+            'Mindfulness': [
+                { title: 'Daily Practice', duration: '15 min', completed: false },
+                { title: 'Gratitude Journal', duration: 'Nightly', completed: false },
+                { title: 'Nature Walks', duration: '3x/week', completed: false },
+                { title: 'Breathing Exercises', duration: 'As needed', completed: false }
+            ],
+            'Life\nSkills': [
+                { title: 'New Skill Monthly', duration: 'Ongoing', completed: false },
+                { title: 'Practice Sessions', duration: '2 hrs/week', completed: false },
+                { title: 'Get Feedback', duration: 'Monthly', completed: false },
+                { title: 'Master Basics', duration: '3 months', completed: false }
+            ],
+            // Contribution milestones
+            'Volunteer\nWork': [
+                { title: 'Find Causes', duration: '2 weeks', completed: false },
+                { title: 'Regular Hours', duration: '4 hrs/week', completed: false },
+                { title: 'Team Projects', duration: 'Monthly', completed: false },
+                { title: 'Impact Tracking', duration: 'Quarterly', completed: false }
+            ],
+            'Mentoring': [
+                { title: 'Find Mentees', duration: '1 month', completed: false },
+                { title: 'Weekly Sessions', duration: '1 hr/week', completed: false },
+                { title: 'Create Resources', duration: 'Monthly', completed: false },
+                { title: 'Track Progress', duration: 'Quarterly', completed: false }
+            ],
+            'Environmental\nImpact': [
+                { title: 'Reduce Waste', duration: 'Daily', completed: false },
+                { title: 'Eco Projects', duration: 'Monthly', completed: false },
+                { title: 'Community Clean', duration: 'Quarterly', completed: false },
+                { title: 'Educate Others', duration: 'Ongoing', completed: false }
+            ],
+            'Legacy\nBuilding': [
+                { title: 'Define Legacy', duration: '1 month', completed: false },
+                { title: 'Document Stories', duration: 'Weekly', completed: false },
+                { title: 'Create Systems', duration: '6 months', completed: false },
+                { title: 'Share Knowledge', duration: 'Ongoing', completed: false }
+            ]
+        };
+        
+        // Timeline functionality
+        const timelineContainer = document.getElementById('timelineContainer');
+        const timelineTitle = document.getElementById('timelineTitle');
+        const timelineItems = document.getElementById('timelineItems');
+        const timelineClose = document.getElementById('timelineClose');
+        
+        function showTimeline(milestoneName) {
+            // Try to find the timeline with both formats (with and without line breaks)
+            let timeline = milestoneTimelines[milestoneName];
+            
+            // If not found, try replacing spaces with newlines
+            if (!timeline) {
+                const nameWithNewline = milestoneName.replace(/([a-z])([A-Z])/g, '$1\n$2');
+                timeline = milestoneTimelines[nameWithNewline];
+            }
+            
+            // If still not found, try other variations
+            if (!timeline) {
+                // Try adding newline between words
+                const words = milestoneName.match(/[A-Z][a-z]+/g);
+                if (words && words.length > 1) {
+                    const nameWithNewline = words.join('\n');
+                    timeline = milestoneTimelines[nameWithNewline];
+                }
+            }
+            
+            console.log('Looking for timeline:', milestoneName, 'Found:', !!timeline); // Debug
+            
+            if (!timeline) {
+                console.log('Available timelines:', Object.keys(milestoneTimelines)); // Debug
+                return;
+            }
+            
+            // Update title
+            timelineTitle.textContent = milestoneName.replace('\n', ' ').replace(/([a-z])([A-Z])/g, '$1 $2');
+            
+            // Clear existing items
+            timelineItems.innerHTML = '';
+            
+            // Create timeline items
+            timeline.forEach((item, index) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'timeline-item' + (item.completed ? ' completed' : '');
+                
+                itemDiv.innerHTML = `
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-item-title">${item.title}</div>
+                    <div class="timeline-item-duration">${item.duration}</div>
+                `;
+                
+                // Add click handler to toggle completion
+                const dot = itemDiv.querySelector('.timeline-dot');
+                dot.addEventListener('click', () => {
+                    item.completed = !item.completed;
+                    itemDiv.classList.toggle('completed');
+                });
+                
+                timelineItems.appendChild(itemDiv);
+            });
+            
+            // Show timeline
+            timelineContainer.classList.add('active');
+        }
+        
+        // Close timeline
+        timelineClose.addEventListener('click', () => {
+            timelineContainer.classList.remove('active');
+        });
+        
+        // Handle sub-milestone clicks - add debugging
+        document.querySelectorAll('.sub-milestone').forEach(milestone => {
+            milestone.addEventListener('click', function(e) {
+                e.stopPropagation();
+                hideInstructions();
+                const milestoneName = this.textContent.trim();
+                console.log('Clicked milestone:', milestoneName); // Debug log
+                showTimeline(milestoneName);
+            });
+        });
+        
+        // Handle dragging
+        document.addEventListener('mousemove', function(e) {
+            if (draggedElement) {
+                // Check if we've moved enough to consider it a drag
+                const moveDistance = Math.sqrt(
+                    Math.pow(e.clientX - startX, 2) + 
+                    Math.pow(e.clientY - startY, 2)
+                );
+                
+                if (moveDistance > 5) {
+                    isDragging = true;
+                }
+                
+                const boardRect = visionBoardInner.getBoundingClientRect();
+                
+                // Calculate new position accounting for zoom
+                let newX = (e.clientX - boardRect.left) / currentZoom - offsetX;
+                let newY = (e.clientY - boardRect.top) / currentZoom - offsetY;
+                
+                // Keep within bounds
+                newX = Math.max(0, Math.min(newX, 800 - 140)); // 140 is goal width
+                newY = Math.max(0, Math.min(newY, 800 - 140));
+                
+                draggedElement.style.left = newX + 'px';
+                draggedElement.style.top = newY + 'px';
+                
+                updateLines();
+            }
+        });
+        
+        // Stop dragging
+        document.addEventListener('mouseup', function() {
+            if (draggedElement) {
+                draggedElement.classList.remove('dragging');
+                draggedElement = null;
+                
+                // Reset drag flag after a short delay
+                setTimeout(() => {
+                    isDragging = false;
+                }, 50);
+            }
+        });
+        
+        // Prevent text selection while dragging
+        document.addEventListener('selectstart', function(e) {
+            if (draggedElement) {
+                e.preventDefault();
+            }
+        });
+        
+        // Update lines on window resize
+        window.addEventListener('resize', updateLines);
+    </script>
+</body>
+</html>
