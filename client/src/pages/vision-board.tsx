@@ -39,15 +39,15 @@ export default function VisionBoard() {
     setLocation('/vision-questionnaire');
   };
 
-  // Define pillar positions in a circle around the center - matching the reference design
+  // Define pillar positions in a circle around the center
   const pillarNodes: PillarNode[] = [
-    { id: 'health', name: 'Health & Fitness', color: '#EF4444', x: 420, y: 200 },
-    { id: 'wealth', name: 'Recreation& Fun', color: '#F97316', x: 540, y: 130 },
-    { id: 'love', name: 'Career& Growth', color: '#10B981', x: 620, y: 200 },
-    { id: 'legacy', name: 'Contribution', color: '#8B5CF6', x: 420, y: 350 },
-    { id: 'wisdom', name: 'Personal& Growth', color: '#EAB308', x: 330, y: 420 },
-    { id: 'spirituality', name: 'Financial& Security', color: '#22C55E', x: 520, y: 420 },
-    { id: 'character', name: 'Relationships', color: '#3B82F6', x: 620, y: 350 },
+    { id: 'health', name: 'Health', color: '#EF4444', x: 420, y: 200 },
+    { id: 'wealth', name: 'Wealth', color: '#F97316', x: 540, y: 130 },
+    { id: 'love', name: 'Love', color: '#EC4899', x: 620, y: 200 },
+    { id: 'legacy', name: 'Legacy', color: '#8B5CF6', x: 620, y: 350 },
+    { id: 'wisdom', name: 'Wisdom', color: '#EAB308', x: 520, y: 420 },
+    { id: 'spirituality', name: 'Spirituality', color: '#22C55E', x: 330, y: 420 },
+    { id: 'character', name: 'Character', color: '#3B82F6', x: 420, y: 350 },
   ];
 
   // Map goals to pillar nodes
@@ -239,99 +239,139 @@ export default function VisionBoard() {
                 fill={node.color}
                 stroke={expandedPillar === node.id ? "#374151" : "white"}
                 strokeWidth={expandedPillar === node.id ? "3" : "2"}
-                className="cursor-pointer transition-all duration-200 hover:r-38"
+                className="cursor-pointer transition-all duration-200 hover:opacity-80"
                 onClick={() => handlePillarClick(node.id)}
               />
               <text
                 x="0"
-                y="-5"
+                y="4"
                 textAnchor="middle"
                 fill="white"
-                fontSize="10"
+                fontSize="11"
                 fontWeight="bold"
                 className="pointer-events-none"
               >
-                {node.name.split('&')[0].trim()}
+                {node.name}
               </text>
-              <text
-                x="0"
-                y="8"
-                textAnchor="middle"
-                fill="white"
-                fontSize="10"
-                fontWeight="bold"
-                className="pointer-events-none"
-              >
-                {node.name.split('&')[1]?.trim() || ''}
-              </text>
+              
+              {/* Sub-bubbles for action steps when expanded */}
+              {expandedPillar === node.id && node.actionSteps && (
+                <>
+                  {node.actionSteps.slice(0, 4).map((step, index) => {
+                    const angle = (index * 90 - 45) * (Math.PI / 180);
+                    const subX = 80 * Math.cos(angle);
+                    const subY = 80 * Math.sin(angle);
+                    
+                    return (
+                      <g key={`sub-${index}`} transform={`translate(${subX}, ${subY})`}>
+                        <circle
+                          cx="0"
+                          cy="0"
+                          r="20"
+                          fill={node.color}
+                          fillOpacity="0.7"
+                          stroke="white"
+                          strokeWidth="1"
+                          className="animate-pulse"
+                        />
+                        <text
+                          x="0"
+                          y="4"
+                          textAnchor="middle"
+                          fill="white"
+                          fontSize="8"
+                          fontWeight="bold"
+                        >
+                          {index + 1}
+                        </text>
+                        {/* Connecting line to main bubble */}
+                        <line
+                          x1="0"
+                          y1="0"
+                          x2={-subX * 0.4}
+                          y2={-subY * 0.4}
+                          stroke={node.color}
+                          strokeWidth="2"
+                          strokeOpacity="0.5"
+                        />
+                      </g>
+                    );
+                  })}
+                </>
+              )}
             </g>
           ))}
         </svg>
       </div>
 
-      {/* Expanded Pillar Panel */}
+      {/* Floating Action Steps Popup */}
       {expandedPillar && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-lg transition-all duration-300 ease-in-out">
-          <div className="container mx-auto px-4 py-6">
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                {(() => {
-                  const pillar = nodesWithGoals.find(n => n.id === expandedPillar);
-                  const goal = goals.find(g => g.pillarId === expandedPillar);
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50" onClick={() => setExpandedPillar(null)}>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4 p-6" onClick={(e) => e.stopPropagation()}>
+            {(() => {
+              const pillar = nodesWithGoals.find(n => n.id === expandedPillar);
+              const goal = goals.find(g => g.pillarId === expandedPillar);
+              
+              return (
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div 
+                        className="w-10 h-10 rounded-full flex items-center justify-center"
+                        style={{ backgroundColor: pillar?.color }}
+                      >
+                        <span className="text-white font-bold text-lg">
+                          {pillar?.name.charAt(0)}
+                        </span>
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                        {goal?.pillarName || pillar?.name}
+                      </h3>
+                    </div>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => setExpandedPillar(null)}
+                    >
+                      ✕
+                    </Button>
+                  </div>
                   
-                  return (
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-3">
-                          <div 
-                            className="w-8 h-8 rounded-full"
-                            style={{ backgroundColor: pillar?.color }}
-                          />
-                          <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                            {goal?.pillarName || pillar?.name}
-                          </h3>
-                        </div>
+                  {goal && (
+                    <>
+                      <div className="mb-4">
+                        <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Main Goal:</h4>
+                        <p className="text-gray-700 dark:text-gray-300 text-sm">
+                          {goal.goal}
+                        </p>
                       </div>
                       
-                      {goal && (
-                        <>
-                          <div className="md:col-span-2">
-                            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Goal:</h4>
-                            <p className="text-gray-700 dark:text-gray-300">
-                              {goal.goal}
-                            </p>
-                          </div>
-                          
-                          <div>
-                            <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Action Steps:</h4>
-                            <ul className="space-y-1">
-                              {goal.actionSteps?.slice(0, 4).map((step, index) => (
-                                <li key={index} className="text-gray-600 dark:text-gray-400 text-sm flex items-start gap-2">
-                                  <span 
-                                    className="w-1.5 h-1.5 rounded-full mt-2 flex-shrink-0"
-                                    style={{ backgroundColor: pillar?.color }}
-                                  />
-                                  {step}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  );
-                })()}
-              </div>
-              
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={() => setExpandedPillar(null)}
-                className="ml-4"
-              >
-                ✕
-              </Button>
-            </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Milestones to Achieve:</h4>
+                        <div className="grid grid-cols-1 gap-3">
+                          {goal.actionSteps?.map((step, index) => (
+                            <div 
+                              key={index} 
+                              className="flex items-start gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                            >
+                              <div 
+                                className="w-6 h-6 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0 mt-0.5"
+                                style={{ backgroundColor: pillar?.color }}
+                              >
+                                {index + 1}
+                              </div>
+                              <p className="text-gray-700 dark:text-gray-300 text-sm">
+                                {step}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              );
+            })()}
           </div>
         </div>
       )}
