@@ -2,7 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, Target, Sparkles, Plus, Minus } from "lucide-react";
 import { useLocation } from "wouter";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface VisionGoal {
   id: number;
@@ -35,6 +36,18 @@ export default function VisionBoard() {
   const [editingText, setEditingText] = useState<{ type: 'pillar' | 'subBubble' | 'task'; id: string; index?: number } | null>(null);
   const [draggedPillar, setDraggedPillar] = useState<string | null>(null);
   const [pillarPositions, setPillarPositions] = useState<Record<string, { x: number; y: number }>>({});
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Check if screen is mobile size
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768); // md breakpoint
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const { data: goals = [], isLoading, error } = useQuery<VisionGoal[]>({
     queryKey: ['/api/vision/goals'],
@@ -188,42 +201,110 @@ export default function VisionBoard() {
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                Your Life Vision
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
+                Vision Board
               </h1>
-              <p className="text-gray-600 dark:text-gray-300 mt-1">
-                Click to expand goals • Drag to rearrange • Double-click text to edit
+              <p className="text-gray-600 dark:text-gray-300 mt-1 text-sm md:text-base">
+                {isMobile ? "Your 7 Pillars of Life • AI-generated goals from your questionnaire responses" : "Click to expand goals • Drag to rearrange • Double-click text to edit"}
               </p>
             </div>
             <Button 
               onClick={handleRetakeQuestionnaire}
               variant="outline"
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 text-xs md:text-sm"
+              size={isMobile ? "sm" : "default"}
             >
               <RefreshCw size={16} />
-              Retake Questionnaire
+              <span className="hidden sm:inline">Retake Questionnaire</span>
+              <span className="sm:hidden">Retake</span>
             </Button>
           </div>
         </div>
       </div>
 
-      {/* Vision Board Canvas */}
-      <div className="relative w-full" style={{ height: 'calc(100vh - 140px)' }}>
-        {/* Zoom Controls */}
-        <div className="absolute top-4 right-4 z-10 flex items-center gap-2 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-2 shadow-lg">
-          <Button size="sm" variant="ghost" onClick={handleZoomOut}>
-            <Minus size={16} />
-          </Button>
-          <span className="text-sm font-medium px-2 text-gray-700 dark:text-gray-300">
-            {zoomLevel}%
-          </span>
-          <Button size="sm" variant="ghost" onClick={handleZoomIn}>
-            <Plus size={16} />
-          </Button>
-          <Button size="sm" variant="ghost">
-            <RefreshCw size={16} />
-          </Button>
+      {/* Mobile Card Layout */}
+      {isMobile ? (
+        <div className="container mx-auto px-4 py-6 space-y-4">
+          {nodesWithGoals.map((node) => {
+            const goal = goals.find(g => g.pillarId === node.id);
+            return (
+              <Card key={node.id} className="shadow-sm">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-3">
+                    <div 
+                      className="w-12 h-12 rounded-full flex items-center justify-center text-xl"
+                      style={{ backgroundColor: node.color }}
+                    >
+                      {node.id === 'health' && '🫀'}
+                      {node.id === 'wealth' && '💰'}
+                      {node.id === 'love' && '❤️'}
+                      {node.id === 'legacy' && '🌳'}
+                      {node.id === 'wisdom' && '📚'}
+                      {node.id === 'spirituality' && '✨'}
+                      {node.id === 'character' && '🛡️'}
+                    </div>
+                    <div className="flex-1">
+                      <CardTitle className="text-lg text-gray-900 dark:text-white">
+                        {node.name}
+                      </CardTitle>
+                      {goal?.goal && (
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                          {goal.goal}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  {goal?.actionSteps && goal.actionSteps.length > 0 && (
+                    <div className="space-y-2 mb-4">
+                      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">Action Steps:</h4>
+                      <ul className="space-y-1">
+                        {goal.actionSteps.slice(0, 2).map((step, index) => (
+                          <li key={index} className="text-sm text-gray-600 dark:text-gray-400 flex items-start gap-2">
+                            <span className="text-blue-500 mt-1">•</span>
+                            <span>{step}</span>
+                          </li>
+                        ))}
+                        {goal.actionSteps.length > 2 && (
+                          <li className="text-sm text-gray-500 dark:text-gray-500 italic">
+                            +{goal.actionSteps.length - 2} more steps...
+                          </li>
+                        )}
+                      </ul>
+                    </div>
+                  )}
+                  <Button 
+                    className="w-full" 
+                    variant="outline"
+                    onClick={() => handlePillarClick(node.id)}
+                  >
+                    <Sparkles size={16} className="mr-2" />
+                    Get AI Insights
+                  </Button>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
+      ) : (
+        /* Desktop SVG Canvas */
+        <div className="relative w-full" style={{ height: 'calc(100vh - 140px)' }}>
+          {/* Zoom Controls */}
+          <div className="absolute top-4 right-4 z-10 flex items-center gap-2 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-2 shadow-lg">
+            <Button size="sm" variant="ghost" onClick={handleZoomOut}>
+              <Minus size={16} />
+            </Button>
+            <span className="text-sm font-medium px-2 text-gray-700 dark:text-gray-300">
+              {zoomLevel}%
+            </span>
+            <Button size="sm" variant="ghost" onClick={handleZoomIn}>
+              <Plus size={16} />
+            </Button>
+            <Button size="sm" variant="ghost">
+              <RefreshCw size={16} />
+            </Button>
+          </div>
 
         {/* SVG Canvas */}
         <svg 
@@ -494,7 +575,8 @@ export default function VisionBoard() {
             </g>
           ))}
         </svg>
-      </div>
+        </div>
+      )}
 
 
 
