@@ -3817,8 +3817,6 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   // Generate vision board from questionnaire responses (Admin only)
   app.post("/api/vision/generate", async (req: any, res) => {
     console.log("Vision generate endpoint hit");
-    console.log("Headers:", req.headers);
-    console.log("Body:", req.body);
     
     // Try JWT auth first
     let user = null;
