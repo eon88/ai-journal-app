@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { FeatureGate } from "@/components/feature-gate";
+import { AdminRoute } from "@/components/admin-route";
 import { apiRequest } from "@/lib/queryClient";
 import { useLocation } from "wouter";
 
@@ -154,7 +154,7 @@ export default function VisionQuestionnaire() {
 
   if (isComplete || generateVisionMutation.isPending) {
     return (
-      <FeatureGate requiredTier="vision_planning">
+      <AdminRoute>
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
           <Card className="w-full max-w-md text-center">
             <CardContent className="pt-8 pb-8">
@@ -185,12 +185,12 @@ export default function VisionQuestionnaire() {
             </CardContent>
           </Card>
         </div>
-      </FeatureGate>
+      </AdminRoute>
     );
   }
 
   return (
-    <FeatureGate requiredTier="vision_planning">
+    <AdminRoute>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
         <div className="container mx-auto px-4 py-8 max-w-4xl">
           {/* Header */}
@@ -309,6 +309,6 @@ export default function VisionQuestionnaire() {
           </div>
         </div>
       </div>
-    </FeatureGate>
+    </AdminRoute>
   );
 }

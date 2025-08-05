@@ -13,7 +13,9 @@ import {
   Crown,
   UserCheck,
   UserX,
-  Calendar
+  Calendar,
+  Target,
+  Sparkles
 } from "lucide-react";
 import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
@@ -118,6 +120,12 @@ export default function AdminPanel() {
             </p>
           </div>
           <div className="flex items-center gap-4">
+            <Link to="/vision-board">
+              <Button variant="outline" className="border-blue-500 text-blue-400 hover:bg-blue-500/10">
+                <Target className="w-4 h-4 mr-2" />
+                Vision Board (Beta)
+              </Button>
+            </Link>
             <Link to="/admin/dashboard">
               <Button variant="outline" className="border-purple-500 text-purple-400 hover:bg-purple-500/10">
                 <Users className="w-4 h-4 mr-2" />
@@ -132,8 +140,9 @@ export default function AdminPanel() {
         </div>
 
         <Tabs defaultValue="users" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 bg-gray-800">
+          <TabsList className="grid w-full grid-cols-3 bg-gray-800">
             <TabsTrigger value="users">User Management</TabsTrigger>
+            <TabsTrigger value="vision">Vision System</TabsTrigger>
             <TabsTrigger value="settings">Admin Settings</TabsTrigger>
           </TabsList>
 
@@ -212,6 +221,74 @@ export default function AdminPanel() {
                     ))}
                   </div>
                 )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Vision System Tab */}
+          <TabsContent value="vision" className="space-y-6">
+            <Card className="glass-card">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                  <Target className="w-5 h-5" />
+                  Vision Board System
+                </CardTitle>
+                <CardDescription className="text-gray-300">
+                  AI-powered life vision planning system (Beta Testing)
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="p-4 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-lg border border-blue-500/20">
+                  <h3 className="font-medium text-white mb-2 flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-blue-400" />
+                    Vision Planning Features
+                  </h3>
+                  <p className="text-sm text-gray-300 mb-4">
+                    The Vision Board system helps users create comprehensive life plans using the 7 Pillars of Life framework with AI-guided goal generation.
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div className="space-y-2">
+                      <h4 className="font-medium text-blue-400">Core Features:</h4>
+                      <ul className="text-gray-300 space-y-1">
+                        <li>• Interactive questionnaire</li>
+                        <li>• AI-powered goal generation</li>
+                        <li>• Visual goal management</li>
+                        <li>• Progress tracking</li>
+                      </ul>
+                    </div>
+                    <div className="space-y-2">
+                      <h4 className="font-medium text-purple-400">7 Pillars Framework:</h4>
+                      <ul className="text-gray-300 space-y-1">
+                        <li>• Health & Fitness</li>
+                        <li>• Career & Finance</li>
+                        <li>• Relationships & Social</li>
+                        <li>• Personal Growth</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex gap-4">
+                  <Link to="/vision-board">
+                    <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                      <Target className="w-4 h-4 mr-2" />
+                      Open Vision Board
+                    </Button>
+                  </Link>
+                  <Link to="/vision-questionnaire">
+                    <Button variant="outline" className="border-purple-500 text-purple-400 hover:bg-purple-500/10">
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      Start Questionnaire
+                    </Button>
+                  </Link>
+                </div>
+
+                <div className="p-4 bg-amber-500/10 rounded-lg border border-amber-500/20">
+                  <h4 className="font-medium text-amber-400 mb-2">Beta Testing Phase</h4>
+                  <p className="text-sm text-gray-300">
+                    This system is currently in beta testing with admin-only access. User feedback and testing results will inform the final release version.
+                  </p>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

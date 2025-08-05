@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { FeatureGate } from "@/components/feature-gate";
+import { AdminRoute } from "@/components/admin-route";
 import { EmptyVisionState } from "@/components/vision/empty-vision-state";
 import { apiRequest } from "@/lib/queryClient";
 import { VisionGoal } from "@shared/schema";
@@ -52,16 +52,16 @@ export default function VisionBoard() {
 
   if (isLoading) {
     return (
-      <FeatureGate requiredTier="vision_planning">
+      <AdminRoute>
         <div className="min-h-screen flex items-center justify-center">
           <div className="animate-spin w-12 h-12 border-4 border-primary border-t-transparent rounded-full" />
         </div>
-      </FeatureGate>
+      </AdminRoute>
     );
   }
 
   return (
-    <FeatureGate requiredTier="vision_planning">
+    <AdminRoute>
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
@@ -137,7 +137,7 @@ export default function VisionBoard() {
                         <div className="flex items-center space-x-3">
                           <div 
                             className="w-8 h-8 rounded-full flex items-center justify-center text-white text-lg"
-                            style={{ backgroundColor: goal.color }}
+                            style={{ backgroundColor: goal.color || '#6366F1' }}
                           >
                             {category?.icon || '🎯'}
                           </div>
@@ -227,6 +227,6 @@ export default function VisionBoard() {
           </div>
         )}
       </div>
-    </FeatureGate>
+    </AdminRoute>
   );
 }
