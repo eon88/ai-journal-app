@@ -267,28 +267,46 @@ export default function VisionBoard() {
                     ];
                     const pos = positions[index] || { x: 0, y: -50 };
                     
+                    // Truncate long text to fit in bubble
+                    const truncatedText = step.length > 15 ? step.substring(0, 12) + "..." : step;
+                    const words = truncatedText.split(' ');
+                    const line1 = words.slice(0, Math.ceil(words.length / 2)).join(' ');
+                    const line2 = words.slice(Math.ceil(words.length / 2)).join(' ');
+                    
                     return (
                       <g key={`sub-${index}`} transform={`translate(${pos.x}, ${pos.y})`}>
                         <circle
                           cx="0"
                           cy="0"
-                          r="18"
+                          r="22"
                           fill={node.color}
-                          fillOpacity="0.8"
+                          fillOpacity="0.9"
                           stroke="white"
                           strokeWidth="2"
                           className="animate-in fade-in duration-300"
                         />
                         <text
                           x="0"
-                          y="5"
+                          y="-2"
                           textAnchor="middle"
                           fill="white"
-                          fontSize="10"
+                          fontSize="7"
                           fontWeight="bold"
                         >
-                          {index + 1}
+                          {line1}
                         </text>
+                        {line2 && (
+                          <text
+                            x="0"
+                            y="8"
+                            textAnchor="middle"
+                            fill="white"
+                            fontSize="7"
+                            fontWeight="bold"
+                          >
+                            {line2}
+                          </text>
+                        )}
                       </g>
                     );
                   })}
