@@ -79,7 +79,58 @@ export default function VisionBoard() {
   }, {});
 
   return (
-    <FeatureGate requiredTier="vision_planning">
+    <FeatureGate 
+      featureName="vision_planning"
+      fallback={
+        <div className="container mx-auto px-4 py-8 max-w-7xl">
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
+            <div className="mb-4 md:mb-0">
+              <h1 className="text-3xl font-bold text-foreground mb-2">Vision Board</h1>
+              <p className="text-muted-foreground">
+                Transform your dreams into actionable goals with AI-guided planning
+              </p>
+            </div>
+          </div>
+          
+          <div className="p-8 text-center">
+            <div className="mx-auto w-24 h-24 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mb-6">
+              <Target className="h-10 w-10 text-white" />
+            </div>
+            <h3 className="text-xl font-semibold mb-2">Your Vision Goals</h3>
+            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+              Here are your personalized vision goals created from your questionnaire...
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
+              <Card className="border-green-200 bg-green-50">
+                <CardHeader>
+                  <CardTitle className="text-green-800 flex items-center">
+                    🏃‍♂️ Health Vision
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-green-700">I want to exercise daily and eat better</p>
+                  <Progress value={0} className="mt-3" />
+                  <p className="text-xs text-green-600 mt-1">Just getting started</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="border-yellow-200 bg-yellow-50">
+                <CardHeader>
+                  <CardTitle className="text-yellow-800 flex items-center">
+                    💰 Wealth Vision
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-yellow-700">Save more money and invest wisely</p>
+                  <Progress value={0} className="mt-3" />
+                  <p className="text-xs text-yellow-600 mt-1">Just getting started</p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+      }
+    >
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
