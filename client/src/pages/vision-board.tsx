@@ -205,7 +205,7 @@ export default function VisionBoard() {
                 Vision Board
               </h1>
               <p className="text-gray-600 dark:text-gray-300 mt-1 text-sm md:text-base">
-                {isMobile ? "Your 7 Pillars of Life • AI-generated goals from your questionnaire responses" : "Click to expand goals • Drag to rearrange • Double-click text to edit"}
+                {isMobile ? "Tap to expand goals • Pinch to zoom • Double-tap text to edit" : "Click to expand goals • Drag to rearrange • Double-click text to edit"}
               </p>
             </div>
             <Button 
@@ -222,96 +222,31 @@ export default function VisionBoard() {
         </div>
       </div>
 
-      {/* Mobile Card Layout */}
-      {isMobile ? (
-        <div className="container mx-auto px-4 py-6 space-y-4">
-          {nodesWithGoals.map((node) => {
-            const goal = goals.find(g => g.pillarId === node.id);
-            return (
-              <Card key={node.id} className="shadow-sm">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center gap-3">
-                    <div 
-                      className="w-12 h-12 rounded-full flex items-center justify-center text-xl"
-                      style={{ backgroundColor: node.color }}
-                    >
-                      {node.id === 'health' && '🫀'}
-                      {node.id === 'wealth' && '💰'}
-                      {node.id === 'love' && '❤️'}
-                      {node.id === 'legacy' && '🌳'}
-                      {node.id === 'wisdom' && '📚'}
-                      {node.id === 'spirituality' && '✨'}
-                      {node.id === 'character' && '🛡️'}
-                    </div>
-                    <div className="flex-1">
-                      <CardTitle className="text-lg text-gray-900 dark:text-white">
-                        {node.name}
-                      </CardTitle>
-                      {goal?.goal && (
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                          {goal.goal}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  {goal?.actionSteps && goal.actionSteps.length > 0 && (
-                    <div className="space-y-2 mb-4">
-                      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">Action Steps:</h4>
-                      <ul className="space-y-1">
-                        {goal.actionSteps.slice(0, 2).map((step, index) => (
-                          <li key={index} className="text-sm text-gray-600 dark:text-gray-400 flex items-start gap-2">
-                            <span className="text-blue-500 mt-1">•</span>
-                            <span>{step}</span>
-                          </li>
-                        ))}
-                        {goal.actionSteps.length > 2 && (
-                          <li className="text-sm text-gray-500 dark:text-gray-500 italic">
-                            +{goal.actionSteps.length - 2} more steps...
-                          </li>
-                        )}
-                      </ul>
-                    </div>
-                  )}
-                  <Button 
-                    className="w-full" 
-                    variant="outline"
-                    onClick={() => handlePillarClick(node.id)}
-                  >
-                    <Sparkles size={16} className="mr-2" />
-                    Get AI Insights
-                  </Button>
-                </CardContent>
-              </Card>
-            );
-          })}
+      {/* Vision Board Canvas - Works on both mobile and desktop */}
+      <div className="relative w-full" style={{ height: 'calc(100vh - 140px)' }}>
+        {/* Zoom Controls - Responsive positioning */}
+        <div className={`absolute ${isMobile ? 'top-2 right-2' : 'top-4 right-4'} z-10 flex items-center gap-1 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-1 shadow-lg`}>
+          <Button size="sm" variant="ghost" onClick={handleZoomOut}>
+            <Minus size={isMobile ? 14 : 16} />
+          </Button>
+          <span className={`${isMobile ? 'text-xs px-1' : 'text-sm px-2'} font-medium text-gray-700 dark:text-gray-300`}>
+            {zoomLevel}%
+          </span>
+          <Button size="sm" variant="ghost" onClick={handleZoomIn}>
+            <Plus size={isMobile ? 14 : 16} />
+          </Button>
+          <Button size="sm" variant="ghost">
+            <RefreshCw size={isMobile ? 14 : 16} />
+          </Button>
         </div>
-      ) : (
-        /* Desktop SVG Canvas */
-        <div className="relative w-full" style={{ height: 'calc(100vh - 140px)' }}>
-          {/* Zoom Controls */}
-          <div className="absolute top-4 right-4 z-10 flex items-center gap-2 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-2 shadow-lg">
-            <Button size="sm" variant="ghost" onClick={handleZoomOut}>
-              <Minus size={16} />
-            </Button>
-            <span className="text-sm font-medium px-2 text-gray-700 dark:text-gray-300">
-              {zoomLevel}%
-            </span>
-            <Button size="sm" variant="ghost" onClick={handleZoomIn}>
-              <Plus size={16} />
-            </Button>
-            <Button size="sm" variant="ghost">
-              <RefreshCw size={16} />
-            </Button>
-          </div>
 
-        {/* SVG Canvas */}
+        {/* SVG Canvas - Mobile optimized */}
         <svg 
           width="100%" 
           height="100%" 
           viewBox={`${400 - (400 * 100/zoomLevel)} ${300 - (300 * 100/zoomLevel)} ${800 * 100/zoomLevel} ${600 * 100/zoomLevel}`}
-          className="w-full h-full transition-all duration-200"
+          className="w-full h-full transition-all duration-200 touch-manipulation"
+          style={{ touchAction: 'pan-x pan-y' }}
         >
           {/* Background */}
           <defs>
@@ -378,9 +313,9 @@ export default function VisionBoard() {
                 fill={node.color}
                 stroke={expandedPillar === node.id ? "#374151" : "white"}
                 strokeWidth={expandedPillar === node.id ? "3" : "2"}
-                className={`cursor-move transition-all duration-200 hover:opacity-80 ${draggedPillar === node.id ? 'opacity-60' : ''}`}
+                className={`${isMobile ? 'cursor-pointer' : 'cursor-move'} transition-all duration-200 hover:opacity-80 ${draggedPillar === node.id ? 'opacity-60' : ''}`}
                 onClick={() => handlePillarClick(node.id)}
-                onMouseDown={(e) => handlePillarDrag(node.id, e)}
+                onMouseDown={!isMobile ? (e) => handlePillarDrag(node.id, e) : undefined}
               />
               {editingText?.type === 'pillar' && editingText.id === node.id ? (
                 <foreignObject x="-35" y="-10" width="70" height="20">
@@ -575,10 +510,7 @@ export default function VisionBoard() {
             </g>
           ))}
         </svg>
-        </div>
-      )}
-
-
+      </div>
 
       {/* Timeline Panel at Bottom - Sub-bubble Selected */}
       {selectedSubBubble && (
