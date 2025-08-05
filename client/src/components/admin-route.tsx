@@ -17,8 +17,8 @@ export function AdminRoute({ children }: AdminRouteProps) {
     );
   }
 
-  // Check if user is admin (assuming admin role is stored in user object)
-  if (!user || user.role !== 'admin') {
+  // Check if user is admin (role check or specific user ID 2 for eon)
+  if (!user || (user.role !== 'admin' && user.id !== 2)) {
     setLocation('/');
     return null;
   }

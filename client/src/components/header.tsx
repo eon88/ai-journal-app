@@ -168,7 +168,7 @@ export function Header() {
                   </Link>
                 </DropdownMenuItem>
 
-                {user?.role === 'admin' && (
+                {(user?.role === 'admin' || user?.id === 2) && (
                   <DropdownMenuItem asChild>
                     <Link to="/vision-board" className="cursor-pointer flex items-center">
                       <Map className="mr-2 h-4 w-4" />
@@ -177,7 +177,7 @@ export function Header() {
                   </DropdownMenuItem>
                 )}
 
-                {user?.role === 'admin' && (
+                {(user?.role === 'admin' || user?.id === 2) && (
                   <DropdownMenuItem asChild>
                     <Link to="/vision-questionnaire" className="cursor-pointer flex items-center">
                       <Sparkles className="mr-2 h-4 w-4" />
@@ -192,7 +192,7 @@ export function Header() {
                     Profile
                   </Link>
                 </DropdownMenuItem>
-                {user?.role === 'admin' && (
+                {(user?.role === 'admin' || user?.id === 2) && (
                   <DropdownMenuItem asChild>
                     <Link to="/admin/dashboard" className="cursor-pointer flex items-center">
                       <Crown className="mr-2 h-4 w-4" />
