@@ -63,7 +63,7 @@ export default function VisionBoard() {
         </div>
         {visionGoals.length > 0 && (
           <div className="flex gap-3">
-            <Link href="/vision/questionnaire">
+            <Link href="/vision-questionnaire">
               <Button variant="outline" className="flex items-center gap-2">
                 <RotateCcw className="w-4 h-4" />
                 Retake Questionnaire
@@ -92,7 +92,7 @@ export default function VisionBoard() {
           <p className="text-muted-foreground mb-6 max-w-md mx-auto">
             Complete the 7 Pillars questionnaire to generate your personalized vision goals.
           </p>
-          <Link href="/vision/questionnaire">
+          <Link href="/vision-questionnaire">
             <Button className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white">
               Start Questionnaire
             </Button>
