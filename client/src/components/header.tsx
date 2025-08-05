@@ -168,7 +168,7 @@ export function Header() {
                   </DropdownMenuItem>
                 </Link>
 
-                {isBetaTester && (
+                {adminCheck?.isAdmin && (
                   <Link to="/vision-board">
                     <DropdownMenuItem className="cursor-pointer">
                       <Map className="mr-2 h-4 w-4" />
@@ -177,8 +177,8 @@ export function Header() {
                   </Link>
                 )}
 
-                {isBetaTester && (
-                  <Link to="/vision-form">
+                {adminCheck?.isAdmin && (
+                  <Link to="/vision-questionnaire">
                     <DropdownMenuItem className="cursor-pointer">
                       <Sparkles className="mr-2 h-4 w-4" />
                       Vision Architect
