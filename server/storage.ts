@@ -90,6 +90,7 @@ export interface IStorage {
   createVisionResponse(userId: number, responseData: InsertVisionResponse): Promise<VisionResponse[]>;
   createVisionGoal(userId: number, responseId: number, goalData: InsertVisionGoal): Promise<VisionGoal>;
   getUserVisionGoals(userId: number): Promise<VisionGoal[]>;
+  clearUserVisionGoals(userId: number): Promise<void>;
   
   // Legacy vision board methods (keeping for compatibility)
   createVisionBoardFromAnswers(userId: number, questionsAndAnswers: any[]): Promise<VisionGoal[]>;
@@ -1633,6 +1634,18 @@ export class DatabaseStorage implements IStorage {
       .where(eq(visionGoals.userId, userId))
       .orderBy(visionGoals.createdAt);
     return goals;
+  }
+
+  async clearUserVisionGoals(userId: number): Promise<void> {
+    // Delete all vision goals for this user
+    await db
+      .delete(visionGoals)
+      .where(eq(visionGoals.userId, userId));
+    
+    // Delete all vision responses for this user
+    await db
+      .delete(visionResponses)
+      .where(eq(visionResponses.userId, userId));
   }
 
   // Vision Board - 5-3-1 Formula Implementation

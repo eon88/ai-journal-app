@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Target, Sparkles, Lightbulb, Plus } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Target, Sparkles, Lightbulb, Plus, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { apiRequest } from "@/lib/queryClient";
 import { VisionGoal } from "@shared/schema";
+import { Link } from "wouter";
 
 const pillarConfig = {
   health: { icon: "💪", color: "emerald" },
@@ -18,6 +19,7 @@ const pillarConfig = {
 };
 
 export default function VisionBoard() {
+  const queryClient = useQueryClient();
   const { data: visionGoals = [], isLoading, error } = useQuery({
     queryKey: ["/api/vision/goals"],
     queryFn: async () => {
@@ -30,6 +32,15 @@ export default function VisionBoard() {
       return response.json();
     }
   });
+
+  const handleClearVision = async () => {
+    try {
+      await apiRequest("DELETE", "/api/vision/goals");
+      queryClient.invalidateQueries({ queryKey: ["/api/vision/goals"] });
+    } catch (error) {
+      console.error("Error clearing vision goals:", error);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -50,6 +61,16 @@ export default function VisionBoard() {
             Your 7 Pillars of Life - AI-generated goals from your questionnaire responses
           </p>
         </div>
+        {visionGoals.length > 0 && (
+          <div className="flex gap-3">
+            <Link href="/vision/questionnaire">
+              <Button variant="outline" className="flex items-center gap-2">
+                <RotateCcw className="w-4 h-4" />
+                Retake Questionnaire
+              </Button>
+            </Link>
+          </div>
+        )}
       </div>
       
       {error ? (
@@ -71,6 +92,11 @@ export default function VisionBoard() {
           <p className="text-muted-foreground mb-6 max-w-md mx-auto">
             Complete the 7 Pillars questionnaire to generate your personalized vision goals.
           </p>
+          <Link href="/vision/questionnaire">
+            <Button className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white">
+              Start Questionnaire
+            </Button>
+          </Link>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

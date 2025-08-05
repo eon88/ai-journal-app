@@ -4064,6 +4064,21 @@ Respond with JSON in this exact format:
     }
   });
 
+  // Delete user's vision goals (to restart questionnaire)
+  app.delete("/api/vision/goals", async (req: any, res) => {
+    try {
+      if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      await storage.clearUserVisionGoals(req.user.id);
+      res.json({ success: true, message: "Vision goals cleared successfully" });
+    } catch (error: any) {
+      console.error("Error clearing vision goals:", error);
+      res.status(500).json({ message: "Error clearing vision goals: " + error.message });
+    }
+  });
+
   // AI Insights endpoint for vision goals
   app.post("/api/vision/ai-insights", async (req: any, res) => {
     try {
