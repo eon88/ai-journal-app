@@ -60,12 +60,22 @@ export default function UserProfile() {
   const { data: userStats } = useQuery({
     queryKey: ["/api/stats"],
     queryFn: () => fetch("/api/stats").then(res => res.json()),
+    retry: false,
   });
 
   // Fetch total entries count
   const { data: allEntries } = useQuery({
     queryKey: ["/api/entries"],
-    queryFn: () => fetch("/api/entries").then(res => res.json()),
+    queryFn: () => fetch("/api/entries").then(res => {
+      if (!res.ok) {
+        throw new Error('Failed to fetch entries');
+      }
+      return res.json();
+    }),
+    retry: false,
+    onError: (error) => {
+      console.warn('Failed to fetch entries:', error);
+    }
   });
 
   const handleNameSave = () => {
@@ -107,8 +117,6 @@ export default function UserProfile() {
     return names[setting as keyof typeof names] || setting;
   };
 
-
-
   const handleDeleteAccount = () => {
     toast({
       title: "Account Deletion",
@@ -118,8 +126,19 @@ export default function UserProfile() {
   };
 
   const joinDate = "January 2025"; // This would come from actual user data
-  const totalWords = allEntries?.reduce((total: number, entry: any) => 
-    total + (entry.content?.split(' ').length || 0), 0) || 0;
+  
+  // Safe calculation of total words with proper error handling
+  const totalWords = (() => {
+    if (!allEntries || !Array.isArray(allEntries)) {
+      return 0;
+    }
+    return allEntries.reduce((total: number, entry: any) => {
+      if (entry && entry.content && typeof entry.content === 'string') {
+        return total + entry.content.split(' ').length;
+      }
+      return total;
+    }, 0);
+  })();
 
   return (
     <div className="min-h-screen">
