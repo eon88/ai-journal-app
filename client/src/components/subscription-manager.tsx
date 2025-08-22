@@ -108,8 +108,8 @@ export function SubscriptionManager() {
     );
   }
 
-  const account: Account = accountData?.account;
-  const plans: SubscriptionPlan[] = plansData?.plans || [];
+  const account: Account = (accountData as any)?.account;
+  const plans: SubscriptionPlan[] = (plansData as any)?.plans || [];
 
   return (
     <div className="space-y-6">

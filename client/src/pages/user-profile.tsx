@@ -7,14 +7,14 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
-import { User, Edit3, Trash2, Shield, Bell, Palette, Save, Target, Compass } from "lucide-react";
+import { User, Edit3, Trash2, Shield, Bell, Palette, Save, Target, Compass, Plus } from "lucide-react";
 import { useUser } from "@/components/user-provider";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { useNotificationSettings } from "@/hooks/useNotificationSettings";
-import { SubscriptionManager } from "@/components/subscription-manager";
-import { GoalsManager } from "@/components/goals-manager";
-import { AIReviewViewer } from "@/components/ai-review-viewer";
+// import { SubscriptionManager } from "@/components/subscription-manager";
+// import { GoalsManager } from "@/components/goals-manager";
+// import { AIReviewViewer } from "@/components/ai-review-viewer";
 
 export default function UserProfile() {
   const { userName, setUserName } = useUser();
@@ -268,26 +268,50 @@ export default function UserProfile() {
 
             {/* AI Analysis Tab */}
             <TabsContent value="analysis" className="space-y-4 sm:space-y-6">
-            <Card className="glass-card">
-              <CardHeader>
-                <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2">
-                  <Target className="w-5 h-5" />
-                  Life Path Analysis
-                </CardTitle>
-                <CardDescription className="text-gray-600 dark:text-white">
-                  View your personalized AI-generated life path insights based on your questionnaire responses
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <AIReviewViewer />
-              </CardContent>
-            </Card>
-          </TabsContent>
+              <Card className="glass-card">
+                <CardHeader>
+                  <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2">
+                    <Compass className="w-5 h-5" />
+                    AI Analysis & Insights
+                  </CardTitle>
+                  <CardDescription className="text-gray-600 dark:text-white">
+                    Get AI-powered insights about your progress and patterns
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600 dark:text-white mb-4">
+                    AI analysis features are being developed. Soon you'll get personalized insights from your journal entries.
+                  </p>
+                  <Button disabled variant="outline">
+                    Generate Analysis (Coming Soon)
+                  </Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
 
             {/* Goals Tab */}
             <TabsContent value="goals" className="space-y-4 sm:space-y-6">
-            <GoalsManager />
-          </TabsContent>
+              <Card className="glass-card">
+                <CardHeader>
+                  <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2">
+                    <Target className="w-5 h-5" />
+                    Goals & Objectives
+                  </CardTitle>
+                  <CardDescription className="text-gray-600 dark:text-white">
+                    Track your personal and professional goals
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600 dark:text-white mb-4">
+                    Goal management features are coming soon. You'll be able to set, track, and achieve your personal objectives.
+                  </p>
+                  <Button disabled variant="outline">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Goal (Coming Soon)
+                  </Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
 
             {/* Settings Tab */}
             <TabsContent value="settings" className="space-y-4 sm:space-y-6">
@@ -375,8 +399,34 @@ export default function UserProfile() {
 
             {/* Subscription Tab */}
             <TabsContent value="subscription" className="space-y-4 sm:space-y-6">
-            <SubscriptionManager />
-          </TabsContent>
+              <Card className="glass-card">
+                <CardHeader>
+                  <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2">
+                    <Shield className="w-5 h-5" />
+                    Subscription Management
+                  </CardTitle>
+                  <CardDescription className="text-gray-600 dark:text-white">
+                    Manage your subscription and billing
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="font-medium text-gray-900 dark:text-white mb-2">Current Plan</h3>
+                      <Badge variant="secondary" className="bg-gradient-to-r from-amber-500 to-orange-500 text-white">
+                        Free Beta Account
+                      </Badge>
+                    </div>
+                    <p className="text-gray-600 dark:text-white">
+                      You're currently on a free beta account with full access to all features during the beta period.
+                    </p>
+                    <Button disabled variant="outline">
+                      Manage Subscription (Coming Soon)
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
 
             {/* Data Tab */}
             <TabsContent value="data" className="space-y-4 sm:space-y-6">
