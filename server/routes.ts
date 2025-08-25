@@ -2,7 +2,7 @@ import type { Express, Request, Response } from "express";
 import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertJournalEntrySchema, insertFolderSchema, type AIReflection, type WeeklyReflection, type MonthlyReflection, type JournalEntry, type Folder, users, folders, journalEntries, LEVEL_UNLOCKS, getUnlockedFeatures, forumCategories, forumPosts, forumReplies, forumLikes, forumModerators, userStats, dailyChallenges, userChallengeCompletions, userCustomTags, isBetaTester, requireBetaAccess, insertVisionAreaSchema, insertVisionMilestoneSchema, insertVisionNextStepSchema, VISION_CATEGORIES, blogArticles, type BlogArticle, type InsertBlogArticle } from "@shared/schema";
+import { insertJournalEntrySchema, insertFolderSchema, type AIReflection, type WeeklyReflection, type MonthlyReflection, type JournalEntry, type Folder, users, folders, journalEntries, LEVEL_UNLOCKS, getUnlockedFeatures, forumCategories, forumPosts, forumReplies, forumLikes, forumModerators, userStats, dailyChallenges, userChallengeCompletions, userCustomTags, isBetaTester, requireBetaAccess, insertVisionAreaSchema, insertVisionMilestoneSchema, insertVisionNextStepSchema, VISION_CATEGORIES, blogArticles, type BlogArticle, type InsertBlogArticle, userAccounts } from "@shared/schema";
 import { db } from "./db";
 import { z } from "zod";
 import { eq, and, desc, asc, like, or, inArray } from "drizzle-orm";
@@ -2112,18 +2112,26 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
   // Account management routes
   app.get("/api/account/status", jwtAuth, async (req: any, res: Response) => {
     try {
-      // Check if user has completed upgrade simulation
-      // In production, this would check actual subscription status from database
-      const urlParams = req.query;
-      const hasUpgraded = urlParams.premium === 'true'; // Simple simulation check
+      const userId = req.user.id;
+      const userEmail = req.user.email;
       
-      const account = hasUpgraded ? {
-        id: 1,
-        email: "user@example.com",
-        name: "Premium User",
+      // Check for real subscription status in database
+      const [subscriptionAccount] = await db.select()
+        .from(userAccounts)
+        .where(eq(userAccounts.email, userEmail))
+        .limit(1);
+      
+      const isPremium = subscriptionAccount && 
+        subscriptionAccount.accountType === 'paid' && 
+        subscriptionAccount.subscriptionStatus === 'active';
+      
+      const account = isPremium ? {
+        id: userId,
+        email: userEmail,
+        name: subscriptionAccount.name,
         accountType: "premium",
-        subscriptionStatus: "active",
-        betaAccessGranted: false,
+        subscriptionStatus: subscriptionAccount.subscriptionStatus,
+        betaAccessGranted: subscriptionAccount.betaAccessGranted,
         features: [
           "Unlimited journal entries",
           "AI-powered reflections",
@@ -2137,16 +2145,19 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
           "Streak tracking & XP system",
           "Export capabilities",
           "Premium support"
-        ]
+        ],
+        stripeSubscriptionId: subscriptionAccount.stripeSubscriptionId,
+        subscriptionStartDate: subscriptionAccount.subscriptionStartDate,
+        subscriptionEndDate: subscriptionAccount.subscriptionEndDate
       } : {
-        id: 1,
-        email: "user@example.com",
-        name: "Free User",
-        accountType: "free",
+        id: userId,
+        email: userEmail,
+        name: req.user.username,
+        accountType: "free_beta",
         subscriptionStatus: "inactive",
-        betaAccessGranted: false,
+        betaAccessGranted: true,
         features: [
-          "Basic journal entries (up to 10 per month)",
+          "Basic journal entries (up to 30 per month)",
           "Basic AI insights",
           "View recent entries",
           "Limited growth dashboard"
@@ -2369,20 +2380,80 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
         case 'customer.subscription.updated':
           const subscription = event.data.object;
           console.log('Subscription updated:', subscription.id);
-          // Update user account in database
+          try {
+            // Create or update user account record
+            await db.insert(userAccounts).values({
+              email: subscription.customer.email || 'unknown@email.com',
+              name: subscription.customer.name || 'Premium User',
+              accountType: 'paid',
+              subscriptionStatus: subscription.status,
+              stripeCustomerId: subscription.customer,
+              stripeSubscriptionId: subscription.id,
+              subscriptionStartDate: new Date(subscription.created * 1000),
+              subscriptionEndDate: subscription.current_period_end ? new Date(subscription.current_period_end * 1000) : null,
+            }).onConflictDoUpdate({
+              target: userAccounts.email,
+              set: {
+                accountType: 'paid',
+                subscriptionStatus: subscription.status,
+                stripeSubscriptionId: subscription.id,
+                subscriptionStartDate: new Date(subscription.created * 1000),
+                subscriptionEndDate: subscription.current_period_end ? new Date(subscription.current_period_end * 1000) : null,
+                updatedAt: new Date(),
+              }
+            });
+            console.log('User account updated for subscription:', subscription.id);
+          } catch (dbError) {
+            console.error('Failed to update user account:', dbError);
+          }
           break;
         case 'customer.subscription.deleted':
           const deletedSubscription = event.data.object;
           console.log('Subscription canceled:', deletedSubscription.id);
-          // Update user account status in database
+          try {
+            await db.update(userAccounts)
+              .set({ 
+                subscriptionStatus: 'canceled',
+                updatedAt: new Date()
+              })
+              .where(eq(userAccounts.stripeSubscriptionId, deletedSubscription.id));
+            console.log('User account canceled for subscription:', deletedSubscription.id);
+          } catch (dbError) {
+            console.error('Failed to cancel user account:', dbError);
+          }
           break;
         case 'invoice.payment_succeeded':
           const invoice = event.data.object;
           console.log('Payment succeeded:', invoice.id);
+          // Payment successful - subscription should be active
+          if (invoice.subscription) {
+            try {
+              await db.update(userAccounts)
+                .set({ 
+                  subscriptionStatus: 'active',
+                  updatedAt: new Date()
+                })
+                .where(eq(userAccounts.stripeSubscriptionId, invoice.subscription));
+            } catch (dbError) {
+              console.error('Failed to activate subscription:', dbError);
+            }
+          }
           break;
         case 'invoice.payment_failed':
           const failedInvoice = event.data.object;
           console.log('Payment failed:', failedInvoice.id);
+          if (failedInvoice.subscription) {
+            try {
+              await db.update(userAccounts)
+                .set({ 
+                  subscriptionStatus: 'past_due',
+                  updatedAt: new Date()
+                })
+                .where(eq(userAccounts.stripeSubscriptionId, failedInvoice.subscription));
+            } catch (dbError) {
+              console.error('Failed to mark subscription past due:', dbError);
+            }
+          }
           break;
         default:
           console.log(`Unhandled event type ${event.type}`);

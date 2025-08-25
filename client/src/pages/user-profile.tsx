@@ -127,6 +127,95 @@ export default function UserProfile() {
   };
 
   const joinDate = "January 2025"; // This would come from actual user data
+
+  // Subscription section component
+  const SubscriptionSection = () => {
+    const { data: accountData, isLoading } = useQuery({
+      queryKey: ["/api/account/status"],
+      queryFn: () => fetch("/api/account/status").then(res => res.json()),
+      retry: false,
+    });
+
+    if (isLoading) {
+      return (
+        <Card className="glass-card">
+          <CardContent className="p-6">
+            <div className="animate-pulse">
+              <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
+              <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    const account = accountData?.account;
+    const isPremium = account?.accountType === "premium" && account?.subscriptionStatus === "active";
+
+    return (
+      <>
+        {isPremium && (
+          <Card className="glass-card">
+            <CardHeader>
+              <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2">
+                <Shield className="w-5 h-5" />
+                Subscription Management
+              </CardTitle>
+              <CardDescription className="text-gray-600 dark:text-white">
+                Manage your subscription and billing
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <SubscriptionCancellation />
+            </CardContent>
+          </Card>
+        )}
+        
+        {/* Update account type badge based on real status */}
+        <Card className="glass-card">
+          <CardHeader>
+            <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2">
+              <User className="w-5 h-5" />
+              Account Information
+            </CardTitle>
+            <CardDescription className="text-gray-600 dark:text-white">
+              Manage your account settings
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-600 dark:text-white mb-1">
+                Display Name
+              </label>
+              <div className="text-gray-900 dark:text-white">{userName}</div>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-600 dark:text-white mb-1">
+                Member Since
+              </label>
+              <div className="text-gray-900 dark:text-white">{joinDate}</div>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-600 dark:text-white mb-1">
+                Account Type
+              </label>
+              <Badge 
+                variant="secondary" 
+                className={isPremium 
+                  ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white" 
+                  : "bg-gradient-to-r from-amber-500 to-orange-500 text-white"
+                }
+              >
+                {isPremium ? "Premium Account" : "Free Beta Account"}
+              </Badge>
+            </div>
+          </CardContent>
+        </Card>
+      </>
+    );
+  };
   
   // Safe calculation of total words with proper error handling
   const totalWords = (() => {
@@ -515,56 +604,9 @@ export default function UserProfile() {
 
             {/* Account Tab */}
             <TabsContent value="account" className="space-y-4 sm:space-y-6">
-            <Card className="glass-card">
-              <CardHeader>
-                <CardTitle className="text-gray-900 dark:text-white">Account Information</CardTitle>
-                <CardDescription className="text-gray-600 dark:text-white">
-                  Manage your account settings
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 dark:text-white mb-1">
-                    Display Name
-                  </label>
-                  <div className="text-gray-900 dark:text-white">{userName}</div>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 dark:text-white mb-1">
-                    Member Since
-                  </label>
-                  <div className="text-gray-900 dark:text-white">{joinDate}</div>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 dark:text-white mb-1">
-                    Account Type
-                  </label>
-                  <Badge variant="secondary" className="bg-gradient-to-r from-amber-500 to-orange-500 text-white">
-                    Free Beta Account
-                  </Badge>
-                </div>
-              </CardContent>
-            </Card>
 
-            {/* Subscription Management - Only show if user has premium */}
-            {localStorage.getItem('premium_user') === 'true' && (
-              <Card className="glass-card">
-                <CardHeader>
-                  <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2">
-                    <Shield className="w-5 h-5" />
-                    Subscription Management
-                  </CardTitle>
-                  <CardDescription className="text-gray-600 dark:text-white">
-                    Manage your subscription and billing
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <SubscriptionCancellation />
-                </CardContent>
-              </Card>
-            )}
+            {/* Subscription Management - Check real subscription status */}
+            <SubscriptionSection />
 
             <Card className="glass-card border-red-500/20">
               <CardHeader>
