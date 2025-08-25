@@ -2286,6 +2286,64 @@ ${goalProgressAssessment ? `📈 GOAL PROGRESS ASSESSMENT\n${goalProgressAssessm
     }
   });
 
+  // Cancel subscription
+  app.post("/api/subscription/cancel", jwtAuth, async (req: any, res: Response) => {
+    try {
+      const userId = req.user.id;
+      
+      // For now, simulate cancellation since we're working with test data
+      // In production, this would:
+      // 1. Get user's subscription ID from database
+      // 2. Cancel the subscription via Stripe API
+      // 3. Update user's account status in database
+      
+      // Check if user has an active subscription (simulated)
+      const isPremium = req.body.hasPremiumSubscription || false;
+      
+      if (!isPremium) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "No active subscription found to cancel" 
+        });
+      }
+
+      try {
+        // In production, would use actual subscription ID from database:
+        // const user = await storage.getUserById(userId);
+        // if (!user.stripeSubscriptionId) {
+        //   return res.status(400).json({ success: false, message: "No active subscription found" });
+        // }
+        // 
+        // await stripe.subscriptions.update(user.stripeSubscriptionId, {
+        //   cancel_at_period_end: true
+        // });
+        // 
+        // await storage.updateUserSubscriptionStatus(userId, 'canceling');
+
+        // Simulate successful cancellation
+        res.json({ 
+          success: true, 
+          message: "Subscription canceled successfully. You'll continue to have access until the end of your current billing period.",
+          canceledAt: new Date().toISOString(),
+          accessUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 days from now
+        });
+      } catch (stripeError: any) {
+        console.error("Stripe cancellation error:", stripeError);
+        res.status(500).json({ 
+          success: false, 
+          message: "Failed to cancel subscription. Please contact support.",
+          error: stripeError.message 
+        });
+      }
+    } catch (error) {
+      console.error("Subscription cancellation error:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Failed to cancel subscription. Please try again." 
+      });
+    }
+  });
+
   // Handle Stripe webhooks
   app.post("/api/webhooks/stripe", async (req: Request, res: Response) => {
     try {

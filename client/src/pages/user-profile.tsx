@@ -12,6 +12,7 @@ import { useUser } from "@/components/user-provider";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { useNotificationSettings } from "@/hooks/useNotificationSettings";
+import { SubscriptionCancellation } from "@/components/subscription-cancellation";
 // import { SubscriptionManager } from "@/components/subscription-manager";
 // import { GoalsManager } from "@/components/goals-manager";
 // import { AIReviewViewer } from "@/components/ai-review-viewer";
@@ -546,6 +547,24 @@ export default function UserProfile() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Subscription Management - Only show if user has premium */}
+            {localStorage.getItem('premium_user') === 'true' && (
+              <Card className="glass-card">
+                <CardHeader>
+                  <CardTitle className="text-gray-900 dark:text-white flex items-center gap-2">
+                    <Shield className="w-5 h-5" />
+                    Subscription Management
+                  </CardTitle>
+                  <CardDescription className="text-gray-600 dark:text-white">
+                    Manage your subscription and billing
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <SubscriptionCancellation />
+                </CardContent>
+              </Card>
+            )}
 
             <Card className="glass-card border-red-500/20">
               <CardHeader>
